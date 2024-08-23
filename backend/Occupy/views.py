@@ -1,8 +1,8 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
-from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed
+from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique
+from .models import  Post,Clique,CommentPost
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response
@@ -21,6 +21,9 @@ from django.views.generic import *
 from rest_framework.decorators import  api_view, APIView,permission_classes
 from rest_framework.request import Request
 from rest_framework import viewsets
+from django.http import HttpResponse, JsonResponse
+
+import json
 # Create your views here.
 
 
@@ -67,7 +70,7 @@ class PostList(APIView):
         return Response(serializer.data)
 
 
-class PostListCreateView(generics.GenericAPIView,mixins.ListModelMixin,mixins.CreateModelMixin):
+class PostListCreateView(generics.GenericAPIView,mixins.CreateModelMixin):
 
 
     """ 
@@ -81,15 +84,13 @@ class PostListCreateView(generics.GenericAPIView,mixins.ListModelMixin,mixins.Cr
     #     return self.list(request,*args,**kwargs)
     
     def post(self,request:Request,*args,**kwargs):
+        print(request.data)
         return self.create(request,*args,**kwargs)
-    
-
-
-    
         
+    
 
 
-
+    
         
 
 class PostRetrieveUpdateDeleteView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,mixins.DestroyModelMixin):
@@ -192,10 +193,44 @@ class DetailClique(generics.RetrieveUpdateDestroyAPIView):
             return CliqueSerializer_detailed
         return CliqueSerializer
     
-class ListPostsOfClique(generics.ListAPIView):
+class ListPostsOfClique(generics.ListAPIView,mixins.RetrieveModelMixin):
     serializer_class = CurrentCliqueSerializer
     queryset = Clique.objects.all()
     lookup_field = 'name'
+
+    def get(self,request:Request,*args,**kwargs):
+        return self.retrieve(request,*args,**kwargs)
+    
+
+class CommentPostView(generics.ListCreateAPIView):
+    serializer_class = CommentPostSerializer
+    queryset = CommentPost.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_id')
+        return CommentPost.objects.filter(post_id=post_id)
+    
+    def perform_create(self,serializer):
+        post_id = self.kwargs.get('post_id')
+        post = get_object_or_404(Post, id=post_id)
+
+        if CommentPost.objects.filter(post=post, occupier=self.request.user).exists():
+            raise serializers.ValidationError({'Message': 'You have already added comment on this post'})
+        serializer.save(occupier=self.request.user, post=post)
+
+
+    
+
+    
+
+
+
+    
+    
+    
+        
+        
         
 
     

@@ -1,10 +1,11 @@
 import React,{useState,useEffect,useContext} from 'react';
-import {View,Text,StyleSheet,FlatList,ActivityIndicator} from 'react-native'
-import CliqueUi from './CliqueUI';
+import {View,Text,StyleSheet,FlatList,ActivityIndicator,TouchableOpacity} from 'react-native'
 import axios from 'axios';
+import CliqueUI from './CliqueUI';
+import { Context } from '../components/globalContext/globalContext'
+import navigator from '../navigation/navigator'
 
-
-function Cliques(){
+function Cliques({navigation,route,props}){
     const [cliques, setCliques] = useState([])
     const [loading,setLoading] = useState(true)
 
@@ -27,24 +28,25 @@ function Cliques(){
     const renderClique = ({item}) => {
         return (
             <View style={styles.container}>
-            <Text style={styles.txt}>{item.name}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("CliqueUI")}>
+                <View>
+                    <Text style={styles.txt}>{item.name}</Text>
+                </View>
+            </TouchableOpacity>
         </View>
         )
     }
 
 
     return (
-    //   <View style={styles.clique}>
-    //   {loading ? <ActivityIndicator/> : (
-    //     <FlatList
-    //     data={cliques}
-    //     keyExtractor={(item, index) => index.toString()}
-    //     renderItem={renderClique}
-    //     />
-    //     )}
-    // </View>
-    <View>
-        <CliqueUi />
+      <View style={styles.clique}>
+      {loading ? <ActivityIndicator/> : (
+        <FlatList
+        data={cliques}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderClique}
+        />
+        )}
     </View>
     )
 

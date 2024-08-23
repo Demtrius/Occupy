@@ -29,6 +29,7 @@ import Navigator from './navigation/navigator'
 
 
 
+
 const Tab = createBottomTabNavigator();
 
 
@@ -71,7 +72,7 @@ return (
   options={{
     tabBarLabel: 'Post',
     tabBarIcon: ({color,size}) => (
-      <Ionicons name="ios-add-circle-sharp" size={24} color="black" />
+      <Ionicons name="create" size={24} color="black" />
     )
   }}
   />

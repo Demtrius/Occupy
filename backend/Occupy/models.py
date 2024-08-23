@@ -46,8 +46,8 @@ class Clique(models.Model):
     cliqueobjects = CliqueObjects()#custom manager
 
 
-    def __str__(self) -> str:
-         return self.name
+    def __str__(self):
+        return self.name
 
     
     class Meta:
@@ -65,18 +65,8 @@ class CliquePost(models.Model):
     class Meta: unique_together = ['clique','post']
 
 
-class Comment(models.Model):
-    post = models.ForeignKey('Post', related_name="comments",on_delete=models.CASCADE)
-    occupier = models.ForeignKey(Occupier, related_name="comments_authored",on_delete=models.CASCADE)
-    body = models.TextField()
-    created_on = models.DateTimeField(auto_now_add=True)
-    active = models.BooleanField(default=False)
 
-
-    class Meta:
-        ordering = ['created_on']
-    def __str__(self):
-        return 'Comment {} by {}'.format(self.body,self.occupier)
+    
 
 class Post(models.Model):
 # a post can only have one user
@@ -85,64 +75,38 @@ class Post(models.Model):
     class PostObjects(models.Manager):
         def get_queryset(self):
             return super().get_queryset().filter(status = "posted")
-    options = (
-        ('draft' , 'Draft'),
-        ('posted' , 'Posted'),
-    )
     clique = models.ForeignKey(Clique, on_delete=models.CASCADE, blank=False,related_name='posts')
     content = models.TextField(max_length=400,null=False, blank=False,)
     caption = models.CharField(max_length=400,null=False, blank=False,)
     posted = models.DateTimeField(default=timezone.now,blank=False)
     occupier = models.ForeignKey(Occupier, on_delete=models.CASCADE,related_name='posts',null=True, blank=True)
-    status = models.CharField(max_length=12, choices=options, default='posted',blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     objects = models.Manager() # default manager
     postobjects = PostObjects() # custom manager
+
+    def __str__(self):
+        return self.content
+
 
     class Meta: 
         ordering = ['-posted']
         
 
 
+
+
+ 
+class CommentPost(models.Model):
+    body = models.TextField()
+    occupier = models.ForeignKey(Occupier, on_delete=models.SET_NULL,null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
     def __str__(self):
-        return self.content
-    
+        return str(self.post)
 
 
 
         
-    # def __str__(self):
-    #     #returns caption
-    #     return self.caption
-    
 
-    
-
-
-
-
-
-# class CliqueMember(models.Model):
-    
-#     class MemberTypes(models.TextChoices):
-#         ADMIN ="ADMIN"
-#         MEMBER = "MEMBER"
-    
-#     clique = models.ForeignKey(Clique, on_delete=models.CASCADE,related_name="members")
-#     occupier = models.ForeignKey(Occupier, on_delete=models.CASCADE,related_name='members')
-#     member_type = models.CharField(
-#         choices=MemberTypes.choices,
-#         max_length=10,
-#         default=MemberTypes.MEMBER,
-#         help_text="""
-#             ADMIN: Has (all)permissions to add or remove members as moderators, ban or mute members.<br>
-#             MODERATOR: Has permission to add, remove, ban or mute members.<br>
-#             MEMBER: Can post, like, comment, share, bookmark group posts.
-#         """
-#     )
-    
-#     class Meta:
-#         # ordering = ["-created_at"]
-#         verbose_name = "Group Member"
-#         verbose_name_plural = "Group Members"
 

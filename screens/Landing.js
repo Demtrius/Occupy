@@ -11,7 +11,7 @@ function Landing({navigation,route,props}){
     const {isLoggedIn} = Context
     return (
         <View style={styles.container}>
-            <Text style={styles.greeting}>Hello Occupier !</Text>
+            <Text style={styles.greeting}> Welcome to Occupy !</Text>
             <Text style={styles.status}>You are {(isLoggedIn)? '' : "Not"} Logged in</Text>
             <TouchableOpacity style={styles.buttonContainer} onPress={()=> navigation.navigate("SignIn")}>
                 <Text>Sign in</Text>

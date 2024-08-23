@@ -1,70 +1,107 @@
 import React,{useContext,useState,useEffect} from 'react'
-import {View,Text,StyleSheet,FlatList,TouchableOpacity} from 'react-native'
+import {View,Text,StyleSheet,FlatList,TouchableOpacity } from 'react-native'
 import { TextInput, Button, } from 'react-native-paper'
 import { Context } from '../components/globalContext/globalContext'
 import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios'
+import SearchableDropdown from 'react-native-searchable-dropdown';
+import { ActivityIndicator } from 'react-native';
 
 
-const  Post = () => {
-const [content, setContent] = useState('')
-const [caption, setCaption] = useState('')
-const [clique, setClique] = useState('')
-const [open, setOpen] = useState(false)
-const [value, setValue] = useState(null);
-const [isFocus, setIsFocus] = useState(false);
 
-const handlePost = () => {
-    const post = {content,caption,clique}
+const Post = () => {
+    const [content, setContent] = useState('')
+    const [caption , setCaption] = useState('')
+    const [posted ,setPosted] = useState(new Date())
+    const [clique, setClique] = useState([])
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState([]);
+    
 
-    fetch(`http://127.0.0.1:8000/api/post-create`,{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            body: JSON.stringify(post)
-        }
-    }).then(() => {
-        console.log(post)
-        console.log('New post added successfully')
-    })
-    .catch(error => console.error(error))
+
+const fetchCliques = () => {
+    fetch(`http://127.0.0.1:8000/api/cliques-list`)
+    .then( response =>  response.json())
+    .then( (data) => setItems(data.map(item => ({ label: item.name, value: item.id }))))
+
 }
+useEffect(() =>fetchCliques() ,[])
 
-
-
+    const createPost = ( ) => {
+         fetch(`http://127.0.0.1:8000/api/post-create`,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                content : content,
+                caption: caption,
+                posted : new Date(),
+                clique : clique
+            }),
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson);
+ })
+        .catch((error) => {
+            console.log(error)
+        })
+    }
     return (
-   <View style={styles.post}> 
-   <Text>Content</Text>
-   <TextInput value={content} onChangeText={text => setContent(text)}/>
-   <Text>Caption</Text>
-   <TextInput value={caption} onChangeText={text => setCaption(text)}/>
-   <Text>Clique</Text>
-   <DropDownPicker
-   open={open}
-   value={value}
-   clique={clique}
-   setOpen={setOpen}
-   setValue={setValue}
-   setClique={setClique}
-   />
-    <TouchableOpacity onPress={handlePost}>
-    <Text>Post !</Text>
-   </TouchableOpacity>
-   
-   </View>
- )
+        <View>
+            <TextInput
+            label= 'Content'
+            value={content}
+            mode='outlined'
+            onChangeText={text => setContent(text)}
+            />
+            <TextInput
+            label= 'Caption'
+            value={caption}
+            mode='outlined'
+            onChangeText={text => setCaption(text)}
+            />
+            <TextInput
+            label='posted'
+            value={posted.toLocaleString()}
+            mode='outlined'
+            />
+<DropDownPicker
+      open={open}
+      value={clique}
+      items={items}
+      setOpen={setOpen}
+      setValue={setClique}
+      setItems={setItems}
+    />
+            <Button onPress={() => createPost()}>
+                <Text>Post !</Text>
+            </Button>
+        </View>
+    )
 }
+
+
+
+
+
+
+
 
 const styles = StyleSheet.create({
-    // post: {
-    //     flex: 1,
-    //     alignItems: 'center',
-    //     justifyContent: 'center',
-    // },
-    // content : {
-    //     alignItems: 'center',
-    //     justifyContent: 'center',
-    // }
+    post: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    content : {
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 })
 
 export default Post
