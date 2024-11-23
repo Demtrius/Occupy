@@ -3,25 +3,25 @@ import React,{useState,useEffect,useContext} from 'react';
 import {View,Text,StyleSheet,FlatList,ActivityIndicator} from 'react-native'
 import axios from 'axios';
 
-const CliqueUI = () => {
-const [cliqueUi,setCliqueUi] = useState([])
+const Clique = () => {
+const [clique,setClique] = useState([])
 const [loading, setLoading] = useState([true])
 
-const getCliqueUI = () => {
-    axios.get('http://127.0.0.1:8000/api/${item.name}/posts')
+const getClique = () => {
+    axios.get(`http://127.0.0.1:8000/api/Film%20critics/posts`)
     .then(response => {
         console.log(response)
         const myCliqueUi = response.data
-        setCliqueUi(myCliqueUi)
+        setClique(clique)
     })
     .catch( error => console.log(error))
     .finally(() => {
         setLoading(false)
     })
 }
-useEffect(() => getCliqueUI(), [])
+useEffect(() => getClique(), [])
 
-const renderCliqueUI = ({item}) => {
+const renderClique = ({item}) => {
 return (
     <View style={styles.container}>
     <Text style={styles.name}>{item.name}</Text>
@@ -38,9 +38,9 @@ return (
         {
             loading ? <ActivityIndicator/> : (
                 <FlatList 
-                data={cliqueUi}
+                data={clique}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={renderCliqueUI}
+                renderItem={renderClique}
                 />
             )
         }
@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
 
 
 
-export default CliqueUI;
+export default Clique;

@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django_filters',
     "corsheaders",
     'rest_framework.authtoken',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     
 ]
 CORS_ORIGIN_WHITELIST = [
@@ -127,7 +128,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'Raphaela1107',
         'HOST': '127.0.0.1',
-        'PORT': '5432'
+        'PORT': '5432 '
 
     }
 }

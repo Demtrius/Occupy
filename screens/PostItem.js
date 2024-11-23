@@ -1,15 +1,18 @@
 import React,{useState,useEffect} from 'react';
-import {View,StyleSheet,FlatList,Text,TouchableOpacity} from 'react-native'
+import {View,StyleSheet,FlatList,Text,TouchableOpacity,Button} from 'react-native'
 import axios from 'axios';
 import { ActivityIndicator } from 'react-native';
 import Profile from '../screens/Profile'
 import { useNavigation } from '@react-navigation/native';
 import { Context } from '../components/globalContext/globalContext'
-
+import PostDetail from './PostDetail';
 
 const PostItem = () => {
     const [posts,setPost] = useState([])
     const [loading,setLoading] = useState(true)
+
+
+    const navigation = useNavigation();
 
 
     const getPosts = () => {
@@ -26,6 +29,9 @@ const PostItem = () => {
         })    
     }
 useEffect(() => getPosts(), [])
+
+
+
 
 const renderPosts = ({item}) => (
     <View style={styles.container}>

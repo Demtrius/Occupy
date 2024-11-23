@@ -23,6 +23,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import {Context , Provider} from './components/globalContext/globalContext'
 import Landing  from './screens/Landing';
 import Navigator from './navigation/navigator'
+import Feed from './screens/Feed';
+
 
 
 
@@ -31,6 +33,7 @@ import Navigator from './navigation/navigator'
 
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 
 function MyTabs(){
@@ -38,7 +41,7 @@ return (
   <Tab.Navigator>
   <Tab.Screen
   name="Home"
-  component={Home}
+  component={Feed}
   options={{
     tabBarLabel: 'Home',
     tabBarIcon: ({color,size}) => (
@@ -100,13 +103,16 @@ return (
 )
 }
 
+
+
+
+
 function App(props) {
 return (
 <Provider>
 <NavigationContainer>
 <Header title="Occupy"/>
 <Tabs />
-
 </NavigationContainer>
 </Provider>
 

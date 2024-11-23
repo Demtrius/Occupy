@@ -18,4 +18,5 @@ urlpatterns = [
     path('occupier-list/',OccupierListView.as_view(), name="occupier"),
     # path('follow_unfollow/',FollowUnfollowView.as_view(), name="follow_unfollow"),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('logout/', LogoutView.as_view(), name='auth_logout'),
 ]

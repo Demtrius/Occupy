@@ -64,7 +64,7 @@ function SignIn({ navigation,route,props }){
         <Text>{error}</Text>
 
 
-        <Text style={styles.email}>Email address</Text>
+        <Text style={styles.email}>Username</Text>
         <TextInput value={username} onChangeText={text => setUsername(text)} placeholder="Email" style={styles.labelContainer} autoCompleteType="email" textContentType='username'/>
         <Text>Password</Text>
         <TextInput secureTextEntry={securePassword} onChangeText={text => setPassword(text)} placeholder="Password" style={styles.labelContainer} autoCompleteType="password" textContentType='password'/>

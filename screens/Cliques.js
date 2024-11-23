@@ -1,7 +1,7 @@
 import React,{useState,useEffect,useContext} from 'react';
 import {View,Text,StyleSheet,FlatList,ActivityIndicator,TouchableOpacity} from 'react-native'
 import axios from 'axios';
-import CliqueUI from './CliqueUI';
+import Clique from './Clique';
 import { Context } from '../components/globalContext/globalContext'
 import navigator from '../navigation/navigator'
 
@@ -25,10 +25,10 @@ function Cliques({navigation,route,props}){
     useEffect(() => getCliques(), [])
 
 
-    const renderClique = ({item}) => {
+    const renderCliques = ({item}) => {
         return (
             <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.navigate("CliqueUI")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Clique")}>
                 <View>
                     <Text style={styles.txt}>{item.name}</Text>
                 </View>
@@ -44,7 +44,7 @@ function Cliques({navigation,route,props}){
         <FlatList
         data={cliques}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={renderClique}
+        renderItem={renderCliques}
         />
         )}
     </View>
@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingBottom: 5,
+        margin : 10
     },
     txt: {
         borderWidth: 2,

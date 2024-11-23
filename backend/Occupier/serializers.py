@@ -4,6 +4,7 @@ from requests import Response
 from rest_framework import fields, serializers
 from Occupy.models import Clique,Post
 from Occupier.models import Occupier
+from Occupy.serializers import FollowSerializer
 from rest_framework.validators import UniqueValidator,ValidationError
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth import authenticate
@@ -54,9 +55,17 @@ class CurrentOccupierSerializer(serializers.ModelSerializer):
         fields =['id','username','email','occupations','date_joined','posts']
 
 class OccupierSerializer(serializers.ModelSerializer):
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+
     class Meta:
         model = Occupier
-        fields = ['username','occupations','date_joined']
+        fields = ['username','occupations','date_joined','following','followers']
+    
+    def get_following(self,obj):
+        return FollowSerializer(obj.following.all(), many=True).data
+    def get_followers(self, obj):
+        return FollowSerializer(obj.followers.all(), many=True).data
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -74,20 +83,5 @@ class EachOccupierSerializer(serializers.ModelSerializer):
         model = Occupier
         fields = ('id','username')
 
-class FollowerSerializer(serializers.ModelSerializer):
-    followers = EachOccupierSerializer(many=True,read_only=True)
-    following = EachOccupierSerializer(many=True,read_only=True)
 
-    class Meta:
-        model = Occupier
-        fields = ('followers','following')
-        read_only_fields = ('followers','following')
 
-class BlockPendingSerializer(serializers.ModelSerializer):
-    pending_request = EachOccupierSerializer(many=True,read_only=True)
-    blocked_occupier = EachOccupierSerializer(many=True,read_only=True)
-
-    class Meta:
-        model = Occupier
-        fields = ('pending_request','blocked_occupier')
-        read_only_fields = ('pending_request','blocked_occupier')

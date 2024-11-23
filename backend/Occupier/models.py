@@ -62,11 +62,6 @@ class Occupier(AbstractBaseUser,PermissionsMixin):
     first_name = models.CharField(max_length=200,null=True)
     last_name = models.CharField(max_length=200,null=True)
     private_account = models.BooleanField(default=False)
-    followers = models.ManyToManyField('self',blank=True,related_name='occupier_followers',symmetrical=False)
-    following = models.ManyToManyField('self',blank=True,related_name='occupier_following', symmetrical=False)
-    pending_request = models.ManyToManyField('self',blank=True,related_name='pendingRequest',symmetrical=False)
-    blocked_occupier = models.ManyToManyField('self',blank=True,related_name='occupier_blocked')
-
     objects = OccupierManager()
 
     USERNAME_FIELD = 'username'

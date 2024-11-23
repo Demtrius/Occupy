@@ -8,8 +8,10 @@ import { Link } from 'expo-router';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import PostItem from './PostItem';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import PostDetail from './PostDetail';
 
-
+const Tab = createBottomTabNavigator();
 
 function Home({}){
     const globalContext = useContext(Context)
@@ -65,14 +67,7 @@ const renderPosts = ({item}) => (
 )
 
 
-return (
-    <View style={styles.home}>
-     {loading ? <ActivityIndicator/> : (
-        <PostItem />
-        )}
-        
-    </View>
-)
+
 }
 
 

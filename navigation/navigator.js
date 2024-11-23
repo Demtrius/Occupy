@@ -9,11 +9,24 @@ import Profile from '../screens/Profile';
 import Register from '../screens/Register'
 import { Context } from '../components/globalContext/globalContext'
 import Cliques from  '../screens/Cliques'
-import CliqueUI from '../screens/CliqueUI'
+import CliqueUI from '../screens/Clique'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Feed from '../screens/Feed';
+
 
 const Stack = createStackNavigator();
 
-function Navigator(props){
+const PostStack = createStackNavigator();
+
+const PostNavigator = () => (
+    
+    <PostStack.Navigator>
+        <PostStack.Screen name='Feed' component={Feed}/>
+        <PostStack.Screen name='PostDetail' component={PostDetail}/>
+    </PostStack.Navigator>
+)
+
+function Navigator(){
     const globalContext = useContext(Context)
     const { isLoggedIn,occupierObj } = globalContext
 
@@ -26,8 +39,12 @@ function Navigator(props){
             <Stack.Screen name='Register' component={Register} options={{headerShown: false}} />
             </>
             :
+            <>
             <Stack.Screen name='Home' component={Home} options={{headerShown: false}}  />
+            <Stack.Screen name='PostDetail' component={PostNavigator} options={{headerShown: false}}  />
+            </>
             
+
     }
         </Stack.Navigator>
         

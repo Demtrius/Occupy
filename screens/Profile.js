@@ -17,6 +17,7 @@ return (
     {/* <Text> Your Personal Profile Here !</Text> */}
     <Text style={styles.username}>{(occupierObj) &&  (occupierObj.username)}</Text>
     <Text style={styles.occupations}>{(occupierObj.occupations)}</Text>
+    <Text>{(occupierObj.followers)}</Text>
 </View>
 )
 }

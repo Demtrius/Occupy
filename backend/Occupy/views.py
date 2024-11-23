@@ -1,12 +1,12 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
-from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer
+from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique,CommentPost
+from .models import  Post,Clique,CommentPost,Follow
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from django.http import Http404
 from django.views.generic.list import ListView
 import django_filters.rest_framework
@@ -22,6 +22,7 @@ from rest_framework.decorators import  api_view, APIView,permission_classes
 from rest_framework.request import Request
 from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
+from rest_framework.viewsets import ModelViewSet
 
 import json
 # Create your views here.
@@ -89,8 +90,6 @@ class PostListCreateView(generics.GenericAPIView,mixins.CreateModelMixin):
         
     
 
-
-    
         
 
 class PostRetrieveUpdateDeleteView(generics.GenericAPIView, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,mixins.DestroyModelMixin):
@@ -220,11 +219,88 @@ class CommentPostView(generics.ListCreateAPIView):
         serializer.save(occupier=self.request.user, post=post)
 
 
+
+
+    
     
 
-    
+
+class FollowViewSet(viewsets.ModelViewSet):
+    serializer_class = FollowSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return only the follow relationships for the current user
+        return Follow.objects.filter(follower=self.request.user)
+
+def create(self, request):
+        """Follow a user."""
+        username = request.data.get('username')
+        
+        # Ensure the `username` is provided in the request data
+        if not username:
+            return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Get the user to be followed
+            following = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if the user is already following this user
+        if Follow.objects.filter(follower=request.user, following=following).exists():
+            return Response({"error": "You are already following this user"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create the follow relationship and set the `follower` to `request.user`
+        follow = Follow(follower=request.user, following=following)
+        follow.save()
+        
+        return Response(FollowSerializer(follow).data, status=status.HTTP_201_CREATED)
+
+def destroy(self, request, *args, **kwargs):
+        # Unfollow a user
+        followed_user_id = kwargs.get('pk')
+        try:
+            follow = Follow.objects.get(follower=request.user, followed_id=followed_user_id)
+            follow.delete()
+            return Response({"detail": "Unfollowed successfully."}, status=status.HTTP_204_NO_CONTENT)
+        except Follow.DoesNotExist:
+            return Response({"detail": "You are not following this user."}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Occupier.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['get'])
+    def followers(self, request, pk=None):
+        user = self.get_object()
+        followers = user.followers.all()
+        serializer = FollowSerializer(followers, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def following(self, request, pk=None):
+        user = self.get_object()
+        following = user.following.all()
+        serializer = FollowSerializer(following, many=True)
+        return Response(serializer.data)
+
+
+
+class JoinCliqueView(generics.GenericAPIView):
+    serializer_class = JoinCliqueSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        clique = serializer.save()
+        return Response(
+            {"message": f"You have successfully joined the clique: {clique.name}"},
+            status=status.HTTP_200_OK
+        )
 
     
     

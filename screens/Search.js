@@ -52,7 +52,7 @@ const searchFilterFunction = (text) => {
 const ItemView = ({item}) => {
   return (
     <View>
-      <Text>{item.name}</Text>
+      <Text style={styles.txt}>{item.name}</Text>
     </View>
   )
 }
@@ -89,5 +89,8 @@ const styles = StyleSheet.create({
       margin: 5,
       backgroundColor: '#FFFFFF',
     },
+    txt: {
+      margin: 8
+    }
 })
 export default Search;
