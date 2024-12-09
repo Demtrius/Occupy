@@ -29,7 +29,7 @@ function SignIn({ navigation,route,props }){
 
   
   let handleLogin = async () => {
-    const  response = await fetch(`http://127.0.0.1:8000/auth/token/`,{
+    const  response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/token/',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

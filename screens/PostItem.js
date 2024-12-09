@@ -17,7 +17,7 @@ const PostItem = () => {
 
     const getPosts = () => {
     
-        axios.get('http://127.0.0.1:8000/api/post-list')
+        axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
         .then((response) => {
             // console.log(response)
             const myPost = response.data;

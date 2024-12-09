@@ -14,7 +14,7 @@ const [masterDataSource, setMasterDataSource] = useState([]);
 
 
 useEffect(() => {
-  fetch('http://127.0.0.1:8000/api/search')
+  fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/search')
     .then((response) => response.json())
     .then((responseJson) => {
       setFilteredDataSource(responseJson);

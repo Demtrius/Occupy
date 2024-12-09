@@ -29,7 +29,7 @@ function Register({ navigation,route,props }){
           'occupations':occupation.toLowerCase(),
       })
       console.log('hi',body)
-   fetch(`http://127.0.0.1:8000/auth/register`,{
+   fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/register',{
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
@@ -67,7 +67,7 @@ function Register({ navigation,route,props }){
       return (
         <View style={styles.container}>
   
-          <Text style={styles.logintxt}>Register</Text>
+          <Text style={styles.logintxt}></Text>
   
   
   

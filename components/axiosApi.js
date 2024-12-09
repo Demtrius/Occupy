@@ -2,7 +2,7 @@ import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosInstance = axios.create({
-    baseURL : 'http://127.0.0.1:8000/auth/',
+    baseURL : process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/',
     timeout: 5000,
 
     headers: {

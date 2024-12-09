@@ -35,7 +35,7 @@ const navigation = useNavigation();
 
 
 useEffect( () => {
-  fetch(`http://127.0.0.1:8000/api/post-list`)
+  fetch( process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
   .then((response) => response.json())
   .then((data) => setPosts(data))
   .catch((error) => console.error('Error fetching posts:', error));

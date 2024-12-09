@@ -22,7 +22,7 @@ const Post = () => {
 
 
 const fetchCliques = () => {
-    fetch(`http://127.0.0.1:8000/api/cliques-list`)
+    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
     .then( response =>  response.json())
     .then( (data) => setItems(data.map(item => ({ label: item.name, value: item.id }))))
 
@@ -30,7 +30,7 @@ const fetchCliques = () => {
 useEffect(() =>fetchCliques() ,[])
 
     const createPost = ( ) => {
-         fetch(`http://127.0.0.1:8000/api/post-create`,{
+         fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-create',{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

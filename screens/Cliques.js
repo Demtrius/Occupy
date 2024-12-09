@@ -10,7 +10,7 @@ function Cliques({navigation,route,props}){
     const [loading,setLoading] = useState(true)
 
     const getCliques = () => {
-        axios.get('http://127.0.0.1:8000/api/cliques-list')
+        axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
         .then((response) => {
             console.log(response)
             const myCliques = response.data;
