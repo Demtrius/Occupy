@@ -1,129 +1,217 @@
-import React,{ useContext,useState,localStorage,useEffect } from 'react'
-import {View,StyleSheet,Text,Button,TouchableOpacity,TextInput} from 'react-native'
-import { ScreenContainer } from 'react-native-screens'
-import  { Context } from '../components/globalContext/globalContext'
-import Home from '../screens/Home'
-import handleLoginForm from '../screens/LoginForm'
-import axios from 'axios'
-import axiosInstance from '../components/axiosApi'
+import React, { useContext, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Image,
+  Dimensions,
+} from 'react-native';
+import { Context } from '../components/globalContext/globalContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Profile from '../screens/Profile'
-import jwt_decode from "jwt-decode";
-// import { useNavigation } from '@react-navigation/native';
+import jwt_decode from 'jwt-decode';
 
-function SignIn({ navigation,route,props }){
+const { width } = Dimensions.get('window');
 
-  const globalContext = useContext(Context)
-  const { setIsLoggedIn,occupierObj,setOccupierObj,token,setToken,authTokens,setAuthTokens,setItem} = globalContext
+function SignIn({ navigation }) {
+  const globalContext = useContext(Context);
+  const { setIsLoggedIn, setOccupierObj, setAuthTokens } = globalContext;
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [securePassword, setSecurePassword] = useState(true);
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    // Hard-coded credentials for testing
+    const testUsername = 'wolter';
+    const testPassword = 'wolter@20050';
   
-
+    let body = JSON.stringify({
+      'email': testUsername,
+      'password': testPassword
+    });
   
-  const [email, setEmail] = useState("") 
-  const [ username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [securePassword, setSecurePassword] = useState(true)
-  const [ error, setError] = useState("")
-
-
-
-
+    try {
+      const response = await fetch(`https://ab35-2001-1c01-4125-e400-8545-1d49-9dc1-14b0.ngrok-free.app/auth/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: body
+      });
   
-  let handleLogin = async () => {
-    const  response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/token/',{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({username: username, password: password})
-    })
-    let data = await response.json()
-    console.log('data:' , data)
-    console.log('response:',response)
-    
-  
-    if(response.status === 200){
-      setAuthTokens(data)
-      setIsLoggedIn(true)
-      setOccupierObj(jwt_decode(data.access))
-      AsyncStorage.setItem('authTokens',JSON.stringify(data))
-    } else {
-      console.log(error)
+      if (response.ok) {
+        const json = await response.json();
+        setOccupierObj(json);
+        setAuthTokens(json.token);
+        setIsLoggedIn(true);
+        await AsyncStorage.setItem('authTokens', JSON.stringify(json));
+      } else {
+        const errorData = await response.json();
+        setError(errorData.detail || "Invalid credentials");
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.');
     }
-  }
-  
-
-
-
-    return (
-      <View style={styles.container}>
-
-        <Text style={styles.logintxt}>LOGIN</Text>
-
-
-
-        <Text>{error}</Text>
-
-
-        <Text style={styles.email}>Username</Text>
-        <TextInput value={username} onChangeText={text => setUsername(text)} placeholder="Email" style={styles.labelContainer} autoCompleteType="email" textContentType='username'/>
-        <Text>Password</Text>
-        <TextInput secureTextEntry={securePassword} onChangeText={text => setPassword(text)} placeholder="Password" style={styles.labelContainer} autoCompleteType="password" textContentType='password'/>
-
-        <TouchableOpacity onPress={() => handleLogin()} style={styles.loginContainer}>
-          <Text>Login</Text>
-        </TouchableOpacity>
-      </View>
-    );
   };
 
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Image
+            source={require('../assets/occupyLogo.png')}
+            style={styles.logo}
+          />
+          <Text style={styles.title}>Welcome User!</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+              placeholder="Email Address"
+              placeholderTextColor="#888"
+              style={styles.input}
+              autoCapitalize="none"
+            />
+
+            <TextInput
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              placeholder="Password"
+              placeholderTextColor="#888"
+              secureTextEntry={securePassword}
+              style={styles.input}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={styles.forgotText}>Forgot password?</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableOpacity>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Not a member? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+              <Text style={styles.registerText}>Register now</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.businessContainer}>
+            <Text style={styles.businessText} onPress={() => navigation.navigate("SignInBusiness")}>Log in as business</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
 
 const styles = StyleSheet.create({
-container: {
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-text: {
-  marginBottom:10
-},
-text1: {
-  fontWeight:'bold',
-  marginBottom:10,
-  fontSize: 20
-},
-buttonContainer:{
-alignItems: 'center',
-justifyContent: 'center',
-paddingVertical: 12,
-paddingHorizontal: 32,
-borderRadius: 5,
-paddingBottom: 10,
-marginBottom:30,
-elevation: 90,
-backgroundColor: 'grey',
-},
-email:{
-fontWeight:'bold',
-},
-labelContainer:{
-width: '100%',
-},
-loginContainer: {
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 12,
-  paddingHorizontal: 80,
-  borderRadius: 15,
-  paddingBottom: 10,
-  marginBottom:30,
-  elevation: 90,
-  backgroundColor: 'grey',
-  marginTop: 25,
-},
-logintxt:{
-  fontSize: 19,
-  marginBottom: 40
-}
-})
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF', // Changed to white
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  logo: {
+    width: width,
+    height: 180,
+    marginBottom: 20,
+    marginTop: -50, // Move the logo up
+    resizeMode: 'contain',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 40,
+    color: '#000',
+    textAlign: 'left',
+    alignSelf: 'stretch',
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 15,
+    fontSize: 16,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    textAlign: 'left',
+  },
+  forgotPassword: {
+    marginBottom: 30,
+    textAlign: 'left',
+    alignSelf: 'stretch',
+  },
+  forgotText: {
+    color: '#6ba32d',
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: '#6ba32d',
+    borderRadius: 10,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    marginBottom: 20,
+  },
+  loginText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  footer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    textAlign: 'left',
+    alignSelf: 'stretch',
+  },
+  footerText: {
+    color: '#888',
+    fontSize: 14,
+    textAlign: 'left',
+    alignSelf: 'stretch',
+  },
+  registerText: {
+    color: '#6ba32d',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  businessContainer: {
+    alignSelf: 'stretch',
+  },
+  businessText: {
+    color: '#6ba32d',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'left',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 15,
+    textAlign: 'left',
+    alignSelf: 'stretch',
+  },
+});
 
-export default SignIn
+export default SignIn;
