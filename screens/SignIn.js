@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { Context } from '../components/globalContext/globalContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwt_decode from 'jwt-decode';
 
 const { width } = Dimensions.get('window');
 
@@ -27,13 +26,9 @@ function SignIn({ navigation }) {
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    // Hard-coded credentials for testing
-    const testUsername = 'wolter';
-    const testPassword = 'wolter@20050';
-  
     let body = JSON.stringify({
-      'email': testUsername,
-      'password': testPassword
+      'email': username,
+      'password': password
     });
   
     try {
@@ -63,7 +58,7 @@ function SignIn({ navigation }) {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height' }
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>

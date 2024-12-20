@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   filterButtonActive: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6ba32d',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6ba32d',
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   },
   contactButton: {
     borderWidth: 1,
-    borderColor: '#3B82F6',
+    borderColor: '#6ba32d',
     borderRadius: 8,
     paddingVertical: 6,
     alignItems: 'center',
   },
   contactButtonText: {
     fontSize: 14,
-    color: '#3B82F6',
+    color: '#6ba32d',
     fontWeight: '600',
   },
   postContainer: {
