@@ -1,11 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { Searchbar } from 'react-native-paper';
+import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { Searchbar, Button } from 'react-native-paper';
+
+const { width, height } = Dimensions.get('window');
 
 function Search(props) {
   const [search, setSearch] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
+  const [category, setCategory] = useState('all');
 
   useEffect(() => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/search')
@@ -36,6 +39,16 @@ function Search(props) {
     }
   };
 
+  const filterByCategory = (category) => {
+    setCategory(category);
+    if (category === 'all') {
+      setFilteredDataSource(masterDataSource);
+    } else {
+      const newData = masterDataSource.filter((item) => item.category === category);
+      setFilteredDataSource(newData);
+    }
+  };
+
   const ItemView = ({ item }) => {
     return (
       <View style={styles.itemContainer}>
@@ -52,6 +65,44 @@ function Search(props) {
         value={search}
         onChangeText={(text) => searchFilterFunction(text)}
       />
+      <View style={styles.categoryContainer}>
+        <Button
+          mode={category === 'all' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('all')}
+          color="#6ba32d"
+          contentStyle={styles.buttonContent}
+          style={styles.button}
+        >
+          All
+        </Button>
+        <Button
+          mode={category === 'Occupation' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('Occupation')}
+          color="#6ba32d"
+          contentStyle={styles.buttonContent}
+          style={styles.button}
+        >
+          Occupation
+        </Button>
+        <Button
+          mode={category === 'Persons' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('Persons')}
+          color="#6ba32d"
+          contentStyle={styles.buttonContent}
+          style={styles.button}
+        >
+          Persons
+        </Button>
+        <Button
+          mode={category === 'groups' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('groups')}
+          color="#6ba32d"
+          contentStyle={styles.buttonContent}
+          style={styles.button}
+        >
+          groups
+        </Button>
+      </View>
       <FlatList
         data={filteredDataSource}
         keyExtractor={(item, index) => index.toString()}
@@ -65,11 +116,11 @@ function Search(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
-    paddingTop: 20,
+    backgroundColor: 'white',
+    paddingTop: height * 0.02,
   },
   searchBar: {
-    marginHorizontal: 16,
+    marginHorizontal: width * 0.04,
     borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -78,14 +129,14 @@ const styles = StyleSheet.create({
     elevation: 3, // For Android shadow
   },
   listContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingHorizontal: width * 0.04,
+    paddingTop: height * 0.01,
   },
   itemContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 10,
+    padding: width * 0.04,
+    marginBottom: height * 0.01,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -93,8 +144,22 @@ const styles = StyleSheet.create({
     elevation: 2, // For Android shadow
   },
   itemText: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: '#333333',
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: height * 0.01,
+    paddingHorizontal: width * 0.04,
+  },
+  button: {
+    borderRadius: 20,
+    paddingHorizontal: 0,
+  },
+  buttonContent: {
+    paddingVertical: 0,
+    paddingHorizontal: 0,
   },
 });
 
