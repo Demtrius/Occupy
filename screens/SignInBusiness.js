@@ -5,6 +5,9 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   Image,
   Dimensions,
 } from 'react-native';
@@ -51,51 +54,60 @@ function SignInBusiness({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require('../assets/occupyLogo.png')}
-        style={styles.logo}
-      />
-      <Text style={styles.title}>Welcome Business!</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Image
+            source={require('../assets/occupyLogo.png')}
+            style={styles.logo}
+          />
+          <Text style={styles.title}>Welcome Business!</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <TextInput
-        value={username}
-        onChangeText={(text) => setUsername(text)}
-        placeholder="Email Address"
-        placeholderTextColor="#888"
-        style={styles.input}
-        autoCapitalize="none"
-      />
+          <View style={styles.inputContainer}>
+            <TextInput
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+              placeholder="Email Address"
+              placeholderTextColor="#888"
+              style={styles.input}
+              autoCapitalize="none"
+            />
 
-      <TextInput
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        secureTextEntry={securePassword}
-        style={styles.input}
-      />
+            <TextInput
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              placeholder="Password"
+              placeholderTextColor="#888"
+              secureTextEntry={securePassword}
+              style={styles.input}
+            />
+          </View>
 
-      <TouchableOpacity style={styles.forgotPassword}>
-        <Text style={styles.forgotText}>Forgot password?</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={styles.forgotText}>Forgot password?</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableOpacity>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Not a Business member? </Text>
-      <TouchableOpacity onPress={() => navigation.navigate("RegisterBussines")}>
-        <Text style={styles.registerText}>Register now</Text>
-      </TouchableOpacity>
-      </View>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Not a Business member? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("RegisterBussines")}>
+              <Text style={styles.registerText}>Register now</Text>
+            </TouchableOpacity>
+          </View>
 
-      <TouchableOpacity style={styles.businessContainer}>
-        <Text style={styles.userText} onPress={() => navigation.navigate("SignIn")}>Log in as user</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity style={styles.businessContainer}>
+            <Text style={styles.userText} onPress={() => navigation.navigate("SignIn")}>Log in as user</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -107,6 +119,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+  logo: {
+    width: width,
+    height: 180,
+    marginBottom: 20,
+    marginTop: -50, // Move the logo up
+    resizeMode: 'contain',
+  },
   title: {
     fontSize: 28,
     fontWeight: '700',
@@ -114,6 +133,10 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'left',
     alignSelf: 'stretch',
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 20,
   },
   input: {
     width: '100%',
@@ -125,9 +148,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     backgroundColor: '#fff',
+    textAlign: 'left',
   },
   forgotPassword: {
-    alignSelf: 'flex-end',
     marginBottom: 30,
     textAlign: 'left',
     alignSelf: 'stretch',
@@ -178,13 +201,8 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: 15,
-  },
-  logo: {
-    width: width,
-    height: 180,
-    marginBottom: 20,
-    marginTop: -50, // Move the logo up
-    resizeMode: 'contain',
+    textAlign: 'left',
+    alignSelf: 'stretch',
   },
 });
 

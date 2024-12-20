@@ -5,6 +5,9 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   Dimensions,
 } from 'react-native';
 import { Context } from '../components/globalContext/globalContext';
@@ -58,50 +61,57 @@ function Register({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Register</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <TextInput
-        value={username}
-        onChangeText={(text) => setUsername(text)}
-        placeholder="Username"
-        placeholderTextColor="#888"
-        style={styles.input}
-        autoCapitalize="none"
-      />
-      <TextInput
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        value={occupation}
-        onChangeText={(text) => setOccupation(text)}
-        placeholder="Occupation"
-        placeholderTextColor="#888"
-        style={styles.input}
-      />
-      <TextInput
-        secureTextEntry={securePassword}
-        onChangeText={(text) => setPassword(text)}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        style={styles.input}
-      />
+          <TextInput
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+            placeholder="Username"
+            placeholderTextColor="#888"
+            style={styles.input}
+            autoCapitalize="none"
+          />
+          <TextInput
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            placeholder="Email"
+            placeholderTextColor="#888"
+            style={styles.input}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          <TextInput
+            value={occupation}
+            onChangeText={(text) => setOccupation(text)}
+            placeholder="Occupation"
+            placeholderTextColor="#888"
+            style={styles.input}
+          />
+          <TextInput
+            secureTextEntry={securePassword}
+            onChangeText={(text) => setPassword(text)}
+            placeholder="Password"
+            placeholderTextColor="#888"
+            style={styles.input}
+          />
 
-      <TouchableOpacity onPress={handleRegister} style={styles.button}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
+          <TouchableOpacity onPress={handleRegister} style={styles.button}>
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('SignIn')} style={styles.backButton}>
-        <Text style={styles.backButtonText}>Back to Login</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity onPress={() => navigation.navigate('SignIn')} style={styles.backButton}>
+            <Text style={styles.backButtonText}>Back to Login</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

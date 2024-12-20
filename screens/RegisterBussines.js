@@ -5,6 +5,9 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { Context } from '../components/globalContext/globalContext';
 
@@ -55,10 +58,15 @@ function RegisterBussines({ navigation }) {
   }
 
   return (
-     <View style={styles.container}>
-          <Text style={styles.title}>Register Bussines  </Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Register Bussines</Text>
           {error ? <Text style={styles.error}>{error}</Text> : null}
-    
+
           <TextInput
             value={username}
             onChangeText={(text) => setUsername(text)}
@@ -90,16 +98,18 @@ function RegisterBussines({ navigation }) {
             placeholderTextColor="#888"
             style={styles.input}
           />
-    
+
           <TouchableOpacity onPress={handleRegister} style={styles.button}>
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
-    
+
           <TouchableOpacity onPress={() => navigation.navigate('SignInBusiness')} style={styles.backButton}>
             <Text style={styles.backButtonText}>Back to Login</Text>
           </TouchableOpacity>
         </View>
-      );
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
