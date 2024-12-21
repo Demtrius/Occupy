@@ -32,7 +32,7 @@ function SignIn({ navigation }) {
     });
   
     try {
-      const response = await fetch(`https://ab35-2001-1c01-4125-e400-8545-1d49-9dc1-14b0.ngrok-free.app/auth/login/`, {
+      const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
