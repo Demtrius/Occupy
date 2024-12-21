@@ -7,7 +7,7 @@ const { width } = Dimensions.get('window');
 function Feed() {
   const [posts, setPosts] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null); // Store the selected post
+  const [selectedPost, setSelectedPost] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -18,18 +18,16 @@ function Feed() {
   }, []);
 
   const openModal = (post) => {
-    setSelectedPost(post); // Set the selected post
-    setModalVisible(true); // Show the modal
+    setSelectedPost(post);
+    setModalVisible(true);
   };
 
   const closeModal = () => {
-    setModalVisible(false); // Hide the modal
-    setSelectedPost(null); // Clear the selected post
+    setModalVisible(false);
+    setSelectedPost(null);
   };
 
   const renderPosts = ({ item }) => {
-    console.log(item); // Log the item here before returning the JSX
-  
     return (
       <View style={styles.postContainer}>
         <TouchableOpacity
