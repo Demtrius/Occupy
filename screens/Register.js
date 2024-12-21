@@ -29,7 +29,7 @@ function Register({ navigation }) {
     let body = JSON.stringify({
       username: username.toLowerCase(),
       email: email.toLowerCase(),
-      password: password.toLowerCase(),
+      password: password,
       occupations: occupation.toLowerCase(),
     });
     console.log('hi', body);
