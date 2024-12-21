@@ -1,5 +1,5 @@
 # App
-configure the .env.local 
+configure the .env
 
 # Frontend
 to run the backend use command:

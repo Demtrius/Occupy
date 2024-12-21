@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Text, TouchableOpacity, Modal, ScrollView, TextInput, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
@@ -9,6 +10,22 @@ function Feed() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const navigation = useNavigation();
+
+  const [cliques, setCliques] = useState([])
+  const [loading,setLoading] = useState(true)
+
+  const getCliques = () => {
+      axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
+      .then((response) => {
+          const myCliques = response.data;
+          setCliques(myCliques)
+      })
+      .catch((error) => console.error(error))
+      .finally(() => {
+          setLoading(false)
+      })
+  }
+  useEffect(() => getCliques(), [])
 
   useEffect(() => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
@@ -60,10 +77,13 @@ function Feed() {
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
         <TouchableOpacity style={styles.filterButtonActive}><Text style={styles.filterTextActive}>ALL</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}><Text style={styles.filterText}>PAINTER</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}><Text style={styles.filterText}>PERSONAL TRAINER</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}><Text style={styles.filterText}>PT</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}><Text style={styles.filterText}>TOUR GUIDE</Text></TouchableOpacity>
+        {!loading && (
+          cliques.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.filterButton}>
+              <Text style={styles.filterText}>{item.name}</Text>
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
 
       <Text style={styles.sectionTitle}>Posts</Text>
@@ -165,6 +185,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   filterText: {
+    height:50,
     fontSize: 14,
     color: '#374151',
   },
