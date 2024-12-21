@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Text, TouchableOpacity, ScrollView, TextInput, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, Text, TouchableOpacity, Modal, ScrollView, TextInput, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
 function Feed() {
   const [posts, setPosts] = useState([]);
-
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null); // Store the selected post
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -16,21 +17,38 @@ function Feed() {
       .catch((error) => console.error('Error fetching posts:', error));
   }, []);
 
-  const renderPosts = ({ item }) => (
-    <View style={styles.postContainer}>
-      <TouchableOpacity
-        style={styles.postTouchable}
-        onPress={() => navigation.navigate('PostDetail', { id: item.id })}>
-        <View style={styles.postHeader}>
-          <Image source={{ uri: 'https://via.placeholder.com/50' }} style={styles.postImage} />
-          <View>
-            <Text style={styles.postTitle}>{item.clique}</Text>
-            <Text style={styles.postSubtitle}>{item.occupier}</Text>
+  const openModal = (post) => {
+    setSelectedPost(post); // Set the selected post
+    setModalVisible(true); // Show the modal
+  };
+
+  const closeModal = () => {
+    setModalVisible(false); // Hide the modal
+    setSelectedPost(null); // Clear the selected post
+  };
+
+  const renderPosts = ({ item }) => {
+    console.log(item); // Log the item here before returning the JSX
+  
+    return (
+      <View style={styles.postContainer}>
+        <TouchableOpacity
+          style={styles.postTouchable}
+          // onPress={() => navigation.navigate('PostDetail', { id: item.id })}>
+          onPress={() => openModal(item)}>
+          <View style={styles.postHeader}>
+            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.postImage} />
+            <View>
+              {/* title */}
+              <Text style={styles.postTitle}>{item.caption}</Text>
+              {/* message */}
+              <Text style={styles.postSubtitle}>{item.content}</Text>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -63,7 +81,7 @@ function Feed() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.nearYouContainer}>
         <View style={styles.nearYouCard}>
           <View style={styles.cardHeader}>
-            <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.cardImage} />
+            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
             <Text style={styles.dateBadge}>MAR 05</Text>
           </View>
           <Text style={styles.cardTitle}>Wouter Wesseling</Text>
@@ -74,7 +92,7 @@ function Feed() {
         </View>
         <View style={styles.nearYouCard}>
           <View style={styles.cardHeader}>
-            <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.cardImage} />
+            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
             <Text style={styles.dateBadge}>MAR 05</Text>
           </View>
           <Text style={styles.cardTitle}>Jasper Wester</Text>
@@ -84,6 +102,25 @@ function Feed() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Modal for post details */}
+      {selectedPost && (
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={closeModal}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Post Details</Text>
+            <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
+            <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
+            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      )}
+
     </View>
   );
 }
@@ -235,6 +272,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     marginTop: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#1F2937',
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#007BFF',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
