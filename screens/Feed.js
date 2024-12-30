@@ -7,6 +7,7 @@ const { width } = Dimensions.get('window');
 
 function Feed() {
   const [posts, setPosts] = useState([]);
+  const [postsClique, setPostClique] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const navigation = useNavigation();
@@ -43,6 +44,18 @@ function Feed() {
     setModalVisible(false);
     setSelectedPost(null);
   };
+
+  useEffect(() => {
+    if (selectedPost) {
+      axios
+        .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques/' + selectedPost.clique)
+        .then((response) => {
+          setPostClique(response.data);
+        })
+        .catch((error) => console.error(error));
+    }
+    // runs again if selectedPost
+  }, [selectedPost]); 
 
   const renderPosts = ({ item }) => {
     return (
@@ -132,8 +145,12 @@ function Feed() {
             <Text style={styles.modalTitle}>Post Details</Text>
             <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
             <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
+            <Text style={styles.modalText}>Clique: {postsClique.name}</Text>
             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
               <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Search', { id: selectedPost.clique })}>
+              <Text style={styles.closeButtonText}>Navigate</Text>
             </TouchableOpacity>
           </View>
         </Modal>

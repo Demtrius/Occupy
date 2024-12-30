@@ -19,8 +19,7 @@ function Cliques({navigation,route,props}){
         .catch((error) => console.error(error))
         .finally(() => {
             setLoading(false)
-        })  
-    
+        })
     }
     useEffect(() => getCliques(), [])
 

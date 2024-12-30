@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Searchbar, Button } from 'react-native-paper';
+import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
 
@@ -8,6 +9,23 @@ function Search(props) {
   const [search, setSearch] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
+  const [cliques, setCliques] = useState([])
+  const [loading,setLoading] = useState(true)
+
+  const getCliques = () => {
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
+    .then((response) => {
+        const myCliques = response.data;
+        setCliques(myCliques)
+    })
+    .catch((error) => console.error(error))
+    .finally(() => {
+        setLoading(false)
+    })
+  }
+  useEffect(() => getCliques(), [])
+
+
   const [category, setCategory] = useState('all');
 
   useEffect(() => {
