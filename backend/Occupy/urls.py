@@ -1,5 +1,5 @@
 from django.urls import  path,include
-from .views import  CliqueView,CliqueList,CliqueSearch,CliqueViewSet,PostListCreateView,PostRetrieveUpdateDeleteView,CliqueListCreateView,CliqueRetrieveUpdateDeleteView,ListPostsOfClique,PostList,JoinCliqueView
+from .views import  CliqueView,CliqueList,CliqueSearch,CliqueViewSet,PostListCreateView,PostRetrieveUpdateDeleteView,CliqueListCreateView,CliqueRetrieveUpdateDeleteView,ListPostsOfClique,PostList,JoinCliqueView,ReviewView
 from rest_framework.routers import DefaultRouter, SimpleRouter
 app_name="Occupy"
 from . import views
@@ -42,7 +42,8 @@ urlpatterns = [
   path('', include(router.urls)),
   path('follows/', follow_list, name='follow-list'),
   path('follows/<int:pk>/', follow_detail, name='follow-detail'),
-  path('cliques-join/ ', JoinCliqueView.as_view(), name='join_clique'  ),
+  path('cliques-join/',JoinCliqueView.as_view(),name='join_clique' ),
+  path('review/',ReviewView.as_view(),name='review')
 ]
 
 

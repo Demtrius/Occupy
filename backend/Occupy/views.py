@@ -1,8 +1,8 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
-from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer
+from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer,ReviewSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique,CommentPost,Follow
+from .models import  Post,Clique,CommentPost,Follow,Review
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response
@@ -301,7 +301,25 @@ class JoinCliqueView(generics.GenericAPIView):
             {"message": f"You have successfully joined the clique: {clique.name}"},
             status=status.HTTP_200_OK
         )
+class ReviewView(generics.GenericAPIView):
+    serializer_class = ReviewSerializer
 
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = ReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"message": "Review submitted successfully."},
+            status=status.HTTP_201_CREATED
+        )
+    def list_reviews_for_cliques(self,request,clique_id):
+        pass
+
+
+ 
+        
     
     
     

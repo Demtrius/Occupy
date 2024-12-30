@@ -7,13 +7,10 @@ from django.contrib.auth import get_user_model
 
 # Create your models here.
 
-
-
-
-
     
 #A clique can have many occupiers. 
-#A clique can have many posts.
+#A clique can have many posts
+#a CLIQUE CAN also contain reviews for potential customers to read 
 class Clique(models.Model):
     class CliqueObjects(models.Manager):
         def get_queryset(self):
@@ -55,6 +52,12 @@ class Clique(models.Model):
         verbose_name = "Clique"
         verbose_name_plural = "Cliques"
         
+
+
+
+
+
+
 
 
 
@@ -105,7 +108,18 @@ class CommentPost(models.Model):
     def __str__(self):
         return str(self.post)
 
+class Review(models.Model):
+    body = models.TextField()
+    occupier = models.ForeignKey(Occupier,on_delete=models.SET_NULL,null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    clique = models.ForeignKey(Clique, on_delete=models.CASCADE,related_name="reviews")
 
+    def __str__(self):
+        return str(self.body)
+
+
+
+    
 
         
 
@@ -121,3 +135,9 @@ class Follow(models.Model):
 
     def __str__(self):
         return f'{self.follower} follows {self.followed}'
+
+
+
+
+
+    
