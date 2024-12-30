@@ -12,7 +12,8 @@ import Cliques from  '../screens/Cliques'
 import CliqueUI from '../screens/Clique'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Feed from '../screens/Feed';
-
+import SignInBusiness from '../screens/SignInBusiness';
+import RegisterBussines from '../screens/RegisterBussines';
 
 const Stack = createStackNavigator();
 
@@ -34,9 +35,11 @@ function Navigator(){
         <Stack.Navigator>
             {(!isLoggedIn)?
             <>
-            <Stack.Screen name='Landing' component={Landing} options={{headerShown: false}} />
+            {/* <Stack.Screen name='Landing' component={Landing} options={{headerShown: false}} /> */}
             <Stack.Screen name='SignIn' component={SignIn} options={{headerShown: false}} />
-            <Stack.Screen name='Register' component={Register} options={{headerShown: false}} />
+            <Stack.Screen name='Register' component={Register} options={{headerShown: false}} /> 
+            <Stack.Screen name='SignInBusiness' component={SignInBusiness} options={{headerShown: false}} />
+            <Stack.Screen name='RegisterBussines' component={RegisterBussines} options={{headerShown: false}} />
             </>
             :
             <>

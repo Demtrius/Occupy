@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Context = createContext()
 
 const Provider = ( { children } ) => {
-  const [domain,setDomain] = useState("http://127.0.0.1:8000")
+  const [domain,setDomain] = useState(process.env.EXPO_PUBLIC_BACKEND_URL)
   const [isLoggedIn,setIsLoggedIn] = useState(false)
   const [occupierObj,setOccupierObj] = useState(  )
   const [authTokens,setAuthTokens] = useState(  )

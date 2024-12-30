@@ -2,14 +2,14 @@ import React,{useState,useEffect,useContext} from 'react';
 import {View,Text,StyleSheet,FlatList,ActivityIndicator} from 'react-native'
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import API from '../components/API.JS';
+import API from '../components/API.js';
 import { useNavigation } from '@react-navigation/native';
 
 
 
 const PostDetail = ({route}) => {
     
-   
+   console.log(API)
     const [post, setPost] = useState(null)
     const [loading , SetLoading] = useState(true)
 
@@ -17,7 +17,7 @@ const PostDetail = ({route}) => {
     const { id } = route.params;
 
     useEffect(() => {
-        axios.get(`http://127.0.0.1:8000/api/posts/${id}/`)
+        axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/posts/${id}/')
         .then( response => {
         setPost(response.data)
         SetLoading(false)

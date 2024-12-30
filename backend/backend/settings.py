@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import django
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 from django.utils.translation import gettext
 django.utils.translation.ugettext = gettext
 
@@ -28,8 +32,7 @@ SECRET_KEY = 'django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.getenv("ALLOW_URL"),'127.0.0.1',]
 
 CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
@@ -124,9 +127,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'occupy db',
+        'NAME': os.getenv("DB_NAME"),
         'USER': 'postgres',
-        'PASSWORD': 'Raphaela1107',
+        'PASSWORD': os.getenv("DB_PASSWORD"),
         'HOST': '127.0.0.1',
         'PORT': '5432 '
 

@@ -8,7 +8,7 @@ const [clique,setClique] = useState([])
 const [loading, setLoading] = useState([true])
 
 const getClique = () => {
-    axios.get(`http://127.0.0.1:8000/api/Film%20critics/posts`)
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/Film%20critics/posts')
     .then(response => {
         console.log(response)
         const myCliqueUi = response.data
