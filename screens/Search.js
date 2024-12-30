@@ -12,6 +12,8 @@ function Search(props) {
   const [cliques, setCliques] = useState([])
   const [loading,setLoading] = useState(true)
 
+  const [userList, setUsersList] = useState([])
+
   const getCliques = () => {
     axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
     .then((response) => {
@@ -25,6 +27,16 @@ function Search(props) {
   }
   useEffect(() => getCliques(), [])
 
+
+  const getUsers = () => {
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/occupier-list')
+    .then((response) => {
+        const users = response.data;
+        setUsersList(users)
+    })
+    .catch((error) => console.error(error))
+  }
+  useEffect(() => getUsers(), [])
 
   const [category, setCategory] = useState('all');
 
