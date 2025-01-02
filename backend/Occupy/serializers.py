@@ -46,11 +46,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         
 
 class CliqueSerializer(serializers.ModelSerializer):
+    reviews = serializers.SerializerMethodField()
 
     class Meta:
         model = Clique
         fields = ('name', 'created_at', 'level','id','occupation','reviews')
-        reviews = serializers.SerializerMethodField()
 
     def get_reviews(self, obj):
         reviews = obj.reviews.all()
