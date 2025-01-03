@@ -2,43 +2,44 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Searchbar, Button } from 'react-native-paper';
 import axios from 'axios';
+import { Context } from '../components/globalContext/globalContext';
 
 const { width, height } = Dimensions.get('window');
 
 function Search(props) {
+  const globalContext = useContext(Context);
+  const { user } = globalContext;
   const [search, setSearch] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
-  const [cliques, setCliques] = useState([])
-  const [loading,setLoading] = useState(true)
+  const [cliques, setCliques] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState('all');
 
-  const [userList, setUsersList] = useState([])
+  const [userList, setUsersList] = useState([]);
 
   const getCliques = () => {
     axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
-    .then((response) => {
+      .then((response) => {
         const myCliques = response.data;
-        setCliques(myCliques)
-    })
-    .catch((error) => console.error(error))
-    .finally(() => {
-        setLoading(false)
-    })
-  }
-  useEffect(() => getCliques(), [])
-
+        setCliques(myCliques);
+      })
+      .catch((error) => console.error(error))
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  useEffect(() => getCliques(), []);
 
   const getUsers = () => {
     axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/occupier-list')
-    .then((response) => {
+      .then((response) => {
         const users = response.data;
-        setUsersList(users)
-    })
-    .catch((error) => console.error(error))
-  }
-  useEffect(() => getUsers(), [])
-
-  const [category, setCategory] = useState('all');
+        setUsersList(users);
+      })
+      .catch((error) => console.error(error));
+  };  
+  useEffect(() => getUsers(), []);
 
   useEffect(() => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/search')
@@ -52,19 +53,56 @@ function Search(props) {
       });
   }, []);
 
+  useEffect(() => {
+    getCliques();
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    if (category === 'all') {
+      const allData = [
+        ...masterDataSource.map(item => ({ ...item, type: 'Occupation' })),
+        ...userList.map(user => ({ ...user, type: 'User' })),
+        ...cliques.map(clique => ({ ...clique, type: 'Clique' }))
+      ];
+      setFilteredDataSource(allData);
+    }
+  }, [masterDataSource, userList, cliques]);
+
   const searchFilterFunction = (text) => {
     if (text) {
-      const newData = masterDataSource.filter((item) => {
-        const itemData = item.name
-          ? item.name.toUpperCase()
-          : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
+      let newData = [];
+  
+      if (category === 'all') {
+        newData = [
+          ...masterDataSource
+            .filter((item) => item.name.toUpperCase().includes(text.toUpperCase()))
+            .map((item) => ({ ...item, type: 'Occupation' })),
+          ...userList
+            .filter((user) => user.username.toUpperCase().includes(text.toUpperCase()))
+            .map((user) => ({ ...user, type: 'User' })),
+          ...cliques
+            .filter((clique) => clique.name.toUpperCase().includes(text.toUpperCase()))
+            .map((clique) => ({ ...clique, type: 'Clique' })),
+        ];
+      } else if (category === 'Occupation') {
+        newData = masterDataSource
+          .filter((item) => item.name.toUpperCase().includes(text.toUpperCase()))
+          .map((item) => ({ ...item, type: 'Occupation' }));
+      } else if (category === 'Persons') {
+        newData = userList
+          .filter((user) => user.username.toUpperCase().includes(text.toUpperCase()))
+          .map((user) => ({ ...user, type: 'User' }));
+      } else if (category === 'Cliques') {
+        newData = cliques
+          .filter((clique) => clique.name.toUpperCase().includes(text.toUpperCase()))
+          .map((clique) => ({ ...clique, type: 'Clique' }));
+      }
+  
       setFilteredDataSource(newData);
       setSearch(text);
     } else {
-      setFilteredDataSource(masterDataSource);
+      filterByCategory(category);
       setSearch(text);
     }
   };
@@ -72,17 +110,45 @@ function Search(props) {
   const filterByCategory = (category) => {
     setCategory(category);
     if (category === 'all') {
-      setFilteredDataSource(masterDataSource);
-    } else {
-      const newData = masterDataSource.filter((item) => item.category === category);
+      const allData = [
+        ...masterDataSource.map(item => ({ ...item, type: 'Occupation' })),
+        ...userList.map(user => ({ ...user, type: 'User' })),
+        ...cliques.map(clique => ({ ...clique, type: 'Clique' }))
+      ];
+      setFilteredDataSource(allData);
+    } else if (category === 'Occupation') {
+      const newData = masterDataSource.map(item => ({ ...item, type: 'Occupation' })).filter((item) => item.type === 'Occupation');
       setFilteredDataSource(newData);
+    } else if (category === 'Persons') {
+      setFilteredDataSource(userList.map(user => ({ ...user, type: 'User' })));
+    } else if (category === 'Cliques') {
+      setFilteredDataSource(cliques.map(clique => ({ ...clique, type: 'Clique' })));
     }
   };
 
   const ItemView = ({ item }) => {
+    let itemType = item.type;
+    if (!itemType) {
+      if (item.category) {
+        itemType = 'Occupation';
+      } else if (item.username) {
+        itemType = 'User';
+      } else if (item.clique) {
+        itemType = 'Clique';
+      }
+    }
+  
+    let displayName = 'Unnamed';
+    if (item.type === 'User') {
+      displayName = item.username ?? 'Unknown User';
+    } else {
+      displayName = item.name ?? (itemType === 'Occupation' ? 'Unnamed Occupation' : 'Unnamed Clique');
+    }
+  
     return (
       <View style={styles.itemContainer}>
-        <Text style={styles.itemText}>{item.name}</Text>
+        <Text style={styles.itemText}>{displayName}</Text>
+        <Text style={styles.itemType}>{itemType ?? 'Unknown Type'}</Text>
       </View>
     );
   };
@@ -103,7 +169,7 @@ function Search(props) {
           contentStyle={styles.buttonContent}
           style={styles.button}
         >
-          All
+          <Text>All</Text>
         </Button>
         <Button
           mode={category === 'Occupation' ? 'contained' : 'outlined'}
@@ -112,7 +178,7 @@ function Search(props) {
           contentStyle={styles.buttonContent}
           style={styles.button}
         >
-          Occupation
+          <Text>Occupation</Text>
         </Button>
         <Button
           mode={category === 'Persons' ? 'contained' : 'outlined'}
@@ -121,16 +187,16 @@ function Search(props) {
           contentStyle={styles.buttonContent}
           style={styles.button}
         >
-          Persons
+          <Text>Persons</Text>
         </Button>
         <Button
-          mode={category === 'groups' ? 'contained' : 'outlined'}
-          onPress={() => filterByCategory('groups')}
+          mode={category === 'Cliques' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('Cliques')}
           color="#6ba32d"
           contentStyle={styles.buttonContent}
           style={styles.button}
         >
-          groups
+          <Text>Cliques</Text>
         </Button>
       </View>
       <FlatList
@@ -190,6 +256,16 @@ const styles = StyleSheet.create({
   buttonContent: {
     paddingVertical: 0,
     paddingHorizontal: 0,
+  },
+  itemsHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: width * 0.04,
+    marginTop: height * 0.02,
+  },
+  itemType: {
+    fontSize: 14,
+    color: 'grey',
   },
 });
 
