@@ -7,12 +7,15 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import Home from './screens/Home';
-import Search from './screens/Search';
-import Cliques from './screens/Cliques';
-import Post from './screens/Post';
-import Notifications from './screens/Notifications';
-import Profile from './screens/Profile';
+import Home from './screens/Home'
+import Search from './screens/Search'
+import Cliques from './screens/Cliques'
+import Clique from './screens/Clique'
+import Post from './screens/Post'
+import Notifications from './screens/Notifications'
+import Profile from './screens/Profile'
+import { Icon } from 'react-native-elements/dist/icons/Icon';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Context, Provider } from './components/globalContext/globalContext';
@@ -20,17 +23,27 @@ import Landing from './screens/Landing';
 import Navigator from './navigation/navigator';
 import Feed from './screens/Feed';
 
-
-
-
-
-
-
-
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-function MyTabs() {
+function CliquesStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Cliques"
+        component={Cliques}
+        options={{ headerShown: false }} // Hide default header
+      />
+      <Stack.Screen
+        name="Clique"
+        component={Clique}
+        options={{ headerShown: false }} // Hide default header
+      />
+    </Stack.Navigator>
+  );
+}
+
+function MyTabs(){
 return (
   <Tab.Navigator>
   <Tab.Screen
@@ -56,8 +69,8 @@ return (
   }}
   />
   <Tab.Screen
-  name="Cliques"
-  component={Cliques}
+  name="CliquesTab"
+  component={CliquesStack}
   options={{
     tabBarLabel: 'Cliques',
           tabBarIcon: ({ color, size }) => (

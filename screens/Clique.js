@@ -8,11 +8,11 @@ const [clique,setClique] = useState([])
 const [loading, setLoading] = useState([true])
 
 const getClique = () => {
-    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/Film%20critics/posts')
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/Painters/posts')
     .then(response => {
         console.log(response)
-        const myCliqueUi = response.data
-        setClique(clique)
+        const myClique = response.data.posts
+        setClique(myClique)
     })
     .catch( error => console.log(error))
     .finally(() => {
@@ -24,11 +24,11 @@ useEffect(() => getClique(), [])
 const renderClique = ({item}) => {
 return (
     <View style={styles.container}>
-    <Text style={styles.name}>{item.name}</Text>
-    <Text style={styles.description}>{item.description}</Text>
+    <Text style={styles.name}>{item}</Text>
+    {/* <Text style={styles.description}>{item.description}</Text>
     <Text style={styles.level}>{item.level}</Text>
     <Text style={styles.occupation}>{item.occupation}</Text>
-    <Text style={styles.posts}>{item.posts}</Text>
+    <Text style={styles.posts}>{item.posts}</Text> */}
 </View>
 )
 }
@@ -47,6 +47,7 @@ return (
     </View>
 )
 }
+
 
 const styles = StyleSheet.create({
     container: {

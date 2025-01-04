@@ -12,7 +12,6 @@ function Cliques({navigation,route,props}){
     const getCliques = () => {
         axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
         .then((response) => {
-            console.log(response)
             const myCliques = response.data;
             setCliques(myCliques)
         })
