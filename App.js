@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Home from './screens/Home'
 import Search from './screens/Search'
 import Cliques from './screens/Cliques'
+import Clique from './screens/Clique'
 import Post from './screens/Post'
 import Notifications from './screens/Notifications'
 import Profile from './screens/Profile'
@@ -24,13 +25,6 @@ import {Context , Provider} from './components/globalContext/globalContext'
 import Landing  from './screens/Landing';
 import Navigator from './navigation/navigator'
 import Feed from './screens/Feed';
-
-
-
-
-
-
-
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -64,6 +58,16 @@ return (
   component={Cliques}
   options={{
     tabBarLabel: 'Cliques',
+    tabBarIcon: ({color,size}) => (
+      <MaterialIcons name="groups" size={24} color="black" />
+    )
+  }}
+  />
+  <Tab.Screen
+  name="Clique"
+  component={Clique}
+  options={{
+    tabBarLabel: 'Clique',
     tabBarIcon: ({color,size}) => (
       <MaterialIcons name="groups" size={24} color="black" />
     )
