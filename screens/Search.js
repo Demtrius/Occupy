@@ -17,7 +17,8 @@ function Search(props) {
   const [category, setCategory] = useState('all');
 
   const [userList, setUsersList] = useState([]);
-
+  const { width, height } = Dimensions.get('window');
+  
   const getCliques = () => {
     axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
       .then((response) => {
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingTop: height * 0.02,
+    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
   },
   searchBar: {
     marginHorizontal: width * 0.04,
@@ -247,11 +248,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: height * 0.01,
-    paddingHorizontal: width * 0.04,
+    paddingHorizontal: width * 0.01,
   },
   button: {
     borderRadius: 20,
     paddingHorizontal: 0,
+    marginRight: 1, // Add margin to the right for spacing
   },
   buttonContent: {
     paddingVertical: 0,

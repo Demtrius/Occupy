@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { Context } from '../components/globalContext/globalContext';
+
+const { width, height } = Dimensions.get('window');
 
 function Profile({ navigation }) {
   const globalContext = useContext(Context);
@@ -64,6 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
+    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
   },
   header: {
     alignItems: 'center',

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Text, TouchableOpacity, Modal, ScrollView, TextInput, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, Text, TouchableOpacity, Modal, ScrollView, Image, Dimensions, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { Searchbar, Button } from 'react-native-paper';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 function Feed() {
   const [posts, setPosts] = useState([]);
@@ -12,27 +13,59 @@ function Feed() {
   const [selectedPost, setSelectedPost] = useState(null);
   const navigation = useNavigation();
 
-  const [cliques, setCliques] = useState([])
-  const [loading,setLoading] = useState(true)
+  const [cliques, setCliques] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [search, setSearch] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+  const [category, setCategory] = useState('all');
+
+  const [nearYouPosts, setNearYouPosts] = useState([]);
 
   const getCliques = () => {
-      axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
       .then((response) => {
-          const myCliques = response.data;
-          setCliques(myCliques)
+        const myCliques = response.data;
+        setCliques(myCliques);
       })
       .catch((error) => console.error(error))
       .finally(() => {
-          setLoading(false)
-      })
-  }
-  useEffect(() => getCliques(), [])
+        setLoading(false);
+      });
+  };
 
-  useEffect(() => {
+  const getPosts = () => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
       .then((response) => response.json())
-      .then((data) => setPosts(data))
+      .then((data) => {
+        setPosts(data);
+        setFilteredDataSource(data.slice(0, 3)); // Limit to 3 posts
+      })
       .catch((error) => console.error('Error fetching posts:', error));
+  };
+
+  const getPostshorizontal = () => {
+    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
+      .then((response) => response.json())
+      .then((data) => {
+        setNearYouPosts(data.slice(0, 5)); // Limit to 5 near you posts
+      })
+      .catch((error) => console.error('Error fetching posts:', error));
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    getCliques();
+    getPosts();
+    getPostshorizontal();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    getCliques();
+    getPosts();
+    getPostshorizontal();
   }, []);
 
   const openModal = (post) => {
@@ -54,23 +87,45 @@ function Feed() {
         })
         .catch((error) => console.error(error));
     }
-    // runs again if selectedPost
-  }, [selectedPost]); 
+  }, [selectedPost]);
+
+  const searchFilterFunction = (text) => {
+    if (text) {
+      const newData = posts.filter((item) => {
+        const itemData = item.caption ? item.caption.toUpperCase() : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredDataSource(newData.slice(0, 3)); // Limit to 3 posts
+      setSearch(text);
+    } else {
+      filterByCategory(category);
+      setSearch(text);
+    }
+  };
+
+  const filterByCategory = (category) => {
+    setCategory(category);
+    if (category === 'all') {
+      setFilteredDataSource(posts.slice(0, 3)); // Limit to 3 posts
+    } else {
+      const newData = posts.filter((item) => item.clique === category);
+      setFilteredDataSource(newData.slice(0, 3)); // Limit to 3 posts
+    }
+  };
 
   const renderPosts = ({ item }) => {
+    const cliqueName = cliques.find(clique => clique.id === item.clique)?.name || 'Unknown Clique';
     return (
       <View style={styles.postContainer}>
         <TouchableOpacity
           style={styles.postTouchable}
-          // onPress={() => navigation.navigate('PostDetail', { id: item.id })}>
           onPress={() => openModal(item)}>
           <View style={styles.postHeader}>
             <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.postImage} />
             <View>
-              {/* title */}
               <Text style={styles.postTitle}>{item.caption}</Text>
-              {/* message */}
-              <Text style={styles.postSubtitle}>{item.content}</Text>
+              <Text style={styles.postSubtitle}>{cliqueName}</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -78,63 +133,82 @@ function Feed() {
     );
   };
 
+  const renderNearYou = ({ item }) => {
+    const cliqueName = cliques.find(clique => clique.id === item.clique)?.name || 'Unknown Clique';
+    return (
+      <View style={styles.nearYouCard}>
+        <View style={styles.cardHeader}>
+          <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
+          <Text style={styles.dateBadge}>MAR 05</Text>
+        </View>
+        <Text style={styles.cardTitle}>{item.caption}</Text>
+        <Text style={styles.cardSubtitle}>{cliqueName}</Text>
+        <TouchableOpacity style={styles.contactButton}>
+          <Text style={styles.contactButtonText}>Contact</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search"
-          placeholderTextColor="#9CA3AF"
+      <Searchbar
+        style={styles.searchBar}
+        placeholder="Search"
+        value={search}
+        onChangeText={(text) => searchFilterFunction(text)}
+      />
+      <View style={styles.categoryContainer}>
+      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollViewContent}>
+        <Button
+          mode={category === 'all' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('all')}
+          color="#6ba32d"
+          contentStyle={styles.buttonContent}
+          style={styles.button}
+        >
+          <Text>All</Text>
+        </Button>
+        {cliques.map((clique) => (
+          <Button
+            key={clique.id}
+            mode={category === clique.id ? 'contained' : 'outlined'}
+            onPress={() => filterByCategory(clique.id)}
+            color="#6ba32d"
+            contentStyle={styles.buttonContent}
+            style={styles.button}
+          >
+            <Text>{clique.name}</Text>
+          </Button>
+        ))}
+          </ScrollView>
+      </View>
+
+      <Text style={[styles.sectionTitle, { marginLeft: width * 0.04, marginTop: height * 0.02 }]}>Posts for you</Text>
+
+      <FlatList
+        data={filteredDataSource}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderPosts}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        style={{ flexGrow: 0 }} // Prevent FlatList from growing
+      />
+
+      <View style={styles.nearYouSection}>
+        <Text style={[styles.sectionTitle, { marginLeft: width * 0.04 }]}>Near you</Text>
+        <FlatList
+          horizontal
+          data={nearYouPosts}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderNearYou}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.nearYouContainer}
+          style={styles.nearYouList} // Set fixed height for Near you container and fix to bottom
         />
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-        <TouchableOpacity style={styles.filterButtonActive}><Text style={styles.filterTextActive}>ALL</Text></TouchableOpacity>
-        {!loading && (
-          cliques.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.filterButton}>
-              <Text style={styles.filterText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))
-        )}
-      </ScrollView>
-
-      <Text style={styles.sectionTitle}>Posts</Text>
-
-      <FlatList
-        data={posts}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderPosts}
-      />
-
-      <Text style={styles.sectionTitle}>Near you</Text>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.nearYouContainer}>
-        <View style={styles.nearYouCard}>
-          <View style={styles.cardHeader}>
-            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
-            <Text style={styles.dateBadge}>MAR 05</Text>
-          </View>
-          <Text style={styles.cardTitle}>Wouter Wesseling</Text>
-          <Text style={styles.cardSubtitle}>Painter</Text>
-          <TouchableOpacity style={styles.contactButton}>
-            <Text style={styles.contactButtonText}>Contact</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.nearYouCard}>
-          <View style={styles.cardHeader}>
-            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
-            <Text style={styles.dateBadge}>MAR 05</Text>
-          </View>
-          <Text style={styles.cardTitle}>Jasper Wester</Text>
-          <Text style={styles.cardSubtitle}>Trash man</Text>
-          <TouchableOpacity style={styles.contactButton}>
-            <Text style={styles.contactButtonText}>Contact</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
-      {/* Modal for post details */}
       {selectedPost && (
         <Modal
           visible={isModalVisible}
@@ -152,10 +226,15 @@ function Feed() {
             <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Search', { id: selectedPost.clique })}>
               <Text style={styles.closeButtonText}>Navigate</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Profile', { id: selectedPost.user })}>
+              <Text style={styles.closeButtonText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Contact', { id: selectedPost.user })}>
+              <Text style={styles.closeButtonText}>Contact</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
       )}
-
     </View>
   );
 }
@@ -163,62 +242,84 @@ function Feed() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    backgroundColor: 'white',
+    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
   },
-  searchContainer: {
-    marginBottom: 16,
+  searchBar: {
+    marginHorizontal: width * 0.04,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // For Android shadow
   },
-  searchInput: {
+  listContainer: {
+    paddingHorizontal: width * 0.04,
+    paddingTop: height * 0.01,
+  },
+  itemContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#1F2937',
+    padding: width * 0.04,
+    marginBottom: height * 0.01,
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 2, // For Android shadow
   },
-  horizontalScroll: {
+  itemText: {
+    fontSize: width * 0.04,
+    color: '#333333',
+  },
+  categoryContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
+    justifyContent: 'space-around',
+    marginVertical: height * 0.01,
+    paddingHorizontal: width * 0.01,
   },
-  filterButton: {
-    backgroundColor: '#E5E7EB',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  button: {
     borderRadius: 20,
-    marginRight: 8,
+    paddingHorizontal: 0, // Add padding to the sides
+    marginRight: 10, // Add margin to the right for spacing
   },
-  filterButtonActive: {
-    backgroundColor: '#6ba32d',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginRight: 8,
+  buttonContent: {
+    paddingVertical: 0,
+    paddingHorizontal: 0,
   },
-  filterText: {
-    height:50,
+  itemsHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: width * 0.04,
+    marginTop: height * 0.02,
+  },
+  itemType: {
     fontSize: 14,
-    color: '#374151',
-  },
-  filterTextActive: {
-    fontSize: 14,
-    color: '#FFFFFF',
+    color: 'grey',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1F2937',
+    marginBottom: 1,
+  },
+  nearYouContainer: {
+    paddingHorizontal: width * 0.04,
+  },
+  nearYouCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1F2937',
     marginBottom: 16,
+    maxHeight: 200,
   },
   nearYouContainer: {
     flexDirection: 'row',
     marginBottom: 16,
+    maxHeight: 200,
   },
   nearYouCard: {
     backgroundColor: '#FFFFFF',
@@ -330,6 +431,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#007BFF',
     borderRadius: 5,
+    marginBottom: 10,
   },
   closeButtonText: {
     color: 'white',
