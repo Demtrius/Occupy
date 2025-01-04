@@ -29,6 +29,22 @@ import Feed from './screens/Feed';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+function CliquesStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Cliques"
+        component={Cliques}
+        options={{ headerShown: false }} // Hide default header
+      />
+      <Stack.Screen
+        name="Clique"
+        component={Clique}
+        options={{ headerShown: false }} // Hide default header
+      />
+    </Stack.Navigator>
+  );
+}
 
 function MyTabs(){
 return (
@@ -54,20 +70,10 @@ return (
   }}
   />
   <Tab.Screen
-  name="Cliques"
-  component={Cliques}
+  name="CliquesTab"
+  component={CliquesStack}
   options={{
     tabBarLabel: 'Cliques',
-    tabBarIcon: ({color,size}) => (
-      <MaterialIcons name="groups" size={24} color="black" />
-    )
-  }}
-  />
-  <Tab.Screen
-  name="Clique"
-  component={Clique}
-  options={{
-    tabBarLabel: 'Clique',
     tabBarIcon: ({color,size}) => (
       <MaterialIcons name="groups" size={24} color="black" />
     )

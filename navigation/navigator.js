@@ -14,6 +14,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Feed from '../screens/Feed';
 import SignInBusiness from '../screens/SignInBusiness';
 import RegisterBussines from '../screens/RegisterBussines';
+import Clique from '../screens/Clique';
 
 const Stack = createStackNavigator();
 
@@ -46,11 +47,8 @@ function Navigator(){
             <Stack.Screen name='Home' component={Home} options={{headerShown: false}}  />
             <Stack.Screen name='PostDetail' component={PostNavigator} options={{headerShown: false}}  />
             </>
-            
-
     }
         </Stack.Navigator>
-        
     )
 }
 
