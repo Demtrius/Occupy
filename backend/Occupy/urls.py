@@ -37,7 +37,7 @@ urlpatterns = [
   path('current-occupier/',views.get_posts_for_current_occupier, name='current_occupier'),
   path('search', CliqueSearch.as_view()),
   path('<str:name>',DetailClique.as_view(),name='clique-detail'),
-  path('<str:name>/posts',ListPostsOfClique.as_view(), name='clique_posts'),
+  path('<int:id>/posts',ListPostsOfClique.as_view(), name='clique_posts'),
   path('post_comment_list/<int:post_id>',views.CommentPostView.as_view(),name='comments'),
   path('', include(router.urls)),
   path('follows/', follow_list, name='follow-list'),

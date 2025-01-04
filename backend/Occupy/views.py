@@ -195,7 +195,7 @@ class DetailClique(generics.RetrieveUpdateDestroyAPIView):
 class ListPostsOfClique(generics.ListAPIView,mixins.RetrieveModelMixin):
     serializer_class = CurrentCliqueSerializer
     queryset = Clique.objects.all()
-    lookup_field = 'name'
+    lookup_field = 'id'
 
     def get(self,request:Request,*args,**kwargs):
         return self.retrieve(request,*args,**kwargs)
