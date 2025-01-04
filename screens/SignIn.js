@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -54,6 +54,12 @@ function SignIn({ navigation }) {
       setError('An error occurred. Please try again.');
     }
   };
+
+  useEffect(() => {
+    if (username && password) {
+      handleLogin();
+    }
+  }, [username, password]);
 
   return (
     <KeyboardAvoidingView

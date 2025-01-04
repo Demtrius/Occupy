@@ -216,21 +216,24 @@ function Feed() {
           transparent={false}
           onRequestClose={closeModal}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Post Details</Text>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity style={[styles.modalButton, styles.greenButton, styles.closeButton]} onPress={closeModal}>
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+              <Text style={[styles.modalTitle, { textAlign: 'center', flex: 1 }]}>Post Details</Text>
+            </View>
+            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.modalImage} />
             <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
             <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
             <Text style={styles.modalText}>Clique: {postsClique.name}</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-              <Text style={styles.closeButtonText}>Close</Text>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Clique', { id: selectedPost.clique })}>
+              <Text style={styles.modalButtonText}>Navigate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Search', { id: selectedPost.clique })}>
-              <Text style={styles.closeButtonText}>Navigate</Text>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Profile', { id: selectedPost.user })}>
+              <Text style={styles.modalButtonText}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Profile', { id: selectedPost.user })}>
-              <Text style={styles.closeButtonText}>Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Contact', { id: selectedPost.user })}>
-              <Text style={styles.closeButtonText}>Contact</Text>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Contact', { id: selectedPost.user })}>
+              <Text style={styles.modalButtonText}>Contact</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -255,7 +258,7 @@ const styles = StyleSheet.create({
     elevation: 3, // For Android shadow
   },
   listContainer: {
-    paddingHorizontal: width * 0.04,
+    paddingHorizontal: width * 0.01,
     paddingTop: height * 0.01,
   },
   itemContainer: {
@@ -415,25 +418,49 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+    marginTop: -150,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    textAlign: 'center',
+    flex: 2,
+    marginLeft:-60,
   },
   modalText: {
     fontSize: 16,
     color: '#1F2937',
     marginBottom: 10,
   },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 5,
-    marginBottom: 10,
+  modalImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 20,
   },
-  closeButtonText: {
+  modalButton: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 5,
+    width: '80%',
+    alignItems: 'center',
+  },
+  greenButton: {
+    backgroundColor: '#6ba32d',
+  },
+  closeButton: {
+    width: 'auto',
+    paddingHorizontal: 15,
+  },
+  modalButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },
