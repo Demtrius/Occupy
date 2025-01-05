@@ -8,8 +8,11 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { HeaderBackButton } from '@react-navigation/elements';
+
+const { height } = Dimensions.get('window');
 
 function MessageDetail({ route, navigation }) {
   const { messageId } = route.params;
@@ -50,7 +53,13 @@ function MessageDetail({ route, navigation }) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <HeaderBackButton onPress={() => navigation.navigate('Notification')} />
+      <View style={styles.header}>
+        <HeaderBackButton
+          onPress={() => navigation.navigate('Notification')}
+          tintColor="#6ba32d" // Change to green
+        />
+        <Text style={styles.headerTitle}>{message?.sender}</Text>
+      </View>
       {message && (
         <>
           <FlatList
@@ -81,6 +90,7 @@ function MessageDetail({ route, navigation }) {
               value={newMessage}
               onChangeText={setNewMessage}
               placeholder="Type a message"
+              placeholderTextColor="black" // Change placeholder text color to black
             />
             <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
               <Text style={styles.sendButtonText}>Send</Text>
@@ -95,15 +105,27 @@ function MessageDetail({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingTop: 40,
+    backgroundColor: '#ffffff',
+    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#6ba32d', // Change to green
+    marginLeft: 8,
   },
   messageList: {
     paddingHorizontal: 16,
     paddingBottom: 16,
   },
   messageBubble: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ddd',
     padding: 12,
     borderRadius: 20,
     marginVertical: 6,
@@ -114,7 +136,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   otherMessage: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ddd',
     alignSelf: 'flex-start',
   },
   messageSender: {
@@ -130,9 +152,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderTopWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#ffffff',
+
+    // backgroundColor: '#ffffff',
   },
   input: {
     flex: 1,
@@ -142,11 +163,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     fontSize: 14,
-    backgroundColor: '#f9f9f9',
   },
   sendButton: {
     marginLeft: 12,
-    backgroundColor: '#007aff',
+    backgroundColor: '#6ba32d', // Change to green
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 20,
