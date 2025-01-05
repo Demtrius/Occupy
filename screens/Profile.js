@@ -68,7 +68,7 @@ function Profile({ navigation }) {
             <Text style={styles.infoText}>Followers: {occupierObj?.followers}</Text>
           </View>
         )}
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('NotificationsTab')}>
           <Text style={styles.menuText}>Recent messages</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>

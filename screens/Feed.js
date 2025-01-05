@@ -137,14 +137,18 @@ function Feed() {
     const cliqueName = cliques.find(clique => clique.id === item.clique)?.name || 'Unknown Clique';
     return (
       <View style={styles.nearYouCard}>
-        <View style={styles.cardHeader}>
-          <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
-          <Text style={styles.dateBadge}>MAR 05</Text>
-        </View>
-        <Text style={styles.cardTitle}>{item.caption}</Text>
-        <Text style={styles.cardSubtitle}>{cliqueName}</Text>
-        <TouchableOpacity style={styles.contactButton}>
-          <Text style={styles.contactButtonText}>Contact</Text>
+        <TouchableOpacity
+          style={styles.postTouchable}
+          onPress={() => openModal(item)}>
+          <View style={styles.cardHeader}>
+            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
+            <Text style={styles.dateBadge}>MAR 05</Text>
+          </View>
+          <Text style={styles.cardTitle}>{item.caption}</Text>
+          <Text style={styles.cardSubtitle}>{cliqueName}</Text>
+          <TouchableOpacity style={styles.contactButton}>
+            <Text style={styles.contactButtonText}>Contact</Text>
+          </TouchableOpacity>
         </TouchableOpacity>
       </View>
     );
@@ -230,10 +234,10 @@ function Feed() {
             <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
             <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
             <Text style={styles.modalText}>Clique: {postsClique.name}</Text>
-            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Clique', { id: selectedPost.clique })}>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: selectedPost.clique}}) }}>
               <Text style={styles.modalButtonText}>Navigate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Profile', { id: selectedPost.user })}>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('Profile', { id: selectedPost.user })}}>
               <Text style={styles.modalButtonText}>Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: selectedPost.user}}) }}>
