@@ -38,7 +38,7 @@ function MessageDetail({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <HeaderBackButton onPress={() => navigation.navigate('Notifications')} />
+      <HeaderBackButton onPress={() => navigation.navigate('Notification')} />
       {message && (
         <>
           <Text style={styles.sender}>{message.sender}</Text>
