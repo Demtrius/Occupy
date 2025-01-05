@@ -22,6 +22,7 @@ import { Context, Provider } from './components/globalContext/globalContext';
 import Landing from './screens/Landing';
 import Navigator from './navigation/navigator';
 import Feed from './screens/Feed';
+import MessageDetail from './screens/MessageDetail'
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -32,12 +33,29 @@ function CliquesStack() {
       <Stack.Screen
         name="Cliques"
         component={Cliques}
-        options={{ headerShown: false }} // Hide default header
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Clique"
         component={Clique}
-        options={{ headerShown: false }} // Hide default header
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function NotificationStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Notification"
+        component={Notifications}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MessageDetail"
+        component={MessageDetail}
+        options={{ headerShown: false }} 
       />
     </Stack.Navigator>
   );
@@ -91,8 +109,8 @@ return (
   }}
   />
   <Tab.Screen
-  name="Notifications"
-  component={Notifications}
+  name="NotificationsTab"
+  component={NotificationStack}
   options={{
     tabBarLabel: 'Notifications',
           tabBarIcon: ({ color, size }) => (

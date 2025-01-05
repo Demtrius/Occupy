@@ -236,7 +236,7 @@ function Feed() {
             <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Profile', { id: selectedPost.user })}>
               <Text style={styles.modalButtonText}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => navigation.navigate('Contact', { id: selectedPost.user })}>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: selectedPost.user}}) }}>
               <Text style={styles.modalButtonText}>Contact</Text>
             </TouchableOpacity>
           </View>

@@ -50,7 +50,7 @@ function MessageDetail({ route, navigation }) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <HeaderBackButton onPress={() => navigation.navigate('Notifications')} />
+      <HeaderBackButton onPress={() => navigation.navigate('Notification')} />
       {message && (
         <>
           <FlatList
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    paddingTop: 40,
   },
   messageList: {
     paddingHorizontal: 16,
