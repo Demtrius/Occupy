@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
-import { Searchbar, Button } from 'react-native-paper';
+import { Searchbar as PaperSearchbar, Button } from 'react-native-paper';
 import axios from 'axios';
 import { Context } from '../components/globalContext/globalContext';
 
@@ -17,7 +17,6 @@ function Search(props) {
   const [category, setCategory] = useState('all');
 
   const [userList, setUsersList] = useState([]);
-  const { width, height } = Dimensions.get('window');
   
   const getCliques = () => {
     axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
@@ -156,7 +155,7 @@ function Search(props) {
 
   return (
     <View style={styles.container}>
-      <Searchbar
+      <PaperSearchbar
         style={styles.searchBar}
         placeholder="Search"
         value={search}
@@ -272,3 +271,4 @@ const styles = StyleSheet.create({
 });
 
 export default Search;
+export { PaperSearchbar as Searchbar };
