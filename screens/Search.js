@@ -1,12 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import { Searchbar as PaperSearchbar, Button } from 'react-native-paper';
 import axios from 'axios';
 import { Context } from '../components/globalContext/globalContext';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
 function Search(props) {
+  const navigation = useNavigation();
   const globalContext = useContext(Context);
   const { user } = globalContext;
   const [search, setSearch] = useState('');
@@ -147,8 +149,26 @@ function Search(props) {
   
     return (
       <View style={styles.itemContainer}>
-        <Text style={styles.itemText}>{displayName}</Text>
-        <Text style={styles.itemType}>{itemType ?? 'Unknown Type'}</Text>
+        <TouchableOpacity
+          onPress={() => {
+            switch (itemType) {
+              case "Occupation":
+                navigation.navigate('CliquesTab')
+              break;
+              case "User":
+                navigation.navigate('ViewUser', { id: item.username })
+              break;
+              case "Clique":
+                navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: item.clique}})
+              break;
+              default:
+                navigation.navigate('Home')
+              break;
+            }
+          }}>
+          <Text style={styles.itemText}>{displayName}</Text>
+          <Text style={styles.itemType}>{itemType ?? 'Unknown Type'}</Text>
+        </TouchableOpacity>
       </View>
     );
   };

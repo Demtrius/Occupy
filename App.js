@@ -23,6 +23,7 @@ import Landing from './screens/Landing';
 import Navigator from './navigation/navigator';
 import Feed from './screens/Feed';
 import MessageDetail from './screens/MessageDetail'
+import ViewUser from './screens/ViewUser';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -61,9 +62,31 @@ function NotificationStack() {
   );
 }
 
+function SearchStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Search"
+        component={Search}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ViewUser"
+        component={ViewUser}
+        options={{ headerShown: false }} 
+      />
+    </Stack.Navigator>
+  );
+}
+
 function MyTabs(){
 return (
-  <Tab.Navigator>
+  <Tab.Navigator
+    screenOptions={{
+      tabBarActiveTintColor: '#6ba32d',
+      tabBarInactiveTintColor: 'black',
+    }}
+  >
   <Tab.Screen
   name="Home"
   component={Feed}
@@ -76,8 +99,8 @@ return (
   }}
   />
   <Tab.Screen
-  name="Search"
-  component={Search}
+  name="SearchTab"
+  component={SearchStack}
   options={{
     tabBarLabel: 'Search',
           tabBarIcon: ({ color, size }) => (
