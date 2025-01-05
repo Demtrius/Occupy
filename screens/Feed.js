@@ -480,6 +480,7 @@ const styles = StyleSheet.create({
   closeButton: {
     width: 'auto',
     paddingHorizontal: 15,
+    zIndex: 1, // Ensure the close button is on top
   },
   modalButtonText: {
     color: 'white',
