@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TouchableWithoutFeedback, Dimensions } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image, Keyboard } from 'react-native';
+import { Searchbar as PaperSearchbar } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
@@ -8,6 +10,11 @@ const Clique = () => {
   const [clique, setClique] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Posts');
+  const [search, setSearch] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+  const [masterDataSource, setMasterDataSource] = useState([]);
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const searchBarRef = useRef(null);
 
   const getClique = () => {
     axios
@@ -15,6 +22,8 @@ const Clique = () => {
       .then((response) => {
         const myClique = response.data.posts;
         setClique(myClique);
+        setFilteredDataSource(myClique);
+        setMasterDataSource(myClique);
       })
       .catch((error) => console.log(error))
       .finally(() => {
@@ -24,10 +33,28 @@ const Clique = () => {
 
   useEffect(() => getClique(), []);
 
+  const searchFilterFunction = (text) => {
+    if (text) {
+      const newData = masterDataSource.filter((item) => {
+        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredDataSource(newData);
+      setSearch(text);
+    } else {
+      setFilteredDataSource(masterDataSource);
+      setSearch(text);
+      setShowSearchBar(false); // Close search bar if text is empty
+    }
+  };
+
   const renderClique = ({ item }) => {
     return (
       <View style={styles.cardContainer}>
-        <View style={styles.imagePlaceholder} />
+        <View style={styles.cardHeader}>
+          <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
+        </View>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.description}>{item.description}</Text>
         <TouchableOpacity style={styles.contactButton}>
@@ -59,7 +86,34 @@ const Clique = () => {
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Creative Designers Hub</Text>
+        {!showSearchBar && (
+          <>
+            <Text style={styles.headerTitle}>Creative Designers Hub</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowSearchBar(true);
+                setTimeout(() => {
+                  searchBarRef.current.focus();
+                }, 100);
+              }}
+              style={styles.searchIcon}
+            >
+              <Ionicons name="search" size={24} color="black" />
+            </TouchableOpacity>
+          </>
+        )}
+        {showSearchBar && (
+          <PaperSearchbar
+            ref={searchBarRef}
+            style={styles.searchBar}
+            placeholder="Search"
+            value={search}
+            onChangeText={(text) => searchFilterFunction(text)}
+            onBlur={() => {
+              if (!search) setShowSearchBar(false); // Close search bar if text is empty
+            }}
+          />
+        )}
       </View>
       <View style={styles.tabContainer}>
         {['Posts', 'Reviews', 'Clique info'].map((tab) => (
@@ -83,12 +137,12 @@ const Clique = () => {
         ))}
       </View>
       {loading ? (
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color="#6ba32d" />
       ) : (
         <>
           {activeTab === 'Posts' && (
             <FlatList
-              data={clique}
+              data={filteredDataSource}
               keyExtractor={(item, index) => index.toString()}
               renderItem={renderClique}
               contentContainerStyle={styles.listContainer}
@@ -105,26 +159,35 @@ const Clique = () => {
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#ffffff',
     paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
   },
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center', // Center the header text
     alignItems: 'center',
-    padding: 16,
+    paddingBottom: 8,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    flex: 1, // Take up remaining space
+    textAlign: 'center', // Center the text
+    paddingLeft: 40, // Add padding to the left to avoid the icon being too close to the edge
   },
   searchIcon: {
-    fontSize: 18,
-    color: '#007bff',
+    paddingRight: 16, // Add padding to the right to avoid the icon being too close to the edge
+  },
+  searchBar: {
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // For Android shadow
+    width: width * 0.92, // Ensure the same width as on Search.js
   },
   tabContainer: {
     flexDirection: 'row',
@@ -140,14 +203,14 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#007bff',
+    borderBottomColor: '#6ba32d',
   },
   tabText: {
     fontSize: 16,
     color: '#666',
   },
   activeTabText: {
-    color: '#007bff',
+    color: '#6ba32d',
     fontWeight: 'bold',
   },
   listContainer: {
@@ -164,11 +227,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  imagePlaceholder: {
-    height: 100,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 10,
-    marginBottom: 16,
+  cardHeader: {
+    position: 'relative',
+  },
+  cardImage: {
+    width: '100%',
+    height: 80,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#E5E7EB',
   },
   name: {
     fontSize: 18,
@@ -182,7 +249,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   contactButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#6ba32d',
     paddingVertical: 10,
     borderRadius: 5,
     alignItems: 'center',
