@@ -1,7 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
+
+const { width, height } = Dimensions.get('window');
 
 const Post = () => {
   const [content, setContent] = useState('');
@@ -120,6 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#ffffff',
+    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
   },
   title: {
     fontSize: 24,

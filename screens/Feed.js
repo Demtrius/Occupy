@@ -186,15 +186,19 @@ function Feed() {
 
       <Text style={[styles.sectionTitle, { marginLeft: width * 0.04, marginTop: height * 0.02 }]}>Posts for you</Text>
 
-      <FlatList
-        data={filteredDataSource}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderPosts}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        style={{ flexGrow: 0 }} // Prevent FlatList from growing
-      />
+      {filteredDataSource.length === 0 ? (
+        <Text style={styles.noPostsText}>No posts available</Text>
+      ) : (
+        <FlatList
+          data={filteredDataSource}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderPosts}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          style={{ flexGrow: 0 }} // Prevent FlatList from growing
+        />
+      )}
 
       <View style={styles.nearYouSection}>
         <Text style={[styles.sectionTitle, { marginLeft: width * 0.04 }]}>Near you</Text>
@@ -306,6 +310,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1F2937',
     marginBottom: 1,
+  },
+  noPostsText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#888',
+    marginTop: 20,
+  },
+  nearYouSection: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'white',
+    paddingBottom: 20,
   },
   nearYouContainer: {
     paddingHorizontal: width * 0.04,

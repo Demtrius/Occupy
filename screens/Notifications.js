@@ -54,7 +54,7 @@ function Notifications() {
 
   const renderNotification = ({ item }) => (
     <TouchableOpacity
-      style={styles.notificationContainer}
+      style={styles.postContainer}
       onPress={() => navigation.navigate('MessageDetail', { messageId: item.id })}
     >
       <Image
@@ -62,7 +62,7 @@ function Notifications() {
         style={styles.avatar}
       />
       <View style={styles.textContainer}>
-        <Text style={styles.sender}>{item.sender}</Text>
+        <Text style={styles.postTitle}>{item.sender}</Text>
         <Text style={styles.text}>{item.text}</Text>
       </View>
       {item.unreadCount > 0 && (
@@ -85,6 +85,7 @@ function Notifications() {
         data={filteredDataSource}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderNotification}
+        contentContainerStyle={styles.listContainer}
       />
     </View>
   );
@@ -96,15 +97,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
   },
-  title: {
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
-    marginVertical: 10,
-    color: '#000',
-  },
   searchBar: {
     marginHorizontal: width * 0.04,
+    marginBottom: height * 0.01, // Add more room at the bottom of the search bar
     borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -112,26 +107,37 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3, // For Android shadow
   },
-  notificationContainer: {
+  listContainer: {
+    paddingHorizontal: width * 0.04,
+    paddingTop: height * 0.02, // Add padding between the search bar and the messages
+  },
+  postContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
+    marginBottom: 16,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
   },
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 15,
+    backgroundColor: '#E5E7EB',
   },
   textContainer: {
     flex: 1,
   },
-  sender: {
+  postTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#1F2937',
   },
   text: {
     fontSize: 14,
@@ -139,7 +145,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   unreadBadge: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#6ba32d',
     borderRadius: 15,
     paddingHorizontal: 8,
     paddingVertical: 4,
