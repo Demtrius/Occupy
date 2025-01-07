@@ -195,7 +195,7 @@ class DetailClique(generics.RetrieveUpdateDestroyAPIView):
 class ListPostsOfClique(generics.ListAPIView,mixins.RetrieveModelMixin):
     serializer_class = CurrentCliqueSerializer
     queryset = Clique.objects.all()
-    lookup_field = 'name'
+    lookup_field = 'id'
 
     def get(self,request:Request,*args,**kwargs):
         return self.retrieve(request,*args,**kwargs)
@@ -291,7 +291,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 class JoinCliqueView(generics.GenericAPIView):
     serializer_class = JoinCliqueSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

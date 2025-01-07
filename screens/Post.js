@@ -97,7 +97,7 @@ const Post = () => {
           ))}
         </View>
 
-        <Text style={styles.label}>Other tags</Text>
+        <Text style={styles.label}>Other cliques</Text>
         <DropDownPicker
           open={open}
           value={clique}
@@ -106,7 +106,7 @@ const Post = () => {
           setValue={setClique}
           setItems={setItems}
           style={styles.dropdown}
-          placeholder="Select tags"
+          placeholder="Select Clique"
         />
 
         <Button mode="contained" style={styles.createButton} onPress={createPost}>
