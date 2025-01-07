@@ -137,7 +137,8 @@ class Follow(models.Model):
         return f'{self.follower} follows {self.followed}'
 
 
-
-
-
+class Notification(models.Model):
+    user = models.ForeignKey(Occupier, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
     

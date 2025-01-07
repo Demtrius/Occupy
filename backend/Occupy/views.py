@@ -23,6 +23,8 @@ from rest_framework.request import Request
 from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
 from rest_framework.viewsets import ModelViewSet
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 import json
 # Create your views here.

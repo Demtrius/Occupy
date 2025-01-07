@@ -5,6 +5,7 @@ app_name="Occupy"
 from . import views
 from .views import *
 
+
 router = DefaultRouter()
 router.register(r'follows', FollowViewSet, basename='follow')
 
