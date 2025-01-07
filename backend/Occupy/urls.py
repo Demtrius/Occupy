@@ -39,12 +39,12 @@ urlpatterns = [
   path('<str:name>',DetailClique.as_view(),name='clique-detail'),
 
 #   this should realy be done with a ID
-  path('<int:id>/posts',ListPostsOfClique.as_view(), name='clique_posts'),
+  path('<int:pk>/posts',ListPostsOfClique.as_view(), name='clique_posts'),
   path('post_comment_list/<int:post_id>',views.CommentPostView.as_view(),name='comments'),
   path('', include(router.urls)),
   path('follows/', follow_list, name='follow-list'),
   path('follows/<int:pk>/', follow_detail, name='follow-detail'),
-  path('cliques-join/ ', JoinCliqueView.as_view(), name='join_clique'  ),
+  path('cliques-join/ ', JoinCliqueView.as_view(), name='join_clique'  )
 ]
 
 

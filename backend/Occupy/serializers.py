@@ -22,7 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique']
 
     def get_comments(self,obj):
         comments = CommentPost.objects.filter(post=obj)[:3]
@@ -42,6 +42,7 @@ class PostSerializer_detailed(serializers.ModelSerializer):
 
 
 class CliqueSerializer(serializers.ModelSerializer):
+    posts = PostSerializer(many=True) 
     class Meta:
         model = Clique
         # posts = PostSerializer(many=True)

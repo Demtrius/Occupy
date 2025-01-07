@@ -23,6 +23,7 @@ from rest_framework.request import Request
 from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import ListAPIView
 
 import json
 # Create your views here.
@@ -192,14 +193,21 @@ class DetailClique(generics.RetrieveUpdateDestroyAPIView):
             return CliqueSerializer_detailed
         return CliqueSerializer
     
-class ListPostsOfClique(generics.ListAPIView,mixins.RetrieveModelMixin):
-    serializer_class = CurrentCliqueSerializer
-    queryset = Clique.objects.all()
-    lookup_field = 'id'
+class ListPostsOfClique(APIView):
+    def get(self, request, pk):
+        try:
+            clique = Clique.objects.prefetch_related('posts').get(pk=pk)  # Optimize with prefetch_related
+        except Clique.DoesNotExist:
+            return Response({'error': 'Clique not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def get(self,request:Request,*args,**kwargs):
-        return self.retrieve(request,*args,**kwargs)
+        serializer = CliqueSerializer(clique)
+        return Response(serializer.data)
+
     
+
+
+
+
 
 class CommentPostView(generics.ListCreateAPIView):
     serializer_class = CommentPostSerializer
