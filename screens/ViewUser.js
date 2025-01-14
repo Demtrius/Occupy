@@ -6,7 +6,6 @@ import Notifications from './Notifications';
 
 function ViewUser({ route }) {
   const { id } = route.params;
-  console.log(id)
   
   return (
     <View style={styles.container}>

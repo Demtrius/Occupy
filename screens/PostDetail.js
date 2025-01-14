@@ -2,14 +2,12 @@ import React,{useState,useEffect,useContext} from 'react';
 import {View,Text,StyleSheet,FlatList,ActivityIndicator} from 'react-native'
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import API from '../components/API.JS';
+import API from '../components/API.js';
 import { useNavigation } from '@react-navigation/native';
 
 
 
 const PostDetail = ({route}) => {
-    
-   console.log(API)
     const [post, setPost] = useState(null)
     const [loading , SetLoading] = useState(true)
 

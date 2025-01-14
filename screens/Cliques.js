@@ -46,7 +46,7 @@ function Cliques({ navigation }) {
 
   const renderCliques = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Clique')}>
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Clique', { id: item.id})}>
         <View style={styles.cardHeader}>
           <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
         </View>

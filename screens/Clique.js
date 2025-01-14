@@ -6,7 +6,7 @@ import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
 
-const Clique = () => {
+const Clique = ({route}) => {
   const [clique, setClique] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Posts');
@@ -16,9 +16,12 @@ const Clique = () => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const searchBarRef = useRef(null);
 
+  // get the post id from the parameters
+  const { id } = route.params;
+  console.log(id)
   const getClique = () => {
     axios
-      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/Painters/posts')
+      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/'+id+'/posts')
       .then((response) => {
         const myClique = response.data.posts;
         setClique(myClique);
@@ -31,7 +34,7 @@ const Clique = () => {
       });
   };
 
-  useEffect(() => getClique(), []);
+  useEffect(() => getClique(), [id]);
 
   const searchFilterFunction = (text) => {
     if (text) {
