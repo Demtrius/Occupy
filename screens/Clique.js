@@ -14,7 +14,10 @@ const Clique = ({route}) => {
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
   const [showSearchBar, setShowSearchBar] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const searchBarRef = useRef(null);
+  const [cliqueName, setCliqueName] = useState('');
+  const [cliqueInfo, setCliqueInfo] = useState({}); // Add this line
 
   // get the post id from the parameters
   const { id } = route.params;
@@ -27,6 +30,8 @@ const Clique = ({route}) => {
         setClique(myClique);
         setFilteredDataSource(myClique);
         setMasterDataSource(myClique);
+        setCliqueName(response.data.name);
+        setCliqueInfo(response.data); // Add this line
       })
       .catch((error) => console.log(error))
       .finally(() => {
@@ -39,7 +44,7 @@ const Clique = ({route}) => {
   const searchFilterFunction = (text) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
-        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+        const itemData = item.caption ? item.caption.toUpperCase() : ''.toUpperCase(); // Update this line
         const textData = text.toUpperCase();
         return itemData.indexOf(textData) > -1;
       });
@@ -58,8 +63,8 @@ const Clique = ({route}) => {
         <View style={styles.cardHeader}>
           <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
         </View>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.name}>{item.caption}</Text>
+        <Text style={styles.description}>{item.content}</Text>
         <TouchableOpacity style={styles.contactButton}>
           <Text style={styles.contactButtonText}>Contact</Text>
         </TouchableOpacity>
@@ -78,12 +83,20 @@ const Clique = ({route}) => {
   const renderCliqueInfo = () => {
     return (
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Clique Name: Creative Designers Hub</Text>
-        <Text style={styles.infoText}>Description: A hub for creative designers to share and collaborate on projects.</Text>
-        <Text style={styles.infoText}>Members: 150</Text>
-        <Text style={styles.infoText}>Founded: 2021</Text>
+        <Text style={styles.infoTitle}>Clique Information</Text> {/* Add this line */}
+        <Text style={styles.infoText}>Clique Name: {cliqueInfo.name}</Text>
+        <Text style={styles.infoText}>Description: {cliqueInfo.description}</Text>
+        <Text style={styles.infoText}>Members: {cliqueInfo.members.length}</Text>
+        <Text style={styles.infoText}>Founded: {new Date(cliqueInfo.created_at).getFullYear()}</Text>
+        <TouchableOpacity style={styles.followButton} onPress={handleFollow}> {/* Move this line */}
+          <Text style={styles.followButtonText}>{isFollowing ? 'Unfollow' : 'Follow'}</Text>
+        </TouchableOpacity> {/* Move this line */}
       </View>
     );
+  };
+
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
   };
 
   return (
@@ -91,7 +104,7 @@ const Clique = ({route}) => {
       <View style={styles.headerContainer}>
         {!showSearchBar && (
           <>
-            <Text style={styles.headerTitle}>Creative Designers Hub</Text>
+            <Text style={styles.headerTitle}>{cliqueName}</Text> {/* Update this line */}
             <TouchableOpacity
               onPress={() => {
                 setShowSearchBar(true);
@@ -178,7 +191,7 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1, // Take up remaining space
     textAlign: 'center', // Center the text
-    paddingLeft: 40, // Add padding to the left to avoid the icon being too close to the edge
+    paddingLeft: 30, // Remove padding to center the text
   },
   searchIcon: {
     paddingRight: 16, // Add padding to the right to avoid the icon being too close to the edge
@@ -235,7 +248,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: '100%',
-    height: 80,
+    height: 120, // Increase the height
     borderRadius: 8,
     marginBottom: 8,
     backgroundColor: '#E5E7EB',
@@ -247,6 +260,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   description: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+  },
+  caption: {
     fontSize: 14,
     color: '#666',
     marginBottom: 16,
@@ -273,11 +291,37 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     padding: 16,
+    backgroundColor: '#f9f9f9', // Add this line
+    borderRadius: 10, // Add this line
+    margin: 16, // Add this line
+    shadowColor: '#000', // Add this line
+    shadowOffset: { width: 0, height: 2 }, // Add this line
+    shadowOpacity: 0.1, // Add this line
+    shadowRadius: 4, // Add this line
+    elevation: 3, // Add this line
+  },
+  infoTitle: { // Add this block
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
   },
   infoText: {
     fontSize: 16,
     color: '#333',
     marginBottom: 8,
+  },
+  followButton: {
+    backgroundColor: '#6ba32d',
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    margin: 16,
+  },
+  followButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
