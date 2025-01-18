@@ -2,7 +2,7 @@ from dataclasses import field
 from typing import final
 from django.db import models
 from rest_framework import fields, serializers
-from .models import Clique,Post,CommentPost,Follow
+from .models import Clique,Post,CommentPost,Follow,Review
 from Occupier.models import Occupier
 from rest_framework.validators import UniqueTogetherValidator
 # from serializers import 
@@ -43,12 +43,15 @@ class PostSerializer_detailed(serializers.ModelSerializer):
 
 class CliqueSerializer(serializers.ModelSerializer):
     posts = PostSerializer(many=True) 
+    reviews = serializers.SerializerMethodField()
+    
     class Meta:
         model = Clique
-        # posts = PostSerializer(many=True)
-        # fields = ('name', 'created_at', 'level','id','occupation')
-        # name = serializers.StringRelatedField(read_only=False)
         fields = '__all__'
+
+    def get_reviews(self,obj):
+        reviews = obk.reviews.all()
+        return [f"{review.user}: {review.comment}" for review in reviews]
 
 
 class CliqueSerializer_detailed(serializers.ModelSerializer):
@@ -110,3 +113,11 @@ class FollowSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You are already following this user.")
         
         return data
+
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'occupier', 'clique',  'body', 'created_at']
+

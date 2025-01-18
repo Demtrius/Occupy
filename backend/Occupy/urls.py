@@ -7,7 +7,7 @@ from .views import *
 
 router = DefaultRouter()
 router.register(r'follows', FollowViewSet, basename='follow')
-
+router.register(r'reviews', ReviewViewSet)
 
 
 
@@ -44,7 +44,8 @@ urlpatterns = [
   path('', include(router.urls)),
   path('follows/', follow_list, name='follow-list'),
   path('follows/<int:pk>/', follow_detail, name='follow-detail'),
-  path('cliques-join/ ', JoinCliqueView.as_view(), name='join_clique'  )
+  path('cliques-join/', JoinCliqueView.as_view(), name='join_clique'),
+  
 ]
 
 
