@@ -50,7 +50,7 @@ class CliqueSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_reviews(self,obj):
-        reviews = obk.reviews.all()
+        reviews = obj.reviews.all()
         return [f"{review.user}: {review.comment}" for review in reviews]
 
 
