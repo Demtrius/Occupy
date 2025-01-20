@@ -136,9 +136,13 @@ class Follow(models.Model):
     def __str__(self):
         return f'{self.follower} follows {self.followed}'
 
+class Review(models.Model):
+    body = models.TextField()
+    occupier = models.ForeignKey(Occupier,on_delete=models.SET_NULL,null=True)
+    date = models.DateTimeField(auto_now_add=True)
+    clique = models.ForeignKey(Clique, on_delete=models.CASCADE,related_name="reviews")
 
-class Notification(models.Model):
-    user = models.ForeignKey(Occupier, on_delete=models.CASCADE)
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return str(self.body)
+
     

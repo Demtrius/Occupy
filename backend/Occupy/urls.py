@@ -11,7 +11,6 @@ router.register(r'follows', FollowViewSet, basename='follow')
 
 
 
-
 follow_list = FollowViewSet.as_view({
     'get': 'list',
     'post': 'create'
@@ -43,7 +42,7 @@ urlpatterns = [
   path('', include(router.urls)),
   path('follows/', follow_list, name='follow-list'),
   path('follows/<int:pk>/', follow_detail, name='follow-detail'),
-  path('cliques-join/',JoinCliqueView.as_view(),name='join_clique' ),
+  path('cliques-join/', JoinCliqueView.as_view(), name='join_clique'),
   path('review/',ReviewView.as_view(),name='review')
 ]
 
