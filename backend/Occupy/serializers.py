@@ -119,5 +119,5 @@ class FollowSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['id', 'occupier', 'clique',  'body', 'created_at']
+        fields =  ['occupier','body','clique']
 

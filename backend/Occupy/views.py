@@ -311,16 +311,38 @@ class JoinCliqueView(generics.GenericAPIView):
         )
 
     
-class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
+class ReviewView(generics.GenericAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def perform_create(self, serializer):
-        # Allow reviews to be associated with cliques during creation
-        clique_id = self.request.data.get('clique_id')
-        clique = Clique.objects.get(id=clique_id)
-        serializer.save(clique=clique)
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = ReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"message": "Review submitted successfully."},
+            status=status.HTTP_201_CREATED
+        )
+    def list_reviews_for_cliques(self,request,clique_id):
+        """
+        Fetch and return all reviews associated with a given clique ID.
+        """
+        # Filter reviews by clique_id
+        reviews = Review.objects.filter(clique_id=clique_id)
+        
+        # Check if reviews exist for the provided clique_id
+        if not reviews.exists():
+            return Response(
+                {"message": f"No reviews found for clique ID {clique_id}."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Serialize the data
+        serializer = self.serializer_class(reviews, many=True)
+        
+        # Return the serialized reviews
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
