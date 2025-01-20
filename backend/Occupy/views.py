@@ -1,8 +1,8 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
-from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer
+from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer,ReviewSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique,CommentPost,Follow
+from .models import  Post,Clique,CommentPost,Follow,Review
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response
@@ -23,7 +23,8 @@ from rest_framework.request import Request
 from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListAPIView
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 import json
 # Create your views here.
@@ -193,21 +194,14 @@ class DetailClique(generics.RetrieveUpdateDestroyAPIView):
             return CliqueSerializer_detailed
         return CliqueSerializer
     
-class ListPostsOfClique(APIView):
-    def get(self, request, pk):
-        try:
-            clique = Clique.objects.prefetch_related('posts').get(pk=pk)  # Optimize with prefetch_related
-        except Clique.DoesNotExist:
-            return Response({'error': 'Clique not found'}, status=status.HTTP_404_NOT_FOUND)
+class ListPostsOfClique(generics.ListAPIView,mixins.RetrieveModelMixin):
+    serializer_class = CurrentCliqueSerializer
+    queryset = Clique.objects.all()
+    lookup_field = 'name'
 
-        serializer = CliqueSerializer(clique)
-        return Response(serializer.data)
-
+    def get(self,request:Request,*args,**kwargs):
+        return self.retrieve(request,*args,**kwargs)
     
-
-
-
-
 
 class CommentPostView(generics.ListCreateAPIView):
     serializer_class = CommentPostSerializer
@@ -309,7 +303,42 @@ class JoinCliqueView(generics.GenericAPIView):
             {"message": f"You have successfully joined the clique: {clique.name}"},
             status=status.HTTP_200_OK
         )
+class ReviewView(generics.GenericAPIView):
+    serializer_class = ReviewSerializer
 
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = ReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"message": "Review submitted successfully."},
+            status=status.HTTP_201_CREATED
+        )
+    def list_reviews_for_cliques(self,request,clique_id):
+        """
+        Fetch and return all reviews associated with a given clique ID.
+        """
+        # Filter reviews by clique_id
+        reviews = Review.objects.filter(clique_id=clique_id)
+        
+        # Check if reviews exist for the provided clique_id
+        if not reviews.exists():
+            return Response(
+                {"message": f"No reviews found for clique ID {clique_id}."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Serialize the data
+        serializer = self.serializer_class(reviews, many=True)
+        
+        # Return the serialized reviews
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+ 
+        
     
     
     

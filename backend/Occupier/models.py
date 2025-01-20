@@ -29,6 +29,16 @@ class OccupierManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
+    def create_business_page(self, email, username, occupation, password=None):
+        user = self.create_user(
+            email = self.normalize_email(email),
+            password = password,
+            username=username,
+            occupations = occupation
+        )
+        user.is_business_page = True
+        user.save(using=self._db)
+        return user
 
     def create_superuser(self,email,username,password,occupations):
         user = self.create_user(
@@ -43,6 +53,9 @@ class OccupierManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+
+
+
 
 #Occupier model
 class Occupier(AbstractBaseUser,PermissionsMixin):
@@ -90,3 +103,4 @@ def has_module_perms(self,app_label):
 
 
 
+    
