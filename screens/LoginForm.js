@@ -25,7 +25,7 @@ function LoginForm({navigation,route,props}){
         'password':password
     })
     console.log(body)
-    axiosInstance.post('http://127.0.0.1:8000/auth/jwt/create/',{
+    axiosInstance.post(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/jwt/create/',{
         body :body
     }) 
     axiosInstance.defaults.headers['Authorization'] = 'Bearer' + Response.data.access
@@ -49,7 +49,7 @@ function LoginForm({navigation,route,props}){
          setIsLoggedIn(true)
       })
       .catch(error =>{
-        console.log(error)
+        console.error ("Error fetching data:", error)
       })
 }
 

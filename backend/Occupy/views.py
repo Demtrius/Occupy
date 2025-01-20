@@ -197,7 +197,7 @@ class DetailClique(generics.RetrieveUpdateDestroyAPIView):
 class ListPostsOfClique(generics.ListAPIView,mixins.RetrieveModelMixin):
     serializer_class = CurrentCliqueSerializer
     queryset = Clique.objects.all()
-    lookup_field = 'id'
+    lookup_field = 'name'
 
     def get(self,request:Request,*args,**kwargs):
         return self.retrieve(request,*args,**kwargs)
@@ -293,7 +293,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 class JoinCliqueView(generics.GenericAPIView):
     serializer_class = JoinCliqueSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -340,7 +340,41 @@ class ReviewView(generics.GenericAPIView):
  
         
     
-    
+class ReviewView(generics.GenericAPIView):
+    serializer_class = ReviewSerializer
+
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = ReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"message": "Review submitted successfully."},
+            status=status.HTTP_201_CREATED
+        )
+    def list_reviews_for_cliques(self,request,clique_id):
+        """
+        Fetch and return all reviews associated with a given clique ID.
+        """
+        # Filter reviews by clique_id
+        reviews = Review.objects.filter(clique_id=clique_id)
+        
+        # Check if reviews exist for the provided clique_id
+        if not reviews.exists():
+            return Response(
+                {"message": f"No reviews found for clique ID {clique_id}."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Serialize the data
+        serializer = self.serializer_class(reviews, many=True)
+        
+        # Return the serialized reviews
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
     
         
         

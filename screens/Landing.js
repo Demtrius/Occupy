@@ -4,6 +4,7 @@ import { Context } from '../components/globalContext/globalContext'
 import SignIn from '../screens/SignIn'
 import Home from '../screens/Home'
 import Register from '../screens/Register'
+import Config from "react-native-config";
 
 function Landing({navigation,route,props}){
 
@@ -11,7 +12,7 @@ function Landing({navigation,route,props}){
     const {isLoggedIn} = Context
     return (
         <View style={styles.container}>
-            <Text style={styles.greeting}> Welcome to Occupy !</Text>
+            <Text style={styles.greeting}> {process.env.EXPO_PUBLIC_BACKEND_URL} to Occupy !</Text>
             <Text style={styles.status}>You are {(isLoggedIn)? '' : "Not"} Logged in</Text>
             <TouchableOpacity style={styles.buttonContainer} onPress={()=> navigation.navigate("SignIn")}>
                 <Text>Sign in</Text>

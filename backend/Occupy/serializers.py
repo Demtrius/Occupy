@@ -2,7 +2,7 @@ from dataclasses import field
 from typing import final
 from django.db import models
 from rest_framework import fields, serializers
-from .models import Clique,Post,CommentPost,Follow,Review
+from .models import Clique,Post,CommentPost,Follow,Review,Review
 from Occupier.models import Occupier
 from rest_framework.validators import UniqueTogetherValidator
 # from serializers import 
@@ -22,7 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique']
 
     def get_comments(self,obj):
         comments = CommentPost.objects.filter(post=obj)[:3]
@@ -58,6 +58,10 @@ class CliqueSerializer(serializers.ModelSerializer):
 
 
 
+
+    def get_reviews(self,obj):
+        reviews = obj.reviews.all()
+        return [f"{review.user}: {review.comment}" for review in reviews]
 
 
 class CliqueSerializer_detailed(serializers.ModelSerializer):
@@ -122,4 +126,8 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields =  ['occupier','body','clique']
 

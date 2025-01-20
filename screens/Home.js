@@ -20,7 +20,7 @@ function Home({}){
     const [loading,setLoading] = useState(true)
 
     const getPost = () => {
-        axios.get('http://127.0.0.1:8000/api/post-list')
+        axios.get( process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
         .then((response) => {
             const myPost = response.data;
             setPost(myPost)
@@ -43,11 +43,6 @@ const IconButton = () => {
     )
 }
 
-
-
-
-
-
 const renderPosts = ({item}) => (
     <View style={styles.container}>
         <Link href={'/posts'}>Open</Link>
@@ -63,13 +58,9 @@ const renderPosts = ({item}) => (
         </View>
         </View>
     </View>
-
 )
 
-
-
 }
-
 
 const styles = StyleSheet.create({
     container: {
@@ -78,7 +69,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 10,
         borderColor: 'lightgrey',
-        borderBottomWidth: StyleSheet.hairlineWidth
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        paddingTop: 50, // Add padding to avoid content getting under the dynamic island
     },
     mainContainer: {
         marginLeft:10,

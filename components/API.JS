@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 const API  = axios.create({
-baseURL: "http://127.0.0.1:8000/",
+baseURL: process.env.EXPO_PUBLIC_BACKEND_URL,
 headers: {
     'Content-Type': 'application/json',
   },
