@@ -54,7 +54,7 @@ class CurrentOccupierSerializer(serializers.ModelSerializer):
     posts = serializers.StringRelatedField(many=True)
     class Meta:
         model = Occupier
-        fields =['id','username','email','occupations','date_joined','posts']
+        fields =['id','username','email','occupations','date_joined','posts','followers']
 
 class OccupierSerializer(serializers.ModelSerializer):
     following = serializers.SerializerMethodField()

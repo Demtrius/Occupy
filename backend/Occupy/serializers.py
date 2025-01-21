@@ -9,13 +9,6 @@ from rest_framework.validators import UniqueTogetherValidator
 
 # from drf_writable_nested import WritableNestedModelSerializer
 
-
-
-
-
-
-
-
 class PostSerializer(serializers.ModelSerializer):
     # clique = serializers.StringRelatedField(many=False)
     occupier = serializers.StringRelatedField(many=False)
