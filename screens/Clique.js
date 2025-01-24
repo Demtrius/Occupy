@@ -86,7 +86,7 @@ const Clique = ({route}) => {
         <Text style={styles.infoTitle}>Clique Information</Text> {/* Add this line */}
         <Text style={styles.infoText}>Clique Name: {cliqueInfo.name}</Text>
         <Text style={styles.infoText}>Description: {cliqueInfo.description}</Text>
-        <Text style={styles.infoText}>Members: {cliqueInfo.members.length}</Text>
+        {/* <Text style={styles.infoText}>Members: {cliqueInfo.members.length}</Text> */}
         <Text style={styles.infoText}>Founded: {new Date(cliqueInfo.created_at).getFullYear()}</Text>
         <TouchableOpacity style={styles.followButton} onPress={handleFollow}> {/* Move this line */}
           <Text style={styles.followButtonText}>{isFollowing ? 'Unfollow' : 'Follow'}</Text>

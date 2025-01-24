@@ -86,7 +86,7 @@ class CurrentCliqueSerializer(serializers.ModelSerializer):
     posts = serializers.StringRelatedField(many=True)
     class Meta:
         model = Clique
-        fields = ['name','description','level','occupation','posts']
+        fields = ['name','description','level','occupation','posts','created_at']
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
