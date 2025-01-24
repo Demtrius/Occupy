@@ -2,7 +2,7 @@ import React,{useState,useEffect,useContext} from 'react';
 import {View,Text,StyleSheet,FlatList,ActivityIndicator} from 'react-native'
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import API from '../components/API.js';
+// import API from '../components/API.js';
 import { useNavigation } from '@react-navigation/native';
 
 
