@@ -14,6 +14,7 @@ const Post = () => {
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([]);
   const [selectedLanguage, setSelectedLanguage] = useState('ALL');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
 
   const fetchCliques = () => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
@@ -42,9 +43,11 @@ const Post = () => {
       .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
+        setFeedbackMessage('Post created successfully');
       })
       .catch((error) => {
         console.log(error);
+        setFeedbackMessage('Failed to create post');
       });
   };
 
@@ -112,6 +115,10 @@ const Post = () => {
         <Button mode="contained" style={styles.createButton} onPress={createPost}>
           <Text style={styles.createButtonText}>Create post</Text>
         </Button>
+
+        {feedbackMessage ? (
+          <Text style={styles.feedbackMessage}>{feedbackMessage}</Text>
+        ) : null}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -173,6 +180,12 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  feedbackMessage: {
+    marginTop: 20,
+    fontSize: 16,
+    color: 'green',
     textAlign: 'center',
   },
 });
