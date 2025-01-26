@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
-    marginTop: 20,
   },
   addButton: {
     marginRight: 16,

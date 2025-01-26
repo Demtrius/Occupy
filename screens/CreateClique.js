@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const { width, height } = Dimensions.get('window');
 
@@ -9,6 +10,12 @@ const CreateClique = () => {
   const [description, setDescription] = useState('');
   const [level, setLevel] = useState(null);
   const [occupation, setOccupation] = useState('');
+  const [open, setOpen] = useState(false);
+  const [levelItems, setLevelItems] = useState([
+    { label: 'Private', value: 'PRIVATE' },
+    { label: 'Public', value: 'PUBLIC' },
+  ]);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
 
   const createClique = () => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list', {
@@ -32,9 +39,11 @@ const CreateClique = () => {
       })
       .then((responseJson) => {
         console.log(responseJson);
+        setFeedbackMessage('Clique created successfully');
       })
       .catch((error) => {
         console.error('There was a problem with the fetch operation:', error);
+        setFeedbackMessage('Failed to create clique');
       });
   };
 
@@ -50,16 +59,6 @@ const CreateClique = () => {
           mode="outlined"
           style={styles.input}
           onChangeText={(text) => setName(text)}
-          theme={{ colors: { primary: '#6ba32d' } }}
-        />
-
-        <Text style={styles.label}>Level</Text>
-        <TextInput
-          label="Level"
-          value={level}
-          mode="outlined"
-          style={styles.input}
-          onChangeText={(text) => setLevel(text)}
           theme={{ colors: { primary: '#6ba32d' } }}
         />
 
@@ -84,9 +83,25 @@ const CreateClique = () => {
           theme={{ colors: { primary: '#6ba32d' } }}
         />
 
+        <Text style={styles.label}>Level</Text>
+        <DropDownPicker
+          open={open}
+          value={level}
+          items={levelItems}
+          setOpen={setOpen}
+          setValue={setLevel}
+          setItems={setLevelItems}
+          style={styles.dropdown}
+          placeholder="Select Level"
+        />
+
         <Button mode="contained" style={styles.createButton} onPress={createClique}>
           <Text style={styles.createButtonText}>Create Clique</Text>
         </Button>
+
+        {feedbackMessage ? (
+          <Text style={styles.feedbackMessage}>{feedbackMessage}</Text>
+        ) : null}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -113,6 +128,10 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 20,
   },
+  dropdown: {
+    marginBottom: 20,
+    borderColor: '#dcdcdc',
+  },
   createButton: {
     backgroundColor: '#6ba32d',
     paddingVertical: 10,
@@ -121,6 +140,12 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  feedbackMessage: {
+    marginTop: 20,
+    fontSize: 16,
+    color: 'green',
     textAlign: 'center',
   },
 });
