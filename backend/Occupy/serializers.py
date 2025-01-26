@@ -14,12 +14,16 @@ class PostSerializer(serializers.ModelSerializer):
     clique = serializers.SlugRelatedField(
         queryset=Clique.objects.all(), slug_field='name'
     )  # Use t  # For write operations
+
+    clique_id = serializers.ReadOnlyField(source='clique.id')
+
+ 
     occupier = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     
     class Meta:
         model = Post
-        fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique']
+        fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique','clique_id']
 
     def get_comments(self,obj):
         comments = CommentPost.objects.filter(post=obj)[:3]
