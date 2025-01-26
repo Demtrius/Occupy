@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, ScrollView, Image } from 'react-native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
 import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the "+" button
 
 const { height, width } = Dimensions.get('window');
 
@@ -73,7 +74,15 @@ function Cliques({ navigation }) {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <ScrollView>
-          <Text style={styles.categoryTitle}>Category 1</Text>
+          <View style={styles.categoryHeader}>
+            <Text style={styles.categoryTitle}>Category 1</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate('CreateClique')}
+            >
+              <Ionicons name="add-circle" size={32} color="#6ba32d" />
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={filteredDataSource}
             keyExtractor={(item, index) => index.toString()}
@@ -178,6 +187,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6ba32d',
     fontWeight: '600',
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  addButton: {
+    marginRight: 16,
   },
   categoryTitle: {
     fontSize: 20,
