@@ -24,6 +24,7 @@ function Profile({ navigation }) {
   useEffect(() => {
     console.log('User data:', occupierObj);
   }, [occupierObj]);
+  console.log('Token:', occupierObj['token']);
   axios.defaults.headers.common = {'Authorization': `Bearer ${occupierObj['token']}`}
   const getCliques = () => {
       // let config = {

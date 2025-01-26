@@ -35,7 +35,8 @@ function SignIn({ navigation }) {
       const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/login/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${token}`,
         },
         body: body
       });

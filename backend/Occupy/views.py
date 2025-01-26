@@ -73,7 +73,7 @@ class PostList(APIView):
         return Response(serializer.data)
 
 
-class PostListCreateView(generics.GenericAPIView,mixins.CreateModelMixin):
+class PostListCreateView(generics.ListCreateAPIView):
 
 
     """ 
@@ -83,12 +83,25 @@ class PostListCreateView(generics.GenericAPIView,mixins.CreateModelMixin):
     queryset = Post.objects.all()
     # permission_classes = [IsAuthenticated]
 
-    # def get (self,request:Request,*args,**kwargs):
-    #     return self.list(request,*args,**kwargs)
+
     
-    def post(self,request:Request,*args,**kwargs):
-        print(request.data)
-        return self.create(request,*args,**kwargs)
+    # def post(self,request:Request,*args,**kwargs):
+    #     print(request.data)
+    #     return self.create(request,*args,**kwargs)
+
+    def create_post(request):
+        data = request.data
+        data['occupier'] = request.user.id
+
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
         
     
 
@@ -123,15 +136,16 @@ class PostRetrieveUpdateDeleteView(generics.GenericAPIView, mixins.RetrieveModel
 #gets posts for the current logged in user
 @api_view(http_method_names=['GET'])
 @permission_classes([IsAuthenticated])
-def get_posts_for_current_occupier(request:Request):
-    user = request.user
+def get_info_for_current_occupier(request: Request, user_id: int):
+    user = get_object_or_404(Occupier, id=user_id)
+
     serializer = CurrentOccupierSerializer(instance=user)
 
     return Response(
-        data= serializer.data,
-        status = status.HTTP_200_OK
+        data=serializer.data,
+        status=status.HTTP_200_OK
     )
-    
+
 
 class CliqueListCreateView(generics.GenericAPIView,mixins.ListModelMixin,mixins.CreateModelMixin):
     """

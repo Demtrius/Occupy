@@ -27,14 +27,14 @@ urlpatterns = [
   path('clique/', include(router.urls)),
   #path('clique', CliqueView.as_view()),
   path('cliques-list',views.CliqueListCreateView.as_view(),name='list_cliques'),
-  path('post-create', views.PostListCreateView.as_view(), name='list_posts'),
+  path('post-create', views.PostListCreateView().as_view(), name='list_posts'),
    path('post-list',views.PostList.as_view(), name='create-posts'),
   path(
       "posts/<int:pk>/", views.PostRetrieveUpdateDeleteView.as_view(),
       name='post_detail'
       ),
   path('cliques/<int:pk>',views.CliqueRetrieveUpdateDeleteView.as_view(),name='clique_detail'),
-  path('current-occupier/',views.get_posts_for_current_occupier, name='current_occupier'),
+  path('current-occupier/<int:user_id>',views.get_info_for_current_occupier, name='current_occupier'),
   path('search', CliqueSearch.as_view()),
   path('<str:name>',DetailClique.as_view(),name='clique-detail'),
   path('<int:id>/posts',ListPostsOfClique.as_view(), name='clique_posts'),

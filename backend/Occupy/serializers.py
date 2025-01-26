@@ -10,9 +10,13 @@ from rest_framework.validators import UniqueTogetherValidator
 # from drf_writable_nested import WritableNestedModelSerializer
 
 class PostSerializer(serializers.ModelSerializer):
-    # clique = serializers.StringRelatedField(many=False)
-    occupier = serializers.StringRelatedField(many=False)
+    clique = serializers.ReadOnlyField(source='clique.name')  # Read-only for the name
+    clique = serializers.SlugRelatedField(
+        queryset=Clique.objects.all(), slug_field='name'
+    )  # Use t  # For write operations
+    occupier = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    
     class Meta:
         model = Post
         fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique']
@@ -25,12 +29,25 @@ class PostSerializer(serializers.ModelSerializer):
             "comments" : CommentPostSerializer(comments,many=True).data,
         }
     
+    def get_occupier(self, obj):
+        return obj.occupier.username if obj.occupier else None
+    
+ 
+    
+    def create(self, validated_data):
+        # Automatically associate the authenticated user as the occupier
+        validated_data['occupier'] = self.context['request'].user
+        return super().create(validated_data)
+
+
 
 
 class PostSerializer_detailed(serializers.ModelSerializer):
     model = Post
     fields = '__all__'
     depth = 1
+
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,7 +60,7 @@ class CliqueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Clique
-        fields = ('name', 'created_at', 'level','id','occupation','reviews')
+        fields = ('name', 'created_at', 'level','id','occupation','reviews','description')
 
     def get_reviews(self, obj):
         reviews = obj.reviews.all()
@@ -83,7 +100,7 @@ class JoinCliqueSerializer(serializers.Serializer):
 
 
 class CurrentCliqueSerializer(serializers.ModelSerializer):
-    posts = serializers.StringRelatedField(many=True)
+    posts = PostSerializer(many=True)
     class Meta:
         model = Clique
         fields = ['name','description','level','occupation','posts','created_at']

@@ -82,7 +82,7 @@ class Post(models.Model):
     content = models.TextField(max_length=400,null=False, blank=False,)
     caption = models.CharField(max_length=400,null=False, blank=False,)
     posted = models.DateTimeField(default=timezone.now,blank=False)
-    occupier = models.ForeignKey(Occupier, on_delete=models.CASCADE,related_name='posts',null=True, blank=True)
+    occupier = models.ForeignKey(Occupier, on_delete=models.CASCADE,related_name='posts',null=False, blank=True,default=1)
     timestamp = models.DateTimeField(auto_now_add=True)
     objects = models.Manager() # default manager
     postobjects = PostObjects() # custom manager
