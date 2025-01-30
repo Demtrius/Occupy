@@ -9,7 +9,6 @@ import {
   Image,
 } from 'react-native';
 import { Context } from '../components/globalContext/globalContext';
-import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,31 +23,6 @@ function Profile({ navigation }) {
   useEffect(() => {
     console.log('User data:', occupierObj);
   }, [occupierObj]);
-  console.log('Token:', occupierObj['token']);
-  axios.defaults.headers.common = {'Authorization': `Bearer ${occupierObj['token']}`}
-  const getCliques = () => {
-      // let config = {
-      //   headers: {
-      //     // 'Authorization': 'Bearer ' + occupierObj['token'],
-      //     'Authorization': `Bearer ${occupierObj['token']}`
-      //   }
-      // }
-      // console.log(config)
-      axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/current-occupier/')
-        .then((response) => {
-          const myCliques = response.data;
-          console.log(myCliques)
-          // setCliques(myCliques);
-        })
-        .catch((error) => console.error(error))
-        .finally(() => {
-          setLoading(false);
-        });
-    };
-  
-    useEffect(() => {
-        getCliques();
-      }, []);
 
   const handleLogout = () => {
     setToken(null);

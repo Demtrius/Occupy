@@ -20,7 +20,7 @@ const ViewUser = ({ route }) => {
 
   const getUserData = () => {
     axios
-      .get(`/api/user/${id}/posts`)
+      .get(`/api/current-occupier/${id}/`)
       .then((response) => {
         const userData = response.data.posts;
         setFilteredDataSource(userData);

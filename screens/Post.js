@@ -97,7 +97,7 @@ const Post = () => {
           ))}
         </View>
 
-        <Text style={styles.label}>Other cliques</Text>
+        <Text style={styles.label}>Choose a Clique</Text>
         <DropDownPicker
           open={open}
           value={clique}
