@@ -19,8 +19,7 @@ const ViewUser = ({ route }) => {
   const { id } = route.params;
 
   const getUserData = () => {
-    axios
-      .get(`/api/current-occupier/${id}/`)
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/current-occupier/' + id)
       .then((response) => {
         const userData = response.data.posts;
         setFilteredDataSource(userData);

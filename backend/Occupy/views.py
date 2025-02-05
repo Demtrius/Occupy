@@ -72,7 +72,6 @@ class PostList(APIView):
         serializer = PostSerializer(posts,many=True)
         return Response(serializer.data)
 
-
 class PostListCreateView(generics.ListCreateAPIView):
 
 
@@ -135,7 +134,7 @@ class PostRetrieveUpdateDeleteView(generics.GenericAPIView, mixins.RetrieveModel
 
 #gets posts for the current logged in user
 @api_view(http_method_names=['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_info_for_current_occupier(request: Request, user_id: int):
     user = get_object_or_404(Occupier, id=user_id)
 

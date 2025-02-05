@@ -156,7 +156,7 @@ function Search(props) {
                 navigation.navigate('CliquesTab')
               break;
               case "User":
-                navigation.navigate('ViewUser', { id: item.username })
+                navigation.navigate('ViewUser', { id: item.id })
               break;
               case "Clique":
                 navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: item.id}})

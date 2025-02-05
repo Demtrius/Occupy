@@ -24,6 +24,7 @@ import Navigator from './navigation/navigator';
 import Feed from './screens/Feed';
 import MessageDetail from './screens/MessageDetail'
 import ViewUser from './screens/ViewUser';
+import CreateClique from './screens/CreateClique';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -39,6 +40,11 @@ function CliquesStack() {
       <Stack.Screen
         name="Clique"
         component={Clique}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CreateClique"
+        component={CreateClique}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

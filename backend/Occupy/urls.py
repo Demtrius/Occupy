@@ -34,7 +34,9 @@ urlpatterns = [
       name='post_detail'
       ),
   path('cliques/<int:pk>',views.CliqueRetrieveUpdateDeleteView.as_view(),name='clique_detail'),
+
   path('current-occupier/<int:user_id>',views.get_info_for_current_occupier, name='current_occupier'),
+  
   path('search', CliqueSearch.as_view()),
   path('<str:name>',DetailClique.as_view(),name='clique-detail'),
   path('<int:id>/posts',ListPostsOfClique.as_view(), name='clique_posts'),
