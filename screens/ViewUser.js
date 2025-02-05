@@ -28,6 +28,7 @@ const ViewUser = ({ route }) => {
         setUserData(userData);
         setFilteredDataSource(userData.posts);
         setMasterDataSource(userData.posts);
+
       })
       .catch((error) => console.log(error))
       .finally(() => {

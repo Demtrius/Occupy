@@ -18,8 +18,8 @@ from django.http import JsonResponse,Http404
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.views import TokenObtainPairView
-
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,UntypedToken
+import json
 # Create your views here.
 
 
@@ -92,3 +92,15 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+
+
+
+
