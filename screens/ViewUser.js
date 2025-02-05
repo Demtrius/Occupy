@@ -13,17 +13,22 @@ const ViewUser = ({ route }) => {
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [masterDataSource, setMasterDataSource] = useState([]);
   const [showSearchBar, setShowSearchBar] = useState(false);
+  const [userData, setUserData] = useState(null);
   const searchBarRef = useRef(null);
 
   // get the post id from the parameters
   const { id } = route.params;
 
   const getUserData = () => {
-    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/current-occupier/' + id)
+    axios
+      // .get(`/api/user/${id}/posts`)
+      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/current-occupier/' + id)
       .then((response) => {
-        const userData = response.data.posts;
-        setFilteredDataSource(userData);
-        setMasterDataSource(userData);
+        const userData = response.data;
+        setUserData(userData);
+        setFilteredDataSource(userData.posts);
+        setMasterDataSource(userData.posts);
+
       })
       .catch((error) => console.log(error))
       .finally(() => {
@@ -104,6 +109,14 @@ const ViewUser = ({ route }) => {
           />
         )}
       </View>
+      {userData && (
+        <View style={styles.userInfoContainer}>
+          <Text style={styles.userName}>{userData.username}</Text>
+          <Text style={styles.userEmail}>Email: {userData.email}</Text>
+          <Text style={styles.userOccupation}>Occupation: {userData.occupations}</Text>
+          <Text style={styles.userDateJoined}>Date Joined: {userData.date_joined}</Text>
+        </View>
+      )}
       <View style={styles.tabContainer}>
         {['Posts', 'Reviews'].map((tab) => (
           <TouchableOpacity
@@ -168,6 +181,32 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3, // For Android shadow
     width: width * 0.92, // Ensure the same width as on Search.js
+  },
+  userInfoContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  userEmail: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 4,
+  },
+  userOccupation: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 4,
+  },
+  userDateJoined: {
+    fontSize: 16,
+    color: '#666',
   },
   tabContainer: {
     flexDirection: 'row',
