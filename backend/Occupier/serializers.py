@@ -4,7 +4,7 @@ from requests import Response
 from rest_framework import fields, serializers
 from Occupy.models import Clique,Post,CommentPost,Follow,Review,Review
 from Occupier.models import Occupier
-from Occupy.serializers import FollowSerializer
+from Occupy.serializers import FollowSerializer,CliqueSerializer
 from rest_framework.validators import UniqueValidator,ValidationError
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth import authenticate
@@ -67,18 +67,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self,validated_data):
         return Occupier.objects.create_user(**validated_data)
 
-# class RegisterSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(max_length=65,min_length=8,write_only=True)
-
-#     class Meta:
-#         model = Occupier
-#         fields = ('username','email','occupations','password')
-
-#     def validate(self, attrs):
-#         email_exists = Occupier.objects.filter(email=attrs['email']).exists
-#         if email_exists:
-#             raise ValidationError('Email already exists')
-#         return super().validate(attrs)
 
 
 
@@ -97,9 +85,11 @@ class LoginSerializer(serializers.ModelSerializer):
         
 
 class CurrentOccupierSerializer(serializers.ModelSerializer):
-    # posts = serializers.StringRelatedField(many=True)
+#     posts = serializers.StringRelatedField(many=True)
+#     cliques = serializers.StringRelatedField(many=True)
+
     posts = PostSerializer(many=True)
-    
+
     class Meta:
         model = Occupier
         fields =['id','username','email','occupations','date_joined','posts','followers','cliques']
