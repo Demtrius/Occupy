@@ -16,6 +16,7 @@ class PostSerializer(serializers.ModelSerializer):
     )  # Use t  # For write operations
 
     clique_id = serializers.ReadOnlyField(source='clique.id')
+    user_id = serializers.ReadOnlyField(source='occupier.id')
 
  
     occupier = serializers.SerializerMethodField()
@@ -23,7 +24,7 @@ class PostSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique','clique_id']
+        fields = ['id','content', 'caption', 'posted', 'occupier', 'user_id', 'timestamp', 'comments','clique','clique_id']
 
     def get_comments(self,obj):
         comments = CommentPost.objects.filter(post=obj)[:3]

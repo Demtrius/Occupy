@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image, Keyboard } from 'react-native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
@@ -18,6 +19,7 @@ const Clique = ({route}) => {
   const searchBarRef = useRef(null);
   const [cliqueName, setCliqueName] = useState('');
   const [cliqueInfo, setCliqueInfo] = useState({}); // Add this line
+  const navigation = useNavigation();
 
   // get the post id from the parameters
   const { id } = route.params;
@@ -65,7 +67,7 @@ const Clique = ({route}) => {
         </View>
         <Text style={styles.name}>{item.caption}</Text>
         <Text style={styles.description}>{item.content}</Text>
-        <TouchableOpacity style={styles.contactButton}>
+        <TouchableOpacity style={styles.contactButton} onPress={() => {navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: item.user_id}}) }}>
           <Text style={styles.contactButtonText}>Contact</Text>
         </TouchableOpacity>
       </View>

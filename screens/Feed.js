@@ -81,7 +81,7 @@ function Feed() {
   useEffect(() => {
     if (selectedPost) {
       axios
-        .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques/' + selectedPost.clique)
+        .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques/' + selectedPost.clique_id)
         .then((response) => {
           setPostClique(response.data);
         })
@@ -109,13 +109,13 @@ function Feed() {
     if (category === 'all') {
       setFilteredDataSource(posts.slice(0, 3)); // Limit to 3 posts
     } else {
-      const newData = posts.filter((item) => item.clique === category);
+      const newData = posts.filter((item) => item.clique_id === category);
       setFilteredDataSource(newData.slice(0, 3)); // Limit to 3 posts
     }
   };
 
   const renderPosts = ({ item }) => {
-    const cliqueName = cliques.find(clique => clique.id === item.clique)?.name || 'Unknown Clique';
+    const cliqueName = cliques.find(clique => clique.id === item.clique_id)?.name || 'Unknown Clique';
     return (
       <View style={styles.postContainer}>
         <TouchableOpacity
@@ -134,7 +134,7 @@ function Feed() {
   };
 
   const renderNearYou = ({ item }) => {
-    const cliqueName = cliques.find(clique => clique.id === item.clique)?.name || 'Unknown Clique';
+    const cliqueName = cliques.find(clique => clique.id === item.clique_id)?.name || 'Unknown Clique';
     return (
       <View style={styles.nearYouCard}>
         <TouchableOpacity
@@ -146,7 +146,7 @@ function Feed() {
           </View>
           <Text style={styles.cardTitle}>{item.caption}</Text>
           <Text style={styles.cardSubtitle}>{cliqueName}</Text>
-          <TouchableOpacity style={styles.contactButton}>
+          <TouchableOpacity style={styles.contactButton} onPress={() => {closeModal(); navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: item.user_id}}) }}>
             <Text style={styles.contactButtonText}>Contact</Text>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -234,13 +234,13 @@ function Feed() {
             <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
             <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
             <Text style={styles.modalText}>Clique: {postsClique.name}</Text>
-            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: selectedPost.clique}}) }}>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: selectedPost.clique_id}}) }}>
               <Text style={styles.modalButtonText}>Navigate</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('Profile', { id: selectedPost.user })}}>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('SearchTab', { screen: 'ViewUser', params: { id: selectedPost.user_id}}) }}>
               <Text style={styles.modalButtonText}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: selectedPost.user}}) }}>
+            <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: selectedPost.user_id}}) }}>
               <Text style={styles.modalButtonText}>Contact</Text>
             </TouchableOpacity>
           </View>
