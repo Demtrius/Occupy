@@ -60,8 +60,8 @@ const ViewUser = ({ route }) => {
         <View style={styles.cardHeader}>
           <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
         </View>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.name}>{item.caption}</Text>
+        <Text style={styles.description}>{item.content}</Text>
         <TouchableOpacity style={styles.contactButton}>
           <Text style={styles.contactButtonText}>Contact</Text>
         </TouchableOpacity>
@@ -76,7 +76,7 @@ const ViewUser = ({ route }) => {
       </View>
     );
   };
-
+  
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
