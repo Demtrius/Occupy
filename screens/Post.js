@@ -20,7 +20,7 @@ const Post = () => {
     fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
       .then((response) => response.json())
       .then((data) =>
-        setItems(data.map((item) => ({ label: item.name, value: item.id })))
+        setItems(data.map((item) => ({ label: item.name, value: item.name })))
       );
   };
 

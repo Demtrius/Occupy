@@ -62,6 +62,7 @@ class OccupierLoginView(APIView):
 class OccupierListView(generics.ListCreateAPIView):
     queryset = Occupier.objects.all()
     serializer_class = OccupierSerializer
+    
 
     def list(self, request):
         queryset = self.get_queryset()
