@@ -79,6 +79,9 @@ class PostCreateView(generics.CreateAPIView):
     A view for creating and listing posts
     """
     serializer_class = PostSerializer
+
+    queryset = Post.objects.all()
+
     # queryset = Post.objects.all()
     permission_classes = [IsAuthenticated]
 
