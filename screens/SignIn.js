@@ -32,11 +32,11 @@ function SignIn({ navigation }) {
     });
   
     try {
-      const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + 'auth/jwt/create/', {
+      const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-           Authorization: `Bearer ${token}`,
+          //  Authorization: `Bearer ${token}`,
         },
         body: body
       });

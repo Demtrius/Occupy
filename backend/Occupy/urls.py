@@ -1,5 +1,5 @@
 from django.urls import  path,include
-from .views import  CliqueView,CliqueList,CliqueSearch,CliqueViewSet,PostRetrieveUpdateDeleteView,CliqueListCreateView,CliqueRetrieveUpdateDeleteView,ListPostsOfClique,PostList,JoinCliqueView,ReviewView,PostCreateView
+from .views import  CliqueView,CliqueList,CliqueSearch,CliqueViewSet,PostListCreateView,PostRetrieveUpdateDeleteView,CliqueListCreateView,CliqueRetrieveUpdateDeleteView,ListPostsOfClique,PostList,JoinCliqueView,ReviewView
 from rest_framework.routers import DefaultRouter, SimpleRouter
 app_name="Occupy"
 from . import views
@@ -27,7 +27,7 @@ urlpatterns = [
   path('clique/', include(router.urls)),
   #path('clique', CliqueView.as_view()),
   path('cliques-list',views.CliqueListCreateView.as_view(),name='list_cliques'),
-  path('post-create', views.PostCreateView().as_view(), name='list_posts'),
+  path('post-create', views.PostListCreateView().as_view(), name='list_posts'),
    path('post-list',views.PostList.as_view(), name='create-posts'),
   path(
       "posts/<int:pk>/", views.PostRetrieveUpdateDeleteView.as_view(),
