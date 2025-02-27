@@ -27,31 +27,33 @@ function SignIn({ navigation }) {
 
   const handleLogin = async () => {
     let body = JSON.stringify({
-      'email': username,
+      'username': username,
       'password': password
     });
   
     try {
-      const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + 'auth/jwt/create/', {
+      const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/jwt/create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-           Authorization: `Bearer ${token}`,
+          //  Authorization: `Bearer ${token}`,
         },
         body: body
       });
   
       if (response.ok) {
         const json = await response.json();
+        console.log(json)
         setOccupierObj(json);
-        setAuthTokens(json.token);
+        setAuthTokens(json.access);
         setIsLoggedIn(true);
-        await AsyncStorage.setItem('authTokens', JSON.stringify(json));
+        await AsyncStorage.setItem('authTokens', json.access);
       } else {
         const errorData = await response.json();
         setError(errorData.detail || "Invalid credentials");
       }
     } catch (error) {
+      console.log(error)
       setError('An error occurred. Please try again.');
     }
   };

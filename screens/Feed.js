@@ -3,6 +3,8 @@ import { View, StyleSheet, FlatList, Text, TouchableOpacity, Modal, ScrollView, 
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { Searchbar, Button } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { Context } from '../components/globalContext/globalContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,24 +22,38 @@ function Feed() {
   const [search, setSearch] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [category, setCategory] = useState('all');
-
+  
+  // const globalContext = useContext(Context);
+  // const { authTokens } = globalContext; 
+  // console.log(authTokens);
+  const kaas = AsyncStorage.getItem('authTokens')
+  console.log(kaas);
+  // console.log(JSON.parse(kaas));
   const [nearYouPosts, setNearYouPosts] = useState([]);
 
   const getCliques = () => {
-    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
-      .then((response) => {
+    axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list', {
+        headers: {
+            Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQwNjUzMjA4LCJpYXQiOjE3NDA2NDYwMDgsImp0aSI6IjE3ZjcwYjZjYTk3YjQyZDQ4NWQxZWMzYzgyZGJiN2I2IiwidXNlcl9pZCI6MTN9.eaFl2brFMNwrDj3B63VktoXvsb1dnvriWCayYpK7PIM`
+        }
+    })
+    .then((response) => {
         const myCliques = response.data;
         setCliques(myCliques);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => {
+    })
+    .catch((error) => console.error(error))
+    .finally(() => {
         setLoading(false);
-      });
+    });
   };
-
+  // Authorization Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQwNjUzMjA4LCJpYXQiOjE3NDA2NDYwMDgsImp0aSI6IjE3ZjcwYjZjYTk3YjQyZDQ4NWQxZWMzYzgyZGJiN2I2IiwidXNlcl9pZCI6MTN9.eaFl2brFMNwrDj3B63VktoXvsb1dnvriWCayYpK7PIM
   const getPosts = () => {
-    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
-      .then((response) => response.json())
+    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list', {
+      headers: {
+          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQwNjUzMjA4LCJpYXQiOjE3NDA2NDYwMDgsImp0aSI6IjE3ZjcwYjZjYTk3YjQyZDQ4NWQxZWMzYzgyZGJiN2I2IiwidXNlcl9pZCI6MTN9.eaFl2brFMNwrDj3B63VktoXvsb1dnvriWCayYpK7PIM`
+      }
+    })
+    .then((response) => response.json())
       .then((data) => {
         setPosts(data);
         setFilteredDataSource(data.slice(0, 3)); // Limit to 3 posts
