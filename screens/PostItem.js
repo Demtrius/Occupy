@@ -19,7 +19,6 @@ const PostItem = () => {
     
         axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
         .then((response) => {
-            // console.log(response)
             const myPost = response.data;
             setPost(myPost)
         })

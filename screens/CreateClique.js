@@ -18,31 +18,19 @@ const CreateClique = () => {
   const [feedbackMessage, setFeedbackMessage] = useState('');
 
   const createClique = () => {
-    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
+    axios
+      .post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/cliques-list`, {
         name: name,
         level: level,
         occupation: occupation,
         description: description,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
       })
-      .then((responseJson) => {
-        console.log(responseJson);
+      .then((response) => {
+        console.log(response.data);
         setFeedbackMessage('Clique created successfully');
       })
       .catch((error) => {
-        console.error('There was a problem with the fetch operation:', error);
+        console.error('There was a problem with the request:', error);
         setFeedbackMessage('Failed to create clique');
       });
   };

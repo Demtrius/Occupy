@@ -2,10 +2,14 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
+import axios from 'axios';
+import { Context } from '../components/globalContext/globalContext';
 
 const { width, height } = Dimensions.get('window');
 
 const Post = () => {
+  const globalContext = useContext(Context);
+  const { occupierObj } = globalContext;
   const [content, setContent] = useState('');
   const [caption, setCaption] = useState('');
   const [posted, setPosted] = useState(new Date());
@@ -27,26 +31,22 @@ const Post = () => {
   useEffect(() => fetchCliques(), []);
 
   const createPost = () => {
-    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-create', {
-      method: 'POST',
+    axios.post(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-create', {
+      content: content,
+      caption: caption,
+      posted: new Date(),
+      clique: clique,
+    }, {
       headers: {
+        'Authorization': 'Bearer ' + occupierObj.token,
         'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        content: content,
-        caption: caption,
-        posted: new Date(),
-        clique: clique,
-      }),
+        'Accept': 'application/json',
+      }
     })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson);
+      .then((response) => { 
         setFeedbackMessage('Post created successfully');
       })
-      .catch((error) => {
-        console.log(error);
+      .catch((error) => { 
         setFeedbackMessage('Failed to create post');
       });
   };
