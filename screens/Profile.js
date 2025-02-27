@@ -20,15 +20,11 @@ function Profile({ navigation }) {
   const [showLanguageInfo, setShowLanguageInfo] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  useEffect(() => {
-    console.log('User data:', occupierObj);
-  }, [occupierObj]);
-
   const handleLogout = () => {
     setToken(null);
     setIsLoggedIn(false);
     setLogoutModalVisible(false); // Close the modal
-    navigation.navigate('SignIn');
+    // navigation.navigate('SignIn');
   };
 
   const toggleAccountInfo = () => {

@@ -4,6 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
 from django.conf import settings
 from datetime import datetime,timedelta
+import uuid
 # Create your models here.
 
 
@@ -82,9 +83,19 @@ class Occupier(AbstractBaseUser,PermissionsMixin):
 
     @property
     def token(self):
-        token = jwt.encode({'username':self.username,'email':self.email,'exp':datetime.utcnow() + timedelta(hours=24)},
-        settings.SECRET_KEY,
-        algorithm='HS256' )
+        """
+        Generate JWT token with user ID, JTI, and token type.
+        """
+        payload = {
+            'jti': str(uuid.uuid4()),  # Unique token identifier
+            'user_id': self.id,  # User ID
+            'username': self.username,
+            'email': self.email,
+            'exp': datetime.utcnow() + timedelta(hours=24),  # Token expiration
+            'token_type': 'access',  # Explicitly define token type
+        }
+        
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
         return token
 
 
