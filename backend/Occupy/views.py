@@ -306,7 +306,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 class JoinCliqueView(generics.GenericAPIView):
     serializer_class = JoinCliqueSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

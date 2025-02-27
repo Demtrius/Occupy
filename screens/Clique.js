@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import { Context } from '../components/globalContext/globalContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,9 +18,12 @@ const Clique = ({ route }) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const searchBarRef = useRef(null);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const [cliqueName, setCliqueName] = useState('');
   const [cliqueInfo, setCliqueInfo] = useState({});
   const navigation = useNavigation();
+  const globalContext = useContext(Context);
+  const { occupierObj } = globalContext;
 
   const { id } = route.params;
   
@@ -37,6 +41,26 @@ const Clique = ({ route }) => {
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   };
+
+
+  // join clique should first check the user if it is already in the clique but this is not yet implementen in the backend user/qlique join
+  const joinClique = () => {
+      axios.post(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-join/', {
+        clique_id: id
+    }, {
+      headers: {
+        'Authorization': 'Bearer ' + occupierObj.token,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    })
+        .then((response) => { 
+          setIsFollowing(!isFollowing);
+        })
+        .catch((error) => { 
+          setFeedbackMessage('Failed to join clique');
+        });
+    };
 
   useEffect(() => {
     getClique();
@@ -87,10 +111,14 @@ const Clique = ({ route }) => {
       <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
         <Text style={styles.followButtonText}>{isFollowing ? 'Unfollow' : 'Follow'}</Text>
       </TouchableOpacity>
+      <Text style={styles.infoText}>{feedbackMessage ? feedbackMessage :''}</Text>
     </View>
   );
 
-  const handleFollow = () => setIsFollowing(!isFollowing);
+  const handleFollow = () => {
+    joinClique()
+  }
+
 
   return (
     <View style={styles.screenContainer}>
