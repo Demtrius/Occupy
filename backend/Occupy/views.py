@@ -80,7 +80,7 @@ class PostListCreateView(generics.ListCreateAPIView):
     """
     serializer_class = PostSerializer
     queryset = Post.objects.all()
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
     
