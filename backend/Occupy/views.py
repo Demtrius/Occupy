@@ -72,31 +72,29 @@ class PostList(APIView):
         serializer = PostSerializer(posts,many=True)
         return Response(serializer.data)
 
-class PostListCreateView(generics.ListCreateAPIView):
+class PostCreateView(generics.CreateAPIView):
 
 
     """ 
     A view for creating and listing posts
     """
     serializer_class = PostSerializer
-    queryset = Post.objects.all()
-    # permission_classes = [IsAuthenticated]
+    # queryset = Post.objects.all()
+    permission_classes = [IsAuthenticated]
 
 
-    
-    # def post(self,request:Request,*args,**kwargs):
-    #     print(request.data)
-    #     return self.create(request,*args,**kwargs)
+    # def create_post(request):
+    #     data = request.data
+    #     data['occupier'] = request.user.id
 
-    def create_post(request):
-        data = request.data
-        data['occupier'] = request.user.id
+    #     serializer = PostSerializer(data=data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = PostSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save()
 
 
 

@@ -21,6 +21,9 @@ class PostSerializer(serializers.ModelSerializer):
  
     occupier = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+
+ 
+
     
     class Meta:
         model = Post
@@ -38,11 +41,25 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.occupier.username if obj.occupier else None
     
  
+def create(self, validated_data):
+    request = self.context.get('request')
     
-    def create(self, validated_data):
-        # Automatically associate the authenticated user as the occupier
-        validated_data['occupier'] = self.context['request'].user
-        return super().create(validated_data)
+    print("Request:", request)  # Debugging: Check if request exists
+    print("User:", request.user if request else "No request")  # Debugging: Check user
+    print("Is Authenticated:", request.user.is_authenticated if request else "No request")
+
+    if request and request.user.is_authenticated:
+        try:
+            # Get the corresponding Occupier instance
+            occupier = Occupier.objects.get(user=request.user)
+            validated_data['occupier'] = occupier
+        except Occupier.DoesNotExist:
+            raise serializers.ValidationError("No associated Occupier found for this user.")
+    else:
+        raise serializers.ValidationError("User must be authenticated to create a post.")
+
+    return super().create(validated_data)
+
 
 
 
