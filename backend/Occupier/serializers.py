@@ -4,7 +4,7 @@ from requests import Response
 from rest_framework import fields, serializers
 from Occupy.models import Clique,Post,CommentPost,Follow,Review,Review
 from Occupier.models import Occupier
-from Occupy.serializers import FollowSerializer,CliqueSerializer
+from Occupy.serializers import FollowSerializer,CliqueSerializer,PostSerializer
 from rest_framework.validators import UniqueValidator,ValidationError
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth import authenticate
@@ -15,45 +15,10 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 
-class PostSerializer(serializers.ModelSerializer):
-    clique = serializers.ReadOnlyField(source='clique.name')  # Read-only for the name
-    clique = serializers.SlugRelatedField(
-        queryset=Clique.objects.all(), slug_field='name'
-    )  # Use t  # For write operations
-    occupier = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Post
-        fields = ['id','content', 'caption', 'posted', 'occupier', 'timestamp', 'comments','clique']
-
-    def get_comments(self,obj):
-        comments = CommentPost.objects.filter(post=obj)[:3]
-        request = self.context.get('request')
-
-        return {
-            "comments" : CommentPostSerializer(comments,many=True).data,
-        }
-    
-    def get_occupier(self, obj):
-        return obj.occupier.username if obj.occupier else None
-    
- 
-    
-    def create(self, validated_data):
-        # Automatically associate the authenticated user as the occupier
-        validated_data['occupier'] = self.context['request'].user
-        return super().create(validated_data)
 
 
 
-class CommentPostSerializer(serializers.ModelSerializer):
-    post = serializers.StringRelatedField(read_only=True)
-    occupier = serializers.ReadOnlyField(source='occupier.username')
 
-    class Meta:
-        model = CommentPost
-        fields = '__all__'
 
 
 
@@ -106,6 +71,8 @@ class OccupierSerializer(serializers.ModelSerializer):
         return FollowSerializer(obj.following.all(), many=True).data
     def get_followers(self, obj):
         return FollowSerializer(obj.followers.all(), many=True).data
+
+        
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
