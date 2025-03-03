@@ -3,8 +3,8 @@ import { View, StyleSheet, FlatList, Text, TouchableOpacity, Modal, ScrollView, 
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { Searchbar, Button } from 'react-native-paper';
-
 const { width, height } = Dimensions.get('window');
+import { FontAwesome } from '@expo/vector-icons';
 
 function Feed() {
   const [posts, setPosts] = useState([]);
@@ -117,21 +117,46 @@ function Feed() {
   const renderPosts = ({ item }) => {
     const cliqueName = cliques.find(clique => clique.id === item.clique_id)?.name || 'Unknown Clique';
     return (
+      // <View style={styles.postContainer}>
+      //   <TouchableOpacity
+      //     style={styles.postTouchable}
+      //     onPress={() => openModal(item)}>
+      //     <View style={styles.postHeader}>
+      //       <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.postImage} />
+      //       <View>
+      //         <Text style={styles.postTitle}>{item.caption}</Text>
+      //         <Text style={styles.postSubtitle}>{cliqueName}</Text>
+            
+      //       </View>
+      //     </View>
+      //   </TouchableOpacity>
+      // </View>
       <View style={styles.postContainer}>
-        <TouchableOpacity
-          style={styles.postTouchable}
-          onPress={() => openModal(item)}>
-          <View style={styles.postHeader}>
-            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.postImage} />
-            <View>
-              <Text style={styles.postTitle}>{item.caption}</Text>
-              <Text style={styles.postSubtitle}>{cliqueName}</Text>
-            </View>
-          </View>
+        <TouchableOpacity 
+        style={styles.postTouchable}
+        onPress={() => openModal(item)}
+        >
+        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+       <View style={styles.contentContainer}>
+        <View style={styles.header}>
+        <Text style={styles.name}>{item.occupier}</Text>
+        <Text style={styles.handle}> @{item.clique} · {item.posted}</Text>
+        </View>
+        <Text style={styles.content}>{item.content}</Text>
+        <Text style={styles.caption}>{item.caption}</Text>
+       </View>
         </TouchableOpacity>
       </View>
     );
   };
+
+
+
+
+
+
+
+
 
   const renderNearYou = ({ item }) => {
     const cliqueName = cliques.find(clique => clique.id === item.clique_id)?.name || 'Unknown Clique';
@@ -228,14 +253,14 @@ function Feed() {
               <TouchableOpacity style={[styles.modalButton, styles.greenButton, styles.closeButton]} onPress={closeModal}>
                 <Text style={styles.modalButtonText}>Close</Text>
               </TouchableOpacity>
-              <Text style={[styles.modalTitle, { textAlign: 'center', flex: 1 }]}>Post Details</Text>
+              <Text style={[styles.modalTitle, { textAlign: 'center', flex: 1 }]}>Occupy</Text>
             </View>
             <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.modalImage} />
             <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
             <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
             <Text style={styles.modalText}>Clique: {postsClique.name}</Text>
             <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: selectedPost.clique_id}}) }}>
-              <Text style={styles.modalButtonText}>Navigate</Text>
+              <Text style={styles.modalButtonText}>Go to clique</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('SearchTab', { screen: 'ViewUser', params: { id: selectedPost.user_id}}) }}>
               <Text style={styles.modalButtonText}>Profile</Text>

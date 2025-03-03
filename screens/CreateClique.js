@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
-
+import axios from 'axios';
 const { width, height } = Dimensions.get('window');
 
 const CreateClique = () => {
