@@ -18,7 +18,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.Occupy.occupy"
+      "bundleIdentifier": "com.Occupy.occupy",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "1.0.1"
+  }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,6 +38,14 @@
     "plugins": [
       "expo-router",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
+      }
+    }
   }
-}
+

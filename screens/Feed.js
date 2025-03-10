@@ -139,8 +139,8 @@ function Feed() {
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
        <View style={styles.contentContainer}>
         <View style={styles.header}>
-        <Text style={styles.name}>{item.occupier}</Text>
         <Text style={styles.handle}> @{item.clique} · {item.posted}</Text>
+        <Text style={styles.name}>{item.occupier}</Text>
         </View>
         <Text style={styles.content}>{item.content}</Text>
         <Text style={styles.caption}>{item.caption}</Text>
@@ -255,10 +255,9 @@ function Feed() {
               </TouchableOpacity>
               <Text style={[styles.modalTitle, { textAlign: 'center', flex: 1 }]}>Occupy</Text>
             </View>
-            <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.modalImage} />
-            <Text style={styles.modalText}>Caption: {selectedPost.caption}</Text>
-            <Text style={styles.modalText}>Content: {selectedPost.content}</Text>
-            <Text style={styles.modalText}>Clique: {postsClique.name}</Text>
+            <Text style={styles.modalText1}> @{postsClique.name}</Text>
+            <Text style={styles.modalText}> {selectedPost.content}</Text>
+            <Text style={styles.modalText}> {selectedPost.caption}</Text>
             <TouchableOpacity style={[styles.modalButton, styles.greenButton]} onPress={() => {closeModal(); navigation.navigate('CliquesTab', { screen: 'Clique', params: { id: selectedPost.clique_id}}) }}>
               <Text style={styles.modalButtonText}>Go to clique</Text>
             </TouchableOpacity>
@@ -323,6 +322,9 @@ const styles = StyleSheet.create({
   buttonContent: {
     paddingVertical: 0,
     paddingHorizontal: 0,
+  },
+  modalText1:{
+     fontWeight: 'bold',
   },
   itemsHeader: {
     fontSize: 18,
