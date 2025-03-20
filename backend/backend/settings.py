@@ -32,7 +32,13 @@ SECRET_KEY = 'django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = [os.getenv("ALLOW_URL"),'127.0.0.1',]
+ALLOWED_HOSTS = [os.getenv("ALLOW_URL"), '127.0.0.1', '545b-212-127-216-57.ngrok-free.app']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://545b-212-127-216-57.ngrok-free.app'
+]
+
+
 
 CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
@@ -131,11 +137,11 @@ ASGI_APPLICATION = 'backend.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB_NAME"),
+        'NAME': 'occupy_db2',
         'USER': 'postgres',
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': '127.0.0.1',
-        'PORT': '5432 '
+        'PASSWORD': 'KoopVanMac34',
+        'HOST': 'occupy-db2.cxmk862cklpn.eu-west-1.rds.amazonaws.com',
+        'PORT': '5432 ',
 
     }
 }
