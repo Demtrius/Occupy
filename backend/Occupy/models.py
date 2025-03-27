@@ -127,6 +127,7 @@ class Follow(models.Model):
     def __str__(self):
         return f'{self.follower} follows {self.followed}'
 
+
 class Review(models.Model):
     body = models.TextField()
     occupier = models.ForeignKey(Occupier,on_delete=models.SET_NULL,null=True)
@@ -135,5 +136,4 @@ class Review(models.Model):
 
     def __str__(self):
         return str(self.body)
-
     

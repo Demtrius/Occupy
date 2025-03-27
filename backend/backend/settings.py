@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = [os.getenv("ALLOW_URL"), '127.0.0.1', '545b-212-127-216-57.ngrok-free.app']
+ALLOWED_HOSTS = [os.getenv("ALLOW_URL"), '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://545b-212-127-216-57.ngrok-free.app'
@@ -137,10 +137,10 @@ ASGI_APPLICATION = 'backend.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'occupy_db2',
+        'NAME': 'occupy',
         'USER': 'postgres',
-        'PASSWORD': 'KoopVanMac34',
-        'HOST': 'occupy-db2.cxmk862cklpn.eu-west-1.rds.amazonaws.com',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
         'PORT': '5432 ',
 
     }
@@ -198,7 +198,3 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-
-

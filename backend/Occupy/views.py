@@ -2,7 +2,7 @@ from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
 from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer,ReviewSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique,CommentPost,Follow,Review
+from .models import  Post,Clique,CommentPost,Follow
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response

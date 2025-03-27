@@ -2,7 +2,7 @@ from dataclasses import field
 from typing import final
 from django.db import models
 from rest_framework import fields, serializers
-from .models import Clique,Post,CommentPost,Follow,Review,Review
+from .models import Clique,Post,CommentPost,Follow,Review
 from Occupier.models import Occupier
 from rest_framework.validators import UniqueTogetherValidator
 # from serializers import 
@@ -54,10 +54,10 @@ class PostSerializer_detailed(serializers.ModelSerializer):
 
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields =  ['occupier','body','clique']
+# class ReviewSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Review
+#         fields =  ['occupier','body','clique']
         
 
 class CliqueSerializer(serializers.ModelSerializer):
@@ -140,9 +140,9 @@ class FollowSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields =  ['occupier','body','clique']
+
 

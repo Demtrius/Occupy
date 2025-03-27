@@ -2,7 +2,7 @@ from typing import final
 from django.db import models
 from requests import Response
 from rest_framework import fields, serializers
-from Occupy.models import Clique,Post,CommentPost,Follow,Review,Review
+from Occupy.models import Clique,Post,CommentPost,Follow
 from Occupier.models import Occupier
 from Occupy.serializers import FollowSerializer,CliqueSerializer
 from rest_framework.validators import UniqueValidator,ValidationError
