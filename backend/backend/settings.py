@@ -16,6 +16,8 @@ import django
 from dotenv import load_dotenv
 import os
 load_dotenv()
+import dj_database_url
+
 
 from django.utils.translation import gettext
 django.utils.translation.ugettext = gettext
@@ -37,6 +39,10 @@ ALLOWED_HOSTS = [os.getenv("ALLOW_URL"), '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = [
     'https://545b-212-127-216-57.ngrok-free.app'
 ]
+
+
+
+ALLOWED_HOSTS = ["occupy.herokuapp.com", '127.0.0.1']
 
 
 
@@ -76,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -137,7 +144,7 @@ ASGI_APPLICATION = 'backend.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'occupy',
+        'NAME': 'occupy db',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
@@ -145,6 +152,7 @@ DATABASES = {
 
     }
 }
+
 
 CHANNEL_LAYERS = {
     'default': {
@@ -198,3 +206,6 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
