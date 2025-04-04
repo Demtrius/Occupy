@@ -35,7 +35,7 @@ class PostSerializer(serializers.ModelSerializer):
         }
     
     def get_occupier(self, obj):
-        return obj.occupier.username if obj.occupier else None
+        return obj.occupier.username if obj.occupier_id else None
     
  
     
@@ -76,7 +76,7 @@ class CliqueSerializer(serializers.ModelSerializer):
 
     def get_reviews(self,obj):
         reviews = obj.reviews.all()
-        return [f"{review.user}: {review.comment}" for review in reviews]
+        return [f"{review.occupier}: {review.body}" for review in reviews]
 
 
 class CliqueSerializer_detailed(serializers.ModelSerializer):

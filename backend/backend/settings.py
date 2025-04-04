@@ -34,7 +34,10 @@ SECRET_KEY = 'django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = [os.getenv("ALLOW_URL"), '127.0.0.1']
+# ALLOWED_HOSTS = [os.getenv("ALLOW_URL"), '127.0.0.1']
+
+
+
 
 CSRF_TRUSTED_ORIGINS = [
     'https://545b-212-127-216-57.ngrok-free.app'
@@ -42,7 +45,12 @@ CSRF_TRUSTED_ORIGINS = [
 
 
 
-ALLOWED_HOSTS = ["occupy.herokuapp.com", '127.0.0.1']
+ALLOWED_HOSTS = [
+    "occupy-backend.herokuapp.com",
+    "localhost",
+    "127.0.0.1",
+]
+
 
 
 
@@ -142,16 +150,16 @@ ASGI_APPLICATION = 'backend.asgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'occupy db',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432 ',
-
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'occupy db',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'postgres',
+    #     'HOST': '127.0.0.1',
+    #     'PORT': '5432 ',
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
     }
-}
+
 
 
 CHANNEL_LAYERS = {
