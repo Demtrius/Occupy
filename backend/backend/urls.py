@@ -18,6 +18,7 @@ from django.urls import include, path, re_path
 
 from Occupy import views
 urlpatterns = [
+    path('', lambda request: HttpResponse("Occupy Backend is Live 🚀")),
     path('admin/', admin.site.urls),
     path('api/', include('rest_framework.urls')),
     path('api/', include('Occupy.urls', namespace='home')),
