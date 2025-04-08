@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 
 from Occupy import views
+from django.http import HttpResponse
+
 
 
 
