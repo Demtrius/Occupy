@@ -23,11 +23,28 @@ from django.http import HttpResponse
 
 
 
+# urlpatterns = [
+#     path('', lambda request: HttpResponse("Occupy Backend is Live 🚀")),
+#     path('admin/', admin.site.urls),
+#     path('api/', include('rest_framework.urls')),
+#     path('api/', include('Occupy.urls', namespace='home')),
+#     path('auth/', include('Occupier.urls'))
+# ]
+from django.contrib import admin
+from django.urls import path, include
+from django.http import HttpResponse
+
 urlpatterns = [
     path('', lambda request: HttpResponse("Occupy Backend is Live 🚀")),
     path('admin/', admin.site.urls),
-    path('api/', include('rest_framework.urls')),
-    path('api/', include('Occupy.urls', namespace='home')),
-    path('auth/', include('Occupier.urls'))
+
+    # DRF login/logout views
+    path('api-auth/', include('rest_framework.urls')),  
+
+    # Your main API endpoints
+    path('api/', include(('Occupy.urls', 'Occupy'), namespace='home')),
+
+    # Authentication routes
+    path('auth/', include('Occupier.urls')),
 ]
 
