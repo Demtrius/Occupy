@@ -10,14 +10,14 @@ WORKDIR /app
 
 # Install dependencies
 COPY backend/requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy project files
-COPY backend /app
+COPY . /app
 
-# Collect static files (optional if you serve them)
-RUN python manage.py collectstatic --noinput
+# Collect static files (optional if applicable)
+RUN python manage.py collectstatic --noinput || true
 
 # Run the application
 CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+
