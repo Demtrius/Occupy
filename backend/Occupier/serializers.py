@@ -6,7 +6,7 @@ from Occupy.models import Clique,Post,CommentPost,Follow
 from Occupier.models import Occupier
 from Occupy.serializers import FollowSerializer,CliqueSerializer
 from rest_framework.validators import UniqueValidator,ValidationError
-from rest_framework_jwt.settings import api_settings
+from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed

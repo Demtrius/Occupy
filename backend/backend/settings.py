@@ -19,6 +19,7 @@ load_dotenv()
 import dj_database_url
 
 
+
 from django.utils.translation import gettext
 django.utils.translation.ugettext = gettext
 
@@ -34,25 +35,23 @@ SECRET_KEY = 'django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
- ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
- ]
-
-
-
+ALLOWED_HOSTS = ['occupy-app.com','146.190.28.116']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://545b-212-127-216-57.ngrok-free.app'
+    'https://occupy-app.com',
+    'https://www.occupy-app.com',
+    'http://146.190.28.116',  # ✅ include scheme
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True  # or use whitelist in production
 
 
-ALLOWED_HOSTS = [
-    "occupy-backend.herokuapp.com",
-    "localhost",
-    "127.0.0.1",
-]
+
+
+
+
+
+
 
 
 
@@ -92,8 +91,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -149,24 +147,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'occupy db',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'postgres',
-    #     'HOST': '127.0.0.1',
-    #     'PORT': '5432 ',
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
-    
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'occupy7',
+        'USER': 'sam',
+        'PASSWORD': 'chiraqmony',
+        'HOST': '146.190.28.116',
+        'PORT': '5432',
     }
+}
+
 
 
 
@@ -174,7 +167,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('127.0.0.1', 5432 )],  # Ensure Redis is running on this host and port
+            'hosts': [('127.0.0.1', 6379 )],  # Ensure Redis is running on this host and port
         },
     },
 }
@@ -218,10 +211,10 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
-# Default primary key field type
+# Default primary key field type 
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'

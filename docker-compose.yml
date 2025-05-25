@@ -14,16 +14,16 @@ services:
 
   web:
     build:
-      context: 
+      context: .
       dockerfile: backend/Dockerfile
     command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
+      sh -c "python backend/manage.py migrate &&
+             python backend/manage.py collectstatic --noinput &&
+             gunicorn backend.wsgi:application --chdir backend --bind 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "80:8000"
     depends_on:
       - db
     environment:
