@@ -6,9 +6,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: occupy
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: occupy7
+      POSTGRES_USER: sam
+      POSTGRES_PASSWORD: chiraqmony
     ports:
       - "5432:5432"
 

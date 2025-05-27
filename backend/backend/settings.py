@@ -13,9 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import django
-from dotenv import load_dotenv
-import os
-load_dotenv()
 import dj_database_url
 
 
@@ -147,16 +144,20 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'occupy7',
-        'USER': 'sam',
-        'PASSWORD': 'chiraqmony',
-        'HOST': '146.190.28.116',
-        'PORT': '5432',
+        'NAME': os.getenv("occupy7"),
+        'USER': os.getenv("sam"),
+        'PASSWORD': os.getenv("chiraqmony"),
+        'HOST': os.getenv("146.190.28.116"),
+        'PORT': os.getenv("5432"),
     }
 }
 
