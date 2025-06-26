@@ -10,12 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
+
+
+
 from pathlib import Path
 from datetime import timedelta
 import django
 import dj_database_url
+from dotenv import load_dotenv
 
-
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 from django.utils.translation import gettext
 django.utils.translation.ugettext = gettext
@@ -32,7 +37,7 @@ SECRET_KEY = 'django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['occupy-app.com','146.190.28.116']
+ALLOWED_HOSTS = ['occupy-app.com','146.190.28.116','0.0.0.0','localhost']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://occupy-app.com',
@@ -144,22 +149,29 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
 
-import os
-from dotenv import load_dotenv
-load_dotenv()
+
 
 
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("occupy7"),
-        'USER': os.getenv("sam"),
-        'PASSWORD': os.getenv("chiraqmony"),
-        'HOST': os.getenv("146.190.28.116"),
-        'PORT': os.getenv("5432"),
+        'NAME': os.getenv('occupy7'),      
+        'USER': os.getenv('sam'),            
+        'PASSWORD': os.getenv('chiraqmony'), 
+        'HOST': os.getenv('127.0.0.1'),       # ✅ or 'localhost'
+        'PORT': os.getenv('5432'),
     }
 }
+
+print("Using DB config:")
+print("NAME:", os.getenv("DB_NAME"))
+print("USER:", os.getenv("DB_USER"))
+print("PASSWORD:", os.getenv("DB_PASSWORD"))
+print("HOST:", os.getenv("DB_HOST"))
+print("PORT:", os.getenv("DB_PORT"))
+
+
 
 
 
