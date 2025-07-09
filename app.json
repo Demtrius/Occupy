@@ -11,7 +11,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/5c97e3de-68a7-4b6a-9545-c17de461198f"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,14 +25,19 @@
       },
       "buildNumber": "1.0.1"
     },
+    "android": {
+      "package": "com.Occupy.occupy"
+    },
+    "runtimeVersion": "1.0.0",
+    "owner": "mr_occupy",
     "extra": {
       "eas": {
         "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
       }
     },
-    "android": {
-      "package": "com.Occupy.occupy"
-    }
+    "plugins": [
+      "expo-router"
+    ]
   },
   "android": {
     "adaptiveIcon": {
