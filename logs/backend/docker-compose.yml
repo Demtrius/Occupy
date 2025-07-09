@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: occupy7
+      POSTGRES_USER: sam
+      POSTGRES_PASSWORD: chiraqmony
+    ports:
+      - "5432:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python backend/manage.py migrate &&
+             python backend/manage.py collectstatic --noinput &&
+             gunicorn backend.wsgi:application --chdir backend --bind 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "80:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=1
+      - SECRET_KEY='django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^'
+      - ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - DATABASE_URL=postgres://sam:chiraqmony@db:5432/occupy7
+
+
+volumes:
+  postgres_data:

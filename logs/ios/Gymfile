@@ -1,0 +1,21 @@
+suppress_xcode_output(true)
+clean(false)
+
+scheme("occupy")
+
+configuration("Release")
+
+
+export_options({
+  method: "app-store",
+  provisioningProfiles: {
+    "com.Occupy.occupy" => "e2ed8b15-f7d6-462b-addb-0c1e7923bd16",
+  }
+})
+
+export_xcargs "OTHER_CODE_SIGN_FLAGS=\"--keychain /var/folders/84/f89jmzzn4dd8j8ky2r1s0qy00000gn/T/eas-build-25ad9740-10db-441c-a568-62a3ecc2a369.keychain\""
+
+disable_xcpretty(true)
+buildlog_path("/var/folders/84/f89jmzzn4dd8j8ky2r1s0qy00000gn/T/eas-cli-nodejs/06da4da0-1c0b-4b02-995e-ebf7e6c86b85/logs")
+
+output_directory("./build")

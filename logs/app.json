@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "occupy",
+    "slug": "occupy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/occupyIcon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/5c97e3de-68a7-4b6a-9545-c17de461198f"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.Occupy.occupy",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "1.0.1"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
+      }
+    },
+    "android": {
+      "package": "com.Occupy.occupy"
+    },
+    "runtimeVersion": "1.0.0"
+  },
+  "android": {
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/adaptive-icon.png",
+      "backgroundColor": "#FFFFFF"
+    },
+    "package": "com.Occupy.occupy"
+  },
+  "web": {
+    "favicon": "./assets/favicon.png"
+  },
+  "plugins": [
+    "expo-router",
+    "expo-secure-store"
+  ],
+  "extra": {
+    "router": {
+      "origin": false
+    },
+    "eas": {
+      "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
+    }
+  }
+}

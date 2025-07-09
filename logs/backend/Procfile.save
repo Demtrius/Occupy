@@ -1,0 +1,4 @@
+^X
+^X
+
+web: gunicorn occupy.wsgi --log-file -
