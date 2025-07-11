@@ -26,39 +26,29 @@
       "buildNumber": "1.0.1"
     },
     "android": {
-      "package": "com.Occupy.occupy"
+      "package": "com.Occupy.occupy",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "runtimeVersion": "1.0.0",
     "owner": "mr_occupy",
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
       }
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ]
-  },
-  "android": {
-    "adaptiveIcon": {
-      "foregroundImage": "./assets/adaptive-icon.png",
-      "backgroundColor": "#FFFFFF"
-    },
-    "package": "com.Occupy.occupy"
-  },
-  "web": {
-    "favicon": "./assets/favicon.png"
-  },
-  "plugins": [
-    "expo-router",
-    "expo-secure-store"
-  ],
-  "extra": {
-    "router": {
-      "origin": false
-    },
-    "eas": {
-      "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
-    }
   }
 }
+
