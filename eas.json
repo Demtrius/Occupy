@@ -20,13 +20,18 @@
         "simulator": false,
         "buildConfiguration": "Release"
       },
-      "cache":{
-        "key": "v1.0.1" 
+      "cache": {
+        "key": "v1.0.1"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "samihuomaoccupy@gmail.com"
+      }
+    }
   }
 }
+
 

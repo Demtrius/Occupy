@@ -56,7 +56,7 @@ const Post = () => {
       <View style={styles.container}>
         <Text style={styles.title}>Create post</Text>
 
-        <Text style={styles.label}>Your post name</Text>
+        {/* <Text style={styles.label}>Your post name</Text>
         <TextInput
           label="Post Name"
           value={content}
@@ -64,11 +64,11 @@ const Post = () => {
           style={styles.input}
           onChangeText={(text) => setContent(text)}
           theme={{ colors: { primary: '#6ba32d' } }}
-        />
+        /> */}
 
         <Text style={styles.label}>Post Information</Text>
         <TextInput
-          label="Information"
+          label="content"
           value={caption}
           mode="outlined"
           style={[styles.input, { height: 100 }]}

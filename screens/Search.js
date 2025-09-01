@@ -192,7 +192,7 @@ function Search(props) {
           <Text>All</Text>
         </Button>
         <Button
-          mode={category === 'Occupation' ? 'contained' : 'outlined'}
+          mode={category === 'Occupations' ? 'contained' : 'outlined'}
           onPress={() => filterByCategory('Occupation')}
           color="#6ba32d"
           contentStyle={styles.buttonContent}
@@ -201,13 +201,13 @@ function Search(props) {
           <Text>Occupation</Text>
         </Button>
         <Button
-          mode={category === 'Persons' ? 'contained' : 'outlined'}
-          onPress={() => filterByCategory('Persons')}
+          mode={category === 'Users' ? 'contained' : 'outlined'}
+          onPress={() => filterByCategory('Users')}
           color="#6ba32d"
           contentStyle={styles.buttonContent}
           style={styles.button}
         >
-          <Text>Persons</Text>
+          <Text>Users</Text>
         </Button>
         <Button
           mode={category === 'Cliques' ? 'contained' : 'outlined'}

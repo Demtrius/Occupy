@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Context } from '../components/globalContext/globalContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,48 +25,101 @@ function SignIn({ navigation }) {
   const [password, setPassword] = useState('');
   const [securePassword, setSecurePassword] = useState(true);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Debug function
+  const debugAPI = async () => {
+    console.log('🔍 Debug Info:');
+    console.log('API URL:', process.env.EXPO_PUBLIC_BACKEND_URL);
+    console.log('Email:', username);
+    console.log('Password length:', password.length);
+  };
 
   const handleLogin = async () => {
-    let body = JSON.stringify({
-      'email': username,
-      'password': password
+    // Clear previous errors
+    setError('');
+    
+    // Validate inputs
+    if (!username.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    setLoading(true);
+    await debugAPI();
+
+    const body = JSON.stringify({
+      email: username.trim(),
+      password: password
     });
-  
+
     try {
-      const response = await fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/auth/login/', {
+      console.log('🚀 Making login request...');
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          //  Authorization: `Bearer ${token}`,
+          'Accept': 'application/json',
         },
         body: body
       });
-  
+
+      console.log('📡 Response status:', response.status);
+      const json = await response.json();
+      console.log('📦 Response data:', json);
+
       if (response.ok) {
-        const json = await response.json();
+        console.log('✅ Login successful');
+        
+        // Store user data
         setOccupierObj(json);
         setAuthTokens(json.token);
         setIsLoggedIn(true);
+        
+        // Save to AsyncStorage
         await AsyncStorage.setItem('authTokens', JSON.stringify(json));
+        
+        Alert.alert('Success', 'Login successful!');
+        
       } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Invalid credentials");
+        console.log('❌ Login failed:', json);
+        // Handle different error response formats
+        const errorMessage = json.message || 
+                            json.detail || 
+                            json.error || 
+                            json.non_field_errors?.[0] ||
+                            "Invalid credentials";
+        setError(errorMessage);
       }
     } catch (error) {
-      setError('An error occurred. Please try again.');
+      console.error('💥 Network error:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (username && password) {
-      handleLogin();
-    }
-  }, [username, password]);
+  // REMOVED THE PROBLEMATIC useEffect - this was causing automatic login attempts
+  // useEffect(() => {
+  //   if (username && password) {
+  //     handleLogin();
+  //   }
+  // }, [username, password]);
+
+  // Test credentials function for development
+  const fillTestCredentials = () => {
+    setUsername('Kovon@gmail.com');
+    Alert.alert('Test Credentials', 'Test email filled. Please enter the password and tap Login.');
+  };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height' }
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
@@ -74,16 +128,24 @@ function SignIn({ navigation }) {
             style={styles.logo}
           />
           <Text style={styles.title}>Welcome User!</Text>
+          
+          {/* Debug info - shows API URL */}
+          <Text style={styles.debugText}>
+            API: {process.env.EXPO_PUBLIC_BACKEND_URL}
+          </Text>
+          
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <View style={styles.inputContainer}>
             <TextInput
               value={username}
               onChangeText={(text) => setUsername(text)}
-              placeholder="Email Address"
+              placeholder="Username"
               placeholderTextColor="#888"
               style={styles.input}
               autoCapitalize="none"
+              keyboardType="username"
+              editable={!loading}
             />
 
             <TextInput
@@ -93,6 +155,7 @@ function SignIn({ navigation }) {
               placeholderTextColor="#888"
               secureTextEntry={securePassword}
               style={styles.input}
+              editable={!loading}
             />
           </View>
 
@@ -100,8 +163,19 @@ function SignIn({ navigation }) {
             <Text style={styles.forgotText}>Forgot password?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
-            <Text style={styles.loginText}>Login</Text>
+          {/* Test credentials button for development */}
+          <TouchableOpacity onPress={fillTestCredentials} style={styles.testButton}>
+            <Text style={styles.testButtonText}>Fill Test Credentials</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={handleLogin} 
+            style={[styles.loginButton, loading && styles.disabledButton]}
+            disabled={loading}
+          >
+            <Text style={styles.loginText}>
+              {loading ? 'Logging in...' : 'Login'}
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.footer}>
@@ -112,7 +186,9 @@ function SignIn({ navigation }) {
           </View>
 
           <TouchableOpacity style={styles.businessContainer}>
-            <Text style={styles.businessText} onPress={() => navigation.navigate("SignInBusiness")}>Log in as business</Text>
+            <Text style={styles.businessText} onPress={() => navigation.navigate("SignInBusiness")}>
+              Log in as business
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -123,96 +199,107 @@ function SignIn({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Changed to white
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   logo: {
-    width: width,
-    height: 180,
-    marginBottom: 20,
-    marginTop: -50, // Move the logo up
+    width: width * 0.6,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 30,
     resizeMode: 'contain',
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 40,
-    color: '#000',
-    textAlign: 'left',
-    alignSelf: 'stretch',
-  },
-  inputContainer: {
-    width: '100%',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 20,
+    color: '#333',
   },
-  input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 15,
-    fontSize: 16,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    textAlign: 'left',
-  },
-  forgotPassword: {
-    marginBottom: 30,
-    textAlign: 'left',
-    alignSelf: 'stretch',
-  },
-  forgotText: {
-    color: '#6ba32d',
-    fontSize: 14,
-  },
-  loginButton: {
-    backgroundColor: '#6ba32d',
-    borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 50,
-    marginBottom: 20,
-  },
-  loginText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '500',
-  },
-  footer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    textAlign: 'left',
-    alignSelf: 'stretch',
-  },
-  footerText: {
-    color: '#888',
-    fontSize: 14,
-    textAlign: 'left',
-    alignSelf: 'stretch',
-  },
-  registerText: {
-    color: '#6ba32d',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  businessContainer: {
-    alignSelf: 'stretch',
-  },
-  businessText: {
-    color: '#6ba32d',
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'left',
+  debugText: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontFamily: 'monospace',
   },
   error: {
     color: 'red',
+    textAlign: 'center',
     marginBottom: 15,
-    textAlign: 'left',
-    alignSelf: 'stretch',
+    padding: 10,
+    backgroundColor: '#ffebee',
+    borderRadius: 5,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 15,
+  },
+  forgotText: {
+    color: '#007AFF',
+    fontSize: 14,
+  },
+  testButton: {
+    backgroundColor: '#FFA500',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  testButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  loginButton: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 30,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+  loginText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  footerText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  registerText: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  businessContainer: {
+    alignItems: 'center',
+  },
+  businessText: {
+    color: '#007AFF',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
 

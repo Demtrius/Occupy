@@ -1,5 +1,5 @@
 from django.urls import  path,include
-from .views import  CliqueView,CliqueList,CliqueSearch,CliqueViewSet,PostListCreateView,PostRetrieveUpdateDeleteView,CliqueListCreateView,CliqueRetrieveUpdateDeleteView,ListPostsOfClique,PostList,JoinCliqueView
+from .views import  CliqueView,CliqueList,CliqueSearch,CliqueViewSet,PostListCreateView,PostRetrieveUpdateDeleteView,CliqueListCreateView,CliqueRetrieveUpdateDeleteView,ListPostsOfClique,PostList,JoinCliqueView,ReviewView,CliqueList
 from rest_framework.routers import DefaultRouter, SimpleRouter
 app_name="Occupy"
 from . import views
@@ -25,8 +25,8 @@ follow_detail = FollowViewSet.as_view({
 
 urlpatterns = [
   path('clique/', include(router.urls)),
-  #path('clique', CliqueView.as_view()),
-  path('cliques-list',views.CliqueListCreateView.as_view(),name='list_cliques'),
+  path('clique', CliqueView.as_view()),
+  path('clique-list',views.CliqueListCreateView.as_view(),name='list_cliques'),
   path('post-create', views.PostListCreateView().as_view(), name='list_posts'),
    path('post-list',views.PostList.as_view(), name='create-posts'),
   path(
@@ -44,7 +44,9 @@ urlpatterns = [
   path('', include(router.urls)),
   path('follows/', follow_list, name='follow-list'),
   path('follows/<int:pk>/', follow_detail, name='follow-detail'),
-  path('cliques-join/', JoinCliqueView.as_view(), name='join_clique')
+  path('cliques-join/', JoinCliqueView.as_view(), name='join_clique'),
+  path('review', ReviewView.as_view(), name='review'),
+  path('cliques/',views.CliqueList.as_view())
 ]
 
 

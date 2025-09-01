@@ -21,9 +21,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.Occupy.occupy",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can upload profile pictures and posts."
       },
-      "buildNumber": "1.0.1"
+      "buildNumber": "7"
     },
     "android": {
       "package": "com.Occupy.occupy",
@@ -52,3 +53,5 @@
   }
 }
 
+ 
+ 

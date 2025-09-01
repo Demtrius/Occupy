@@ -49,12 +49,12 @@ function Cliques({ navigation }) {
     return (
       <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Clique', { id: item.id})}>
         <View style={styles.cardHeader}>
-          <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
+          <Image source={{ uri: 'https://www.gravatar.com/avatar/?d=mp' }} style={styles.cardImage} />
         </View>
         <Text style={styles.cardTitle}>{item.name}</Text>
         <Text style={styles.cardSubtitle}>{item.location}</Text>
         <TouchableOpacity style={styles.contactButton}>
-          <Text style={styles.contactButtonText}>open clique</Text>
+          <Text style={styles.contactButtonText}>Open clique</Text>
         </TouchableOpacity>
       </TouchableOpacity>
     );

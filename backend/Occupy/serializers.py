@@ -65,11 +65,12 @@ class CliqueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Clique
-        fields = ('name', 'created_at', 'level','id','occupation','reviews','description')
+        fields = ("id", "name", "description", "created_at", "occupation", "level", "reviews")
 
     def get_reviews(self, obj):
         reviews = obj.reviews.all()
         return ReviewSerializer(reviews, many=True).data
+
 
 
 
@@ -140,9 +141,13 @@ class FollowSerializer(serializers.ModelSerializer):
         return data
 
 
+
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields =  ['occupier','body','clique']
+        fields =  ['user','body','clique']
+
+
+
 
 

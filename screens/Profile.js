@@ -43,10 +43,10 @@ function Profile({ navigation }) {
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
-        <Image
-          source={{ uri: 'https://placecats.com/300/300' }}
-          style={styles.avatar}
-        />
+      <Image 
+  source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }} 
+  style={styles.cardImage} 
+/>
         <Text style={styles.name}>{occupierObj?.username || 'User'}</Text>
         <Text style={styles.username}>@{occupierObj?.username || 'username'}</Text>
       </View>
@@ -58,11 +58,11 @@ function Profile({ navigation }) {
         </TouchableOpacity>
         {showAccountInfo && (
           <View style={styles.accountInfo}>
-            <Text style={styles.infoText}>Username: {occupierObj?.username}</Text>
-            <Text style={styles.infoText}>Email: {occupierObj?.email}</Text>
-            <Text style={styles.infoText}>Occupations: {occupierObj?.occupations}</Text>
-            <Text style={styles.infoText}>Followers: {occupierObj?.followers}</Text>
-          </View>
+          <Text style={styles.infoText}>Username: {occupierObj?.username}</Text>
+          <Text style={styles.infoText}>Email: {occupierObj?.email}</Text>
+          <Text style={styles.infoText}>Occupations: {occupierObj?.occupations || 'None'}</Text>
+          <Text style={styles.infoText}>Followers: {occupierObj?.followers?.length || 0}</Text>
+        </View>
         )}
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('NotificationsTab')}>
           <Text style={styles.menuText}>Recent messages</Text>

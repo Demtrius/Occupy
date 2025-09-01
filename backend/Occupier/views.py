@@ -25,6 +25,7 @@ import json
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
+    
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)

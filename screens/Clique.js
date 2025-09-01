@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image, ScrollView } from 'react-native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +24,7 @@ const Clique = ({ route }) => {
   const navigation = useNavigation();
   const globalContext = useContext(Context);
   const { occupierObj } = globalContext;
+  const [isMember,setIsMember] = useState(false)
 
   const { id } = route.params;
   
@@ -41,6 +42,26 @@ const Clique = ({ route }) => {
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   };
+
+  const renderPost = ({ item }) => (
+    <View style={styles.cardContainer}>
+      <View style={styles.cardHeader}>
+        <Image 
+          source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }} 
+          style={styles.cardImage} 
+        />
+        <Text style={styles.author}>{item.username || 'Unknown'}</Text>
+      </View>
+      <Text style={styles.caption}>{item.caption || 'No Caption'}</Text>
+      <Text style={styles.description}>{item.content || 'No Content Available'}</Text>
+    </View>
+  );
+
+
+
+
+
+
 
 
   // join clique should first check the user if it is already in the clique but this is not yet implementen in the backend user/qlique join
@@ -80,10 +101,14 @@ const Clique = ({ route }) => {
     if (!text) setShowSearchBar(false);
   };
 
+
   const renderClique = ({ item }) => (
     <View style={styles.cardContainer}>
       <View style={styles.cardHeader}>
-        <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
+      <Image 
+  source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }} 
+  style={styles.cardImage} 
+/>
       </View>
       <Text style={styles.name}>{item.caption || 'No Caption'}</Text>
       <Text style={styles.description}>{item.content || 'No Content Available'}</Text>
@@ -101,6 +126,12 @@ const Clique = ({ route }) => {
       <Text style={styles.placeholderText}>Reviews coming soon...</Text>
     </View>
   );
+
+  const renderMembers = () => {
+    <View style={styles.placeholderContainer}>
+    <Text style={styles.placeholderText}>Members list coming soon...</Text>
+  </View>
+  }
 
   const renderCliqueInfo = () => (
     <View style={styles.infoContainer}>
@@ -121,11 +152,27 @@ const Clique = ({ route }) => {
 
 
   return (
-    <View style={styles.screenContainer}>
-      <View style={styles.headerContainer}>
-        {!showSearchBar ? (
-          <>
-            <Text style={styles.headerTitle}>{cliqueName}</Text>
+<View style={styles.screenContainer}>
+   {/* HEADER */}
+   <ScrollView>
+   <View style={styles.headerContainer}>
+   <Image 
+    source={{ uri: cliqueInfo.banner || 'https://via.placeholder.com/600x200' }} 
+    style={styles.bannerImage} 
+    />
+              <View style={styles.headerContent}>
+            <Text style={styles.cliqueName}>{cliqueInfo.name || 'Unknown Clique'}</Text>
+            <Text style={styles.memberCount}>{cliqueInfo.members || 0} members</Text>
+            <Text style={styles.description}>{cliqueInfo.description || 'No description available'}</Text>
+            <TouchableOpacity style={styles.joinButton} onPress={joinClique}>
+              <Text style={styles.joinButtonText}>{isFollowing ? 'Leave Clique' : 'Join Clique'}</Text>
+            </TouchableOpacity>
+            {feedbackMessage ? <Text style={styles.feedback}>{feedbackMessage}</Text> : null}
+          </View>
+
+          {/* SEARCH */}
+          <View style={styles.searchWrapper}>
+          {!showSearchBar ? (
             <TouchableOpacity
               onPress={() => {
                 setShowSearchBar(true);
@@ -135,203 +182,81 @@ const Clique = ({ route }) => {
             >
               <Ionicons name="search" size={24} color="black" />
             </TouchableOpacity>
-          </>
-        ) : (
-          <PaperSearchbar
-            ref={searchBarRef}
-            style={styles.searchBar}
-            placeholder="Search"
-            value={search}
-            onChangeText={searchFilterFunction}
-            onBlur={() => !search && setShowSearchBar(false)}
-          />
-        )}
-      </View>
-
-      <View style={styles.tabContainer}>
-        {['Posts', 'Reviews', 'Clique info'].map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}
-          >
-            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#6ba32d" />
-      ) : (
-        <>
-          {activeTab === 'Posts' && (
-            <FlatList
-              data={filteredDataSource}
-              keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
-              renderItem={renderClique}
-              contentContainerStyle={styles.listContainer}
+          ) : (
+            <PaperSearchbar
+              ref={searchBarRef}
+              style={styles.searchBar}
+              placeholder="Search posts"
+              value={search}
+              onChangeText={searchFilterFunction}
+              onBlur={() => !search && setShowSearchBar(false)}
             />
           )}
-          {activeTab === 'Reviews' && renderReviews()}
-          {activeTab === 'Clique info' && renderCliqueInfo()}
-        </>
-      )}
-    </View>
+        </View>
+        {/* TABS */}
+        <View style={styles.tabContainer}>
+          {['Posts', 'Members', 'Reviews'].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tab, activeTab === tab && styles.activeTab]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+         {/* TAB CONTENT */}
+         {loading ? (
+          <ActivityIndicator size="large" color="#6ba32d" />
+        ) : (
+          <>
+            {activeTab === 'Posts' && (
+              <FlatList
+                data={filteredDataSource}
+                keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
+                renderItem={renderPost}
+                contentContainerStyle={styles.listContainer}
+              />
+            )}
+            {activeTab === 'Members' && renderMembers()}
+            {activeTab === 'Reviews' && renderReviews()}
+          </>
+        )}
+   </View>
+   </ScrollView>
+</View>
   );
 };
 
 
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center', // Center the header text
-    alignItems: 'center',
-    paddingBottom: 8,
-    backgroundColor: '#fff',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    flex: 1, // Take up remaining space
-    textAlign: 'center', // Center the text
-    paddingLeft: 30, // Remove padding to center the text
-  },
-  searchIcon: {
-    paddingRight: 16, // Add padding to the right to avoid the icon being too close to the edge
-  },
-  searchBar: {
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // For Android shadow
-    width: width * 0.92, // Ensure the same width as on Search.js
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#6ba32d',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#6ba32d',
-    fontWeight: 'bold',
-  },
-  listContainer: {
-    padding: 16,
-  },
-  cardContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardHeader: {
-    position: 'relative',
-  },
-  cardImage: {
-    width: '100%',
-    height: 120, // Increase the height
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: '#E5E7EB',
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
-  },
-  caption: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
-  },
-  contactButton: {
-    backgroundColor: '#6ba32d',
-    paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  contactButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  placeholderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    fontSize: 18,
-    color: '#666',
-  },
-  infoContainer: {
-    padding: 16,
-    backgroundColor: '#f9f9f9', // Add this line
-    borderRadius: 10, // Add this line
-    margin: 16, // Add this line
-    shadowColor: '#000', // Add this line
-    shadowOffset: { width: 0, height: 2 }, // Add this line
-    shadowOpacity: 0.1, // Add this line
-    shadowRadius: 4, // Add this line
-    elevation: 3, // Add this line
-  },
-  infoTitle: { // Add this block
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
-  },
-  followButton: {
-    backgroundColor: '#6ba32d',
-    paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    margin: 16,
-  },
-  followButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  screenContainer: { flex: 1, backgroundColor: '#f9f9f9' },
+  headerContainer: { backgroundColor: '#fff', marginBottom: 10 },
+  bannerImage: { width: width, height: 150 },
+  headerContent: { padding: 10 },
+  cliqueName: { fontSize: 22, fontWeight: 'bold' },
+  memberCount: { fontSize: 14, color: '#666', marginBottom: 5 },
+  description: { fontSize: 14, color: '#444', marginBottom: 10 },
+  joinButton: { backgroundColor: '#007bff', padding: 10, borderRadius: 8, alignSelf: 'flex-start' },
+  joinButtonText: { color: '#fff', fontWeight: 'bold' },
+  feedback: { marginTop: 5, color: 'red' },
+  searchWrapper: { paddingHorizontal: 10, marginBottom: 5 },
+  searchBar: { backgroundColor: '#eee' },
+  searchIcon: { alignSelf: 'flex-end', margin: 5 },
+  tabContainer: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#fff', paddingVertical: 10 },
+  tab: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
+  activeTab: { borderBottomWidth: 2, borderBottomColor: '#007bff' },
+  tabText: { fontSize: 16, color: '#666' },
+  activeTabText: { color: '#007bff', fontWeight: 'bold' },
+  listContainer: { padding: 10 },
+  cardContainer: { backgroundColor: '#fff', padding: 12, borderRadius: 10, marginBottom: 10 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  cardImage: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
+  author: { fontSize: 14, fontWeight: 'bold' },
+  caption: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
+  placeholderContainer: { padding: 20, alignItems: 'center' },
+  placeholderText: { fontSize: 16, color: '#666' }
 });
+
 
 export default Clique;

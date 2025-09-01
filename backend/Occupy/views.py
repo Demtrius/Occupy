@@ -2,7 +2,7 @@ from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
 from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer,ReviewSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique,CommentPost,Follow
+from .models import  Post,Clique,CommentPost,Follow,Review
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response
@@ -316,43 +316,16 @@ class JoinCliqueView(generics.GenericAPIView):
             {"message": f"You have successfully joined the clique: {clique.name}"},
             status=status.HTTP_200_OK
         )
-class ReviewView(generics.GenericAPIView):
-    serializer_class = ReviewSerializer
-
-
-
-    def post(self, request, *args, **kwargs):
-        serializer = ReviewSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            {"message": "Review submitted successfully."},
-            status=status.HTTP_201_CREATED
-        )
-    def list_reviews_for_cliques(self,request,clique_id):
-        """
-        Fetch and return all reviews associated with a given clique ID.
-        """
-        # Filter reviews by clique_id
-        reviews = Review.objects.filter(clique_id=clique_id)
-        
-        # Check if reviews exist for the provided clique_id
-        if not reviews.exists():
-            return Response(
-                {"message": f"No reviews found for clique ID {clique_id}."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        # Serialize the data
-        serializer = self.serializer_class(reviews, many=True)
-        
-        # Return the serialized reviews
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
  
+class CliqueList(APIView):
+    def get(self,request,format=None):
+        clique = Clique.objects.all()
+        serializer = CliqueSerializer(clique,many=True)
+        return Response(serializer.data)
         
     
 
 
-    
+class ReviewView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
