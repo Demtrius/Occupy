@@ -74,12 +74,6 @@ class CliqueSerializer(serializers.ModelSerializer):
 
 
 
-
-    def get_reviews(self,obj):
-        reviews = obj.reviews.all()
-        return [f"{review.occupier}: {review.body}" for review in reviews]
-
-
 class CliqueSerializer_detailed(serializers.ModelSerializer):
     class Meta:
         model = Clique
@@ -145,7 +139,7 @@ class FollowSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields =  ['user','body','clique']
+        fields = ['user', 'body', 'clique', 'created_at']
 
 
 

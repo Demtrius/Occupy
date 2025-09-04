@@ -317,11 +317,14 @@ class JoinCliqueView(generics.GenericAPIView):
             status=status.HTTP_200_OK
         )
  
-class CliqueList(APIView):
-    def get(self,request,format=None):
-        clique = Clique.objects.all()
-        serializer = CliqueSerializer(clique,many=True)
-        return Response(serializer.data)
+class CliqueList(generics.ListAPIView):
+    queryset = Clique.objects.all()
+    serializer_class = CliqueSerializer
+
+    def list(self, request, *args, **kwargs):
+        print(">>> DEBUG: Using updated code with Review.user <<<")
+        return super().list(request, *args, **kwargs)
+
         
     
 
