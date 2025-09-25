@@ -48,9 +48,9 @@ dev-mobile: ## Start Expo development server
 	@echo "$(BLUE)📱 Starting mobile development server...$(RESET)"
 	@cd mobile && npx expo start
 
-dev-backend: ## Start Django development server
-	@echo "$(BLUE)🔧 Starting Django development server...$(RESET)"
-	@cd backend && python manage.py runserver
+dev-backend: ## Start Django development server with Docker
+	@echo "$(BLUE)🔧 Starting Django development server with Docker...$(RESET)"
+	@cd backend && docker compose -f docker-compose.yml up --build
 
 start: dev ## Alias for dev
 
@@ -129,9 +129,13 @@ collectstatic: ## Collect static files
 
 ##@ Docker
 
-docker: ## Start backend with Docker
-	@echo "$(BLUE)🐳 Starting backend with Docker...$(RESET)"
-	@cd backend && docker compose up --build
+docker: ## Start backend with Docker (development)
+	@echo "$(BLUE)🐳 Starting backend with Docker (development)...$(RESET)"
+	@cd backend && docker compose -f docker-compose.yml up --build
+
+docker-prod: ## Start backend with Docker (production)
+	@echo "$(BLUE)🐳 Starting backend with Docker (production)...$(RESET)"
+	@cd backend && docker compose -f docker-compose.prod.yml up --build
 
 docker-stop: ## Stop Docker containers
 	@echo "$(BLUE)🐳 Stopping Docker containers...$(RESET)"

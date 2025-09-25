@@ -1,0 +1,102 @@
+from django.db import models
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
+from rest_framework_simplejwt.tokens import RefreshToken
+import jwt
+from django.conf import settings
+from datetime import datetime, timedelta
+import uuid
+
+# Manager account
+class OccupierManager(BaseUserManager):
+    def create_user(self, email, username, occupations, password=None):
+        if not email:
+            raise ValueError("Users must have email address")
+        if not username:
+            raise ValueError("Users must have username")
+        if not occupations:
+            raise ValueError("Occupiers must have occupation")
+        user = self.model(
+            email=self.normalize_email(email),
+            username=username,
+            occupations=occupations,
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_business_page(self, email, username, occupation, password=None):
+        user = self.create_user(
+            email=self.normalize_email(email),
+            password=password,
+            username=username,
+            occupations=occupation,
+        )
+        user.is_business_page = True
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password, occupations):
+        user = self.create_user(
+            email=self.normalize_email(email),
+            password=password,
+            username=username,
+            occupations=occupations,
+        )
+        user.is_admin = True
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+# Occupier model
+class Occupier(AbstractBaseUser, PermissionsMixin):
+    id = models.BigAutoField(primary_key=True)
+    email = models.EmailField(verbose_name="email", max_length=59, unique=True)
+    username = models.CharField(max_length=30, unique=True)
+    occupations = models.CharField(
+        max_length=200, null=False
+    )  # amount of occupations user does
+    date_joined = models.DateField(verbose_name="date joined", auto_now_add=True)
+    last_login = models.DateTimeField(verbose_name="last login", auto_now=True)
+    is_admin = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    password = models.CharField(unique=True, max_length=200)
+    first_name = models.CharField(max_length=200, null=True)
+    last_name = models.CharField(max_length=200, null=True)
+    private_account = models.BooleanField(default=False)
+    objects = OccupierManager()
+
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email", "occupations", "password"]
+
+    @property
+    def token(self):
+        """
+        Generate JWT token with user ID, JTI, and token type.
+        """
+        payload = {
+            "jti": str(uuid.uuid4()),  # Unique token identifier
+            "user_id": self.id,  # User ID
+            "username": self.username,
+            "email": self.email,
+            "exp": datetime.utcnow() + timedelta(hours=24),  # Token expiration
+            "token_type": "access",  # Explicitly define token type
+        }
+
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+        return token
+
+    def __str__(self):
+        return self.username
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        return True

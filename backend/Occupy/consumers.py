@@ -4,9 +4,9 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # Get the user from the scope (requires AuthMiddlewareStack)
-        self.user = self.scope['user']
+        self.user = self.scope.get('user')
 
-        if self.user.is_authenticated:
+        if self.user and self.user.is_authenticated:
             # Join the user's notification group
             self.group_name = f"user_{self.user.id}"
             await self.channel_layer.group_add(
@@ -18,15 +18,15 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             # Reject connection if the user is not authenticated
             await self.close()
 
-    async def disconnect(self, close_code):
-        if self.user.is_authenticated:
+    async def disconnect(self, code):
+        if hasattr(self, 'user') and self.user and self.user.is_authenticated:
             # Leave the user's notification group
             await self.channel_layer.group_discard(
                 self.group_name,
                 self.channel_name
             )
 
-    async def receive(self, text_data):
+    async def receive(self, text_data=None, bytes_data=None):
         # Handle incoming WebSocket messages if needed
         pass
 
