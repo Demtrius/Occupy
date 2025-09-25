@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "occupy",
+    "slug": "occupy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "icon": "./assets/occupyIcon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/5c97e3de-68a7-4b6a-9545-c17de461198f"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.Occupy.occupy",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can upload profile pictures and posts.",
+        "NSCameraUsageDescription": "This app needs access to your camera so you can take photos for your profile and posts."
+      },
+      "buildNumber": "7"
+    },
+    "android": {
+      "package": "com.Occupy.occupy",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "runtimeVersion": "1.0.0",
+    "owner": "mr_occupy",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5c97e3de-68a7-4b6a-9545-c17de461198f"
+      }
+    },
+    "plugins": ["expo-router", "expo-secure-store"]
+  }
+}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Clique,Post,CliquePost
+from .models import Clique, Post, CliquePost
 
 # Register your models here.
 admin.site.register(Clique)
@@ -14,6 +14,3 @@ admin.site.register(Post)
 
 #     def approve_comments(self,request,queryset):
 #         queryset.update(active=True)
-
-
-
