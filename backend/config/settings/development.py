@@ -19,13 +19,23 @@ ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# Database for development (can override with environment variables)
-DATABASES["default"].update(
-    {
-        "NAME": os.getenv("DB_NAME", "occupy_dev"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
+# Database for development (SQLite by default, can override with environment variables)
+if os.getenv("DB_NAME", "").endswith(".sqlite3") or not os.getenv("DB_NAME"):
+    # Use SQLite for development
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / os.getenv("DB_NAME", "db.sqlite3"),
+        }
     }
-)
+else:
+    # Use PostgreSQL if explicitly configured
+    DATABASES["default"].update(
+        {
+            "NAME": os.getenv("DB_NAME", "occupy_dev"),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+        }
+    )
 
 # Email backend for development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
