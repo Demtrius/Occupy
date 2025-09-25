@@ -6,7 +6,6 @@
 Occupy/
 ├── mobile/          # Expo/React Native mobile application
 ├── backend/         # Django backend API
-├── .vscode/         # VS Code configuration
 └── README.md        # This file
 ```
 
@@ -50,8 +49,8 @@ Occupy/
 2. Create and activate a virtual environment (if not already created):
 
    ```bash
-   python -m venv ../.venv
-   source ../.venv/bin/activate  # On Windows: ..\.venv\Scripts\activate
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
 3. Install Python dependencies:
