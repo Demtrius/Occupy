@@ -102,14 +102,11 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
         return token
 
+    def __str__(self):
+        return self.username
 
-def __str___(self):
-    return self.username
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
 
-
-def has_perm(self, perm, obj=None):
-    return self.is_admin
-
-
-def has_module_perms(self, app_label):
-    return True
+    def has_module_perms(self, app_label):
+        return True
