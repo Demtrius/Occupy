@@ -1,4 +1,6 @@
-from backend.config.env import env
+# pyright: reportArgumentType=false
+
+from ..env import env
 
 from .base import *  # noqa
 

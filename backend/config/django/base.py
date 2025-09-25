@@ -1,3 +1,5 @@
+# pyright: reportArgumentType=false
+
 """
 Django settings for backend project.
 
@@ -10,55 +12,66 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 
 from backend.config.env import APPS_DIR, BASE_DIR, env
 
 env.read_env(os.path.join(BASE_DIR, ".env"))
 
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-g^*rc8ie0tilq&foi0p4ft+&y+8c3heosv+-j-fh%l6wpz9-i^"
+SECRET_KEY = "=ug_ucl@yi6^mrcjyz%(u0%&g2adt#bz3@yos%#@*t#t!ypx=a"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = [
-    "occupy-app.com",
-    "146.190.28.116",
-    "0.0.0.0",
-    "localhost",
-    "127.0.0.1",
-]
+DEBUG = env.bool("DJANGO_DEBUG", default=True)
+
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://occupy-app.com",
     "https://www.occupy-app.com",
-    "http://146.190.28.116",  # ✅ include scheme
+    "http://146.190.28.116",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # or use whitelist in production
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
+
 # Application definition
 
-INSTALLED_APPS = [
+LOCAL_APPS = [
+    "Occupy",
+    "Occupier",
+]
+
+THIRD_PARTY_APPS = [
     "rest_framework",
+    "django_celery_results",
+    "django_celery_beat",
+    "django_filters",
+    "corsheaders",
+    "django_extensions",
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "channels",
+]
+
+INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "Occupy",
-    "Occupier",
-    "django_filters",
-    "corsheaders",
-    "rest_framework.authtoken",
-    "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
-    "channels",
+    *THIRD_PARTY_APPS,
+    *LOCAL_APPS,
 ]
-CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 
 
 MIDDLEWARE = [
@@ -71,11 +84,13 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
-        #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
         # 'rest_framework.permissions.AllowAny',
         # 'rest_framework.permissions.IsAuthenticated',
     ],
@@ -84,7 +99,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        # <-- And here
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "NON_FIELDS_ERRORS_KEY": "error",
@@ -99,12 +113,13 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     #'Bearer <Token>'
 }
+
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(APPS_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -116,19 +131,19 @@ TEMPLATES = [
         },
     },
 ]
+
 AUTH_USER_MODEL = "Occupier.Occupier"  # App will go here to make models
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "occupy7",
-        "USER": "sam",
-        "PASSWORD": "chiraqmony",
-        "HOST": "db",
-        "PORT": "5432",
+        "ENGINE": env("DATABASE_ENGINE", default="django.db.backends.postgresql"),
+        "NAME": env("DATABASE_NAME", default="occupy_db"),
+        "USER": env("DATABASE_USER", default="occupy_user"),
+        "PASSWORD": env("DATABASE_PASSWORD", default="occupy_password"),
+        "HOST": env("DATABASE_HOST", default="localhost"),
+        "PORT": env("DATABASE_PORT", default="5432"),
     }
 }
 
@@ -143,6 +158,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
