@@ -27,7 +27,7 @@ const Clique = ({ route }) => {
   const [isMember,setIsMember] = useState(false)
 
   const { id } = route.params;
-  
+
   const getClique = () => {
     axios
       .get(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/${id}/posts`)
@@ -46,9 +46,9 @@ const Clique = ({ route }) => {
   const renderPost = ({ item }) => (
     <View style={styles.cardContainer}>
       <View style={styles.cardHeader}>
-        <Image 
-          source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }} 
-          style={styles.cardImage} 
+        <Image
+          source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }}
+          style={styles.cardImage}
         />
         <Text style={styles.author}>{item.username || 'Unknown'}</Text>
       </View>
@@ -75,10 +75,10 @@ const Clique = ({ route }) => {
         'Accept': 'application/json',
       }
     })
-        .then((response) => { 
+        .then((response) => {
           setIsFollowing(!isFollowing);
         })
-        .catch((error) => { 
+        .catch((error) => {
           setFeedbackMessage('Failed to join clique');
         });
     };
@@ -105,15 +105,15 @@ const Clique = ({ route }) => {
   const renderClique = ({ item }) => (
     <View style={styles.cardContainer}>
       <View style={styles.cardHeader}>
-      <Image 
-  source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }} 
-  style={styles.cardImage} 
+      <Image
+  source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }}
+  style={styles.cardImage}
 />
       </View>
       <Text style={styles.name}>{item.caption || 'No Caption'}</Text>
       <Text style={styles.description}>{item.content || 'No Content Available'}</Text>
-      <TouchableOpacity 
-        style={styles.contactButton} 
+      <TouchableOpacity
+        style={styles.contactButton}
         onPress={() => navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: item.user_id } })}
       >
         <Text style={styles.contactButtonText}>Contact</Text>
@@ -156,9 +156,9 @@ const Clique = ({ route }) => {
    {/* HEADER */}
    <ScrollView>
    <View style={styles.headerContainer}>
-   <Image 
-    source={{ uri: cliqueInfo.banner || 'https://via.placeholder.com/600x200' }} 
-    style={styles.bannerImage} 
+   <Image
+    source={{ uri: cliqueInfo.banner || 'https://via.placeholder.com/600x200' }}
+    style={styles.bannerImage}
     />
               <View style={styles.headerContent}>
             <Text style={styles.cliqueName}>{cliqueInfo.name || 'Unknown Clique'}</Text>

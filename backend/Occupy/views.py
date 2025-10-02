@@ -10,10 +10,22 @@ from .serializers import (
     FollowSerializer,
     JoinCliqueSerializer,
     ReviewSerializer,
+    ServiceSerializer,
+    AvailabilitySerializer,
+    BookingSerializer,
 )
-from Occupier.serializers import CurrentOccupierSerializer
-from .models import Post, Clique, CommentPost, Follow, Review
-from Occupier.models import Occupier
+from backend.Occupier.serializers import CurrentOccupierSerializer
+from .models import (
+    Post,
+    Clique,
+    CommentPost,
+    Follow,
+    Review,
+    Service,
+    Availability,
+    Booking,
+)
+from backend.Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -35,6 +47,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.viewsets import ModelViewSet
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from rest_framework.permissions import AllowAny
 
 import json
 
@@ -88,7 +101,7 @@ class PostListCreateView(generics.ListCreateAPIView):
 
     serializer_class = PostSerializer
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     # def post(self,request:Request,*args,**kwargs):
     #     print(request.data)
@@ -325,3 +338,16 @@ class CliqueList(generics.ListAPIView):
 class ReviewView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+
+class ServiceListCreateView(generics.ListCreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(provider=self.request.user)
+
+
+class ServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer

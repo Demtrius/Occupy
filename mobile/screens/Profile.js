@@ -39,38 +39,93 @@ function Profile({ navigation }) {
     setShowLanguageInfo(!showLanguageInfo);
   };
 
-  return (
+return (
     <View style={styles.container}>
-      {/* Header Section */}
+      {/* Profile Header */}
       <View style={styles.header}>
-      <Image 
-  source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }} 
-  style={styles.cardImage} 
-/>
-        <Text style={styles.name}>{occupierObj?.username || 'User'}</Text>
-        <Text style={styles.username}>@{occupierObj?.username || 'username'}</Text>
+        <Image
+          source={{
+            uri:
+              occupierObj?.profile_image ||
+              "https://www.gravatar.com/avatar/?d=mp",
+          }}
+          style={styles.profileImage}
+        />
+        <Text style={styles.name}>
+          {occupierObj?.full_name || occupierObj?.username || "User"}
+        </Text>
+        <Text style={styles.username}>
+          @{occupierObj?.username || "username"}
+        </Text>
+        <Text style={styles.bio}>
+          {occupierObj?.bio || "This user hasn’t added a bio yet."}
+        </Text>
+
+        {/* Followers & Following */}
+        <View style={styles.followContainer}>
+          <TouchableOpacity
+            style={styles.followItem}
+            onPress={() =>
+              navigation.navigate("FollowersScreen", {
+                followers: occupierObj?.followers || [],
+              })
+            }
+          >
+            <Text style={styles.followCount}>
+              {occupierObj?.followers?.length || 0}
+            </Text>
+            <Text style={styles.followLabel}>Followers</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.followItem}
+            onPress={() =>
+              navigation.navigate("FollowingScreen", {
+                following: occupierObj?.following || [],
+              })
+            }
+          >
+            <Text style={styles.followCount}>
+              {occupierObj?.following?.length || 0}
+            </Text>
+            <Text style={styles.followLabel}>Following</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Menu Section */}
       <View style={styles.menu}>
-        <TouchableOpacity style={styles.menuItem} onPress={toggleAccountInfo}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => setShowAccountInfo(!showAccountInfo)}
+        >
           <Text style={styles.menuText}>Account info</Text>
         </TouchableOpacity>
         {showAccountInfo && (
           <View style={styles.accountInfo}>
-          <Text style={styles.infoText}>Username: {occupierObj?.username}</Text>
-          <Text style={styles.infoText}>Email: {occupierObj?.email}</Text>
-          <Text style={styles.infoText}>Occupations: {occupierObj?.occupations || 'None'}</Text>
-          <Text style={styles.infoText}>Followers: {occupierObj?.followers?.length || 0}</Text>
-        </View>
+            <Text style={styles.infoText}>Username: {occupierObj?.username}</Text>
+            <Text style={styles.infoText}>Email: {occupierObj?.email}</Text>
+            <Text style={styles.infoText}>
+              Occupations: {occupierObj?.occupations || "None"}
+            </Text>
+          </View>
         )}
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('NotificationsTab')}>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate("NotificationsTab")}
+        >
           <Text style={styles.menuText}>Recent messages</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuText}>Recent jobs</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={toggleAppearanceInfo}>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => setShowAppearanceInfo(!showAppearanceInfo)}
+        >
           <Text style={styles.menuText}>Appearance</Text>
         </TouchableOpacity>
         {showAppearanceInfo && (
@@ -78,7 +133,11 @@ function Profile({ navigation }) {
             <Text style={styles.infoText}>Coming Soon</Text>
           </View>
         )}
-        <TouchableOpacity style={styles.menuItem} onPress={toggleLanguageInfo}>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => setShowLanguageInfo(!showLanguageInfo)}
+        >
           <Text style={styles.menuText}>Language</Text>
         </TouchableOpacity>
         {showLanguageInfo && (
