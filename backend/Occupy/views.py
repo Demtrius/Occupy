@@ -1,8 +1,8 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework import generics, serializers,status,mixins
-from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer,ReviewSerializer
+from .serializers import PostSerializer,CliqueSerializer,PostSerializer_detailed,CurrentCliqueSerializer,CliqueSerializer_detailed,CommentPostSerializer,FollowSerializer,JoinCliqueSerializer,ReviewSerializer,ServiceSerializer, AvailabilitySerializer, BookingSerializer
 from Occupier.serializers import CurrentOccupierSerializer
-from .models import  Post,Clique,CommentPost,Follow,Review
+from .models import  Post,Clique,CommentPost,Follow,Review,Service, Availability, Booking
 from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import  Response
@@ -25,6 +25,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.viewsets import ModelViewSet
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from rest_framework.permissions import AllowAny
 
 import json
 # Create your views here.
@@ -80,13 +81,8 @@ class PostListCreateView(generics.ListCreateAPIView):
     """
     serializer_class = PostSerializer
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
-
-    
-    # def post(self,request:Request,*args,**kwargs):
-    #     print(request.data)
-    #     return self.create(request,*args,**kwargs)
 
     def create_post(request):
         data = request.data
@@ -177,12 +173,6 @@ class CliqueRetrieveUpdateDeleteView(generics.GenericAPIView, mixins.RetrieveMod
         return self.destroy(request, *args,**kwargs)
 
         
-
-
-
-    
-
-    
 
 
 
@@ -332,3 +322,17 @@ class CliqueList(generics.ListAPIView):
 class ReviewView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+class ServiceListCreateView(generics.ListCreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    
+
+    def perform_create(self, serializer):
+        serializer.save(provider=self.request.user)
+
+class ServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    
+

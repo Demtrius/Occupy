@@ -2,7 +2,7 @@ from dataclasses import field
 from typing import final
 from django.db import models
 from rest_framework import fields, serializers
-from .models import Clique,Post,CommentPost,Follow,Review
+from .models import Clique,Post,CommentPost,Follow,Review,Service, Availability, Booking
 from Occupier.models import Occupier
 from rest_framework.validators import UniqueTogetherValidator
 # from serializers import 
@@ -112,7 +112,7 @@ class CommentPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CommentPost
-        fields = '__all__'
+        fields = ['body']
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -141,6 +141,42 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['user', 'body', 'clique', 'created_at']
 
+
+class ServiceSerializer(serializers.ModelSerializer):
+    provider_username = serializers.ReadOnlyField(source="provider.username")
+
+    class Meta:
+        model = Service
+        fields = ["id", "provider", "provider_username", "title", "description", "price", "duration_minutes"]
+
+
+class AvailabilitySerializer(serializers.ModelSerializer):
+    provider_username = serializers.ReadOnlyField(source="provider.username")
+
+    class Meta:
+        model = Availability
+        fields = ["id", "provider", "provider_username", "date", "start_time", "end_time"]
+
+class BookingSerializer(serializers.ModelSerializer):
+    client_username = serializers.ReadOnlyField(source="client.username")
+    provider_username = serializers.ReadOnlyField(source="service.provider.username")
+    service_title = serializers.ReadOnlyField(source="service.title")
+
+    class Meta:
+        model = Booking
+        fields = [
+            "id",
+            "service",
+            "service_title",
+            "client",
+            "client_username",
+            "provider_username",
+            "date",
+            "start_time",
+            "end_time",
+            "status",
+            "created_at",
+        ]
 
 
 
