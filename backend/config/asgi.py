@@ -12,9 +12,9 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from backend.Occupy.routing import websocket_urlpatterns
+from Occupy.routing import websocket_urlpatterns
 
-_ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.django.base")
+_ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 application = get_asgi_application()
 

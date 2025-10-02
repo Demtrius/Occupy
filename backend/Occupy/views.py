@@ -14,7 +14,7 @@ from .serializers import (
     AvailabilitySerializer,
     BookingSerializer,
 )
-from backend.Occupier.serializers import CurrentOccupierSerializer
+from Occupier.serializers import CurrentOccupierSerializer
 from .models import (
     Post,
     Clique,
@@ -25,7 +25,7 @@ from .models import (
     Availability,
     Booking,
 )
-from backend.Occupier.models import Occupier
+from Occupier.models import Occupier
 from rest_framework.views import APIView
 from rest_framework.views import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly

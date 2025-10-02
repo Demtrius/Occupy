@@ -1,11 +1,11 @@
 from enum import Enum
+from pathlib import Path
 import environ
 from django.core.exceptions import ImproperlyConfigured
 
 env = environ.Env()
 
-BASE_DIR = environ.Path(__file__) - 1  # Adjust to point to backend/
-APPS_DIR = BASE_DIR.path("app")  # Note: may need adjustment if no 'app' dir
+BASE_DIR = Path(__file__).resolve().parent.parent  # Adjust to point to backend/
 
 
 def env_to_enum(enum_cls, value) -> Enum:

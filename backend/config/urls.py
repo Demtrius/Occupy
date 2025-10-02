@@ -25,17 +25,14 @@ def home_view(request):
 
 
 urlpatterns = [
-    # Home
-    path("", home_view, name="home"),
-    # Admin
+    path("", lambda request: HttpResponse("Occupy Backend is Live 🚀")),
     path("admin/", admin.site.urls),
-    # DRF Browsable API
+    # DRF login/logout views
     path("api-auth/", include("rest_framework.urls")),
-    # API v1 endpoints
-    path(f"api/{API_VERSION}/auth/", include("apps.accounts.urls")),
-    path(f"api/{API_VERSION}/social/", include("apps.social.urls")),
-    # Health check
-    path("health/", lambda request: HttpResponse("OK"), name="health_check"),
+    # Your main API endpoints
+    path("api/", include(("Occupy.urls", "Occupy"), namespace="home")),
+    # Authentication routes
+    path("auth/", include("Occupier.urls")),
 ]
 
 # Serve media files in development
