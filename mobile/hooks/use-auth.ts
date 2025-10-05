@@ -1,4 +1,4 @@
-import { useAuthStore } from '../store/auth.store';
+import { useAuthStore } from '@store/auth.store';
 import { User, LoginCredentials, RegisterData } from '../types';
 
 interface UseAuthReturn {

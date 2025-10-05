@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator, StackNavigationOptions } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import Feed from '../screens/Feed';
+import Feed from '@screens/feed';
 import PostDetail from '../screens/post-detail';
 
 // Define the param list for this stack

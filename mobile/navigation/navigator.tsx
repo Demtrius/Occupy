@@ -51,7 +51,7 @@ function Navigator(): React.ReactElement {
           />
           <Stack.Screen
             name="RegisterBusiness"
-            component={RegisterBussines}
+            component={RegisterBusiness}
           />
           <Stack.Screen
             name="Landing"
