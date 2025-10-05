@@ -16,7 +16,7 @@ function Cliques({ navigation }) {
 
   const getCliques = () => {
     axios
-      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
+      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques')
       .then((response) => {
         const myCliques = response.data;
         setCliques(myCliques);
@@ -80,9 +80,9 @@ function Cliques({ navigation }) {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCliques}
           contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+          // refreshControl={
+          //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          // }
         />
       )}
     </View>

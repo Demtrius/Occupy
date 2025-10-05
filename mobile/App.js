@@ -1,3 +1,27 @@
+/**
+ * ⚠️ DEPRECATED: This file is being phased out
+ *
+ * Please use App.tsx instead. This file uses the old architecture with:
+ * - JavaScript (no type safety)
+ * - Context API (replaced by Zustand)
+ * - Direct fetch calls (replaced by service layer)
+ *
+ * New architecture features:
+ * - TypeScript for type safety
+ * - Zustand for state management
+ * - Centralized API service layer
+ * - Proper authentication with token refresh
+ *
+ * See documentation:
+ * - SETUP_GUIDE.md - Getting started
+ * - README_MIGRATION.md - Migration guide
+ * - QUICK_REFERENCE.md - Daily development reference
+ *
+ * To switch to new architecture:
+ * 1. Update index.js to import from './App.tsx'
+ * 2. Follow migration guide in README_MIGRATION.md
+ */
+
 import { StatusBar } from "expo-status-bar";
 import React, { useContext } from "react";
 import { StyleSheet, Text, View, Button, FlatList, Alert } from "react-native";

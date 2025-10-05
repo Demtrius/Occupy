@@ -38,7 +38,7 @@ function SignIn({ navigation }) {
   const handleLogin = async () => {
     // Clear previous errors
     setError('');
-    
+
     // Validate inputs
     if (!username.trim()) {
       setError('Please enter your email');
@@ -74,23 +74,23 @@ function SignIn({ navigation }) {
 
       if (response.ok) {
         console.log('✅ Login successful');
-        
+
         // Store user data
         setOccupierObj(json);
         setAuthTokens(json.token);
         setIsLoggedIn(true);
-        
+
         // Save to AsyncStorage
-        await AsyncStorage.setItem('authTokens', JSON.stringify(json));
-        
+        await AsyncStorage.setItem('authTokens', json.token);
+
         Alert.alert('Success', 'Login successful!');
-        
+
       } else {
         console.log('❌ Login failed:', json);
         // Handle different error response formats
-        const errorMessage = json.message || 
-                            json.detail || 
-                            json.error || 
+        const errorMessage = json.message ||
+                            json.detail ||
+                            json.error ||
                             json.non_field_errors?.[0] ||
                             "Invalid credentials";
         setError(errorMessage);
@@ -128,12 +128,12 @@ function SignIn({ navigation }) {
             style={styles.logo}
           />
           <Text style={styles.title}>Welcome User!</Text>
-          
+
           {/* Debug info - shows API URL */}
           <Text style={styles.debugText}>
             API: {process.env.EXPO_PUBLIC_BACKEND_URL}
           </Text>
-          
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <View style={styles.inputContainer}>
@@ -168,8 +168,8 @@ function SignIn({ navigation }) {
             <Text style={styles.testButtonText}>Fill Test Credentials</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            onPress={handleLogin} 
+          <TouchableOpacity
+            onPress={handleLogin}
             style={[styles.loginButton, loading && styles.disabledButton]}
             disabled={loading}
           >

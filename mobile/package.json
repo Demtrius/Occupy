@@ -5,7 +5,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "debug": "open 'rndebugger://set-debugger-loc?host=localhost&port=19001' "
+    "debug": "open 'rndebugger://set-debugger-loc?host=localhost&port=19001' ",
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit && eslint . --ext .ts,.tsx,.js,.jsx"
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.13.0",
@@ -19,8 +21,9 @@
     "@react-navigation/material-top-tabs": "^7.1.1",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/stack": "^7.1.2",
+    "@tanstack/react-query": "^5.90.2",
     "@ui-kitten/components": "^5.1.0",
-    "axios": "^1.7.3",
+    "axios": "^1.12.2",
     "expo": "~52.0.47",
     "expo-constants": "~17.0.3",
     "expo-dev-client": "~5.0.20",
@@ -54,14 +57,19 @@
     "react-native-tab-view": "^2.16.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
-    "react-select": "^5.7.4"
+    "react-select": "^5.7.4",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
     "@babel/preset-env": "^7.14.4",
     "@babel/preset-react": "^7.13.13",
     "@react-native-community/cli": "^18.0.0",
+    "@tsconfig/react-native": "^3.0.7",
+    "@types/react": "^19.2.0",
+    "@types/react-native": "^0.73.0",
     "babel-loader": "^8.2.2",
+    "typescript": "^5.9.3",
     "webpack-bundle-tracker": "^1.0.0"
   },
   "private": true,
