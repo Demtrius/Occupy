@@ -9,6 +9,17 @@ Occupy/
 └── README.md        # This file
 ```
 
+## API Endpoints
+
+### Authentication
+
+- `POST /api/auth/jwt/create/` - Login a user and get JWT tokens.
+- `POST /api/auth/jwt/refresh/` - Refresh an access token.
+- `POST /api/auth/jwt/verify/` - Verify a token.
+- `POST /api/auth/users/` - Register a new user.
+- `GET /api/auth/users/me/` - Get details of the current user.
+- `POST /api/auth/logout/` - Logout a user.
+
 ## Getting Started
 
 ### Prerequisites

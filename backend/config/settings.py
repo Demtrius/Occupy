@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "Occupy",
+    "authentication",
     "Occupier",
     "django_filters",
     "corsheaders",

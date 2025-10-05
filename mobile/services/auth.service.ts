@@ -15,7 +15,7 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const response = await apiHelpers.post<AuthResponse>(
-        '/auth/jwt/create/',
+        '/api/auth/jwt/create/',
         credentials
       );
 
@@ -49,7 +49,7 @@ class AuthService {
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
       // Register the user
-      const registerResponse = await apiHelpers.post('/auth/users/', data);
+      const registerResponse = await apiHelpers.post('/api/auth/users/', data);
 
       // Auto-login after registration
       const loginResponse = await this.login({
@@ -86,7 +86,7 @@ class AuthService {
    */
   async getCurrentUser(): Promise<User | null> {
     try {
-      const user = await apiHelpers.get<User>('/auth/users/me/');
+      const user = await apiHelpers.get<User>('/api/auth/users/me/');
       return user;
     } catch (error) {
       console.error('Get current user error:', error);
@@ -106,7 +106,7 @@ class AuthService {
       }
 
       const response = await apiHelpers.post<{ access: string }>(
-        '/auth/jwt/refresh/',
+        '/api/auth/jwt/refresh/',
         { refresh: refreshToken }
       );
 
@@ -134,7 +134,7 @@ class AuthService {
    */
   async verifyToken(token: string): Promise<boolean> {
     try {
-      await apiHelpers.post('/auth/jwt/verify/', { token });
+      await apiHelpers.post('/api/auth/jwt/verify/', { token });
       return true;
     } catch (error) {
       return false;
@@ -172,7 +172,7 @@ class AuthService {
    */
   async updateProfile(data: Partial<User>): Promise<User> {
     try {
-      const user = await apiHelpers.patch<User>('/auth/users/me/', data);
+      const user = await apiHelpers.patch<User>('/api/auth/users/me/', data);
       await tokenManager.saveUser(user);
       return user;
     } catch (error) {
@@ -186,7 +186,7 @@ class AuthService {
    */
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      await apiHelpers.post('/auth/users/set_password/', {
+      await apiHelpers.post('/api/auth/users/set_password/', {
         current_password: currentPassword,
         new_password: newPassword,
       });
@@ -201,7 +201,7 @@ class AuthService {
    */
   async requestPasswordReset(email: string): Promise<void> {
     try {
-      await apiHelpers.post('/auth/users/reset_password/', { email });
+      await apiHelpers.post('/api/auth/users/reset_password/', { email });
     } catch (error) {
       console.error('Request password reset error:', error);
       throw this.handleAuthError(error);
@@ -213,7 +213,7 @@ class AuthService {
    */
   async confirmPasswordReset(uid: string, token: string, newPassword: string): Promise<void> {
     try {
-      await apiHelpers.post('/auth/users/reset_password_confirm/', {
+      await apiHelpers.post('/api/auth/users/reset_password_confirm/', {
         uid,
         token,
         new_password: newPassword,

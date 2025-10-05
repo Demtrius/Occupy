@@ -1,73 +1,8 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import (
-    RegisterSerializer,
-    LoginSerializer,
-    OccupierSerializer,
-    CurrentOccupierSerializer,
-    MyTokenObtainPairSerializer,
-)
+from .serializers import OccupierSerializer
 from .models import Occupier
-from django.contrib.auth import authenticate
-from rest_framework.generics import GenericAPIView
-from rest_framework import status, response, serializers, generics, viewsets, request
-from .utils import generate_access_token, create_jwt_pair_for_user
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.exceptions import AuthenticationFailed
-from django.conf import settings
-import jwt
-from rest_framework.decorators import api_view, permission_classes, APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.request import Request
-from django.http import JsonResponse, Http404
-from rest_framework.authtoken.models import Token
-from django.shortcuts import get_object_or_404
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken, UntypedToken
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-import json
-
-# Create your views here.
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class RegisterView(APIView):
-    serializer_class = RegisterSerializer
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
-        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class OccupierLoginView(APIView):
-    serializer_class = LoginSerializer
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        email = request.data.get("email", None)
-        password = request.data.get("password", None)
-
-        occupier = authenticate(username=email, password=password)
-
-        if occupier:
-            serializer = self.serializer_class(occupier)
-
-            tokens = create_jwt_pair_for_user(occupier)
-            # response = {"message": "Login Successfull", "tokens": tokens}
-            return response.Response(serializer.data, status=status.HTTP_200_OK)
-
-        return response.Response(
-            {"message": "Invalid credentials try again"},
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
+from rest_framework import generics
 
 
 class OccupierListView(generics.ListCreateAPIView):
@@ -78,44 +13,3 @@ class OccupierListView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = OccupierSerializer(queryset, many=True)
         return Response(serializer.data)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class CurrentUserView(APIView):
-    """Get current authenticated user details"""
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = CurrentOccupierSerializer
-
-    def get(self, request):
-        serializer = self.serializer_class(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(http_method_names=["GET"])
-@permission_classes([IsAuthenticated])
-def get_occupier_by_token(token):
-    occupier_id = Token.objects.get(key=request.auth.key).user_id
-    occupier = Occupier.object.get(id=occupier_id)
-    return JsonResponse({"user": occupier.id})
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
-    permission_classes = [AllowAny]
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class LogoutView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        try:
-            refresh_token = request.data["refresh_token"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)

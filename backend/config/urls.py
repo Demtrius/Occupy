@@ -32,7 +32,10 @@ urlpatterns = [
     # Your main API endpoints
     path("api/", include(("Occupy.urls", "Occupy"), namespace="home")),
     # Authentication routes
-    path("auth/", include("Occupier.urls")),
+    path(
+        "api/auth/",
+        include(("authentication.urls", "authentication"), namespace="authentication"),
+    ),
 ]
 
 # Serve media files in development
