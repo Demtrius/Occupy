@@ -3,14 +3,7 @@
 // API and token management
 export { default as api, tokenManager, apiHelpers } from './api';
 
-// Services
-export { authService as default } from './auth.service';
-export { postsService as default } from './posts.service';
-export { cliquesService as default } from './cliques.service';
-
-// Named exports for convenience
-import { authService } from './auth.service';
-import { postsService } from './posts.service';
-import { cliquesService } from './cliques.service';
-
-export { authService, postsService, cliquesService };
+// Named exports for services
+export { authService } from './auth.service';
+export { postsService } from './posts.service';
+export { cliquesService } from './cliques.service';

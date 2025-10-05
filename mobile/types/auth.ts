@@ -14,8 +14,7 @@ export interface RegisterData {
   username: string;
   email: string;
   password: string;
-  fullName?: string;
-  bio?: string;
+  occupations: string;
 }
 
 export interface AuthResponse {

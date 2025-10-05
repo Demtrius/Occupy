@@ -11,17 +11,46 @@ import {
   Dimensions,
 } from 'react-native';
 import { HeaderBackButton } from '@react-navigation/elements';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const { height } = Dimensions.get('window');
 
-function MessageDetail({ route, navigation }) {
+// Types
+interface Reply {
+  id: number;
+  sender: string;
+  text: string;
+}
+
+interface Message {
+  id: number;
+  sender: string;
+  text: string;
+  replies: Reply[];
+}
+
+type RootStackParamList = {
+  MessageDetail: { messageId: number };
+  Notification: undefined;
+};
+
+type MessageDetailScreenRouteProp = RouteProp<RootStackParamList, 'MessageDetail'>;
+type MessageDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Notification'>;
+
+interface Props {
+  route: MessageDetailScreenRouteProp;
+  navigation: MessageDetailScreenNavigationProp;
+}
+
+const MessageDetail: React.FC<Props> = ({ route, navigation }) => {
   const { messageId } = route.params;
-  const [message, setMessage] = useState(null);
-  const [newMessage, setNewMessage] = useState('');
+  const [message, setMessage] = useState<Message | null>(null);
+  const [newMessage, setNewMessage] = useState<string>('');
 
   useEffect(() => {
     // Hardcoded message for testing
-    const hardcodedMessage = {
+    const hardcodedMessage: Message = {
       id: 1,
       sender: 'Brooke Davis',
       text: "Hey Lucas! How's your project going?",
@@ -36,15 +65,18 @@ function MessageDetail({ route, navigation }) {
   const sendMessage = () => {
     if (newMessage.trim().length === 0) return;
 
-    const newReply = {
-      id: message.replies.length + 1,
+    const newReply: Reply = {
+      id: message!.replies.length + 1,
       sender: 'You',
       text: newMessage.trim(),
     };
-    setMessage((prevMessage) => ({
-      ...prevMessage,
-      replies: [...prevMessage.replies, newReply],
-    }));
+    setMessage((prevMessage) => {
+      if (!prevMessage) return null;
+      return {
+        ...prevMessage,
+        replies: [...prevMessage.replies, newReply],
+      };
+    });
     setNewMessage('');
   };
 
@@ -65,7 +97,7 @@ function MessageDetail({ route, navigation }) {
           <FlatList
             data={message.replies}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
+            renderItem={({ item }: { item: Reply }) => (
               <View
                 style={[
                   styles.messageBubble,

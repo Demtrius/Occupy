@@ -1,21 +1,29 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import axios from 'axios';
+
 const { width, height } = Dimensions.get('window');
 
-const CreateClique = () => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [level, setLevel] = useState(null);
-  const [occupation, setOccupation] = useState('');
-  const [open, setOpen] = useState(false);
-  const [levelItems, setLevelItems] = useState([
+type Level = 'PRIVATE' | 'PUBLIC';
+
+interface LevelItem {
+  label: string;
+  value: Level;
+}
+
+const CreateClique: React.FC = () => {
+  const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [level, setLevel] = useState<Level | null>(null);
+  const [occupation, setOccupation] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
+  const [levelItems, setLevelItems] = useState<LevelItem[]>([
     { label: 'Private', value: 'PRIVATE' },
     { label: 'Public', value: 'PUBLIC' },
   ]);
-  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState<string>('');
 
   const createClique = () => {
     axios

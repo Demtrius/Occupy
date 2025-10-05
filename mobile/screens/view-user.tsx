@@ -1,36 +1,62 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const { width, height } = Dimensions.get('window');
 
-const ViewUser = ({ route }) => {
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Posts');
-  const [search, setSearch] = useState('');
-  const [filteredDataSource, setFilteredDataSource] = useState([]);
-  const [masterDataSource, setMasterDataSource] = useState([]);
-  const [showSearchBar, setShowSearchBar] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const searchBarRef = useRef(null);
-  const navigation = useNavigation();
+// Types
+interface Post {
+  caption: string;
+  content: string;
+  user_id: number;
+  name: string;
+}
 
-  // get the post id from the parameters
+interface UserData {
+  username: string;
+  email: string;
+  occupations: string;
+  date_joined: string;
+  posts: Post[];
+}
+
+type RootStackParamList = {
+  ViewUser: { id: number };
+  NotificationsTab: { screen: string, params: { id: number } };
+};
+
+type ViewUserScreenRouteProp = RouteProp<RootStackParamList, 'ViewUser'>;
+type ViewUserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NotificationsTab'>;
+
+interface Props {
+  route: ViewUserScreenRouteProp;
+}
+
+const ViewUser: React.FC<Props> = ({ route }) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<'Posts' | 'Reviews'>('Posts');
+  const [search, setSearch] = useState<string>('');
+  const [filteredDataSource, setFilteredDataSource] = useState<Post[]>([]);
+  const [masterDataSource, setMasterDataSource] = useState<Post[]>([]);
+  const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const searchBarRef = useRef<PaperSearchbar>(null);
+  const navigation = useNavigation<ViewUserScreenNavigationProp>();
+
   const { id } = route.params;
 
   const getUserData = () => {
     axios
-      // .get(`/api/user/${id}/posts`)
-      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/current-occupier/' + id)
+      .get<UserData>(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/current-occupier/${id}`)
       .then((response) => {
         const userData = response.data;
         setUserData(userData);
         setFilteredDataSource(userData.posts);
         setMasterDataSource(userData.posts);
-
       })
       .catch((error) => console.log(error))
       .finally(() => {
@@ -38,9 +64,11 @@ const ViewUser = ({ route }) => {
       });
   };
 
-  useEffect(() => getUserData(), [id]);
+  useEffect(() => {
+    getUserData();
+  }, [id]);
 
-  const searchFilterFunction = (text) => {
+  const searchFilterFunction = (text: string) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
         const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
@@ -56,7 +84,7 @@ const ViewUser = ({ route }) => {
     }
   };
 
-  const renderPosts = ({ item }) => {
+  const renderPosts = ({ item }: { item: Post }) => {
     return (
       <View style={styles.cardContainer}>
         <View style={styles.cardHeader}>
@@ -89,7 +117,7 @@ const ViewUser = ({ route }) => {
               onPress={() => {
                 setShowSearchBar(true);
                 setTimeout(() => {
-                  searchBarRef.current.focus();
+                  searchBarRef.current?.focus();
                 }, 100);
               }}
               style={styles.searchIcon}
@@ -124,7 +152,7 @@ const ViewUser = ({ route }) => {
           <TouchableOpacity
             key={tab}
             style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => setActiveTab(tab as 'Posts' | 'Reviews')}
           >
             <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
               {tab}

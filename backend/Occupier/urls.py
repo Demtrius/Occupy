@@ -1,27 +1,34 @@
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
 from .views import (
     RegisterView,
     OccupierLoginView,
     OccupierListView,
+    CurrentUserView,
     MyTokenObtainPairView,
-    LogoutView
+    LogoutView,
 )
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView,
 )
 
-app_name = 'Occupier'
+app_name = "Occupier"
 
 urlpatterns = [
-    path('register', RegisterView.as_view()),
-    path('login/', OccupierLoginView.as_view()),
-    path("jwt/create/", TokenObtainPairView.as_view(), name="jwt_create"),
-    path("jwt/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("jwt/verify/", TokenVerifyView.as_view(), name="token_verify"),
-    path('occupier-list/', OccupierListView.as_view(), name="occupier"),
-    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path("register", RegisterView.as_view()),
+    path("register/", RegisterView.as_view()),  # With trailing slash
+    path("users/", RegisterView.as_view()),  # Djoser-compatible endpoint
+    path("login/", OccupierLoginView.as_view()),
+    path(
+        "jwt/create/", csrf_exempt(MyTokenObtainPairView.as_view()), name="jwt_create"
+    ),
+    path("jwt/refresh/", csrf_exempt(TokenRefreshView.as_view()), name="token_refresh"),
+    path("jwt/verify/", csrf_exempt(TokenVerifyView.as_view()), name="token_verify"),
+    path("occupier-list/", OccupierListView.as_view(), name="occupier"),
+    path(
+        "users/me/", CurrentUserView.as_view(), name="current_user"
+    ),  # Djoser-compatible endpoint
+    path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("logout/", LogoutView.as_view(), name="auth_logout"),
 ]
-

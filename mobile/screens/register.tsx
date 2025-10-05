@@ -14,7 +14,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuthStore } from '../store/auth.store';
 import { showError, showSuccess } from '../store/app.store';
-import { RegisterData } from '../types';
+import { RegisterData } from '../types/auth';
 import { RootStackParamList } from '../types';
 
 const { width } = Dimensions.get('window');
@@ -82,8 +82,10 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
       errors.confirmPassword = 'Passwords do not match';
     }
 
-    // Occupation validation (optional but with minimum length if provided)
-    if (occupation.trim() && occupation.length < 2) {
+    // Occupation validation (required field)
+    if (!occupation.trim()) {
+      errors.occupation = 'Occupation is required';
+    } else if (occupation.length < 2) {
       errors.occupation = 'Occupation must be at least 2 characters';
     }
 
@@ -103,12 +105,11 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
     }
 
     try {
-      const registerData: RegisterData = {
+      const registerData = {
         username: username.trim(),
         email: email.trim().toLowerCase(),
         password,
-        fullName: occupation.trim() || undefined,
-        bio: undefined,
+        occupations: occupation.trim(),
       };
 
       await register(registerData);
@@ -195,7 +196,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                     setFormErrors({ ...formErrors, occupation: undefined });
                   }
                 }}
-                placeholder="Occupation (optional)"
+                placeholder="Occupation"
                 placeholderTextColor="#888"
                 style={[styles.input, formErrors.occupation && styles.inputError]}
                 editable={!isLoading}

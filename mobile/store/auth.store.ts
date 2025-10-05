@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { authService } from '../services/auth.service';
 import { tokenManager } from '../services/api';
 import { AuthState } from '../types/store';
-import { User, AuthTokens, ApiError } from '../types';
+import { User, AuthTokens, ApiError, LoginCredentials, RegisterData } from '../types';
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   // Initial state

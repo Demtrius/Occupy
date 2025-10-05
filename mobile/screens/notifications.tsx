@@ -10,19 +10,34 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const { width, height } = Dimensions.get('window');
 
-function Notifications() {
-  const [notifications, setNotifications] = useState([]);
-  const [search, setSearch] = useState('');
-  const [filteredDataSource, setFilteredDataSource] = useState([]);
-  const [masterDataSource, setMasterDataSource] = useState([]);
-  const navigation = useNavigation();
+// Types
+interface Notification {
+  id: number;
+  sender: string;
+  text: string;
+  unreadCount: number;
+}
+
+type RootStackParamList = {
+  MessageDetail: { messageId: number };
+};
+
+type NotificationsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MessageDetail'>;
+
+const Notifications: React.FC = () => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [search, setSearch] = useState<string>('');
+  const [filteredDataSource, setFilteredDataSource] = useState<Notification[]>([]);
+  const [masterDataSource, setMasterDataSource] = useState<Notification[]>([]);
+  const navigation = useNavigation<NotificationsScreenNavigationProp>();
 
   useEffect(() => {
     // Hardcoded notifications for testing
-    const hardcodedNotifications = [
+    const hardcodedNotifications: Notification[] = [
       { id: 1, sender: 'Haley James', text: 'Example text', unreadCount: 9 },
       { id: 2, sender: 'Nathan Scott', text: 'Example text', unreadCount: 0 },
       { id: 3, sender: 'Brooke Davis', text: 'Example text', unreadCount: 2 },
@@ -37,7 +52,7 @@ function Notifications() {
     setMasterDataSource(hardcodedNotifications);
   }, []);
 
-  const searchFilterFunction = (text) => {
+  const searchFilterFunction = (text: string) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
         const itemData = item.sender ? item.sender.toUpperCase() : ''.toUpperCase();
@@ -52,7 +67,7 @@ function Notifications() {
     }
   };
 
-  const renderNotification = ({ item }) => (
+  const renderNotification = ({ item }: { item: Notification }) => (
     <TouchableOpacity
       style={styles.postContainer}
       onPress={() => navigation.navigate('MessageDetail', { messageId: item.id })}

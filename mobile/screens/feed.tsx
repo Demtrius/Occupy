@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Searchbar, Button } from 'react-native-paper';
 import { FontAwesome } from '@expo/vector-icons';
 import { postsService, cliquesService } from '../services';
-import { showError } from '../store/app.store';
+import { showError } from '@store/app.store';
 import { Post, Clique } from '../types';
 import { useDebounce } from '../hooks';
 

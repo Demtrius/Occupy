@@ -45,6 +45,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8081",
     "https://occupy-app.com",
     "https://www.occupy-app.com",
     "http://146.190.28.116",  # ✅ include scheme
@@ -95,11 +96,8 @@ REST_FRAMEWORK = {
         # 'rest_framework.permissions.IsAuthenticated',
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # 'rest_framework.authentication.TokenAuthentication',
-        "rest_framework.authentication.BasicAuthentication",
-        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # JWT Authentication - does not require CSRF
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        # <-- And here
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "NON_FIELDS_ERRORS_KEY": "error",
@@ -121,8 +119,14 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
-    #'Bearer <Token>'
+    # JWT tokens don't require CSRF protection
+    "UPDATE_LAST_LOGIN": True,
 }
+
+# Exempt API endpoints from CSRF
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [

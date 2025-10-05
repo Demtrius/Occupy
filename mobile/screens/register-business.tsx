@@ -102,12 +102,11 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
     }
 
     try {
-      const registerData: RegisterData = {
+      const registerData = {
         username: username.trim(),
         email: email.trim().toLowerCase(),
         password,
-        fullName: occupation.trim(),
-        bio: `Business: ${occupation.trim()}`,
+        occupations: occupation.trim(),
       };
 
       await register(registerData);

@@ -3,20 +3,38 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, 
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the "+" button
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const { height, width } = Dimensions.get('window');
 
-function Cliques({ navigation }) {
-  const [cliques, setCliques] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filteredDataSource, setFilteredDataSource] = useState([]);
-  const [masterDataSource, setMasterDataSource] = useState([]);
-  const [refreshing, setRefreshing] = useState(false)
+// Define the type for a single clique
+interface Clique {
+  id: number;
+  name: string;
+  location: string;
+}
+
+// Define the type for the navigation prop
+type RootStackParamList = {
+  Clique: { id: number };
+  CreateClique: undefined;
+};
+
+type CliquesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Clique'>;
+
+function Cliques() {
+  const navigation = useNavigation<CliquesScreenNavigationProp>();
+  const [cliques, setCliques] = useState<Clique[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [search, setSearch] = useState<string>('');
+  const [filteredDataSource, setFilteredDataSource] = useState<Clique[]>([]);
+  const [masterDataSource, setMasterDataSource] = useState<Clique[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const getCliques = () => {
     axios
-      .get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques')
+      .get<Clique[]>(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques')
       .then((response) => {
         const myCliques = response.data;
         setCliques(myCliques);
@@ -29,14 +47,16 @@ function Cliques({ navigation }) {
       });
   };
 
-  useEffect(() => getCliques(), []);
+  useEffect(() => {
+    getCliques();
+  }, []);
 
   const onRefresh = () => {
-    setRefreshing(true)
+    setRefreshing(true);
     getCliques();
   };
 
-  const searchFilterFunction = (text) => {
+  const searchFilterFunction = (text: string) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
         const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
@@ -51,7 +71,7 @@ function Cliques({ navigation }) {
     }
   };
 
-  const renderCliques = ({ item }) => (
+  const renderCliques = ({ item }: { item: Clique }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate("Clique", { id: item.id })}
@@ -61,9 +81,7 @@ function Cliques({ navigation }) {
     </TouchableOpacity>
   );
 
-
-
-   return (
+  return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.addButton}
@@ -87,7 +105,6 @@ function Cliques({ navigation }) {
       )}
     </View>
   );
-
 }
 
 const styles = StyleSheet.create({
@@ -153,9 +170,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: "center",
   },
-  cardTitle: { fontSize: 18, fontWeight: "bold" },
   cardSubtitle: { fontSize: 14, color: "#666" },
-  list: { paddingBottom: 20 },
   addButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
 });
 

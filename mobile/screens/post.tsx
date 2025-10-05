@@ -1,37 +1,51 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
-import DropDownPicker from 'react-native-dropdown-picker';
+import DropDownPicker, { ItemType } from 'react-native-dropdown-picker';
 import axios from 'axios';
-import { Context } from '../components/globalContext/globalContext';
+import { Context, GlobalContextType } from '../components/globalContext/globalContext';
 
 const { width, height } = Dimensions.get('window');
 
-const Post = () => {
-  const globalContext = useContext(Context);
-  const { occupierObj } = globalContext;
-  const [content, setContent] = useState('');
-  const [caption, setCaption] = useState('');
-  const [posted, setPosted] = useState(new Date());
-  const [clique, setClique] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([]);
-  const [selectedLanguage, setSelectedLanguage] = useState('ALL');
-  const [feedbackMessage, setFeedbackMessage] = useState('');
+// Types
+interface CliqueItem {
+  label: string;
+  value: string;
+}
+
+type Language = 'ALL' | 'ENGLISH' | 'DUTCH' | 'GERMAN';
+
+const Post: React.FC = () => {
+  const globalContext = useContext<GlobalContextType | null>(Context);
+  const { occupierObj } = globalContext || {};
+  const [content, setContent] = useState<string>('');
+  const [caption, setCaption] = useState<string>('');
+  const [posted, setPosted] = useState<Date>(new Date());
+  const [clique, setClique] = useState<string[]>([]);
+  const [open, setOpen] = useState<boolean>(false);
+  const [value, setValue] = useState<string | null>(null);
+  const [items, setItems] = useState<ItemType<string>[]>([])
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('ALL');
+  const [feedbackMessage, setFeedbackMessage] = useState<string>('');
 
   const fetchCliques = () => {
-    fetch(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/cliques-list')
+    fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/cliques-list`)
       .then((response) => response.json())
-      .then((data) =>
+      .then((data: { name: string }[]) =>
         setItems(data.map((item) => ({ label: item.name, value: item.name })))
       );
   };
 
-  useEffect(() => fetchCliques(), []);
+  useEffect(() => {
+    fetchCliques();
+  }, []);
 
   const createPost = () => {
-    axios.post(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-create', {
+    if (!occupierObj?.token) {
+      setFeedbackMessage('You must be logged in to create a post');
+      return;
+    }
+    axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/post-create`, {
       content: content,
       caption: caption,
       posted: new Date(),
@@ -43,10 +57,10 @@ const Post = () => {
         'Accept': 'application/json',
       }
     })
-      .then((response) => { 
+      .then(() => {
         setFeedbackMessage('Post created successfully');
       })
-      .catch((error) => { 
+      .catch(() => {
         setFeedbackMessage('Failed to create post');
       });
   };
@@ -55,16 +69,6 @@ const Post = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Text style={styles.title}>Create post</Text>
-
-        {/* <Text style={styles.label}>Your post name</Text>
-        <TextInput
-          label="Post Name"
-          value={content}
-          mode="outlined"
-          style={styles.input}
-          onChangeText={(text) => setContent(text)}
-          theme={{ colors: { primary: '#6ba32d' } }}
-        /> */}
 
         <Text style={styles.label}>Post Information</Text>
         <TextInput
@@ -86,7 +90,7 @@ const Post = () => {
                 styles.tag,
                 selectedLanguage === language && styles.selectedTag,
               ]}
-              onPress={() => setSelectedLanguage(language)}
+              onPress={() => setSelectedLanguage(language as Language)}
             >
               <Text
                 style={[
@@ -103,10 +107,10 @@ const Post = () => {
         <Text style={styles.label}>Choose a Clique</Text>
         <DropDownPicker
           open={open}
-          value={clique}
+          value={value}
           items={items}
           setOpen={setOpen}
-          setValue={setClique}
+          setValue={setValue}
           setItems={setItems}
           style={styles.dropdown}
           placeholder="Select Clique"
