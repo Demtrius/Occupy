@@ -2,10 +2,10 @@ import React,{useState,useEffect} from 'react';
 import {View,StyleSheet,FlatList,Text,TouchableOpacity,Button} from 'react-native'
 import axios from 'axios';
 import { ActivityIndicator } from 'react-native';
-import Profile from '../screens/Profile'
+import Profile from './profile'
 import { useNavigation } from '@react-navigation/native';
 import { Context } from '../components/globalContext/globalContext'
-import PostDetail from './PostDetail';
+import PostDetail from './post-detail';
 import { FontAwesome } from '@expo/vector-icons';
 const PostItem = () => {
     const [posts,setPost] = useState([])
@@ -14,7 +14,7 @@ const PostItem = () => {
 
 
     const getPosts = () => {
-    
+
         axios.get(process.env.EXPO_PUBLIC_BACKEND_URL + '/api/post-list')
         .then((response) => {
             const myPost = response.data;
@@ -23,7 +23,7 @@ const PostItem = () => {
         .catch((error) => console.error(error))
         .finally(() => {
             setLoading(false)
-        })    
+        })
     }
 useEffect(() => getPosts(), [])
 

@@ -12,19 +12,19 @@ import { useAuthStore } from '@store/auth.store';
 import { useAppStore } from '@store/app.store';
 
 // Screens
-import Feed from './screens/Feed';
-import Search from './screens/Search';
-import Cliques from './screens/Cliques';
-import Clique from './screens/Clique';
-import Post from './screens/Post';
-import Notifications from './screens/Notifications';
-import Profile from './screens/Profile';
-import MessageDetail from './screens/MessageDetail';
-import ViewUser from './screens/ViewUser';
-import CreateClique from './screens/CreateClique';
+import Feed from '@screens/feed';
+import Search from '@screens/search';
+import Cliques from '@screens/cliques';
+import Clique from '@screens/clique';
+import Post from '@screens/post';
+import Notifications from '@screens/notifications';
+import Profile from '@screens/profile';
+import MessageDetail from '@screens/message-detail';
+import ViewUser from '@screens/view-user';
+import CreateClique from '@screens/create-clique';
 
 // Navigation
-import Navigator from './navigation/navigator';
+import Navigator from '@navigation/navigator';
 
 // Types
 import { RootStackParamList, TabParamList } from './types';

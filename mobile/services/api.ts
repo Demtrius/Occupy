@@ -1,8 +1,8 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthTokens, ApiError } from '../types';
 import env from '../config/env';
+import { storage } from '../utils/storage';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -25,7 +25,7 @@ const api: AxiosInstance = axios.create({
 export const tokenManager = {
   async getAccessToken(): Promise<string | null> {
     try {
-      return await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
+      return await storage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     } catch (error) {
       console.error('Error getting access token:', error);
       return null;
@@ -34,7 +34,7 @@ export const tokenManager = {
 
   async getRefreshToken(): Promise<string | null> {
     try {
-      return await SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
+      return await storage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     } catch (error) {
       console.error('Error getting refresh token:', error);
       return null;
@@ -43,8 +43,10 @@ export const tokenManager = {
 
   async setTokens(tokens: AuthTokens): Promise<void> {
     try {
-      await SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, tokens.access);
-      await SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh);
+      await storage.setMultiple([
+        [STORAGE_KEYS.ACCESS_TOKEN, tokens.access],
+        [STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh],
+      ]);
     } catch (error) {
       console.error('Error setting tokens:', error);
       throw error;
@@ -53,8 +55,10 @@ export const tokenManager = {
 
   async clearTokens(): Promise<void> {
     try {
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
-      await SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
+      await storage.removeMultiple([
+        STORAGE_KEYS.ACCESS_TOKEN,
+        STORAGE_KEYS.REFRESH_TOKEN,
+      ]);
       await AsyncStorage.removeItem(STORAGE_KEYS.USER);
     } catch (error) {
       console.error('Error clearing tokens:', error);

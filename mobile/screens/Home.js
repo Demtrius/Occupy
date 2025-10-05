@@ -1,15 +1,15 @@
 import React,{useContext,useState,useEffect} from 'react'
 import {View,StyleSheet,Text, Button,TouchableOpacity,FlatList, Pressable} from 'react-native'
 import { Context } from '../components/globalContext/globalContext'
-import Feed from './Feed'
+import Feed from './feed'
 import { ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { Link } from 'expo-router';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import PostItem from './PostItem';
+import PostItem from './post-item';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import PostDetail from './PostDetail';
+import PostDetail from './post-detail';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +28,7 @@ function Home({}){
         .catch((error) => console.error(error))
         .finally(() => {
             setLoading(false)
-        })    
+        })
     }
 
     useEffect(() => getPost(), [])
