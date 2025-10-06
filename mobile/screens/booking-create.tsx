@@ -19,6 +19,14 @@ import { showError, showSuccess } from '../store/app.store';
 import { useAuthStore } from '../store/auth.store';
 import { Service, Availability, TimeSlot } from '../types';
 import { RootStackParamList } from '../types';
+import {
+  ScreenHeader,
+  FormSection,
+  FormLabel,
+  PrimaryButton,
+  InfoBox,
+} from '../components';
+import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
 
 type BookingCreateScreenRouteProp = RouteProp<RootStackParamList, 'BookingCreate'>;
 type BookingCreateScreenNavigationProp = StackNavigationProp<RootStackParamList>;
@@ -207,8 +215,8 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6ba32d" />
+      <View style={CommonStyles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading service details...</Text>
       </View>
     );
@@ -216,54 +224,52 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
 
   if (!service) {
     return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color="#ff6b6b" />
+      <View style={CommonStyles.centered}>
+        <Ionicons name="alert-circle-outline" size={64} color={Colors.error} />
         <Text style={styles.errorText}>Service not found</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
+        <PrimaryButton
+          title="Go Back"
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Book Service</Text>
-        <View style={styles.backBtn} />
-      </View>
+    <View style={CommonStyles.container}>
+      <ScreenHeader
+        title="Book Service"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Service Info */}
-        <View style={styles.serviceCard}>
+        <InfoBox variant="info" style={styles.serviceCard}>
           <Text style={styles.serviceTitle}>{service.title}</Text>
           <Text style={styles.serviceDescription}>{service.description}</Text>
           <View style={styles.serviceMetaRow}>
             <View style={styles.serviceMeta}>
-              <Ionicons name="time-outline" size={16} color="#666" />
+              <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
               <Text style={styles.serviceMetaText}>{service.durationMinutes} min</Text>
             </View>
             {service.price && (
               <View style={styles.serviceMeta}>
-                <Ionicons name="cash-outline" size={16} color="#666" />
+                <Ionicons name="cash-outline" size={16} color={Colors.textSecondary} />
                 <Text style={styles.serviceMetaText}>${service.price}</Text>
               </View>
             )}
           </View>
-        </View>
+        </InfoBox>
 
         {/* Date Selection */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Select Date</Text>
+        <FormSection>
+          <FormLabel>Select Date</FormLabel>
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowDatePicker(true)}
           >
-            <Ionicons name="calendar-outline" size={20} color="#6ba32d" />
+            <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
             <Text style={styles.dateButtonText}>
               {selectedDate.toLocaleDateString('en-US', {
                 weekday: 'long',
@@ -283,14 +289,14 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
               minimumDate={minDate}
             />
           )}
-        </View>
+        </FormSection>
 
         {/* Time Slot Selection */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Select Time</Text>
+        <FormSection>
+          <FormLabel>Select Time</FormLabel>
           {loadingSlots ? (
             <View style={styles.loadingSlotsContainer}>
-              <ActivityIndicator size="small" color="#6ba32d" />
+              <ActivityIndicator size="small" color={Colors.primary} />
               <Text style={styles.loadingSlotsText}>Loading available slots...</Text>
             </View>
           ) : timeSlots.length > 0 ? (
@@ -319,44 +325,39 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
               ))}
             </View>
           ) : (
-            <View style={styles.noSlotsContainer}>
-              <Ionicons name="calendar-outline" size={48} color="#ccc" />
-              <Text style={styles.noSlotsText}>No available time slots for this date</Text>
-              <Text style={styles.noSlotsSubtext}>Please select a different date</Text>
-            </View>
+            <InfoBox variant="warning">
+              <View style={styles.noSlotsContainer}>
+                <Ionicons name="calendar-outline" size={48} color={Colors.textTertiary} />
+                <Text style={styles.noSlotsText}>No available time slots for this date</Text>
+                <Text style={styles.noSlotsSubtext}>Please select a different date</Text>
+              </View>
+            </InfoBox>
           )}
-        </View>
+        </FormSection>
 
         {/* Notes */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notes (Optional)</Text>
+        <FormSection>
+          <FormLabel>Notes (Optional)</FormLabel>
           <TextInput
             style={styles.notesInput}
             placeholder="Add any special requests or notes..."
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textTertiary}
             value={notes}
             onChangeText={setNotes}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
           />
-        </View>
+        </FormSection>
 
         {/* Book Button */}
-        <TouchableOpacity
-          style={[styles.bookButton, (!selectedTimeSlot || submitting) && styles.bookButtonDisabled]}
+        <PrimaryButton
+          title="Confirm Booking"
           onPress={handleCreateBooking}
           disabled={!selectedTimeSlot || submitting}
-        >
-          {submitting ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-              <Text style={styles.bookButtonText}>Confirm Booking</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          loading={submitting}
+          style={styles.bookButton}
+        />
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -365,223 +366,140 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  backButton: {
-    backgroundColor: '#6ba32d',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
   content: {
     flex: 1,
+    padding: Spacing.lg,
+  },
+  loadingText: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    marginTop: Spacing.md,
+  },
+  errorText: {
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
+  },
+  backButton: {
+    marginTop: Spacing.lg,
   },
   serviceCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    marginBottom: Spacing.lg,
   },
   serviceTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 8,
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   serviceDescription: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 12,
+    ...Typography.body,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
   serviceMetaRow: {
     flexDirection: 'row',
-    gap: 16,
+    gap: Spacing.lg,
   },
   serviceMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing.xs,
   },
   serviceMetaText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  section: {
-    backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 16,
+    ...Typography.small,
+    color: Colors.textSecondary,
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors.border,
+    gap: Spacing.md,
   },
   dateButtonText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
     flex: 1,
-    fontSize: 15,
-    color: '#333',
-    fontWeight: '500',
   },
   loadingSlotsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-    gap: 10,
+    padding: Spacing.xl,
+    gap: Spacing.md,
   },
   loadingSlotsText: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.body,
+    color: Colors.textSecondary,
   },
   timeSlotsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.md,
   },
   timeSlot: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f9f9f9',
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
     minWidth: 100,
     alignItems: 'center',
   },
   timeSlotSelected: {
-    backgroundColor: '#6ba32d',
-    borderColor: '#6ba32d',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   timeSlotDisabled: {
-    backgroundColor: '#f0f0f0',
-    borderColor: '#e0e0e0',
+    backgroundColor: Colors.gray100,
+    borderColor: Colors.borderLight,
     opacity: 0.5,
   },
   timeSlotText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
   },
   timeSlotTextSelected: {
-    color: '#fff',
+    color: Colors.white,
   },
   timeSlotTextDisabled: {
-    color: '#999',
+    color: Colors.textDisabled,
   },
   noSlotsContainer: {
     alignItems: 'center',
-    padding: 40,
+    padding: Spacing.xl,
+    gap: Spacing.sm,
   },
   noSlotsText: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 16,
-    fontWeight: '600',
+    ...Typography.body,
+    color: Colors.textPrimary,
+    textAlign: 'center',
   },
   noSlotsSubtext: {
-    fontSize: 14,
-    color: '#999',
-    marginTop: 4,
+    ...Typography.small,
+    color: Colors.textSecondary,
+    textAlign: 'center',
   },
   notesInput: {
-    backgroundColor: '#f9f9f9',
+    ...Typography.body,
+    color: Colors.textPrimary,
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 15,
-    color: '#333',
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
     minHeight: 100,
   },
   bookButton: {
-    backgroundColor: '#6ba32d',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 20,
-    marginTop: 8,
-  },
-  bookButtonDisabled: {
-    backgroundColor: '#ccc',
-    opacity: 0.6,
-  },
-  bookButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+    marginTop: Spacing.lg,
   },
   bottomSpacer: {
-    height: 40,
+    height: Spacing.xl,
   },
 });
 

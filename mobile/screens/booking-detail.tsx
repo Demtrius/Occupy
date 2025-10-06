@@ -16,6 +16,13 @@ import { showError, showSuccess } from '../store/app.store';
 import { useAuthStore } from '../store/auth.store';
 import { BookingDetail as BookingDetailType, BookingStatus } from '../types';
 import { RootStackParamList } from '../types';
+import {
+  ScreenHeader,
+  FormSection,
+  PrimaryButton,
+  InfoBox,
+} from '../components';
+import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
 
 type BookingDetailScreenRouteProp = RouteProp<RootStackParamList, 'BookingDetail'>;
 type BookingDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
@@ -149,15 +156,15 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
   const getStatusColor = (status: BookingStatus): string => {
     switch (status) {
       case 'pending':
-        return '#FFA500';
+        return Colors.pending;
       case 'confirmed':
-        return '#6ba32d';
+        return Colors.primary;
       case 'cancelled':
-        return '#ff6b6b';
+        return Colors.cancelled;
       case 'completed':
-        return '#4CAF50';
+        return Colors.completed;
       default:
-        return '#999';
+        return Colors.textTertiary;
     }
   };
 
@@ -196,8 +203,8 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6ba32d" />
+      <View style={CommonStyles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading booking details...</Text>
       </View>
     );
@@ -205,71 +212,69 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 
   if (!booking) {
     return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color="#ff6b6b" />
+      <View style={CommonStyles.centered}>
+        <Ionicons name="alert-circle-outline" size={64} color={Colors.error} />
         <Text style={styles.errorText}>Booking not found</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
+        <PrimaryButton
+          title="Go Back"
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Booking Details</Text>
-        <View style={styles.backBtn} />
-      </View>
+    <View style={CommonStyles.container}>
+      <ScreenHeader
+        title="Booking Details"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Status Badge */}
         <View style={styles.statusContainer}>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
-            <Ionicons name={getStatusIcon(booking.status) as any} size={24} color="#fff" />
+            <Ionicons name={getStatusIcon(booking.status) as any} size={24} color={Colors.white} />
             <Text style={styles.statusText}>{booking.status.toUpperCase()}</Text>
           </View>
         </View>
 
         {/* Service Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Service</Text>
-          <View style={styles.serviceCard}>
+        <FormSection>
+          <FormLabel>SERVICE</FormLabel>
+          <InfoBox variant="info" style={styles.serviceCard}>
             <Text style={styles.serviceName}>{booking.service.title}</Text>
             <Text style={styles.serviceDescription}>{booking.service.description}</Text>
             {booking.service.price && (
               <View style={styles.priceRow}>
-                <Ionicons name="cash-outline" size={18} color="#6ba32d" />
+                <Ionicons name="cash-outline" size={18} color={Colors.primary} />
                 <Text style={styles.priceText}>${booking.service.price}</Text>
               </View>
             )}
-          </View>
-        </View>
+          </InfoBox>
+        </FormSection>
 
         {/* Date & Time */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Date & Time</Text>
+        <FormSection>
+          <FormLabel>DATE & TIME</FormLabel>
           <View style={styles.dateTimeCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={20} color="#6ba32d" />
+              <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
               <Text style={styles.infoText}>{formatDate(booking.date)}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="time-outline" size={20} color="#6ba32d" />
+              <Ionicons name="time-outline" size={20} color={Colors.primary} />
               <Text style={styles.infoText}>
                 {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
               </Text>
             </View>
           </View>
-        </View>
+        </FormSection>
 
         {/* Client/Provider Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{isProvider ? 'Client' : 'Service Provider'}</Text>
+        <FormSection>
+          <FormLabel>{isProvider ? 'CLIENT' : 'SERVICE PROVIDER'}</FormLabel>
           <View style={styles.userCard}>
             <View style={styles.userInfo}>
               <View style={styles.avatarPlaceholder}>
@@ -289,43 +294,42 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
               </View>
             </View>
           </View>
-        </View>
+        </FormSection>
 
         {/* Business/Clique */}
         {booking.cliqueName && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Business</Text>
+          <FormSection>
+            <FormLabel>BUSINESS</FormLabel>
             <View style={styles.infoCard}>
-              <Ionicons name="business-outline" size={20} color="#6ba32d" />
+              <Ionicons name="business-outline" size={20} color={Colors.primary} />
               <Text style={styles.infoText}>{booking.cliqueName}</Text>
             </View>
-          </View>
+          </FormSection>
         )}
 
         {/* Notes */}
         {booking.notes && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notes</Text>
-            <View style={styles.notesCard}>
+          <FormSection>
+            <FormLabel>NOTES</FormLabel>
+            <InfoBox variant="warning" style={styles.notesCard}>
               <Text style={styles.notesText}>{booking.notes}</Text>
-            </View>
-          </View>
+            </InfoBox>
+          </FormSection>
         )}
 
         {/* Cancellation Reason */}
         {booking.status === 'cancelled' && booking.cancellationReason && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Cancellation Reason</Text>
-            <View style={styles.cancellationCard}>
-              <Ionicons name="information-circle-outline" size={20} color="#ff6b6b" />
+          <FormSection>
+            <FormLabel>CANCELLATION REASON</FormLabel>
+            <InfoBox variant="error">
               <Text style={styles.cancellationText}>{booking.cancellationReason}</Text>
-            </View>
-          </View>
+            </InfoBox>
+          </FormSection>
         )}
 
         {/* Booking Metadata */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Booking Information</Text>
+        <FormSection>
+          <FormLabel>BOOKING INFORMATION</FormLabel>
           <View style={styles.metadataCard}>
             <View style={styles.metadataRow}>
               <Text style={styles.metadataLabel}>Booking ID:</Text>
@@ -344,46 +348,35 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
               </Text>
             </View>
           </View>
-        </View>
+        </FormSection>
 
         {/* Action Buttons */}
         {booking.status === 'pending' && (
           <View style={styles.actionsSection}>
             {isProvider && (
               <>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.confirmButton]}
+                <PrimaryButton
+                  title="Confirm Booking"
                   onPress={handleConfirmBooking}
                   disabled={actionLoading}
-                >
-                  {actionLoading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <>
-                      <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-                      <Text style={styles.actionButtonText}>Confirm Booking</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.cancelButton]}
+                  loading={actionLoading}
+                  style={styles.confirmButton}
+                />
+                <PrimaryButton
+                  title="Decline Booking"
                   onPress={handleCancelBooking}
                   disabled={actionLoading}
-                >
-                  <Ionicons name="close-circle-outline" size={20} color="#fff" />
-                  <Text style={styles.actionButtonText}>Decline Booking</Text>
-                </TouchableOpacity>
+                  style={styles.cancelButton}
+                />
               </>
             )}
             {isClient && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.cancelButton]}
+              <PrimaryButton
+                title="Cancel Booking"
                 onPress={handleCancelBooking}
                 disabled={actionLoading}
-              >
-                <Ionicons name="close-circle-outline" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Cancel Booking</Text>
-              </TouchableOpacity>
+                style={styles.cancelButton}
+              />
             )}
           </View>
         )}
@@ -392,39 +385,28 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
           <View style={styles.actionsSection}>
             {isProvider && (
               <>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.completeButton]}
+                <PrimaryButton
+                  title="Mark as Completed"
                   onPress={handleCompleteBooking}
                   disabled={actionLoading}
-                >
-                  {actionLoading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <>
-                      <Ionicons name="checkmark-done-circle-outline" size={20} color="#fff" />
-                      <Text style={styles.actionButtonText}>Mark as Completed</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.cancelButton]}
+                  loading={actionLoading}
+                  style={styles.completeButton}
+                />
+                <PrimaryButton
+                  title="Cancel Booking"
                   onPress={handleCancelBooking}
                   disabled={actionLoading}
-                >
-                  <Ionicons name="close-circle-outline" size={20} color="#fff" />
-                  <Text style={styles.actionButtonText}>Cancel Booking</Text>
-                </TouchableOpacity>
+                  style={styles.cancelButton}
+                />
               </>
             )}
             {isClient && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.cancelButton]}
+              <PrimaryButton
+                title="Cancel Booking"
                 onPress={handleCancelBooking}
                 disabled={actionLoading}
-              >
-                <Ionicons name="close-circle-outline" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Cancel Booking</Text>
-              </TouchableOpacity>
+                style={styles.cancelButton}
+              />
             )}
           </View>
         )}
@@ -432,13 +414,11 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
         {booking.status === 'completed' && (
           <View style={styles.actionsSection}>
             {isClient && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.reviewButton]}
+              <PrimaryButton
+                title="Write Review"
                 onPress={handleWriteReview}
-              >
-                <Ionicons name="star-outline" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Write Review</Text>
-              </TouchableOpacity>
+                style={styles.reviewButton}
+              />
             )}
           </View>
         )}
@@ -450,230 +430,147 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  backButton: {
-    backgroundColor: '#6ba32d',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
   content: {
     flex: 1,
+    padding: Spacing.lg,
+  },
+  loadingText: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    marginTop: Spacing.md,
+  },
+  errorText: {
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
+  },
+  backButton: {
+    marginTop: Spacing.lg,
   },
   statusContainer: {
     alignItems: 'center',
-    paddingVertical: 24,
-    backgroundColor: '#fff',
-    marginBottom: 8,
+    paddingVertical: Spacing.xl,
+    backgroundColor: Colors.white,
+    marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.md,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 24,
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.full,
   },
   statusText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+    ...Typography.bodyBold,
+    color: Colors.white,
     letterSpacing: 1,
   },
-  section: {
-    backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#999',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
-  },
   serviceCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    padding: 0,
   },
   serviceName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 6,
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
   },
   serviceDescription: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.body,
+    color: Colors.textSecondary,
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing.xs,
   },
   priceText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#6ba32d',
+    ...Typography.h4,
+    color: Colors.primary,
   },
   dateTimeCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    gap: 12,
+    borderColor: Colors.border,
+    gap: Spacing.md,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing.md,
   },
   infoText: {
-    fontSize: 15,
-    color: '#333',
-    fontWeight: '500',
+    ...Typography.body,
+    color: Colors.textPrimary,
   },
   userCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors.border,
   },
   userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing.md,
   },
   avatarPlaceholder: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#6ba32d',
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
+    ...Typography.h3,
+    color: Colors.white,
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
   },
   userEmail: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
+    ...Typography.small,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors.border,
   },
   notesCard: {
-    backgroundColor: '#fffbea',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ffd966',
+    padding: 0,
   },
   notesText: {
-    fontSize: 14,
-    color: '#333',
+    ...Typography.body,
+    color: Colors.textPrimary,
     lineHeight: 20,
   },
-  cancellationCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    backgroundColor: '#ffebee',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ff6b6b',
-  },
   cancellationText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
+    ...Typography.body,
+    color: Colors.textPrimary,
     lineHeight: 20,
   },
   metadataCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    gap: 10,
+    borderColor: Colors.border,
+    gap: Spacing.md,
   },
   metadataRow: {
     flexDirection: 'row',
@@ -681,46 +578,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metadataLabel: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.body,
+    color: Colors.textSecondary,
   },
   metadataValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
   },
   actionsSection: {
-    padding: 20,
-    gap: 12,
-    backgroundColor: '#fff',
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
+    gap: Spacing.md,
+    marginTop: Spacing.lg,
   },
   confirmButton: {
-    backgroundColor: '#6ba32d',
+    backgroundColor: Colors.primary,
   },
   completeButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.completed,
   },
   cancelButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: Colors.cancelled,
   },
   reviewButton: {
-    backgroundColor: '#FFA500',
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+    backgroundColor: Colors.warning,
   },
   bottomSpacer: {
-    height: 40,
+    height: Spacing.xl,
   },
 });
 

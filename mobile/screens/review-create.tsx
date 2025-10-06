@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useNavigation, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -16,6 +15,14 @@ import { bookingService, socialService } from '../services';
 import { showError, showSuccess } from '../store/app.store';
 import { BookingDetail } from '../types';
 import { RootStackParamList } from '../types';
+import {
+  ScreenHeader,
+  FormSection,
+  FormLabel,
+  PrimaryButton,
+  InfoBox,
+} from '../components';
+import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
 
 type ReviewCreateScreenRouteProp = RouteProp<RootStackParamList, 'ReviewCreate'>;
 type ReviewCreateScreenNavigationProp = StackNavigationProp<RootStackParamList>;
@@ -54,12 +61,12 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 
   const handleSubmitReview = async () => {
     if (rating === 0) {
-      Alert.alert('Validation Error', 'Please select a rating');
+      showError('Please select a rating');
       return;
     }
 
     if (!booking) {
-      Alert.alert('Error', 'Booking data not available');
+      showError('Booking data not available');
       return;
     }
 
@@ -95,7 +102,7 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
           <Ionicons
             name={i <= rating ? 'star' : 'star-outline'}
             size={40}
-            color={i <= rating ? '#FFA500' : '#ccc'}
+            color={i <= rating ? Colors.warning : Colors.textDisabled}
           />
         </TouchableOpacity>
       );
@@ -122,8 +129,8 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6ba32d" />
+      <View style={CommonStyles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading booking details...</Text>
       </View>
     );
@@ -131,56 +138,54 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 
   if (!booking) {
     return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color="#ff6b6b" />
+      <View style={CommonStyles.centered}>
+        <Ionicons name="alert-circle-outline" size={64} color={Colors.error} />
         <Text style={styles.errorText}>Booking not found</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
+        <PrimaryButton
+          title="Go Back"
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Write Review</Text>
-        <View style={styles.backBtn} />
-      </View>
+    <View style={CommonStyles.container}>
+      <ScreenHeader
+        title="Write Review"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Service Info */}
-        <View style={styles.serviceCard}>
+        <InfoBox variant="info" style={styles.serviceCard}>
           <Text style={styles.serviceTitle}>{booking.service.title}</Text>
           <Text style={styles.serviceDescription}>{booking.service.description}</Text>
           {booking.cliqueName && (
             <View style={styles.businessRow}>
-              <Ionicons name="business-outline" size={16} color="#666" />
+              <Ionicons name="business-outline" size={16} color={Colors.textSecondary} />
               <Text style={styles.businessName}>{booking.cliqueName}</Text>
             </View>
           )}
-        </View>
+        </InfoBox>
 
         {/* Rating Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Rating <Text style={styles.required}>*</Text>
-          </Text>
+        <FormSection>
+          <FormLabel required>Rating</FormLabel>
           <View style={styles.starsContainer}>{renderStars()}</View>
-          <Text style={styles.ratingLabel}>{getRatingLabel(rating)}</Text>
-        </View>
+          <Text style={[styles.ratingLabel, rating > 0 && styles.ratingLabelActive]}>
+            {getRatingLabel(rating)}
+          </Text>
+        </FormSection>
 
         {/* Comment Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Review (Optional)</Text>
+        <FormSection>
+          <FormLabel>Your Review (Optional)</FormLabel>
           <TextInput
             style={styles.commentInput}
             placeholder="Share your experience with this service..."
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textTertiary}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -189,32 +194,24 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
             maxLength={500}
           />
           <Text style={styles.characterCount}>{comment.length}/500</Text>
-        </View>
+        </FormSection>
 
         {/* Info Box */}
-        <View style={styles.infoBox}>
-          <Ionicons name="information-circle-outline" size={20} color="#6ba32d" />
+        <InfoBox variant="info" style={styles.infoBox}>
           <Text style={styles.infoText}>
             Your review will help others make better decisions and help the service provider
             improve their services.
           </Text>
-        </View>
+        </InfoBox>
 
         {/* Submit Button */}
-        <TouchableOpacity
-          style={[styles.submitButton, (rating === 0 || submitting) && styles.submitButtonDisabled]}
+        <PrimaryButton
+          title="Submit Review"
           onPress={handleSubmitReview}
           disabled={rating === 0 || submitting}
-        >
-          {submitting ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-              <Text style={styles.submitButtonText}>Submit Review</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          loading={submitting}
+          style={styles.submitButton}
+        />
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -223,182 +220,93 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  backButton: {
-    backgroundColor: '#6ba32d',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
   content: {
     flex: 1,
+    padding: Spacing.lg,
+  },
+  loadingText: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    marginTop: Spacing.md,
+  },
+  errorText: {
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
+  },
+  backButton: {
+    marginTop: Spacing.lg,
   },
   serviceCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    marginBottom: Spacing.lg,
   },
   serviceTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 8,
+    ...Typography.h3,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   serviceDescription: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.body,
+    color: Colors.textSecondary,
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   businessRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing.xs,
   },
   businessName: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  section: {
-    backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 16,
-  },
-  required: {
-    color: '#ff6b6b',
+    ...Typography.small,
+    color: Colors.textSecondary,
   },
   starsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
-    marginBottom: 12,
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   starButton: {
-    padding: 4,
+    padding: Spacing.xs,
   },
   ratingLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6ba32d',
+    ...Typography.bodyBold,
+    color: Colors.textTertiary,
     textAlign: 'center',
   },
+  ratingLabelActive: {
+    color: Colors.primary,
+  },
   commentInput: {
-    backgroundColor: '#f9f9f9',
+    ...Typography.body,
+    color: Colors.textPrimary,
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 15,
-    color: '#333',
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
     minHeight: 120,
   },
   characterCount: {
-    fontSize: 12,
-    color: '#999',
+    ...Typography.caption,
+    color: Colors.textTertiary,
     textAlign: 'right',
-    marginTop: 4,
+    marginTop: Spacing.xs,
   },
   infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#e8f5e9',
-    padding: 16,
-    marginHorizontal: 20,
-    marginTop: 8,
-    borderRadius: 12,
-    gap: 12,
+    marginTop: Spacing.lg,
   },
   infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
+    ...Typography.body,
+    color: Colors.textPrimary,
     lineHeight: 20,
   },
   submitButton: {
-    backgroundColor: '#6ba32d',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 20,
-    marginTop: 16,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#ccc',
-    opacity: 0.6,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+    marginTop: Spacing.lg,
   },
   bottomSpacer: {
-    height: 40,
+    height: Spacing.xl,
   },
 });
 

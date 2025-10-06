@@ -4,19 +4,25 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Image,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAuthStore } from '../store/auth.store';
 import { showError, showSuccess } from '../store/app.store';
 import { LoginCredentials } from '../types';
 import { RootStackParamList } from '../types';
+import {
+  FormSection,
+  FormLabel,
+  FormInput,
+  PrimaryButton,
+  InfoBox,
+} from '../components';
+import { Colors, Spacing, Typography, BorderRadius } from '../theme';
 
 const { width } = Dimensions.get('window');
 
@@ -92,104 +98,98 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
+        <View style={styles.content}>
+          {/* Logo */}
           <Image
             source={require('../assets/occupyLogo.png')}
             style={styles.logo}
           />
+
+          {/* Title */}
           <Text style={styles.title}>Welcome Back!</Text>
 
           {/* Display global error */}
           {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
+            <InfoBox variant="error" style={styles.errorBox}>
+              {error}
+            </InfoBox>
           )}
 
-          <View style={styles.inputContainer}>
-            {/* Email Input */}
-            <View style={styles.inputGroup}>
-              <TextInput
-                value={email}
+          {/* Email Input */}
+          <FormSection style={styles.formSection}>
+            <FormLabel>Email</FormLabel>
+            <FormInput
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (formErrors.email) {
+                  setFormErrors({ ...formErrors, email: undefined });
+                }
+              }}
+              placeholder="Enter your email"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              editable={!isLoading}
+            />
+            {formErrors.email && (
+              <Text style={styles.fieldError}>{formErrors.email}</Text>
+            )}
+          </FormSection>
+
+          {/* Password Input */}
+          <FormSection style={styles.formSection}>
+            <FormLabel>Password</FormLabel>
+            <View style={styles.passwordContainer}>
+              <FormInput
+                value={password}
                 onChangeText={(text) => {
-                  setEmail(text);
-                  if (formErrors.email) {
-                    setFormErrors({ ...formErrors, email: undefined });
+                  setPassword(text);
+                  if (formErrors.password) {
+                    setFormErrors({ ...formErrors, password: undefined });
                   }
                 }}
-                placeholder="Email"
-                placeholderTextColor="#888"
-                style={[styles.input, formErrors.email && styles.inputError]}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                textContentType="emailAddress"
+                placeholder="Enter your password"
+                secureTextEntry={securePassword}
+                textContentType="password"
                 editable={!isLoading}
+                style={styles.passwordInput}
               />
-              {formErrors.email && (
-                <Text style={styles.fieldError}>{formErrors.email}</Text>
-              )}
+              <TouchableOpacity
+                onPress={() => setSecurePassword(!securePassword)}
+                style={styles.eyeIcon}
+              >
+                <Text style={styles.eyeIconText}>
+                  {securePassword ? '👁️' : '👁️‍🗨️'}
+                </Text>
+              </TouchableOpacity>
             </View>
+            {formErrors.password && (
+              <Text style={styles.fieldError}>{formErrors.password}</Text>
+            )}
+          </FormSection>
 
-            {/* Password Input */}
-            <View style={styles.inputGroup}>
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    if (formErrors.password) {
-                      setFormErrors({ ...formErrors, password: undefined });
-                    }
-                  }}
-                  placeholder="Password"
-                  placeholderTextColor="#888"
-                  secureTextEntry={securePassword}
-                  style={[
-                    styles.input,
-                    styles.passwordInput,
-                    formErrors.password && styles.inputError,
-                  ]}
-                  textContentType="password"
-                  editable={!isLoading}
-                />
-                <TouchableOpacity
-                  onPress={() => setSecurePassword(!securePassword)}
-                  style={styles.eyeIcon}
-                >
-                  <Text style={styles.eyeIconText}>
-                    {securePassword ? '👁️' : '👁️‍🗨️'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {formErrors.password && (
-                <Text style={styles.fieldError}>{formErrors.password}</Text>
-              )}
-            </View>
-          </View>
-
+          {/* Forgot Password */}
           <TouchableOpacity style={styles.forgotPassword}>
             <Text style={styles.forgotText}>Forgot password?</Text>
           </TouchableOpacity>
 
           {/* Login Button */}
-          <TouchableOpacity
+          <PrimaryButton
+            title="Login"
             onPress={handleLogin}
-            style={[styles.loginButton, isLoading && styles.disabledButton]}
             disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.loginText}>Login</Text>
-            )}
-          </TouchableOpacity>
+            loading={isLoading}
+            style={styles.loginButton}
+          />
 
           {/* Register Link */}
           <View style={styles.footer}>
@@ -219,55 +219,36 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: Colors.white,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  content: {
+    flex: 1,
+    padding: Spacing.xl,
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   logo: {
     width: width * 0.6,
     height: 100,
     alignSelf: 'center',
-    marginBottom: 30,
+    marginBottom: Spacing.xxxl,
     resizeMode: 'contain',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...Typography.h2,
     textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
+    marginBottom: Spacing.xl,
+    color: Colors.textPrimary,
   },
-  errorContainer: {
-    backgroundColor: '#ffebee',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: '#f44336',
+  errorBox: {
+    marginBottom: Spacing.lg,
   },
-  errorText: {
-    color: '#f44336',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  inputGroup: {
-    marginBottom: 15,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-    color: '#333',
-  },
-  inputError: {
-    borderColor: '#f44336',
-    backgroundColor: '#ffebee',
+  formSection: {
+    backgroundColor: 'transparent',
+    padding: 0,
+    marginBottom: Spacing.lg,
   },
   passwordContainer: {
     position: 'relative',
@@ -277,68 +258,48 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     position: 'absolute',
-    right: 12,
-    top: 15,
-    padding: 4,
+    right: Spacing.md,
+    top: Spacing.md,
+    padding: Spacing.xs,
   },
   eyeIconText: {
     fontSize: 20,
   },
   fieldError: {
-    color: '#f44336',
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
+    ...Typography.caption,
+    color: Colors.error,
+    marginTop: Spacing.xs,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   forgotText: {
-    color: '#007AFF',
-    fontSize: 14,
+    ...Typography.small,
+    color: Colors.primary,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 30,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-    opacity: 0.7,
-  },
-  loginText: {
-    color: 'white',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '600',
+    marginBottom: Spacing.xxxl,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   footerText: {
-    color: '#666',
-    fontSize: 14,
+    ...Typography.body,
+    color: Colors.textSecondary,
   },
   registerText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '600',
+    ...Typography.bodyBold,
+    color: Colors.primary,
   },
   businessContainer: {
     alignItems: 'center',
   },
   businessText: {
-    color: '#007AFF',
-    fontSize: 14,
+    ...Typography.small,
+    color: Colors.primary,
     textDecorationLine: 'underline',
   },
 });

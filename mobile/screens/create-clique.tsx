@@ -5,14 +5,12 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
-  Dimensions,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  TextInput,
 } from 'react-native';
-import { TextInput } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -20,8 +18,15 @@ import { cliquesService } from '../services';
 import { showError, showSuccess } from '../store/app.store';
 import { useAuthStore } from '../store/auth.store';
 import { RootStackParamList } from '../types';
-
-const { width, height } = Dimensions.get('window');
+import {
+  ScreenHeader,
+  FormSection,
+  FormLabel,
+  FormInput,
+  PrimaryButton,
+  InfoBox,
+} from '../components';
+import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
 
 type Level = 'PRIVATE' | 'PUBLIC';
 
@@ -140,89 +145,86 @@ const CreateClique: React.FC = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={CommonStyles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <ScreenHeader
+        title="Create New Clique"
+        onBack={() => navigation.goBack()}
+      />
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
-          style={styles.container}
+          style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            <Text style={styles.title}>Create New Clique</Text>
+            {/* Subtitle */}
             <Text style={styles.subtitle}>
               Build a community around your interests and occupation
             </Text>
 
             {/* Clique Name */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Clique Name *</Text>
-              <TextInput
-                label="Enter clique name"
+            <FormSection style={styles.formSection}>
+              <FormLabel required>Clique Name</FormLabel>
+              <FormInput
                 value={name}
-                mode="outlined"
-                style={styles.input}
                 onChangeText={(text) => {
                   setName(text);
                   if (formErrors.name) {
                     setFormErrors({ ...formErrors, name: undefined });
                   }
                 }}
-                theme={{ colors: { primary: '#6ba32d' } }}
-                error={!!formErrors.name}
-                disabled={loading}
                 placeholder="e.g., Software Developers Hub"
+                editable={!loading}
+                maxLength={100}
               />
               {formErrors.name && (
                 <Text style={styles.errorText}>{formErrors.name}</Text>
               )}
-            </View>
+            </FormSection>
 
             {/* Occupation */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Occupation *</Text>
-              <TextInput
-                label="Enter occupation"
+            <FormSection style={styles.formSection}>
+              <FormLabel required>Occupation</FormLabel>
+              <FormInput
                 value={occupation}
-                mode="outlined"
-                style={styles.input}
                 onChangeText={(text) => {
                   setOccupation(text);
                   if (formErrors.occupation) {
                     setFormErrors({ ...formErrors, occupation: undefined });
                   }
                 }}
-                theme={{ colors: { primary: '#6ba32d' } }}
-                error={!!formErrors.occupation}
-                disabled={loading}
                 placeholder="e.g., Software Development, Design"
+                editable={!loading}
+                maxLength={100}
               />
               {formErrors.occupation && (
                 <Text style={styles.errorText}>{formErrors.occupation}</Text>
               )}
-            </View>
+            </FormSection>
 
             {/* Description */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Description *</Text>
+            <FormSection style={styles.formSection}>
+              <FormLabel required>Description</FormLabel>
               <TextInput
-                label="Enter description"
                 value={description}
-                mode="outlined"
-                style={[styles.input, styles.textArea]}
-                multiline
-                numberOfLines={4}
                 onChangeText={(text) => {
                   setDescription(text);
                   if (formErrors.description) {
                     setFormErrors({ ...formErrors, description: undefined });
                   }
                 }}
-                theme={{ colors: { primary: '#6ba32d' } }}
-                error={!!formErrors.description}
-                disabled={loading}
                 placeholder="Describe what this clique is about..."
+                style={styles.textArea}
+                placeholderTextColor={Colors.textTertiary}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                editable={!loading}
+                maxLength={500}
               />
               {formErrors.description && (
                 <Text style={styles.errorText}>{formErrors.description}</Text>
@@ -230,11 +232,11 @@ const CreateClique: React.FC = () => {
               <Text style={styles.helperText}>
                 {description.length}/500 characters
               </Text>
-            </View>
+            </FormSection>
 
             {/* Privacy Level */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Privacy Level *</Text>
+            <FormSection style={styles.formSection}>
+              <FormLabel required>Privacy Level</FormLabel>
               <DropDownPicker
                 open={open}
                 value={level}
@@ -255,31 +257,25 @@ const CreateClique: React.FC = () => {
               {formErrors.level && (
                 <Text style={styles.errorText}>{formErrors.level}</Text>
               )}
-            </View>
+            </FormSection>
 
             {/* Info Box */}
-            <View style={styles.infoBox}>
-              <Text style={styles.infoTitle}>💡 Tip</Text>
+            <InfoBox variant={level === 'PUBLIC' ? 'info' : 'warning'} style={styles.infoBox}>
               <Text style={styles.infoText}>
                 {level === 'PUBLIC'
                   ? 'Public cliques are visible to everyone and anyone can join.'
                   : 'Private cliques require an invitation to join and are only visible to members.'}
               </Text>
-            </View>
+            </InfoBox>
 
             {/* Create Button */}
-            <TouchableOpacity
-              style={[styles.createButton, loading && styles.disabledButton]}
+            <PrimaryButton
+              title="Create Clique"
               onPress={handleCreateClique}
               disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.createButtonText}>Create Clique</Text>
-              )}
-            </TouchableOpacity>
+              loading={loading}
+              style={styles.createButton}
+            />
 
             {/* Cancel Button */}
             <TouchableOpacity
@@ -297,120 +293,81 @@ const CreateClique: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   scrollContent: {
     flexGrow: 1,
   },
   content: {
-    padding: 20,
-    paddingTop: height * 0.08,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-    color: '#333',
+    padding: Spacing.xl,
   },
   subtitle: {
-    fontSize: 15,
+    ...Typography.body,
     textAlign: 'center',
-    color: '#666',
-    marginBottom: 32,
-    paddingHorizontal: 20,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xxxl,
+    paddingHorizontal: Spacing.xl,
   },
-  inputGroup: {
-    marginBottom: 20,
-    zIndex: 1,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#333',
-  },
-  input: {
-    backgroundColor: '#fff',
+  formSection: {
+    backgroundColor: 'transparent',
+    padding: 0,
+    marginBottom: Spacing.lg,
   },
   textArea: {
-    height: 120,
-    textAlignVertical: 'top',
+    ...Typography.body,
+    color: Colors.textPrimary,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
+    minHeight: 120,
   },
   errorText: {
-    color: '#f44336',
-    fontSize: 12,
-    marginTop: 4,
+    ...Typography.caption,
+    color: Colors.error,
+    marginTop: Spacing.xs,
   },
   helperText: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
+    ...Typography.caption,
+    color: Colors.textTertiary,
+    marginTop: Spacing.xs,
     textAlign: 'right',
   },
   dropdown: {
-    borderColor: '#dcdcdc',
-    borderRadius: 4,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.white,
   },
   dropdownError: {
-    borderColor: '#f44336',
+    borderColor: Colors.error,
   },
   dropdownContainer: {
-    borderColor: '#dcdcdc',
+    borderColor: Colors.border,
   },
   infoBox: {
-    backgroundColor: '#f0f9ff',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
-    borderLeftWidth: 4,
-    borderLeftColor: '#6ba32d',
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
   infoText: {
-    fontSize: 14,
-    color: '#555',
+    ...Typography.body,
+    color: Colors.textPrimary,
     lineHeight: 20,
   },
   createButton: {
-    backgroundColor: '#6ba32d',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-    opacity: 0.7,
-  },
-  createButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 16,
+    marginBottom: Spacing.md,
   },
   cancelButton: {
-    paddingVertical: 14,
-    borderRadius: 10,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors.border,
   },
   cancelButtonText: {
-    color: '#666',
-    fontWeight: '600',
-    fontSize: 16,
+    ...Typography.bodyBold,
+    color: Colors.textSecondary,
   },
 });
 

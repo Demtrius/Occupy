@@ -5,10 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-  Alert,
-  Switch,
   Platform,
 } from 'react-native';
 import { useNavigation, RouteProp } from '@react-navigation/native';
@@ -18,6 +14,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { bookingService } from '../services';
 import { showError, showSuccess } from '../store/app.store';
 import { RootStackParamList } from '../types';
+import {
+  ScreenHeader,
+  FormSection,
+  FormLabel,
+  PrimaryButton,
+  InfoBox,
+  OptionGrid,
+  SwitchRow,
+  Option,
+} from '../components';
+import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
 
 type AvailabilityCreateScreenRouteProp = RouteProp<RootStackParamList, 'AvailabilityCreate'>;
 type AvailabilityCreateScreenNavigationProp = StackNavigationProp<RootStackParamList>;
@@ -26,15 +33,17 @@ interface Props {
   route: AvailabilityCreateScreenRouteProp;
 }
 
-const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sunday', short: 'Sun' },
-  { value: 1, label: 'Monday', short: 'Mon' },
-  { value: 2, label: 'Tuesday', short: 'Tue' },
-  { value: 3, label: 'Wednesday', short: 'Wed' },
-  { value: 4, label: 'Thursday', short: 'Thu' },
-  { value: 5, label: 'Friday', short: 'Fri' },
-  { value: 6, label: 'Saturday', short: 'Sat' },
+const DAYS_OF_WEEK: Option[] = [
+  { value: '0', label: 'Sun' },
+  { value: '1', label: 'Mon' },
+  { value: '2', label: 'Tue' },
+  { value: '3', label: 'Wed' },
+  { value: '4', label: 'Thu' },
+  { value: '5', label: 'Fri' },
+  { value: '6', label: 'Sat' },
 ];
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation<AvailabilityCreateScreenNavigationProp>();
@@ -42,7 +51,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 
   const [isRecurring, setIsRecurring] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<number>(1); // Monday by default
+  const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<string>('1'); // Monday by default
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState<boolean>(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
@@ -86,7 +95,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
   const validateForm = (): boolean => {
     // Check if start time is before end time
     if (startTime >= endTime) {
-      Alert.alert('Validation Error', 'Start time must be before end time');
+      showError('Start time must be before end time');
       return false;
     }
 
@@ -98,7 +107,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
       selected.setHours(0, 0, 0, 0);
 
       if (selected < today) {
-        Alert.alert('Validation Error', 'Please select a future date');
+        showError('Please select a future date');
         return false;
       }
     }
@@ -120,7 +129,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
         endTime: formatTimeForAPI(endTime),
         isRecurring,
         ...(isRecurring
-          ? { dayOfWeek: selectedDayOfWeek }
+          ? { dayOfWeek: parseInt(selectedDayOfWeek) }
           : { date: formatDateForAPI(selectedDate) }),
       };
 
@@ -156,78 +165,61 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
     }
   };
 
-  const renderDayButton = (day: { value: number; label: string; short: string }) => {
-    const isSelected = selectedDayOfWeek === day.value;
-    return (
-      <TouchableOpacity
-        key={day.value}
-        style={[styles.dayButton, isSelected && styles.dayButtonSelected]}
-        onPress={() => setSelectedDayOfWeek(day.value)}
-      >
-        <Text style={[styles.dayButtonText, isSelected && styles.dayButtonTextSelected]}>
-          {day.short}
-        </Text>
-      </TouchableOpacity>
-    );
+  const calculateDuration = () => {
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
+    return { hours, minutes };
   };
 
+  const duration = calculateDuration();
+
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Set Availability</Text>
-        <View style={styles.backBtn} />
-      </View>
+    <View style={CommonStyles.container}>
+      <ScreenHeader
+        title="Set Availability"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Recurring Toggle */}
-        <View style={styles.section}>
-          <View style={styles.switchRow}>
-            <View style={styles.switchLabel}>
-              <Text style={styles.label}>Recurring Availability</Text>
-              <Text style={styles.hint}>
-                {isRecurring
-                  ? 'Repeats weekly on the selected day'
-                  : 'One-time availability for a specific date'}
-              </Text>
-            </View>
-            <Switch
-              value={isRecurring}
-              onValueChange={setIsRecurring}
-              trackColor={{ false: '#ccc', true: '#6ba32d' }}
-              thumbColor={isRecurring ? '#fff' : '#f4f3f4'}
-            />
-          </View>
-        </View>
+        <FormSection>
+          <SwitchRow
+            label="Recurring Availability"
+            description={
+              isRecurring
+                ? 'Repeats weekly on the selected day'
+                : 'One-time availability for a specific date'
+            }
+            value={isRecurring}
+            onValueChange={setIsRecurring}
+          />
+        </FormSection>
 
         {/* Date/Day Selection */}
-        <View style={styles.section}>
+        <FormSection>
           {isRecurring ? (
             <>
-              <Text style={styles.label}>
-                Select Day of Week <Text style={styles.required}>*</Text>
-              </Text>
-              <View style={styles.daysGrid}>{DAYS_OF_WEEK.map(renderDayButton)}</View>
-              <View style={styles.infoBox}>
-                <Ionicons name="information-circle-outline" size={18} color="#6ba32d" />
-                <Text style={styles.infoBoxText}>
-                  This availability will repeat every {DAYS_OF_WEEK[selectedDayOfWeek].label}
+              <FormLabel required>Select Day of Week</FormLabel>
+              <OptionGrid
+                options={DAYS_OF_WEEK}
+                selectedValue={selectedDayOfWeek}
+                onSelect={(value) => setSelectedDayOfWeek(value)}
+              />
+              <InfoBox variant="info" style={styles.dayInfoBox}>
+                <Text style={styles.infoText}>
+                  This availability will repeat every {DAY_NAMES[parseInt(selectedDayOfWeek)]}
                 </Text>
-              </View>
+              </InfoBox>
             </>
           ) : (
             <>
-              <Text style={styles.label}>
-                Select Date <Text style={styles.required}>*</Text>
-              </Text>
+              <FormLabel required>Select Date</FormLabel>
               <TouchableOpacity
                 style={styles.dateButton}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Ionicons name="calendar-outline" size={20} color="#6ba32d" />
+                <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
                 <Text style={styles.dateButtonText}>
                   {selectedDate.toLocaleDateString('en-US', {
                     weekday: 'long',
@@ -236,7 +228,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
                     day: 'numeric',
                   })}
                 </Text>
-                <Ionicons name="chevron-down-outline" size={20} color="#999" />
+                <Ionicons name="chevron-down-outline" size={20} color={Colors.textTertiary} />
               </TouchableOpacity>
 
               {showDatePicker && (
@@ -250,18 +242,16 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
               )}
             </>
           )}
-        </View>
+        </FormSection>
 
         {/* Time Selection */}
-        <View style={styles.section}>
-          <Text style={styles.label}>
-            Available Hours <Text style={styles.required}>*</Text>
-          </Text>
+        <FormSection>
+          <FormLabel required>Available Hours</FormLabel>
 
           {/* Start Time */}
           <View style={styles.timeRow}>
             <View style={styles.timeLabel}>
-              <Ionicons name="time-outline" size={18} color="#666" />
+              <Ionicons name="time-outline" size={18} color={Colors.textSecondary} />
               <Text style={styles.timeLabelText}>From</Text>
             </View>
             <TouchableOpacity
@@ -269,7 +259,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
               onPress={() => setShowStartTimePicker(true)}
             >
               <Text style={styles.timeButtonText}>{formatTimeDisplay(startTime)}</Text>
-              <Ionicons name="chevron-down-outline" size={18} color="#999" />
+              <Ionicons name="chevron-down-outline" size={18} color={Colors.textTertiary} />
             </TouchableOpacity>
           </View>
 
@@ -285,7 +275,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
           {/* End Time */}
           <View style={styles.timeRow}>
             <View style={styles.timeLabel}>
-              <Ionicons name="time-outline" size={18} color="#666" />
+              <Ionicons name="time-outline" size={18} color={Colors.textSecondary} />
               <Text style={styles.timeLabelText}>To</Text>
             </View>
             <TouchableOpacity
@@ -293,7 +283,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
               onPress={() => setShowEndTimePicker(true)}
             >
               <Text style={styles.timeButtonText}>{formatTimeDisplay(endTime)}</Text>
-              <Ionicons name="chevron-down-outline" size={18} color="#999" />
+              <Ionicons name="chevron-down-outline" size={18} color={Colors.textTertiary} />
             </TouchableOpacity>
           </View>
 
@@ -308,39 +298,29 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 
           {/* Duration Display */}
           <View style={styles.durationDisplay}>
-            <Ionicons name="hourglass-outline" size={16} color="#6ba32d" />
+            <Ionicons name="hourglass-outline" size={16} color={Colors.primary} />
             <Text style={styles.durationText}>
-              Duration:{' '}
-              {Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60))} hours{' '}
-              {Math.floor(((endTime.getTime() - startTime.getTime()) / (1000 * 60)) % 60)} minutes
+              Duration: {duration.hours} hours {duration.minutes} minutes
             </Text>
           </View>
-        </View>
+        </FormSection>
 
         {/* Info Box */}
-        <View style={[styles.infoBox, { margin: 20 }]}>
-          <Ionicons name="bulb-outline" size={20} color="#FFA500" />
-          <Text style={styles.infoBoxText}>
+        <InfoBox variant="warning" style={styles.tipBox}>
+          <Text style={styles.infoText}>
             Tip: Create multiple availability slots to give clients more booking options. You can
             set different hours for different days.
           </Text>
-        </View>
+        </InfoBox>
 
         {/* Create Button */}
-        <TouchableOpacity
-          style={[styles.createButton, submitting && styles.createButtonDisabled]}
+        <PrimaryButton
+          title="Create Availability"
           onPress={handleCreateAvailability}
           disabled={submitting}
-        >
-          {submitting ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-              <Text style={styles.createButtonText}>Create Availability</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          loading={submitting}
+          style={styles.createButton}
+        />
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -349,191 +329,86 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-  },
   content: {
     flex: 1,
-  },
-  section: {
-    backgroundColor: '#fff',
-    padding: 20,
-    marginBottom: 8,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  required: {
-    color: '#ff6b6b',
-  },
-  hint: {
-    fontSize: 13,
-    color: '#999',
-    marginTop: 4,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  switchLabel: {
-    flex: 1,
-    marginRight: 16,
-  },
-  daysGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 16,
-  },
-  dayButton: {
-    flex: 1,
-    aspectRatio: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f9f9f9',
-  },
-  dayButtonSelected: {
-    backgroundColor: '#6ba32d',
-    borderColor: '#6ba32d',
-  },
-  dayButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
-  },
-  dayButtonTextSelected: {
-    color: '#fff',
+    padding: Spacing.lg,
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors.border,
+    gap: Spacing.md,
   },
   dateButtonText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
     flex: 1,
-    fontSize: 15,
-    color: '#333',
-    fontWeight: '500',
+  },
+  dayInfoBox: {
+    marginTop: Spacing.md,
   },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   timeLabel: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    flex: 1,
+    gap: Spacing.sm,
   },
   timeLabelText: {
-    fontSize: 15,
-    color: '#666',
-    fontWeight: '500',
+    ...Typography.bodyBold,
+    color: Colors.textPrimary,
   },
   timeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#f9f9f9',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
+    backgroundColor: Colors.white,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: Colors.border,
+    gap: Spacing.sm,
     minWidth: 140,
-    justifyContent: 'space-between',
   },
   timeButtonText: {
-    fontSize: 15,
-    color: '#333',
-    fontWeight: '600',
+    ...Typography.body,
+    color: Colors.textPrimary,
+    flex: 1,
   },
   durationDisplay: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#e8f5e9',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 4,
+    backgroundColor: Colors.gray50,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   durationText: {
-    fontSize: 14,
-    color: '#6ba32d',
-    fontWeight: '600',
+    ...Typography.small,
+    color: Colors.textSecondary,
   },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#fffbea',
-    padding: 12,
-    borderRadius: 10,
-    gap: 10,
+  tipBox: {
+    marginTop: Spacing.lg,
   },
-  infoBoxText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#666',
-    lineHeight: 18,
+  infoText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+    lineHeight: 20,
   },
   createButton: {
-    backgroundColor: '#6ba32d',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 20,
-  },
-  createButtonDisabled: {
-    backgroundColor: '#ccc',
-    opacity: 0.6,
-  },
-  createButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
+    marginTop: Spacing.lg,
   },
   bottomSpacer: {
-    height: 40,
+    height: Spacing.xl,
   },
 });
 
