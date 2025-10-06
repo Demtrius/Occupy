@@ -16,13 +16,17 @@ import { useAppStore } from '@store/app.store';
 import Feed from '@screens/feed';
 import Search from '@screens/search';
 import Cliques from '@screens/cliques';
-import Clique from '@screens/clique';
+import CliqueDetail from '@screens/clique-detail';
 import Post from '@screens/post';
 import Notifications from '@screens/notifications';
 import Profile from '@screens/profile';
 import MessageDetail from '@screens/message-detail';
 import ViewUser from '@screens/view-user';
 import CreateClique from '@screens/create-clique';
+import BookingCreate from '@screens/booking-create';
+import BookingDetail from '@screens/booking-detail';
+import ServiceCreate from '@screens/service-create';
+import AvailabilityCreate from '@screens/availability-create';
 
 // Navigation
 import Navigator from '@navigation/navigator';
@@ -49,8 +53,13 @@ function CliquesStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }} id={undefined}>
       <Stack.Screen name="Cliques" component={Cliques} />
-      <Stack.Screen name="Clique" component={Clique} />
+      <Stack.Screen name="Clique" component={CliqueDetail} />
+      <Stack.Screen name="CliqueDetail" component={CliqueDetail} />
       <Stack.Screen name="CreateClique" component={CreateClique} />
+      <Stack.Screen name="BookingCreate" component={BookingCreate} />
+      <Stack.Screen name="BookingDetail" component={BookingDetail} />
+      <Stack.Screen name="ServiceCreate" component={ServiceCreate} />
+      <Stack.Screen name="AvailabilityCreate" component={AvailabilityCreate} />
     </Stack.Navigator>
   );
 }

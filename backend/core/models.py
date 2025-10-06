@@ -279,24 +279,36 @@ class Review(models.Model):
 
 class Service(models.Model):
     """
-    Service model represents services offered by occupiers.
+    Service model represents services offered by cliques (business pages).
 
-    Business pages and users can offer services to other users. Services have
-    pricing, duration, and availability information.
+    Business pages can offer services to other users through their cliques.
+    Services have pricing, duration, and availability information.
 
     Attributes:
-        provider: The occupier offering this service
+        clique: The clique offering this service
+        provider: The occupier who created/manages this service
         title: Name/title of the service
+        description: Detailed description of the service
         price: Cost of the service (optional)
         duration_minutes: Expected duration of the service in minutes
+        is_active: Whether the service is currently available for booking
+        created_at: Timestamp when the service was created
+        updated_at: Timestamp when the service was last updated
     """
 
+    clique = models.ForeignKey(
+        Clique, on_delete=models.CASCADE, related_name="services"
+    )
     provider = models.ForeignKey(
         Occupier, on_delete=models.CASCADE, related_name="services"
     )
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, default="")
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     duration_minutes = models.PositiveIntegerField(default=60)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Service"
@@ -316,21 +328,41 @@ class Availability(models.Model):
     """
     Availability model represents time slots when service providers are available.
 
-    Service providers can set their availability for booking appointments.
+    Service providers can set their availability for booking appointments through their cliques.
 
     Attributes:
+        clique: The clique this availability is for
         provider: The occupier setting their availability
         date: The date of availability
         start_time: Start time of the availability window
         end_time: End time of the availability window
+        is_recurring: Whether this availability repeats weekly
+        day_of_week: Day of week for recurring availability (0=Monday, 6=Sunday)
     """
 
+    clique = models.ForeignKey(
+        Clique, on_delete=models.CASCADE, related_name="availability_slots"
+    )
     provider = models.ForeignKey(
         Occupier, on_delete=models.CASCADE, related_name="availability"
     )
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
+    is_recurring = models.BooleanField(default=False)
+    day_of_week = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=[
+            (0, "Monday"),
+            (1, "Tuesday"),
+            (2, "Wednesday"),
+            (3, "Thursday"),
+            (4, "Friday"),
+            (5, "Saturday"),
+            (6, "Sunday"),
+        ],
+    )
 
     class Meta:
         verbose_name = "Availability"
@@ -350,24 +382,38 @@ class Booking(models.Model):
     """
     Booking model represents service appointments booked by clients.
 
-    Clients can book services offered by providers. Bookings have a status
+    Clients can book services offered by providers through cliques. Bookings have a status
     that tracks whether they are pending, confirmed, or cancelled.
 
     Attributes:
         service: The service being booked
+        clique: The clique providing the service
         client: The user booking the service
+        provider: The service provider (for easy access)
         date: Date of the booking
         start_time: Start time of the booking
         end_time: End time of the booking
         status: Current status of the booking (pending/confirmed/cancelled)
+        notes: Additional notes from the client
+        cancellation_reason: Reason for cancellation (if cancelled)
         created_at: Timestamp when the booking was created
+        updated_at: Timestamp when the booking was last updated
     """
 
     service = models.ForeignKey(
         Service, on_delete=models.CASCADE, related_name="bookings"
     )
+    clique = models.ForeignKey(
+        Clique, on_delete=models.CASCADE, related_name="bookings"
+    )
     client = models.ForeignKey(
         Occupier, on_delete=models.CASCADE, related_name="bookings"
+    )
+    provider = models.ForeignKey(
+        Occupier,
+        on_delete=models.CASCADE,
+        related_name="provider_bookings",
+        null=True,
     )
     date = models.DateField()
     start_time = models.TimeField()
@@ -378,10 +424,14 @@ class Booking(models.Model):
             ("pending", "Pending"),
             ("confirmed", "Confirmed"),
             ("cancelled", "Cancelled"),
+            ("completed", "Completed"),
         ],
         default="pending",
     )
+    notes = models.TextField(blank=True, default="")
+    cancellation_reason = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Booking"

@@ -5,7 +5,15 @@ Serializers for the core app (Posts and Cliques).
 from typing import Any, Dict
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Post, Clique, CliquePost, CommentPost
+from .models import (
+    Post,
+    Clique,
+    CliquePost,
+    CommentPost,
+    Service,
+    Availability,
+    Booking,
+)
 
 User = get_user_model()
 
@@ -324,3 +332,274 @@ class CommentSerializer(serializers.ModelSerializer):
         # Occupier and post are set by the view's action method
         comment = CommentPost.objects.create(**validated_data)
         return comment
+
+
+class ServiceListSerializer(serializers.ModelSerializer):
+    """Serializer for listing services."""
+
+    provider = UserBasicSerializer(read_only=True)
+    clique_name = serializers.CharField(source="clique.name", read_only=True)
+    bookings_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Service
+        fields = [
+            "id",
+            "clique",
+            "clique_name",
+            "provider",
+            "title",
+            "description",
+            "price",
+            "duration_minutes",
+            "is_active",
+            "bookings_count",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "provider", "created_at", "updated_at"]
+
+    def get_bookings_count(self, obj) -> int:
+        """Get the count of bookings for this service."""
+        return obj.bookings.count()
+
+
+class ServiceDetailSerializer(serializers.ModelSerializer):
+    """Detailed serializer for a single service."""
+
+    provider = UserBasicSerializer(read_only=True)
+    clique = CliqueListSerializer(read_only=True)
+    bookings_count = serializers.SerializerMethodField()
+    available_slots = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Service
+        fields = [
+            "id",
+            "clique",
+            "provider",
+            "title",
+            "description",
+            "price",
+            "duration_minutes",
+            "is_active",
+            "bookings_count",
+            "available_slots",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "provider", "created_at", "updated_at"]
+
+    def get_bookings_count(self, obj) -> int:
+        """Get the count of bookings for this service."""
+        return obj.bookings.count()
+
+    def get_available_slots(self, obj) -> int:
+        """Get count of available slots for this service."""
+        # Placeholder - implement slot calculation logic
+        return 0
+
+
+class ServiceCreateUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for creating and updating services."""
+
+    clique_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Service
+        fields = [
+            "clique_id",
+            "title",
+            "description",
+            "price",
+            "duration_minutes",
+            "is_active",
+        ]
+
+    def validate_clique_id(self, value: int) -> int:
+        """Validate that the clique exists and user is the owner."""
+        from .models import Clique
+
+        try:
+            clique = Clique.objects.get(id=value)
+            request = self.context.get("request")
+            if request and request.user.is_authenticated:
+                if clique.occupier != request.user:
+                    raise serializers.ValidationError(
+                        "You must be the owner of this clique to add services."
+                    )
+            return value
+        except Clique.DoesNotExist:
+            raise serializers.ValidationError("Clique with this ID does not exist.")
+
+    def create(self, validated_data: Dict[str, Any]):
+        """Create a new service."""
+        clique_id = validated_data.pop("clique_id")
+        clique = Clique.objects.get(id=clique_id)
+
+        # Provider and clique are set by the view
+        service = Service.objects.create(clique=clique, **validated_data)
+        return service
+
+
+class AvailabilitySerializer(serializers.ModelSerializer):
+    """Serializer for availability slots."""
+
+    provider = UserBasicSerializer(read_only=True)
+    clique_name = serializers.CharField(source="clique.name", read_only=True)
+    day_name = serializers.CharField(source="get_day_of_week_display", read_only=True)
+
+    class Meta:
+        model = Availability
+        fields = [
+            "id",
+            "clique",
+            "clique_name",
+            "provider",
+            "date",
+            "start_time",
+            "end_time",
+            "is_recurring",
+            "day_of_week",
+            "day_name",
+        ]
+        read_only_fields = ["id", "provider"]
+
+    def validate(self, attrs):
+        """Validate that end_time is after start_time."""
+        if attrs.get("start_time") and attrs.get("end_time"):
+            if attrs["end_time"] <= attrs["start_time"]:
+                raise serializers.ValidationError("End time must be after start time.")
+
+        # If recurring, day_of_week must be set
+        if attrs.get("is_recurring") and attrs.get("day_of_week") is None:
+            raise serializers.ValidationError(
+                "Day of week is required for recurring availability."
+            )
+
+        # If not recurring, date must be set
+        if not attrs.get("is_recurring") and not attrs.get("date"):
+            raise serializers.ValidationError(
+                "Date is required for non-recurring availability."
+            )
+
+        return attrs
+
+
+class BookingListSerializer(serializers.ModelSerializer):
+    """Serializer for listing bookings."""
+
+    service = ServiceListSerializer(read_only=True)
+    client = UserBasicSerializer(read_only=True)
+    provider = UserBasicSerializer(read_only=True)
+    clique_name = serializers.CharField(source="clique.name", read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            "id",
+            "service",
+            "clique",
+            "clique_name",
+            "client",
+            "provider",
+            "date",
+            "start_time",
+            "end_time",
+            "status",
+            "notes",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "client",
+            "provider",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class BookingDetailSerializer(serializers.ModelSerializer):
+    """Detailed serializer for a single booking."""
+
+    service = ServiceDetailSerializer(read_only=True)
+    client = UserBasicSerializer(read_only=True)
+    provider = UserBasicSerializer(read_only=True)
+    clique = CliqueListSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            "id",
+            "service",
+            "clique",
+            "client",
+            "provider",
+            "date",
+            "start_time",
+            "end_time",
+            "status",
+            "notes",
+            "cancellation_reason",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "client",
+            "provider",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class BookingCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating bookings."""
+
+    service_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Booking
+        fields = [
+            "service_id",
+            "date",
+            "start_time",
+            "end_time",
+            "notes",
+        ]
+
+    def validate_service_id(self, value: int) -> int:
+        """Validate that the service exists and is active."""
+        from .models import Service
+
+        try:
+            service = Service.objects.get(id=value)
+            if not service.is_active:
+                raise serializers.ValidationError("This service is not available.")
+            return value
+        except Service.DoesNotExist:
+            raise serializers.ValidationError("Service with this ID does not exist.")
+
+    def validate(self, attrs):
+        """Validate booking time and availability."""
+        if attrs["end_time"] <= attrs["start_time"]:
+            raise serializers.ValidationError("End time must be after start time.")
+
+        # TODO: Add validation for availability and overlapping bookings
+
+        return attrs
+
+    def create(self, validated_data: Dict[str, Any]):
+        """Create a new booking."""
+        service_id = validated_data.pop("service_id")
+        service = Service.objects.get(id=service_id)
+
+        # Booking will be created with client, provider, and clique set by the view
+        booking = Booking.objects.create(
+            service=service,
+            clique=service.clique,
+            provider=service.provider,
+            **validated_data,
+        )
+        return booking

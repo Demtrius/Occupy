@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Post, Clique, CommentPost
+from .models import Post, Clique, CommentPost, Service, Availability, Booking
 from .serializers import (
     PostListSerializer,
     PostDetailSerializer,
@@ -21,6 +21,13 @@ from .serializers import (
     CliqueDetailSerializer,
     CliqueCreateUpdateSerializer,
     CommentSerializer,
+    ServiceListSerializer,
+    ServiceDetailSerializer,
+    ServiceCreateUpdateSerializer,
+    AvailabilitySerializer,
+    BookingListSerializer,
+    BookingDetailSerializer,
+    BookingCreateSerializer,
 )
 
 User = get_user_model()
@@ -334,4 +341,268 @@ class CliqueViewSet(viewsets.ModelViewSet):
         serializer = CliqueListSerializer(
             cliques, many=True, context={"request": request}
         )
+        return Response(serializer.data)
+
+
+class ServiceViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing services in cliques.
+
+    Provides CRUD operations for services offered by business cliques.
+    """
+
+    queryset = Service.objects.select_related("clique", "provider").all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["clique", "provider", "is_active"]
+    search_fields = ["title", "description"]
+    ordering_fields = ["created_at", "price", "duration_minutes"]
+    ordering = ["-created_at"]
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action == "list":
+            return ServiceListSerializer
+        elif self.action in ["create", "update", "partial_update"]:
+            return ServiceCreateUpdateSerializer
+        return ServiceDetailSerializer
+
+    def get_queryset(self) -> QuerySet:
+        """Get queryset with optional filtering."""
+        queryset = super().get_queryset()
+
+        # Filter by clique
+        clique_id = self.request.query_params.get("clique_id")
+        if clique_id:
+            queryset = queryset.filter(clique_id=clique_id)
+
+        # Filter by active status
+        is_active = self.request.query_params.get("is_active")
+        if is_active is not None:
+            queryset = queryset.filter(is_active=is_active.lower() == "true")
+
+        return queryset
+
+    def perform_create(self, serializer) -> None:
+        """Create a service with the current user as provider."""
+        serializer.save(provider=self.request.user)
+
+    def perform_update(self, serializer) -> None:
+        """Update a service (only by the owner)."""
+        instance = self.get_object()
+        if instance.provider != self.request.user and not self.request.user.is_staff:
+            return Response(
+                {"detail": "You can only update your own services."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer.save()
+
+    def perform_destroy(self, instance: Service) -> None:
+        """Delete a service (only by owner or admin)."""
+        if instance.provider != self.request.user and not self.request.user.is_staff:
+            return Response(
+                {"detail": "You don't have permission to delete this service."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        instance.delete()
+
+
+class AvailabilityViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing availability slots.
+
+    Service providers can set their availability for bookings.
+    """
+
+    queryset = Availability.objects.select_related("clique", "provider").all()
+    serializer_class = AvailabilitySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ["clique", "provider", "date", "day_of_week", "is_recurring"]
+    ordering_fields = ["date", "start_time"]
+    ordering = ["date", "start_time"]
+
+    def get_queryset(self) -> QuerySet:
+        """Get queryset with optional filtering."""
+        queryset = super().get_queryset()
+
+        # Filter by clique
+        clique_id = self.request.query_params.get("clique_id")
+        if clique_id:
+            queryset = queryset.filter(clique_id=clique_id)
+
+        # Filter by date range
+        start_date = self.request.query_params.get("start_date")
+        end_date = self.request.query_params.get("end_date")
+        if start_date and end_date:
+            queryset = queryset.filter(date__gte=start_date, date__lte=end_date)
+
+        return queryset
+
+    def perform_create(self, serializer) -> None:
+        """Create availability with the current user as provider."""
+        serializer.save(provider=self.request.user)
+
+    def perform_update(self, serializer) -> None:
+        """Update availability (only by the owner)."""
+        instance = self.get_object()
+        if instance.provider != self.request.user and not self.request.user.is_staff:
+            return Response(
+                {"detail": "You can only update your own availability."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer.save()
+
+    def perform_destroy(self, instance: Availability) -> None:
+        """Delete availability (only by owner or admin)."""
+        if instance.provider != self.request.user and not self.request.user.is_staff:
+            return Response(
+                {"detail": "You don't have permission to delete this availability."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        instance.delete()
+
+
+class BookingViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing bookings.
+
+    Clients can book services and providers can manage bookings.
+    """
+
+    queryset = Booking.objects.select_related(
+        "service", "clique", "client", "provider"
+    ).all()
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ["clique", "service", "client", "provider", "status", "date"]
+    ordering_fields = ["created_at", "date", "start_time"]
+    ordering = ["-created_at"]
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action."""
+        if self.action == "list":
+            return BookingListSerializer
+        elif self.action == "create":
+            return BookingCreateSerializer
+        return BookingDetailSerializer
+
+    def get_queryset(self) -> QuerySet:
+        """
+        Get queryset filtered by user role.
+
+        Clients see their own bookings.
+        Providers see bookings for their services.
+        """
+        queryset = super().get_queryset()
+        user = self.request.user
+
+        # Filter based on role
+        role = self.request.query_params.get("role")
+        if role == "client":
+            queryset = queryset.filter(client=user)
+        elif role == "provider":
+            queryset = queryset.filter(provider=user)
+        else:
+            # Default: show both client and provider bookings
+            queryset = queryset.filter(Q(client=user) | Q(provider=user))
+
+        return queryset
+
+    def perform_create(self, serializer) -> None:
+        """Create a booking with the current user as client."""
+        serializer.save(client=self.request.user)
+
+    def perform_update(self, serializer) -> None:
+        """Update a booking (clients and providers have different permissions)."""
+        instance = self.get_object()
+        user = self.request.user
+
+        # Only client or provider can update
+        if instance.client != user and instance.provider != user and not user.is_staff:
+            return Response(
+                {"detail": "You don't have permission to update this booking."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer.save()
+
+    @action(
+        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
+    )
+    def confirm(self, request: Request, pk: int = None) -> Response:
+        """Confirm a booking (provider only)."""
+        booking = self.get_object()
+
+        if booking.provider != request.user and not request.user.is_staff:
+            return Response(
+                {"detail": "Only the service provider can confirm bookings."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if booking.status != "pending":
+            return Response(
+                {"detail": "Only pending bookings can be confirmed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        booking.status = "confirmed"
+        booking.save()
+
+        serializer = BookingDetailSerializer(booking, context={"request": request})
+        return Response(serializer.data)
+
+    @action(
+        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
+    )
+    def cancel(self, request: Request, pk: int = None) -> Response:
+        """Cancel a booking (client or provider)."""
+        booking = self.get_object()
+
+        if (
+            booking.client != request.user
+            and booking.provider != request.user
+            and not request.user.is_staff
+        ):
+            return Response(
+                {"detail": "You don't have permission to cancel this booking."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if booking.status == "cancelled":
+            return Response(
+                {"detail": "Booking is already cancelled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        booking.status = "cancelled"
+        booking.cancellation_reason = request.data.get("reason", "")
+        booking.save()
+
+        serializer = BookingDetailSerializer(booking, context={"request": request})
+        return Response(serializer.data)
+
+    @action(
+        detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
+    )
+    def complete(self, request: Request, pk: int = None) -> Response:
+        """Mark a booking as completed (provider only)."""
+        booking = self.get_object()
+
+        if booking.provider != request.user and not request.user.is_staff:
+            return Response(
+                {"detail": "Only the service provider can mark bookings as completed."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if booking.status != "confirmed":
+            return Response(
+                {"detail": "Only confirmed bookings can be marked as completed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        booking.status = "completed"
+        booking.save()
+
+        serializer = BookingDetailSerializer(booking, context={"request": request})
         return Response(serializer.data)

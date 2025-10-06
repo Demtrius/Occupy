@@ -11,10 +11,15 @@ import Profile from '@screens/profile';
 import Register from '@screens/register';
 import Cliques from '@screens/cliques';
 import Clique from '@screens/clique';
+import CliqueDetail from '@screens/clique-detail';
 import Feed from '@screens/feed';
 import SignInBusiness from '@screens/sign-in-business';
 import RegisterBusiness from '@screens/register-business';
 import PostDetail from '@screens/post-detail';
+import BookingCreate from '@screens/booking-create';
+import BookingDetail from '@screens/booking-detail';
+import ServiceCreate from '@screens/service-create';
+import AvailabilityCreate from '@screens/availability-create';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -76,6 +81,26 @@ function Navigator(): React.ReactElement {
           <Stack.Screen
             name="Profile"
             component={Profile}
+          />
+          <Stack.Screen
+            name="CliqueDetail"
+            component={CliqueDetail}
+          />
+          <Stack.Screen
+            name="BookingCreate"
+            component={BookingCreate}
+          />
+          <Stack.Screen
+            name="BookingDetail"
+            component={BookingDetail}
+          />
+          <Stack.Screen
+            name="ServiceCreate"
+            component={ServiceCreate}
+          />
+          <Stack.Screen
+            name="AvailabilityCreate"
+            component={AvailabilityCreate}
           />
         </>
       )}

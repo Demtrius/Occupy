@@ -12,12 +12,17 @@ export type RootStackParamList = {
   ViewUser: { id: number };
   Cliques: undefined;
   Clique: { id: number };
+  CliqueDetail: { id: number };
   CreateClique: undefined;
   Post: undefined;
   PostDetail: { id: number };
   Notifications: undefined;
   MessageDetail: { id: number };
   Profile: undefined;
+  BookingCreate: { serviceId: number };
+  BookingDetail: { id: number };
+  ServiceCreate: { cliqueId: number };
+  AvailabilityCreate: { cliqueId: number };
 };
 
 export type TabParamList = {
