@@ -148,7 +148,7 @@ backend-install-prod: ## Install production backend dependencies
 
 backend-test: ## Run backend tests
 	@echo "$(BLUE)🧪 Running backend tests...$(RESET)"
-	@cd backend && DJANGO_ENVIRONMENT=test python -m pytest
+	@cd backend && DJANGO_SETTINGS_MODULE=config.settings.test python manage.py test
 	@echo "$(GREEN)✅ Backend tests completed!$(RESET)"
 
 backend-test-cov: ## Run backend tests with coverage

@@ -99,8 +99,13 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
     clearError();
     setFormErrors({});
 
+    // Clear previous errors
+    clearError();
+    setFormErrors({});
+
     // Validate form
     if (!validateForm()) {
+      showError('Please fill in all required fields correctly');
       return;
     }
 
@@ -143,6 +148,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
           <View style={styles.inputContainer}>
             {/* Username Input */}
             <View style={styles.inputGroup}>
+              <Text style={styles.label}>Username *</Text>
               <TextInput
                 value={username}
                 onChangeText={(text) => {
@@ -151,7 +157,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                     setFormErrors({ ...formErrors, username: undefined });
                   }
                 }}
-                placeholder="Username"
+                placeholder="Choose a unique username"
                 placeholderTextColor="#888"
                 style={[styles.input, formErrors.username && styles.inputError]}
                 autoCapitalize="none"
@@ -165,6 +171,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
 
             {/* Email Input */}
             <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email *</Text>
               <TextInput
                 value={email}
                 onChangeText={(text) => {
@@ -188,6 +195,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
 
             {/* Occupation Input */}
             <View style={styles.inputGroup}>
+              <Text style={styles.label}>Occupation *</Text>
               <TextInput
                 value={occupation}
                 onChangeText={(text) => {
@@ -196,7 +204,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                     setFormErrors({ ...formErrors, occupation: undefined });
                   }
                 }}
-                placeholder="Occupation"
+                placeholder="e.g., Software Developer, Designer"
                 placeholderTextColor="#888"
                 style={[styles.input, formErrors.occupation && styles.inputError]}
                 editable={!isLoading}
@@ -208,6 +216,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
 
             {/* Password Input */}
             <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password *</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   value={password}
@@ -217,7 +226,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                       setFormErrors({ ...formErrors, password: undefined });
                     }
                   }}
-                  placeholder="Password"
+                  placeholder="Minimum 8 characters"
                   placeholderTextColor="#888"
                   secureTextEntry={securePassword}
                   style={[
@@ -244,6 +253,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
 
             {/* Confirm Password Input */}
             <View style={styles.inputGroup}>
+              <Text style={styles.label}>Confirm Password *</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   value={confirmPassword}
@@ -253,7 +263,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                       setFormErrors({ ...formErrors, confirmPassword: undefined });
                     }
                   }}
-                  placeholder="Confirm Password"
+                  placeholder="Re-enter your password"
                   placeholderTextColor="#888"
                   secureTextEntry={secureConfirmPassword}
                   style={[
@@ -341,6 +351,13 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 6,
+    marginLeft: 4,
   },
   input: {
     width: '100%',

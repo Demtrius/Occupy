@@ -29,8 +29,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # DRF login/logout views
     path("api-auth/", include("rest_framework.urls")),
-    # Your main API endpoints
-    path("api/", include(("Occupy.urls", "Occupy"), namespace="home")),
+    # Your main API endpoints - to be added later
+    # path("api/", include(("Occupy.urls", "Occupy"), namespace="home")),
     # Authentication routes
     path(
         "api/auth/",
