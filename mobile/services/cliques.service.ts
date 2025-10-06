@@ -34,10 +34,53 @@ class CliquesService {
    */
   async createClique(data: CreateCliqueData): Promise<Clique> {
     try {
-      const clique = await apiHelpers.post<Clique>('/api/cliques/', data);
+      const clique = await apiHelpers.post<Clique>('/api/cliques-list', data);
       return clique;
     } catch (error) {
       console.error('Create clique error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Get posts in a clique
+   */
+  async getCliquePosts(cliqueId: number): Promise<any[]> {
+    try {
+      const response = await apiHelpers.get<{ posts: any[] }>(`/api/${cliqueId}/posts`);
+      return response.posts || [];
+    } catch (error) {
+      console.error('Get clique posts error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Join a clique
+   */
+  async joinClique(cliqueId: number): Promise<{ message: string }> {
+    try {
+      const response = await apiHelpers.post<{ message: string }>('/api/cliques-join/', {
+        clique_id: cliqueId,
+      });
+      return response;
+    } catch (error) {
+      console.error('Join clique error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Leave a clique
+   */
+  async leaveClique(cliqueId: number): Promise<{ message: string }> {
+    try {
+      const response = await apiHelpers.post<{ message: string }>('/api/cliques-leave/', {
+        clique_id: cliqueId,
+      });
+      return response;
+    } catch (error) {
+      console.error('Leave clique error:', error);
       throw this.handleError(error);
     }
   }

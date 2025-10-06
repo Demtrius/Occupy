@@ -1,36 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  RefreshControl,
+} from 'react-native';
 import { Searchbar as PaperSearchbar } from 'react-native-paper';
 import { useNavigation, RouteProp } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
+import { postsService } from '../services';
+import usersService from '../services/users.service';
+import { showError } from '@store/app.store';
+import { Post, User } from '../types';
 
 const { width, height } = Dimensions.get('window');
 
 // Types
-interface Post {
-  caption: string;
-  content: string;
-  user_id: number;
-  name: string;
-}
-
-interface UserData {
-  username: string;
-  email: string;
-  occupations: string;
-  date_joined: string;
-  posts: Post[];
-}
-
 type RootStackParamList = {
   ViewUser: { id: number };
-  NotificationsTab: { screen: string, params: { id: number } };
+  NotificationsTab: { screen: string; params: { id: number } };
+  PostDetail: { id: number };
 };
 
 type ViewUserScreenRouteProp = RouteProp<RootStackParamList, 'ViewUser'>;
-type ViewUserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NotificationsTab'>;
+type ViewUserScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface Props {
   route: ViewUserScreenRouteProp;
@@ -38,77 +37,138 @@ interface Props {
 
 const ViewUser: React.FC<Props> = ({ route }) => {
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'Posts' | 'Reviews'>('Posts');
   const [search, setSearch] = useState<string>('');
   const [filteredDataSource, setFilteredDataSource] = useState<Post[]>([]);
   const [masterDataSource, setMasterDataSource] = useState<Post[]>([]);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const searchBarRef = useRef<PaperSearchbar>(null);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const searchBarRef = useRef<any>(null);
   const navigation = useNavigation<ViewUserScreenNavigationProp>();
 
   const { id } = route.params;
 
-  const getUserData = () => {
-    axios
-      .get<UserData>(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/current-occupier/${id}`)
-      .then((response) => {
-        const userData = response.data;
-        setUserData(userData);
-        setFilteredDataSource(userData.posts);
-        setMasterDataSource(userData.posts);
-      })
-      .catch((error) => console.log(error))
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
   useEffect(() => {
     getUserData();
+    getUserPosts();
   }, [id]);
+
+  const getUserData = async () => {
+    try {
+      setLoading(true);
+      const user = await usersService.getUserById(id);
+      setUserData(user);
+    } catch (error: any) {
+      console.error('Error fetching user:', error);
+      showError(error.message || 'Failed to load user data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUserPosts = async () => {
+    try {
+      const response = await postsService.getPostsByUser(id);
+      const posts = Array.isArray(response) ? response : (response.results || []);
+      setUserPosts(posts);
+      setFilteredDataSource(posts);
+      setMasterDataSource(posts);
+    } catch (error: any) {
+      console.error('Error fetching user posts:', error);
+      showError(error.message || 'Failed to load user posts');
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([getUserData(), getUserPosts()]);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const searchFilterFunction = (text: string) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
-        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+        const captionData = item.caption ? item.caption.toUpperCase() : '';
+        const contentData = item.content ? item.content.toUpperCase() : '';
         const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
+        return captionData.indexOf(textData) > -1 || contentData.indexOf(textData) > -1;
       });
       setFilteredDataSource(newData);
       setSearch(text);
     } else {
       setFilteredDataSource(masterDataSource);
       setSearch(text);
-      setShowSearchBar(false); // Close search bar if text is empty
+      setShowSearchBar(false);
     }
+  };
+
+  const handlePostPress = (postId: number) => {
+    navigation.navigate('PostDetail', { id: postId });
+  };
+
+  const handleContactPress = () => {
+    navigation.navigate('NotificationsTab', {
+      screen: 'MessageDetail',
+      params: { id },
+    });
   };
 
   const renderPosts = ({ item }: { item: Post }) => {
     return (
-      <View style={styles.cardContainer}>
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => handlePostPress(item.id)}
+        activeOpacity={0.7}
+      >
         <View style={styles.cardHeader}>
-          <Image source={{ uri: 'https://placecats.com/300/200' }} style={styles.cardImage} />
+          {item.avatar ? (
+            <Image source={{ uri: item.avatar }} style={styles.cardImage} />
+          ) : (
+            <View style={styles.cardImagePlaceholder}>
+              <Ionicons name="image-outline" size={32} color="#9CA3AF" />
+            </View>
+          )}
         </View>
-        <Text style={styles.name}>{item.caption}</Text>
-        <Text style={styles.description}>{item.content}</Text>
-        <TouchableOpacity style={styles.contactButton} onPress={() => navigation.navigate('NotificationsTab', { screen: 'MessageDetail', params: { id: item.user_id } })}>
-          <Text style={styles.contactButtonText}>Contact</Text>
-        </TouchableOpacity>
-      </View>
+        <Text style={styles.postCaption} numberOfLines={2}>
+          {item.caption || 'No caption'}
+        </Text>
+        {item.content && item.content !== item.caption && (
+          <Text style={styles.postContent} numberOfLines={2}>
+            {item.content}
+          </Text>
+        )}
+        <View style={styles.postMeta}>
+          <View style={styles.postMetaItem}>
+            <Ionicons name="heart-outline" size={16} color="#6B7280" />
+            <Text style={styles.postMetaText}>{item.likesCount || 0}</Text>
+          </View>
+          <View style={styles.postMetaItem}>
+            <Ionicons name="chatbubble-outline" size={16} color="#6B7280" />
+            <Text style={styles.postMetaText}>{item.commentsCount || 0}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
     );
   };
 
   const renderReviews = () => {
     return (
       <View style={styles.placeholderContainer}>
+        <Ionicons name="star-outline" size={64} color="#9CA3AF" />
         <Text style={styles.placeholderText}>Reviews coming soon...</Text>
       </View>
     );
   };
 
-  return (
-    <View style={styles.screenContainer}>
+  const renderHeader = () => (
+    <>
       <View style={styles.headerContainer}>
         {!showSearchBar && (
           <>
@@ -122,7 +182,7 @@ const ViewUser: React.FC<Props> = ({ route }) => {
               }}
               style={styles.searchIcon}
             >
-              <Ionicons name="search" size={24} color="black" />
+              <Ionicons name="search" size={24} color="#1F2937" />
             </TouchableOpacity>
           </>
         )}
@@ -130,23 +190,57 @@ const ViewUser: React.FC<Props> = ({ route }) => {
           <PaperSearchbar
             ref={searchBarRef}
             style={styles.searchBar}
-            placeholder="Search"
+            placeholder="Search posts"
             value={search}
             onChangeText={(text) => searchFilterFunction(text)}
             onBlur={() => {
-              if (!search) setShowSearchBar(false); // Close search bar if text is empty
+              if (!search) setShowSearchBar(false);
             }}
           />
         )}
       </View>
+
       {userData && (
         <View style={styles.userInfoContainer}>
+          <View style={styles.userAvatarContainer}>
+            {userData.profileImage ? (
+              <Image source={{ uri: userData.profileImage }} style={styles.userAvatar} />
+            ) : (
+              <View style={styles.userAvatarPlaceholder}>
+                <Ionicons name="person" size={48} color="#9CA3AF" />
+              </View>
+            )}
+          </View>
+
           <Text style={styles.userName}>{userData.username}</Text>
-          <Text style={styles.userEmail}>Email: {userData.email}</Text>
-          <Text style={styles.userOccupation}>Occupation: {userData.occupations}</Text>
-          <Text style={styles.userDateJoined}>Date Joined: {userData.date_joined}</Text>
+          <Text style={styles.userEmail}>{userData.email}</Text>
+
+          {userData.occupations && (
+            <View style={styles.userMetaItem}>
+              <Ionicons name="briefcase-outline" size={16} color="#6B7280" />
+              <Text style={styles.userMetaText}>{userData.occupations}</Text>
+            </View>
+          )}
+
+          {userData.createdAt && (
+            <View style={styles.userMetaItem}>
+              <Ionicons name="calendar-outline" size={16} color="#6B7280" />
+              <Text style={styles.userMetaText}>
+                Joined {new Date(userData.createdAt).toLocaleDateString()}
+              </Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={styles.contactButton}
+            onPress={handleContactPress}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color="#ffffff" />
+            <Text style={styles.contactButtonText}>Contact</Text>
+          </TouchableOpacity>
         </View>
       )}
+
       <View style={styles.tabContainer}>
         {['Posts', 'Reviews'].map((tab) => (
           <TouchableOpacity
@@ -160,20 +254,48 @@ const ViewUser: React.FC<Props> = ({ route }) => {
           </TouchableOpacity>
         ))}
       </View>
-      {loading ? (
+    </>
+  );
+
+  if (loading && !refreshing) {
+    return (
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6ba32d" />
-      ) : (
-        <>
-          {activeTab === 'Posts' && (
-            <FlatList
-              data={filteredDataSource}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderPosts}
-              contentContainerStyle={styles.listContainer}
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.screenContainer}>
+      {activeTab === 'Posts' && (
+        <FlatList
+          data={filteredDataSource}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderPosts}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#6ba32d"
+              colors={['#6ba32d']}
             />
+          }
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document-text-outline" size={64} color="#9CA3AF" />
+              <Text style={styles.emptyText}>No posts yet</Text>
+            </View>
           )}
-          {activeTab === 'Reviews' && renderReviews()}
-        </>
+        />
+      )}
+      {activeTab === 'Reviews' && (
+        <View style={styles.screenContainer}>
+          {renderHeader()}
+          {renderReviews()}
+        </View>
       )}
     </View>
   );
@@ -183,25 +305,37 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: '#ffffff',
-    paddingTop: height * 0.08, // Add padding to avoid content getting under the dynamic island
+    paddingTop: height * 0.08,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#6B7280',
   },
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'center', // Center the header text
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
     backgroundColor: '#fff',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    flex: 1, // Take up remaining space
-    textAlign: 'center', // Center the text
-    paddingLeft: 40, // Add padding to the left to avoid the icon being too close to the edge
+    color: '#1F2937',
+    flex: 1,
+    textAlign: 'center',
+    paddingLeft: 40,
   },
   searchIcon: {
-    paddingRight: 16, // Add padding to the right to avoid the icon being too close to the edge
+    paddingRight: 0,
   },
   searchBar: {
     borderRadius: 20,
@@ -209,34 +343,68 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // For Android shadow
-    width: width * 0.92, // Ensure the same width as on Search.js
+    elevation: 3,
+    width: width * 0.92,
   },
   userInfoContainer: {
-    padding: 16,
+    padding: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#E5E7EB',
+    alignItems: 'center',
+  },
+  userAvatarContainer: {
+    marginBottom: 16,
+  },
+  userAvatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E5E7EB',
+  },
+  userAvatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   userName: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1F2937',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 4,
+    color: '#6B7280',
+    marginBottom: 12,
   },
-  userOccupation: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 4,
+  userMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
   },
-  userDateJoined: {
+  userMetaText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginLeft: 8,
+  },
+  contactButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#6ba32d',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  contactButtonText: {
+    color: '#ffffff',
     fontSize: 16,
-    color: '#666',
+    fontWeight: '600',
+    marginLeft: 8,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -244,7 +412,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#E5E7EB',
   },
   tab: {
     paddingVertical: 8,
@@ -256,20 +424,21 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6B7280',
   },
   activeTabText: {
     color: '#6ba32d',
     fontWeight: 'bold',
   },
   listContainer: {
-    padding: 16,
+    paddingBottom: 20,
   },
   cardContainer: {
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -277,45 +446,71 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardHeader: {
-    position: 'relative',
+    marginBottom: 12,
   },
   cardImage: {
     width: '100%',
-    height: 80,
+    height: 150,
     borderRadius: 8,
-    marginBottom: 8,
     backgroundColor: '#E5E7EB',
   },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
-  },
-  contactButton: {
-    backgroundColor: '#6ba32d',
-    paddingVertical: 10,
-    borderRadius: 5,
+  cardImagePlaceholder: {
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  contactButtonText: {
-    color: '#fff',
+  postCaption: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  postContent: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  postMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  postMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  postMetaText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginLeft: 6,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#6B7280',
+    marginTop: 16,
   },
   placeholderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 60,
   },
   placeholderText: {
     fontSize: 18,
-    color: '#666',
+    color: '#6B7280',
+    marginTop: 16,
   },
 });
 

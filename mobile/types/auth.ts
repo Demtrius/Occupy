@@ -29,6 +29,8 @@ export interface RegisterData {
   password: string;
   /** User's occupation or profession */
   occupations: string;
+  /** Optional flag for business account registration */
+  is_business_page?: boolean;
 }
 
 /**

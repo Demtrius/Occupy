@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { Provider as PaperProvider } from 'react-native-paper';
 import { StyleSheet, ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -186,10 +187,12 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <AppContent />
-      </NavigationContainer>
+      {/*<PaperProvider>*/}
+        <NavigationContainer>
+          <StatusBar style="auto" />
+          <AppContent />
+        </NavigationContainer>
+      {/*</PaperProvider>*/}
     </QueryClientProvider>
   );
 }

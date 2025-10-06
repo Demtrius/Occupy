@@ -7,3 +7,4 @@ export { default as api, tokenManager, apiHelpers } from './api';
 export { authService } from './auth.service';
 export { postsService } from './posts.service';
 export { cliquesService } from './cliques.service';
+export { usersService } from './users.service';

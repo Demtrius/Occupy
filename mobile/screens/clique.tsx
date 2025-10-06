@@ -1,248 +1,573 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Dimensions, Image, ScrollView } from 'react-native';
-import { Searchbar as PaperSearchbar } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
+import { Searchbar } from 'react-native-paper';
 import { useNavigation, RouteProp } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-import { Context, GlobalContextType } from '../components/globalContext/globalContext';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { cliquesService, postsService } from '../services';
+import { showError, showSuccess } from '../store/app.store';
+import { useAuthStore } from '../store/auth.store';
+import { Clique, Post } from '../types';
+import { RootStackParamList } from '../types';
 
 const { width, height } = Dimensions.get('window');
 
-// Types
-interface Post {
-  id: number;
-  profile_image?: string;
-  username?: string;
-  caption?: string;
-  content?: string;
-  user_id: number;
-}
-
-interface CliqueInfo {
-  name: string;
-  description: string;
-  created_at: string;
-  banner?: string;
-  members: number;
-  posts?: Post[];
-}
-
-type RootStackParamList = {
-  Clique: { id: number };
-  NotificationsTab: { screen: string, params: { id: number } };
-};
-
 type CliqueScreenRouteProp = RouteProp<RootStackParamList, 'Clique'>;
-type CliqueScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NotificationsTab'>;
+type CliqueScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface Props {
   route: CliqueScreenRouteProp;
 }
 
-const Clique: React.FC<Props> = ({ route }) => {
-  const [clique, setClique] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<'Posts' | 'Members' | 'Reviews'>('Posts');
-  const [search, setSearch] = useState<string>('');
-  const [filteredDataSource, setFilteredDataSource] = useState<Post[]>([]);
-  const [masterDataSource, setMasterDataSource] = useState<Post[]>([]);
-  const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
-  const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const searchBarRef = useRef<PaperSearchbar>(null);
-  const [feedbackMessage, setFeedbackMessage] = useState<string>('');
-  const [cliqueName, setCliqueName] = useState<string>('');
-  const [cliqueInfo, setCliqueInfo] = useState<Partial<CliqueInfo>>({});
+type TabType = 'Posts' | 'Members' | 'Reviews';
+
+const CliqueScreen: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation<CliqueScreenNavigationProp>();
-  const globalContext = useContext<GlobalContextType | null>(Context);
-  const { occupierObj } = globalContext || {};
-  const [isMember, setIsMember] = useState<boolean>(false);
+  const user = useAuthStore((state) => state.user);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   const { id } = route.params;
 
-  const getClique = () => {
-    axios
-      .get<CliqueInfo>(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/${id}/posts`)
-      .then((response) => {
-        const myClique = response.data.posts || [];
-        setClique(myClique);
-        setFilteredDataSource(myClique);
-        setMasterDataSource(myClique);
-        setCliqueName(response.data.name || 'Unknown Clique');
-        setCliqueInfo(response.data);
-      })
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
-  };
+  const [clique, setClique] = useState<Clique | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<TabType>('Posts');
+  const [search, setSearch] = useState<string>('');
+  const [isMember, setIsMember] = useState<boolean>(false);
+  const [joiningClique, setJoiningClique] = useState<boolean>(false);
 
-  const joinClique = () => {
-    if (!occupierObj?.token) {
-      setFeedbackMessage('You must be logged in to join a clique');
-      return;
-    }
-    axios.post(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/cliques-join/`, {
-      clique_id: id
-    }, {
-      headers: {
-        'Authorization': 'Bearer ' + occupierObj.token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+  // Fetch clique details
+  const fetchCliqueDetails = async () => {
+    try {
+      const cliqueData = await cliquesService.getCliqueById(id);
+      setClique(cliqueData);
+
+      // Check if current user is a member
+      if (user && cliqueData.members) {
+        setIsMember(cliqueData.members.includes(user.id));
       }
-    })
-      .then(() => {
-        setIsFollowing(!isFollowing);
-      })
-      .catch(() => {
-        setFeedbackMessage('Failed to join clique');
-      });
+    } catch (error) {
+      console.error('Error fetching clique:', error);
+      showError('Failed to load clique details');
+    }
   };
 
+  // Fetch clique posts
+  const fetchCliquePosts = async () => {
+    try {
+      const postsData = await cliquesService.getCliquePosts(id);
+      setPosts(postsData);
+      setFilteredPosts(postsData);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      showError('Failed to load posts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load
   useEffect(() => {
-    getClique();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchCliqueDetails(), fetchCliquePosts()]);
+    };
+    loadData();
   }, [id]);
 
-  const searchFilterFunction = (text: string) => {
-    if (text) {
-      const newData = masterDataSource.filter((item) => {
-        const itemData = item.caption ? item.caption.toUpperCase() : '';
-        return itemData.includes(text.toUpperCase());
+  // Search filter
+  useEffect(() => {
+    if (search.trim()) {
+      const filtered = posts.filter((post) => {
+        const content = post.content?.toLowerCase() || '';
+        const caption = post.caption?.toLowerCase() || '';
+        const searchTerm = search.toLowerCase();
+        return content.includes(searchTerm) || caption.includes(searchTerm);
       });
-      setFilteredDataSource(newData);
+      setFilteredPosts(filtered);
     } else {
-      setFilteredDataSource(masterDataSource);
+      setFilteredPosts(posts);
     }
-    setSearch(text);
-    if (!text) setShowSearchBar(false);
+  }, [search, posts]);
+
+  // Refresh handler
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([fetchCliqueDetails(), fetchCliquePosts()]);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
+  // Join/Leave clique
+  const handleJoinLeave = async () => {
+    if (!isLoggedIn || !user) {
+      showError('You must be logged in to join a clique');
+      navigation.navigate('SignIn' as never);
+      return;
+    }
+
+    setJoiningClique(true);
+    try {
+      if (isMember) {
+        await cliquesService.leaveClique(id);
+        setIsMember(false);
+        showSuccess('Left clique successfully');
+      } else {
+        await cliquesService.joinClique(id);
+        setIsMember(true);
+        showSuccess('Joined clique successfully!');
+      }
+      // Refresh clique details to update member count
+      await fetchCliqueDetails();
+    } catch (error: any) {
+      console.error('Error joining/leaving clique:', error);
+      showError(error.message || 'Failed to update membership');
+    } finally {
+      setJoiningClique(false);
+    }
+  };
+
+  // Navigate to post detail
+  const navigateToPostDetail = (postId: number) => {
+    navigation.navigate('PostDetail' as never, { id: postId } as never);
+  };
+
+  // Navigate to user profile
+  const navigateToUserProfile = (username: string) => {
+    navigation.navigate('ViewUser' as never, { username } as never);
+  };
+
+  // Render post item
   const renderPost = ({ item }: { item: Post }) => (
-    <View style={styles.cardContainer}>
-      <View style={styles.cardHeader}>
-        <Image
-          source={{ uri: item.profile_image || 'https://www.gravatar.com/avatar/?d=mp' }}
-          style={styles.cardImage}
-        />
-        <Text style={styles.author}>{item.username || 'Unknown'}</Text>
+    <TouchableOpacity
+      style={styles.postCard}
+      onPress={() => navigateToPostDetail(item.id)}
+      activeOpacity={0.9}
+    >
+      <View style={styles.postHeader}>
+        <TouchableOpacity
+          onPress={() => navigateToUserProfile(item.occupier)}
+          style={styles.authorSection}
+        >
+          <Image
+            source={{
+              uri: item.profileImage || 'https://www.gravatar.com/avatar/?d=mp',
+            }}
+            style={styles.avatar}
+          />
+          <View>
+            <Text style={styles.authorName}>@{item.occupier}</Text>
+            <Text style={styles.postDate}>{item.posted}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.caption}>{item.caption || 'No Caption'}</Text>
-      <Text style={styles.description}>{item.content || 'No Content Available'}</Text>
+
+      <Text style={styles.postContent} numberOfLines={4}>
+        {item.content}
+      </Text>
+
+      {item.caption && (
+        <Text style={styles.postCaption} numberOfLines={2}>
+          {item.caption}
+        </Text>
+      )}
+
+      <View style={styles.postFooter}>
+        <View style={styles.iconGroup}>
+          <FontAwesome name="comment-o" size={18} color="#666" />
+          <Text style={styles.iconText}>{item.commentsCount || 0}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  // Render empty state
+  const renderEmptyState = (message: string) => (
+    <View style={styles.emptyContainer}>
+      <FontAwesome name="inbox" size={64} color="#ccc" />
+      <Text style={styles.emptyText}>{message}</Text>
     </View>
   );
 
-  const renderReviews = () => (
-    <View style={styles.placeholderContainer}>
-      <Text style={styles.placeholderText}>Reviews coming soon...</Text>
-    </View>
-  );
-
+  // Render members tab
   const renderMembers = () => (
-    <View style={styles.placeholderContainer}>
-      <Text style={styles.placeholderText}>Members list coming soon...</Text>
+    <View style={styles.tabContent}>
+      {renderEmptyState('Members list coming soon...')}
     </View>
   );
+
+  // Render reviews tab
+  const renderReviews = () => (
+    <View style={styles.tabContent}>
+      {renderEmptyState('Reviews coming soon...')}
+    </View>
+  );
+
+  if (loading || !clique) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6ba32d" />
+        <Text style={styles.loadingText}>Loading clique...</Text>
+      </View>
+    );
+  }
+
+  const memberCount = clique.members?.length || 0;
+  const isPublic = clique.level === 'PUBLIC';
 
   return (
-    <View style={styles.screenContainer}>
-      <ScrollView>
-        <View style={styles.headerContainer}>
-          <Image
-            source={{ uri: cliqueInfo.banner || 'https://via.placeholder.com/600x200' }}
-            style={styles.bannerImage}
-          />
-          <View style={styles.headerContent}>
-            <Text style={styles.cliqueName}>{cliqueInfo.name || 'Unknown Clique'}</Text>
-            <Text style={styles.memberCount}>{cliqueInfo.members || 0} members</Text>
-            <Text style={styles.description}>{cliqueInfo.description || 'No description available'}</Text>
-            <TouchableOpacity style={styles.joinButton} onPress={joinClique}>
-              <Text style={styles.joinButtonText}>{isFollowing ? 'Leave Clique' : 'Join Clique'}</Text>
-            </TouchableOpacity>
-            {feedbackMessage ? <Text style={styles.feedback}>{feedbackMessage}</Text> : null}
-          </View>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={['#6ba32d']}
+          tintColor="#6ba32d"
+        />
+      }
+    >
+      {/* Banner Image */}
+      <Image
+        source={{
+          uri: clique.banner || 'https://via.placeholder.com/600x200',
+        }}
+        style={styles.bannerImage}
+      />
 
-          <View style={styles.searchWrapper}>
-            {!showSearchBar ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setShowSearchBar(true);
-                  setTimeout(() => searchBarRef.current?.focus(), 100);
-                }}
-                style={styles.searchIcon}
-              >
-                <Ionicons name="search" size={24} color="black" />
-              </TouchableOpacity>
+      {/* Clique Info */}
+      <View style={styles.infoSection}>
+        <View style={styles.headerRow}>
+          <Text style={styles.cliqueName}>{clique.name}</Text>
+          <View style={[styles.badge, isPublic ? styles.publicBadge : styles.privateBadge]}>
+            <Text style={styles.badgeText}>{isPublic ? 'Public' : 'Private'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <FontAwesome name="users" size={16} color="#666" />
+            <Text style={styles.statText}>{memberCount} members</Text>
+          </View>
+          <View style={styles.statItem}>
+            <FontAwesome name="briefcase" size={16} color="#666" />
+            <Text style={styles.statText}>{clique.occupation}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.description}>{clique.description}</Text>
+
+        {/* Join/Leave Button */}
+        <TouchableOpacity
+          style={[
+            styles.actionButton,
+            isMember ? styles.leaveButton : styles.joinButton,
+          ]}
+          onPress={handleJoinLeave}
+          disabled={joiningClique}
+          activeOpacity={0.8}
+        >
+          {joiningClique ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.actionButtonText}>
+              {isMember ? 'Leave Clique' : 'Join Clique'}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* Search Bar */}
+      {activeTab === 'Posts' && posts.length > 0 && (
+        <View style={styles.searchContainer}>
+          <Searchbar
+            style={styles.searchBar}
+            placeholder="Search posts..."
+            value={search}
+            onChangeText={setSearch}
+            iconColor="#6ba32d"
+          />
+        </View>
+      )}
+
+      {/* Tabs */}
+      <View style={styles.tabsContainer}>
+        {(['Posts', 'Members', 'Reviews'] as TabType[]).map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tab, activeTab === tab && styles.activeTab]}
+            onPress={() => setActiveTab(tab)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+              {tab}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Tab Content */}
+      <View style={styles.contentSection}>
+        {activeTab === 'Posts' && (
+          <>
+            {filteredPosts.length === 0 ? (
+              renderEmptyState(
+                search.trim() ? 'No posts match your search' : 'No posts yet'
+              )
             ) : (
-              <PaperSearchbar
-                ref={searchBarRef}
-                style={styles.searchBar}
-                placeholder="Search posts"
-                value={search}
-                onChangeText={searchFilterFunction}
-                onBlur={() => !search && setShowSearchBar(false)}
+              <FlatList
+                data={filteredPosts}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderPost}
+                contentContainerStyle={styles.listContent}
+                scrollEnabled={false}
               />
             )}
-          </View>
-
-          <View style={styles.tabContainer}>
-            {['Posts', 'Members', 'Reviews'].map((tab) => (
-              <TouchableOpacity
-                key={tab}
-                style={[styles.tab, activeTab === tab && styles.activeTab]}
-                onPress={() => setActiveTab(tab as 'Posts' | 'Members' | 'Reviews')}
-              >
-                <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {loading ? (
-            <ActivityIndicator size="large" color="#6ba32d" />
-          ) : (
-            <>
-              {activeTab === 'Posts' && (
-                <FlatList
-                  data={filteredDataSource}
-                  keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
-                  renderItem={renderPost}
-                  contentContainerStyle={styles.listContainer}
-                />
-              )}
-              {activeTab === 'Members' && renderMembers()}
-              {activeTab === 'Reviews' && renderReviews()}
-            </>
-          )}
-        </View>
-      </ScrollView>
-    </View>
+          </>
+        )}
+        {activeTab === 'Members' && renderMembers()}
+        {activeTab === 'Reviews' && renderReviews()}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  screenContainer: { flex: 1, backgroundColor: '#f9f9f9' },
-  headerContainer: { backgroundColor: '#fff', marginBottom: 10 },
-  bannerImage: { width: width, height: 150 },
-  headerContent: { padding: 10 },
-  cliqueName: { fontSize: 22, fontWeight: 'bold' },
-  memberCount: { fontSize: 14, color: '#666', marginBottom: 5 },
-  description: { fontSize: 14, color: '#444', marginBottom: 10 },
-  joinButton: { backgroundColor: '#007bff', padding: 10, borderRadius: 8, alignSelf: 'flex-start' },
-  joinButtonText: { color: '#fff', fontWeight: 'bold' },
-  feedback: { marginTop: 5, color: 'red' },
-  searchWrapper: { paddingHorizontal: 10, marginBottom: 5 },
-  searchBar: { backgroundColor: '#eee' },
-  searchIcon: { alignSelf: 'flex-end', margin: 5 },
-  tabContainer: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#fff', paddingVertical: 10 },
-  tab: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
-  activeTab: { borderBottomWidth: 2, borderBottomColor: '#007bff' },
-  tabText: { fontSize: 16, color: '#666' },
-  activeTabText: { color: '#007bff', fontWeight: 'bold' },
-  listContainer: { padding: 10 },
-  cardContainer: { backgroundColor: '#fff', padding: 12, borderRadius: 10, marginBottom: 10 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  cardImage: { width: 40, height: 40, borderRadius: 20, marginRight: 10 },
-  author: { fontSize: 14, fontWeight: 'bold' },
-  caption: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-  placeholderContainer: { padding: 20, alignItems: 'center' },
-  placeholderText: { fontSize: 16, color: '#666' }
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  bannerImage: {
+    width: width,
+    height: 200,
+    backgroundColor: '#e0e0e0',
+  },
+  infoSection: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cliqueName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+    marginRight: 12,
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  publicBadge: {
+    backgroundColor: '#DEF7EC',
+  },
+  privateBadge: {
+    backgroundColor: '#FEF3C7',
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#065F46',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    marginBottom: 12,
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 20,
+  },
+  statText: {
+    marginLeft: 6,
+    fontSize: 14,
+    color: '#666',
+  },
+  description: {
+    fontSize: 15,
+    color: '#555',
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  actionButton: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  joinButton: {
+    backgroundColor: '#6ba32d',
+  },
+  leaveButton: {
+    backgroundColor: '#999',
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  searchContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  searchBar: {
+    borderRadius: 8,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#6ba32d',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  activeTabText: {
+    color: '#6ba32d',
+    fontWeight: '600',
+  },
+  contentSection: {
+    paddingVertical: 16,
+  },
+  tabContent: {
+    minHeight: 200,
+  },
+  listContent: {
+    paddingHorizontal: 16,
+  },
+  postCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  postHeader: {
+    marginBottom: 12,
+  },
+  authorSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
+    marginRight: 12,
+  },
+  authorName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#6ba32d',
+    marginBottom: 2,
+  },
+  postDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  postContent: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#333',
+    marginBottom: 8,
+  },
+  postCaption: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 12,
+  },
+  postFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  iconGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 20,
+  },
+  iconText: {
+    marginLeft: 6,
+    fontSize: 14,
+    color: '#666',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 32,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 16,
+  },
 });
 
-export default Clique;
+export default CliqueScreen;

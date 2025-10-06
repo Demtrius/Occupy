@@ -67,10 +67,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         required=True,
         help_text="Your occupation or profession",
     )
+    is_business_page = serializers.BooleanField(
+        required=False,
+        default=False,
+        help_text="Set to true for business account registration",
+    )
 
     class Meta:
         model = Occupier
-        fields = ("username", "email", "occupations", "password")
+        fields = ("username", "email", "occupations", "password", "is_business_page")
 
     def validate_username(self, value: str) -> str:
         """
@@ -130,7 +135,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         Returns:
             Occupier: The newly created user instance
         """
-        return Occupier.objects.create_user(**validated_data)
+        # Extract is_business_page flag if present
+        is_business_page = validated_data.pop("is_business_page", False)
+
+        # Create user with appropriate method
+        if is_business_page:
+            user = Occupier.objects.create_business_page(**validated_data)
+        else:
+            user = Occupier.objects.create_user(**validated_data)
+
+        return user
 
 
 class LoginSerializer(serializers.ModelSerializer):

@@ -107,6 +107,7 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
         email: email.trim().toLowerCase(),
         password,
         occupations: occupation.trim(),
+        is_business_page: true,
       };
 
       await register(registerData);
