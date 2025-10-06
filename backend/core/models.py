@@ -243,24 +243,85 @@ class CommentPost(models.Model):
         return f"<CommentPost: {self.id} on Post {self.post.id}>"
 
 
-class Review(models.Model):
+class Like(models.Model):
     """
-    Review model represents user reviews of cliques.
+    Like model represents likes on posts.
 
-    Users can leave reviews and feedback on cliques they are part of or have
-    interacted with.
+    Users can like posts to show appreciation or agreement.
 
     Attributes:
-        body: The text content of the review
-        user: The user who created the review
-        created_at: Timestamp when the review was created
-        clique: The clique being reviewed
+        post: The post being liked
+        user: The user who liked the post
+        created_at: Timestamp when the like was created
     """
 
-    body = models.TextField()
-    user = models.ForeignKey(Occupier, on_delete=models.SET_NULL, null=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
+    user = models.ForeignKey(Occupier, on_delete=models.CASCADE, related_name="likes")
     created_at = models.DateTimeField(auto_now_add=True)
-    clique = models.ForeignKey(Clique, on_delete=models.CASCADE, related_name="reviews")
+
+    class Meta:
+        verbose_name = "Like"
+        verbose_name_plural = "Likes"
+        ordering = ["-created_at"]
+        unique_together = ["post", "user"]  # Prevent duplicate likes
+
+    def __str__(self) -> str:
+        """Return string representation of the like."""
+        username = self.user.username if self.user else "Unknown"
+        return f"{username} liked post {self.post.id}"
+
+    def __repr__(self) -> str:
+        """Return detailed string representation of the like."""
+        return f"<Like: User {self.user.id} on Post {self.post.id}>"
+
+
+class Review(models.Model):
+    """
+    Review model represents user reviews of services/bookings.
+
+    Users can leave reviews and ratings for services they've booked and completed.
+
+    Attributes:
+        booking: The booking this review is for
+        clique: The clique/business being reviewed
+        user: The user who created the review (reviewer)
+        rating: Rating from 1-5 stars
+        comment: Optional text review
+        created_at: Timestamp when the review was created
+        updated_at: Timestamp when the review was last updated
+    """
+
+    booking = models.OneToOneField(
+        "Booking",
+        on_delete=models.CASCADE,
+        related_name="review",
+        null=True,
+        blank=True,
+        help_text="The booking this review is for",
+    )
+    clique = models.ForeignKey(
+        Clique,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+        help_text="The clique/business being reviewed",
+    )
+    user = models.ForeignKey(
+        Occupier,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="reviews_written",
+        help_text="The user who wrote this review",
+    )
+    rating = models.PositiveSmallIntegerField(
+        help_text="Rating from 1-5 stars",
+        choices=[(i, f"{i} star{'s' if i != 1 else ''}") for i in range(1, 6)],
+        default=5,
+    )
+    comment = models.TextField(
+        blank=True, null=True, help_text="Optional review comment"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Review"
@@ -270,11 +331,11 @@ class Review(models.Model):
     def __str__(self) -> str:
         """Return string representation of the review."""
         username = self.user.username if self.user else "Unknown"
-        return f"{username} - {self.body[:20]}"
+        return f"{username} - {self.rating} stars on {self.clique.name}"
 
     def __repr__(self) -> str:
         """Return detailed string representation of the review."""
-        return f"<Review: {self.id} on Clique {self.clique.name}>"
+        return f"<Review: {self.id} - {self.rating} stars on Clique {self.clique.id}>"
 
 
 class Service(models.Model):

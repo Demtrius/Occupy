@@ -23,6 +23,7 @@ export type RootStackParamList = {
   BookingDetail: { id: number };
   ServiceCreate: { cliqueId: number };
   AvailabilityCreate: { cliqueId: number };
+  ReviewCreate: { bookingId: number };
 };
 
 export type TabParamList = {

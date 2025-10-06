@@ -10,6 +10,8 @@ from .models import (
     Clique,
     CliquePost,
     CommentPost,
+    Like,
+    Review,
     Service,
     Availability,
     Booking,
@@ -139,6 +141,7 @@ class PostListSerializer(serializers.ModelSerializer):
     posted = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -154,6 +157,7 @@ class PostListSerializer(serializers.ModelSerializer):
             "posted",
             "likes_count",
             "comments_count",
+            "is_liked",
             "created_at",
             "updated_at",
         ]
@@ -186,12 +190,18 @@ class PostListSerializer(serializers.ModelSerializer):
 
     def get_likes_count(self, obj: Post) -> int:
         """Get the count of likes on this post."""
-        # Placeholder - implement when Like model is added
-        return 0
+        return Like.objects.filter(post=obj).count()
 
     def get_comments_count(self, obj: Post) -> int:
-        """Get the count of comments on this post."""
+        """Get the number of comments on this post."""
         return obj.comments.count() if hasattr(obj, "comments") else 0
+
+    def get_is_liked(self, obj: Post) -> bool:
+        """Check if the current user has liked this post."""
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return Like.objects.filter(post=obj, user=request.user).exists()
+        return False
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -255,8 +265,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     def get_likes_count(self, obj: Post) -> int:
         """Get the count of likes on this post."""
-        # Placeholder - implement when Like model is added
-        return 0
+        return Like.objects.filter(post=obj).count()
 
     def get_comments_count(self, obj: Post) -> int:
         """Get the count of comments on this post."""
@@ -266,8 +275,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         """Check if the current user has liked this post."""
         request = self.context.get("request")
         if request and request.user.is_authenticated:
-            # Placeholder - implement when Like model is added
-            return False
+            return Like.objects.filter(post=obj, user=request.user).exists()
         return False
 
 
@@ -315,23 +323,6 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    """Serializer for comments on posts."""
-
-    occupier = UserBasicSerializer(read_only=True)
-
-    class Meta:
-        model = CommentPost
-        fields = ["id", "post", "occupier", "body", "date"]
-        read_only_fields = ["id", "occupier", "date"]
-
-    def create(self, validated_data: Dict[str, Any]) -> CommentPost:
-        """Create a new comment."""
-        # Occupier and post are set by the view's action method
-        comment = CommentPost.objects.create(**validated_data)
-        return comment
 
 
 class ServiceListSerializer(serializers.ModelSerializer):
@@ -603,3 +594,119 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             **validated_data,
         )
         return booking
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    """Serializer for Like model."""
+
+    user = UserBasicSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ["id", "post", "user", "created_at"]
+        read_only_fields = ["id", "user", "created_at"]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for CommentPost model."""
+
+    user = UserBasicSerializer(source="occupier", read_only=True)
+    post_id = serializers.IntegerField(source="post.id", read_only=True)
+    content = serializers.CharField(source="body")
+    created_at = serializers.DateTimeField(source="date", read_only=True)
+
+    class Meta:
+        model = CommentPost
+        fields = [
+            "id",
+            "post",
+            "post_id",
+            "user",
+            "content",
+            "created_at",
+        ]
+        read_only_fields = ["id", "user", "created_at"]
+        extra_kwargs = {
+            "post": {"write_only": True},
+        }
+
+    def create(self, validated_data):
+        """Create comment with the authenticated user."""
+        validated_data["occupier"] = self.context["request"].user
+        return super().create(validated_data)
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for Review model."""
+
+    reviewer = UserBasicSerializer(source="user", read_only=True)
+    clique_name = serializers.CharField(source="clique.name", read_only=True)
+    booking_id = serializers.IntegerField(write_only=True, required=True)
+
+    class Meta:
+        model = Review
+        fields = [
+            "id",
+            "booking",
+            "booking_id",
+            "clique",
+            "clique_name",
+            "reviewer",
+            "rating",
+            "comment",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "booking",
+            "clique",
+            "reviewer",
+            "created_at",
+            "updated_at",
+        ]
+        extra_kwargs = {
+            "booking": {"read_only": True},
+        }
+
+    def validate_rating(self, value):
+        """Validate rating is between 1 and 5."""
+        if not 1 <= value <= 5:
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
+        return value
+
+    def validate_booking_id(self, value):
+        """Validate that the booking exists and belongs to the user."""
+        request = self.context.get("request")
+        if not request or not request.user:
+            raise serializers.ValidationError("Authentication required.")
+
+        try:
+            booking = Booking.objects.get(id=value)
+        except Booking.DoesNotExist:
+            raise serializers.ValidationError("Booking not found.")
+
+        # Check if user is the client of this booking
+        if booking.client != request.user:
+            raise serializers.ValidationError("You can only review your own bookings.")
+
+        # Check if booking is completed
+        if booking.status != "completed":
+            raise serializers.ValidationError("You can only review completed bookings.")
+
+        # Check if review already exists
+        if hasattr(booking, "review"):
+            raise serializers.ValidationError("You have already reviewed this booking.")
+
+        return value
+
+    def create(self, validated_data):
+        """Create review with booking and clique associations."""
+        booking_id = validated_data.pop("booking_id")
+        booking = Booking.objects.get(id=booking_id)
+
+        validated_data["booking"] = booking
+        validated_data["clique"] = booking.clique
+        validated_data["user"] = self.context["request"].user
+
+        return super().create(validated_data)

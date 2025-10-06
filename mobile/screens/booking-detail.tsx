@@ -141,6 +141,11 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
     );
   };
 
+  const handleWriteReview = () => {
+    if (!booking) return;
+    (navigation as any).navigate('ReviewCreate', { bookingId: booking.id });
+  };
+
   const getStatusColor = (status: BookingStatus): string => {
     switch (status) {
       case 'pending':
@@ -424,6 +429,20 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
           </View>
         )}
 
+        {booking.status === 'completed' && (
+          <View style={styles.actionsSection}>
+            {isClient && (
+              <TouchableOpacity
+                style={[styles.actionButton, styles.reviewButton]}
+                onPress={handleWriteReview}
+              >
+                <Ionicons name="star-outline" size={20} color="#fff" />
+                <Text style={styles.actionButtonText}>Write Review</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -691,6 +710,9 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: '#ff6b6b',
+  },
+  reviewButton: {
+    backgroundColor: '#FFA500',
   },
   actionButtonText: {
     color: '#fff',

@@ -14,6 +14,7 @@ import { useAppStore } from '@store/app.store';
 
 // Screens
 import Feed from '@screens/feed';
+import PostDetail from '@screens/post-detail';
 import Search from '@screens/search';
 import Cliques from '@screens/cliques';
 import CliqueDetail from '@screens/clique-detail';
@@ -27,6 +28,7 @@ import BookingCreate from '@screens/booking-create';
 import BookingDetail from '@screens/booking-detail';
 import ServiceCreate from '@screens/service-create';
 import AvailabilityCreate from '@screens/availability-create';
+import ReviewCreate from '@screens/review-create';
 
 // Navigation
 import Navigator from '@navigation/navigator';
@@ -56,10 +58,12 @@ function CliquesStack() {
       <Stack.Screen name="Clique" component={CliqueDetail} />
       <Stack.Screen name="CliqueDetail" component={CliqueDetail} />
       <Stack.Screen name="CreateClique" component={CreateClique} />
+      <Stack.Screen name="PostDetail" component={PostDetail} />
       <Stack.Screen name="BookingCreate" component={BookingCreate} />
       <Stack.Screen name="BookingDetail" component={BookingDetail} />
       <Stack.Screen name="ServiceCreate" component={ServiceCreate} />
       <Stack.Screen name="AvailabilityCreate" component={AvailabilityCreate} />
+      <Stack.Screen name="ReviewCreate" component={ReviewCreate} />
     </Stack.Navigator>
   );
 }
@@ -80,6 +84,17 @@ function SearchStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }} id={undefined}>
       <Stack.Screen name="Search" component={Search} />
       <Stack.Screen name="ViewUser" component={ViewUser} />
+      <Stack.Screen name="PostDetail" component={PostDetail} />
+    </Stack.Navigator>
+  );
+}
+
+// Feed Stack Navigator
+function FeedStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }} id={undefined}>
+      <Stack.Screen name="Feed" component={Feed} />
+      <Stack.Screen name="PostDetail" component={PostDetail} />
     </Stack.Navigator>
   );
 }
@@ -97,7 +112,7 @@ function MyTabs() {
     >
       <Tab.Screen
         name="Home"
-        component={Feed}
+        component={FeedStack}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (

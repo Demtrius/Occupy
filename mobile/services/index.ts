@@ -9,3 +9,4 @@ export { postsService } from './posts.service';
 export { cliquesService } from './cliques.service';
 export { usersService } from './users.service';
 export { bookingService } from './booking.service';
+export { socialService } from './social.service';

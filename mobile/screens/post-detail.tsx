@@ -8,12 +8,13 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  TextInput,
 } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { postsService, cliquesService } from '../services';
-import { showError } from '@store/app.store';
-import { Post, Clique } from '../types';
+import { postsService, cliquesService, socialService } from '../services';
+import { showError, showSuccess } from '@store/app.store';
+import { Post, Clique, Comment } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
@@ -38,11 +39,19 @@ const PostDetail: React.FC<Props> = ({ route }) => {
   const [clique, setClique] = useState<Clique | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentText, setCommentText] = useState<string>('');
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [likesCount, setLikesCount] = useState<number>(0);
+  const [submittingComment, setSubmittingComment] = useState<boolean>(false);
+  const [likingPost, setLikingPost] = useState<boolean>(false);
+  const [showFeatureNotice, setShowFeatureNotice] = useState<boolean>(false);
 
   const { id } = route.params;
 
   useEffect(() => {
     fetchPost();
+    fetchComments();
   }, [id]);
 
   const fetchPost = async () => {
@@ -51,6 +60,8 @@ const PostDetail: React.FC<Props> = ({ route }) => {
       setError('');
       const postData = await postsService.getPostById(id);
       setPost(postData);
+      setIsLiked(postData.isLiked || false);
+      setLikesCount(postData.likesCount || 0);
 
       // Fetch clique details if available
       if (postData.cliqueId) {
@@ -67,6 +78,70 @@ const PostDetail: React.FC<Props> = ({ route }) => {
       showError(err.message || 'Failed to load post');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const commentsData = await socialService.getPostComments(id);
+      setComments(commentsData);
+    } catch (err: any) {
+      console.error('Error fetching comments:', err);
+      // Don't break the UI if comments endpoint doesn't exist yet
+      setComments([]);
+    }
+  };
+
+  const handleLike = async () => {
+    if (likingPost) return;
+
+    try {
+      setLikingPost(true);
+      if (isLiked) {
+        await socialService.unlikePost(id);
+        setIsLiked(false);
+        setLikesCount(prev => Math.max(0, prev - 1));
+      } else {
+        await socialService.likePost(id);
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
+      }
+    } catch (error: any) {
+      console.error('Error liking post:', error);
+      // Don't show error if endpoint doesn't exist yet (404)
+      if (error.status !== 404) {
+        showError(error.message || 'Failed to like post');
+      } else {
+        console.log('Like feature endpoint not available yet');
+        setShowFeatureNotice(true);
+      }
+    } finally {
+      setLikingPost(false);
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    if (!commentText.trim() || submittingComment) return;
+
+    try {
+      setSubmittingComment(true);
+      const comment = await socialService.createComment({
+        postId: id,
+        content: commentText.trim(),
+      });
+      setComments([...comments, comment]);
+      setCommentText('');
+      showSuccess('Comment added!');
+      // Refresh comments to get updated list
+      await fetchComments();
+    } catch (error: any) {
+      console.error('Error submitting comment:', error);
+      if (error.status === 404) {
+        setShowFeatureNotice(true);
+      }
+      showError(error.message || 'Comments feature coming soon!');
+    } finally {
+      setSubmittingComment(false);
     }
   };
 
@@ -127,7 +202,7 @@ const PostDetail: React.FC<Props> = ({ route }) => {
           <View style={styles.userDetails}>
             <TouchableOpacity onPress={navigateToUser}>
               <Text style={styles.username}>
-                {post.occupier || 'Unknown User'}
+                {post.occupier?.username || 'Unknown User'}
               </Text>
             </TouchableOpacity>
             {clique && (
@@ -163,13 +238,17 @@ const PostDetail: React.FC<Props> = ({ route }) => {
       </View>
 
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="heart-outline" size={24} color="#6ba32d" />
-          <Text style={styles.actionText}>Like</Text>
+        <TouchableOpacity style={styles.actionButton} onPress={handleLike} disabled={likingPost}>
+          <Ionicons
+            name={isLiked ? "heart" : "heart-outline"}
+            size={24}
+            color={isLiked ? "#ff6b6b" : "#6ba32d"}
+          />
+          <Text style={styles.actionText}>{likesCount} {likesCount === 1 ? 'Like' : 'Likes'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="chatbubble-outline" size={24} color="#6ba32d" />
-          <Text style={styles.actionText}>Comment</Text>
+          <Text style={styles.actionText}>{comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="share-outline" size={24} color="#6ba32d" />
@@ -199,6 +278,64 @@ const PostDetail: React.FC<Props> = ({ route }) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Feature Notice */}
+      {showFeatureNotice && (
+        <View style={styles.featureNotice}>
+          <Ionicons name="information-circle" size={20} color="#FFA500" />
+          <Text style={styles.featureNoticeText}>
+            Social features (likes & comments) are being set up on the backend.
+          </Text>
+        </View>
+      )}
+
+      {/* Comments Section */}
+      <View style={styles.commentsSection}>
+        <Text style={styles.commentsSectionTitle}>Comments</Text>
+        {comments.length === 0 ? (
+          <Text style={styles.noComments}>No comments yet. Be the first to comment!</Text>
+        ) : (
+          comments.map((comment) => (
+            <View key={comment.id} style={styles.commentCard}>
+              <View style={styles.commentHeader}>
+                <Text style={styles.commentUsername}>
+                  {comment.user?.username || 'Anonymous'}
+                </Text>
+                <Text style={styles.commentDate}>
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </Text>
+              </View>
+              <Text style={styles.commentContent}>{comment.content}</Text>
+            </View>
+          ))
+        )}
+      </View>
+
+      {/* Comment Input */}
+      <View style={styles.commentInputContainer}>
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Write a comment..."
+          placeholderTextColor="#999"
+          value={commentText}
+          onChangeText={setCommentText}
+          multiline
+        />
+        <TouchableOpacity
+          style={[
+            styles.commentSubmitButton,
+            (!commentText.trim() || submittingComment) && styles.commentSubmitButtonDisabled
+          ]}
+          onPress={handleSubmitComment}
+          disabled={!commentText.trim() || submittingComment}
+        >
+          {submittingComment ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Ionicons name="send" size={20} color="#fff" />
+          )}
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -244,9 +381,195 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
-    color: '#ffffff',
+    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  commentsSection: {
+    backgroundColor: '#fff',
+    padding: 20,
+    marginTop: 8,
+  },
+  commentsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 16,
+  },
+  noComments: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
+  commentCard: {
+    backgroundColor: '#f9f9f9',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  commentUsername: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  commentDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  commentContent: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderTopWidth: 1,
+    borderColor: '#e0e0e0',
+    gap: 8,
+    alignItems: 'flex-end',
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: '#333',
+    maxHeight: 100,
+  },
+  commentSubmitButton: {
+    backgroundColor: '#6ba32d',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  commentSubmitButtonDisabled: {
+    backgroundColor: '#ccc',
+    opacity: 0.6,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#e0e0e0',
+    gap: 24,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  actionText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  commentsSection: {
+    backgroundColor: '#fff',
+    padding: 20,
+    marginTop: 8,
+  },
+  commentsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 16,
+  },
+  noComments: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
+  commentCard: {
+    backgroundColor: '#f9f9f9',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  commentUsername: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  commentDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  commentContent: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderTopWidth: 1,
+    borderColor: '#e0e0e0',
+    gap: 8,
+    alignItems: 'flex-end',
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: '#333',
+    maxHeight: 100,
+  },
+  commentSubmitButton: {
+    backgroundColor: '#6ba32d',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  commentSubmitButtonDisabled: {
+    backgroundColor: '#ccc',
+    opacity: 0.6,
+  },
+  featureNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fffbea',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 8,
+    gap: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FFA500',
+  },
+  featureNoticeText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#666',
+    lineHeight: 18,
   },
   header: {
     padding: 16,

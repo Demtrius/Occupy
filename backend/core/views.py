@@ -12,7 +12,16 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Post, Clique, CommentPost, Service, Availability, Booking
+from .models import (
+    Post,
+    Clique,
+    CommentPost,
+    Like,
+    Review,
+    Service,
+    Availability,
+    Booking,
+)
 from .serializers import (
     PostListSerializer,
     PostDetailSerializer,
@@ -21,6 +30,8 @@ from .serializers import (
     CliqueDetailSerializer,
     CliqueCreateUpdateSerializer,
     CommentSerializer,
+    LikeSerializer,
+    ReviewSerializer,
     ServiceListSerializer,
     ServiceDetailSerializer,
     ServiceCreateUpdateSerializer,
@@ -606,3 +617,135 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         serializer = BookingDetailSerializer(booking, context={"request": request})
         return Response(serializer.data)
+
+
+class LikeViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing post likes.
+
+    Provides endpoints for liking and unliking posts.
+    """
+
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self) -> QuerySet[Like]:
+        """Return likes, optionally filtered by post."""
+        queryset = Like.objects.select_related("user", "post").all()
+
+        # Filter by post if provided
+        post_id = self.request.query_params.get("post")
+        if post_id:
+            queryset = queryset.filter(post_id=post_id)
+
+        return queryset
+
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """Create a like for a post."""
+        post_id = request.data.get("post")
+
+        if not post_id:
+            return Response(
+                {"detail": "Post ID is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check if already liked
+        existing_like = Like.objects.filter(post_id=post_id, user=request.user).first()
+
+        if existing_like:
+            return Response(
+                {"detail": "You have already liked this post."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Create the like
+        like = Like.objects.create(post_id=post_id, user=request.user)
+
+        serializer = self.get_serializer(like)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["delete"], url_path="(?P<post_id>[^/.]+)/unlike")
+    def unlike(self, request: Request, post_id: str = None) -> Response:
+        """Unlike a post."""
+        try:
+            like = Like.objects.get(post_id=post_id, user=request.user)
+            like.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Like.DoesNotExist:
+            return Response(
+                {"detail": "Like not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing post comments.
+
+    Provides CRUD operations for comments with filtering by post.
+    """
+
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ["post"]
+    ordering_fields = ["date", "id"]
+    ordering = ["-date"]
+
+    def get_queryset(self) -> QuerySet[CommentPost]:
+        """Return comments, optionally filtered by post."""
+        return CommentPost.objects.select_related("occupier", "post").all()
+
+    def perform_create(self, serializer: CommentSerializer) -> None:
+        """Save the comment with the authenticated user as the occupier."""
+        serializer.save(occupier=self.request.user)
+
+    def perform_update(self, serializer: CommentSerializer) -> None:
+        """Update comment only if user is the owner."""
+        if serializer.instance.occupier != self.request.user:
+            raise permissions.PermissionDenied("You can only edit your own comments.")
+        serializer.save()
+
+    def perform_destroy(self, instance: CommentPost) -> None:
+        """Delete comment only if user is the owner."""
+        if instance.occupier != self.request.user:
+            raise permissions.PermissionDenied("You can only delete your own comments.")
+        instance.delete()
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing reviews.
+
+    Provides CRUD operations for reviews with filtering by clique, booking, and user.
+    """
+
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ["clique", "booking", "rating"]
+    ordering_fields = ["created_at", "rating"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self) -> QuerySet[Review]:
+        """Return reviews, optionally filtered."""
+        queryset = Review.objects.select_related("user", "booking", "clique").all()
+
+        # Filter by user's own reviews
+        if self.request.query_params.get("user") == "me":
+            queryset = queryset.filter(user=self.request.user)
+
+        return queryset
+
+    def perform_update(self, serializer: ReviewSerializer) -> None:
+        """Update review only if user is the owner."""
+        if serializer.instance.user != self.request.user:
+            raise permissions.PermissionDenied("You can only edit your own reviews.")
+        serializer.save()
+
+    def perform_destroy(self, instance: Review) -> None:
+        """Delete review only if user is the owner."""
+        if instance.user != self.request.user:
+            raise permissions.PermissionDenied("You can only delete your own reviews.")
+        instance.delete()
