@@ -8,7 +8,7 @@ class PostsService {
   async getAllPosts(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Post>> {
     try {
       const response = await apiHelpers.get<PaginatedResponse<Post>>(
-        `/api/post-list?page=${page}&limit=${limit}`
+        `/api/posts/?page=${page}&limit=${limit}`
       );
       return response;
     } catch (error) {
@@ -22,7 +22,7 @@ class PostsService {
    */
   async getPostById(postId: number): Promise<Post> {
     try {
-      const post = await apiHelpers.get<Post>(`/api/posts/${postId}`);
+      const post = await apiHelpers.get<Post>(`/api/posts/${postId}/`);
       return post;
     } catch (error) {
       console.error('Get post by ID error:', error);
@@ -78,7 +78,7 @@ class PostsService {
   ): Promise<PaginatedResponse<Post>> {
     try {
       const response = await apiHelpers.get<PaginatedResponse<Post>>(
-        `/api/cliques/${cliqueId}/posts?page=${page}&limit=${limit}`
+        `/api/cliques/${cliqueId}/posts/?page=${page}&limit=${limit}`
       );
       return response;
     } catch (error) {
@@ -97,7 +97,7 @@ class PostsService {
   ): Promise<PaginatedResponse<Post>> {
     try {
       const response = await apiHelpers.get<PaginatedResponse<Post>>(
-        `/api/users/${userId}/posts?page=${page}&limit=${limit}`
+        `/api/users/${userId}/posts/?page=${page}&limit=${limit}`
       );
       return response;
     } catch (error) {
@@ -111,8 +111,8 @@ class PostsService {
    */
   async getFeedPosts(page: number = 1, limit: number = 20): Promise<Post[]> {
     try {
-      // Using the existing endpoint from Feed.js
-      const posts = await apiHelpers.get<Post[]>(`/api/post-list`);
+      // Get feed posts from the backend
+      const posts = await apiHelpers.get<Post[]>(`/api/posts/feed/`);
       return posts;
     } catch (error) {
       console.error('Get feed posts error:', error);
@@ -150,7 +150,7 @@ class PostsService {
   async searchPosts(query: string, page: number = 1, limit: number = 20): Promise<Post[]> {
     try {
       const posts = await apiHelpers.get<Post[]>(
-        `/api/posts/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
+        `/api/posts/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
       );
       return posts;
     } catch (error) {
@@ -170,7 +170,7 @@ class PostsService {
   ): Promise<Post[]> {
     try {
       const posts = await apiHelpers.get<Post[]>(
-        `/api/posts/nearby?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`
+        `/api/posts/nearby/?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`
       );
       return posts;
     } catch (error) {

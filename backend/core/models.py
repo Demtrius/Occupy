@@ -51,7 +51,9 @@ class Clique(models.Model):
     )
     name = models.CharField(max_length=200, null=False, blank=False, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     description = models.CharField(blank=True, max_length=100)
+    image = models.ImageField(upload_to="cliques/", blank=True, null=True)
     members = models.ManyToManyField(Occupier, blank=True)
     level = models.CharField(
         choices=Type.choices,
@@ -63,6 +65,7 @@ class Clique(models.Model):
         """,
     )
     occupation = models.CharField(max_length=200, blank=False, null=False, default="")
+    is_public = models.BooleanField(default=True)
     objects = models.Manager()  # default manager
     cliqueobjects = CliqueObjects()  # custom manager
 
@@ -172,6 +175,15 @@ class Post(models.Model):
     )
     content = models.TextField(max_length=400, null=False, blank=False)
     caption = models.CharField(max_length=400, null=False, blank=False)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("draft", "Draft"),
+            ("posted", "Posted"),
+            ("archived", "Archived"),
+        ],
+        default="posted",
+    )
     posted = models.DateTimeField(default=timezone.now, blank=False)
     occupier = models.ForeignKey(
         Occupier,
@@ -181,7 +193,8 @@ class Post(models.Model):
         blank=True,
         default=1,
     )
-    timestamp = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()  # default manager
     postobjects = PostObjects()  # custom manager
 

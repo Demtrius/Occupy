@@ -29,13 +29,13 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # DRF login/logout views
     path("api-auth/", include("rest_framework.urls")),
-    # Your main API endpoints - to be added later
-    # path("api/", include(("Occupy.urls", "Occupy"), namespace="home")),
     # Authentication routes
     path(
         "api/auth/",
         include(("authentication.urls", "authentication"), namespace="authentication"),
     ),
+    # Core API endpoints (Posts, Cliques)
+    path("api/", include(("core.urls", "core"), namespace="core")),
 ]
 
 # Serve media files in development

@@ -205,25 +205,30 @@ const Feed: React.FC = () => {
     const cliqueName = cliques.find((clique) => clique.id === item.cliqueId)?.name || 'Unknown Clique';
 
     return (
-      <View style={styles.nearYouCard}>
-        <TouchableOpacity style={styles.postTouchable} onPress={() => openModal(item)}>
-          <View style={styles.cardHeader}>
-            <Image
-              source={{ uri: item.avatar || 'https://via.placeholder.com/300x200' }}
-              style={styles.cardImage}
-            />
-            <Text style={styles.dateBadge}>{item.posted || 'Recent'}</Text>
-          </View>
-          <Text style={styles.cardTitle}>{item.caption}</Text>
-          <Text style={styles.cardSubtitle}>{cliqueName}</Text>
-          <TouchableOpacity
-            style={styles.contactButton}
-            onPress={() => navigateToMessages(item.userId)}
-          >
-            <Text style={styles.contactButtonText}>Contact</Text>
-          </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.nearYouCard}
+        onPress={() => openModal(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.cardHeader}>
+          <Image
+            source={{ uri: item.avatar || 'https://via.placeholder.com/300x200' }}
+            style={styles.cardImage}
+          />
+          <Text style={styles.dateBadge}>{item.posted || 'Recent'}</Text>
+        </View>
+        <Text style={styles.cardTitle} numberOfLines={2}>{item.caption}</Text>
+        <Text style={styles.cardSubtitle} numberOfLines={1}>{cliqueName}</Text>
+        <TouchableOpacity
+          style={styles.contactButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            navigateToMessages(item.userId);
+          }}
+        >
+          <Text style={styles.contactButtonText}>Contact</Text>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -291,7 +296,7 @@ const Feed: React.FC = () => {
       )}
 
       <View style={styles.nearYouSection}>
-        <Text style={[styles.sectionTitle, { marginLeft: width * 0.04 }]}>Near you</Text>
+        <Text style={[styles.sectionTitle, { marginLeft: width * 0.04, marginBottom: 8 }]}>Near you</Text>
         <FlatList
           horizontal
           data={nearYouPosts}

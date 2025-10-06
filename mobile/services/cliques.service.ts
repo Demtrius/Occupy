@@ -7,8 +7,7 @@ class CliquesService {
    */
   async getAllCliques(page: number = 1, limit: number = 20): Promise<Clique[]> {
     try {
-      // Using the existing endpoint from the app
-      const cliques = await apiHelpers.get<Clique[]>('/api/cliques-list');
+      const cliques = await apiHelpers.get<Clique[]>('/api/cliques/');
       return cliques;
     } catch (error) {
       console.error('Get all cliques error:', error);
@@ -21,7 +20,7 @@ class CliquesService {
    */
   async getCliqueById(cliqueId: number): Promise<Clique> {
     try {
-      const clique = await apiHelpers.get<Clique>(`/api/cliques/${cliqueId}`);
+      const clique = await apiHelpers.get<Clique>(`/api/cliques/${cliqueId}/`);
       return clique;
     } catch (error) {
       console.error('Get clique by ID error:', error);
@@ -34,53 +33,10 @@ class CliquesService {
    */
   async createClique(data: CreateCliqueData): Promise<Clique> {
     try {
-      const clique = await apiHelpers.post<Clique>('/api/cliques-list', data);
+      const clique = await apiHelpers.post<Clique>('/api/cliques/', data);
       return clique;
     } catch (error) {
       console.error('Create clique error:', error);
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Get posts in a clique
-   */
-  async getCliquePosts(cliqueId: number): Promise<any[]> {
-    try {
-      const response = await apiHelpers.get<{ posts: any[] }>(`/api/${cliqueId}/posts`);
-      return response.posts || [];
-    } catch (error) {
-      console.error('Get clique posts error:', error);
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Join a clique
-   */
-  async joinClique(cliqueId: number): Promise<{ message: string }> {
-    try {
-      const response = await apiHelpers.post<{ message: string }>('/api/cliques-join/', {
-        clique_id: cliqueId,
-      });
-      return response;
-    } catch (error) {
-      console.error('Join clique error:', error);
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Leave a clique
-   */
-  async leaveClique(cliqueId: number): Promise<{ message: string }> {
-    try {
-      const response = await apiHelpers.post<{ message: string }>('/api/cliques-leave/', {
-        clique_id: cliqueId,
-      });
-      return response;
-    } catch (error) {
-      console.error('Leave clique error:', error);
       throw this.handleError(error);
     }
   }
@@ -111,11 +67,24 @@ class CliquesService {
   }
 
   /**
+   * Get posts in a clique
+   */
+  async getCliquePosts(cliqueId: number): Promise<any[]> {
+    try {
+      const response = await apiHelpers.get<any[]>(`/api/cliques/${cliqueId}/posts/`);
+      return response;
+    } catch (error) {
+      console.error('Get clique posts error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  /**
    * Join a clique
    */
   async joinClique(cliqueId: number): Promise<void> {
     try {
-      await apiHelpers.post(`/api/cliques/${cliqueId}/join/`);
+      await apiHelpers.post(`/api/cliques/${cliqueId}/join/`, {});
     } catch (error) {
       console.error('Join clique error:', error);
       throw this.handleError(error);
@@ -127,7 +96,7 @@ class CliquesService {
    */
   async leaveClique(cliqueId: number): Promise<void> {
     try {
-      await apiHelpers.post(`/api/cliques/${cliqueId}/leave/`);
+      await apiHelpers.post(`/api/cliques/${cliqueId}/leave/`, {});
     } catch (error) {
       console.error('Leave clique error:', error);
       throw this.handleError(error);
@@ -140,7 +109,7 @@ class CliquesService {
   async getCliqueMembers(cliqueId: number, page: number = 1, limit: number = 20): Promise<User[]> {
     try {
       const members = await apiHelpers.get<User[]>(
-        `/api/cliques/${cliqueId}/members?page=${page}&limit=${limit}`
+        `/api/cliques/${cliqueId}/members/?page=${page}&limit=${limit}`
       );
       return members;
     } catch (error) {
@@ -154,7 +123,7 @@ class CliquesService {
    */
   async getMyCliques(): Promise<Clique[]> {
     try {
-      const cliques = await apiHelpers.get<Clique[]>('/api/cliques/my-cliques/');
+      const cliques = await apiHelpers.get<Clique[]>('/api/cliques/my_cliques/');
       return cliques;
     } catch (error) {
       console.error('Get my cliques error:', error);
@@ -168,7 +137,7 @@ class CliquesService {
   async searchCliques(query: string, page: number = 1, limit: number = 20): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
+        `/api/cliques/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
       );
       return cliques;
     } catch (error) {
@@ -183,7 +152,7 @@ class CliquesService {
   async getPopularCliques(limit: number = 10): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/popular?limit=${limit}`
+        `/api/cliques/?ordering=-members_count&limit=${limit}`
       );
       return cliques;
     } catch (error) {
@@ -198,7 +167,7 @@ class CliquesService {
   async getRecommendedCliques(limit: number = 10): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/recommended?limit=${limit}`
+        `/api/cliques/?limit=${limit}`
       );
       return cliques;
     } catch (error) {
@@ -208,38 +177,12 @@ class CliquesService {
   }
 
   /**
-   * Invite user to clique
-   */
-  async inviteUserToClique(cliqueId: number, userId: number): Promise<void> {
-    try {
-      await apiHelpers.post(`/api/cliques/${cliqueId}/invite/`, { user_id: userId });
-    } catch (error) {
-      console.error('Invite user to clique error:', error);
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Remove member from clique
-   */
-  async removeMember(cliqueId: number, userId: number): Promise<void> {
-    try {
-      await apiHelpers.delete(`/api/cliques/${cliqueId}/members/${userId}/`);
-    } catch (error) {
-      console.error('Remove member error:', error);
-      throw this.handleError(error);
-    }
-  }
-
-  /**
    * Check if user is member of clique
    */
   async isMember(cliqueId: number): Promise<boolean> {
     try {
-      const response = await apiHelpers.get<{ is_member: boolean }>(
-        `/api/cliques/${cliqueId}/is-member/`
-      );
-      return response.is_member;
+      const clique = await this.getCliqueById(cliqueId);
+      return clique.isMember || false;
     } catch (error) {
       console.error('Check membership error:', error);
       return false;

@@ -260,6 +260,12 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text="User's last name",
     )
+    profile_image = models.ImageField(
+        upload_to="profiles/",
+        null=True,
+        blank=True,
+        help_text="User's profile image",
+    )
 
     # Account type flags
     private_account = models.BooleanField(
