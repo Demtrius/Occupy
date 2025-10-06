@@ -1,13 +1,13 @@
 // Shared Components Export
 
-export { ScreenHeader } from './ScreenHeader';
-export { FormSection } from './FormSection';
-export { FormLabel } from './FormLabel';
-export { FormInput } from './FormInput';
-export { PrimaryButton } from './PrimaryButton';
-export { InfoBox } from './InfoBox';
-export { OptionGrid, type Option } from './OptionGrid';
-export { SwitchRow } from './SwitchRow';
+export { ScreenHeader } from './screen-header';
+export { FormSection } from './form-section';
+export { FormLabel } from './form-label';
+export { FormInput } from './form-input';
+export { PrimaryButton } from './primary-button';
+export { InfoBox } from './info-box';
+export { OptionGrid, type Option } from './option-grid';
+export { SwitchRow } from './switch-row';
 
 // Re-export common types for convenience
-export type { Option as OptionType } from './OptionGrid';
+export type { Option as OptionType } from './option-grid';

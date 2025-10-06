@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
   Alert,
 } from 'react-native';
@@ -18,6 +17,7 @@ import { BookingDetail as BookingDetailType, BookingStatus } from '../types';
 import { RootStackParamList } from '../types';
 import {
   ScreenHeader,
+  FormLabel,
   FormSection,
   PrimaryButton,
   InfoBox,

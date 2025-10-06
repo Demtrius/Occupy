@@ -407,7 +407,7 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
               }}
             >
               <View style={styles.postHeader}>
-                <Text style={styles.postAuthor}>{item.occupier}</Text>
+                <Text style={styles.postAuthor}>{item.occupier.username}</Text>
                 <Text style={styles.postDate}>{item.posted}</Text>
               </View>
               <Text style={styles.postCaption} numberOfLines={3}>
