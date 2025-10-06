@@ -17,3 +17,10 @@ export interface User {
 export interface OccupierObj extends User {
   token?: string;
 }
+
+export interface Occupation {
+  id: number;
+  name: string;
+  category: string;
+  userCount?: number;
+}

@@ -10,20 +10,15 @@ import {
 } from 'react-native';
 import { Searchbar as PaperSearchbar, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { postsService, cliquesService } from '../services';
+import { cliquesService } from '../services';
+import usersService from '@services/users.service';
 import { showError } from '../store/app.store';
-import { Clique, User } from '../types';
+import { Clique, User, Occupation } from '../types';
 import { useAuthStore } from '../store/auth.store';
 
 const { width, height } = Dimensions.get('window');
 
 type SearchCategory = 'all' | 'Occupation' | 'Persons' | 'Cliques';
-
-interface Occupation {
-  id: number;
-  name: string;
-  category: string;
-}
 
 interface SearchItem {
   id: number;
@@ -58,11 +53,7 @@ const Search: React.FC = () => {
   // Fetch users
   const getUsers = async () => {
     try {
-      // TODO: Create a users service when the endpoint is ready
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/auth/occupier-list`
-      );
-      const users = await response.json();
+      const users = await usersService.getAllUsers();
       setUsersList(users);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -73,11 +64,8 @@ const Search: React.FC = () => {
   // Fetch occupations
   const getOccupations = async () => {
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/search`
-      );
-      const data = await response.json();
-      setMasterDataSource(data);
+      const occupations = await usersService.getOccupations();
+      setMasterDataSource(occupations);
     } catch (error) {
       console.error('Error fetching occupations:', error);
       showError('Failed to load occupations');
@@ -240,22 +228,19 @@ const Search: React.FC = () => {
           onPress={() => {
             switch (item.type) {
               case 'Occupation':
-                navigation.navigate('CliquesTab' as never);
+                (navigation as any).navigate('CliquesTab');
                 break;
               case 'User':
-                navigation.navigate('ViewUser' as never, { id: item.id } as never);
+                (navigation as any).navigate('ViewUser', { id: item.id });
                 break;
               case 'Clique':
-                navigation.navigate(
-                  'CliquesTab' as never,
-                  {
-                    screen: 'Clique',
-                    params: { id: item.id },
-                  } as never
-                );
+                (navigation as any).navigate('CliquesTab', {
+                  screen: 'Clique',
+                  params: { id: item.id },
+                });
                 break;
               default:
-                navigation.navigate('Home' as never);
+                (navigation as any).navigate('Home');
                 break;
             }
           }}

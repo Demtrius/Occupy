@@ -155,14 +155,6 @@ const Cliques: React.FC = () => {
           ? 'No cliques match your search.'
           : 'Be the first to create a clique!'}
       </Text>
-      {!search.trim() && (
-        <TouchableOpacity
-          style={styles.emptyButton}
-          onPress={navigateToCreateClique}
-        >
-          <Text style={styles.emptyButtonText}>Create Clique</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 

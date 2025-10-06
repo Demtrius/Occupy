@@ -6,7 +6,7 @@
  */
 
 import { apiHelpers } from './api';
-import { User } from '../types';
+import { User, Occupation } from '../types';
 
 /**
  * Interface for user list response
@@ -272,6 +272,32 @@ class UsersService {
       return response;
     } catch (error) {
       console.error('Get user stats error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all unique occupations
+   */
+  async getOccupations(): Promise<Occupation[]> {
+    try {
+      const occupations = await apiHelpers.get<Occupation[]>('/api/users/occupations/');
+      return occupations;
+    } catch (error) {
+      console.error('Get occupations error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Search occupations by query
+   */
+  async searchOccupations(query: string): Promise<Occupation[]> {
+    try {
+      const occupations = await apiHelpers.get<Occupation[]>(`/api/users/search_occupations/?q=${encodeURIComponent(query)}`);
+      return occupations;
+    } catch (error) {
+      console.error('Search occupations error:', error);
       throw error;
     }
   }

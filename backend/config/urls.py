@@ -36,6 +36,8 @@ urlpatterns = [
     ),
     # Core API endpoints (Posts, Cliques)
     path("api/", include(("core.urls", "core"), namespace="core")),
+    # Users API endpoints
+    path("api/", include(("users.urls", "users"), namespace="users")),
 ]
 
 # Serve media files in development

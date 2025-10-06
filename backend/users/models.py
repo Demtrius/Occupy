@@ -80,7 +80,7 @@ class OccupierManager(BaseUserManager["Occupier"]):
         self,
         email: str,
         username: str,
-        occupation: str,
+        occupations: str,
         password: Optional[str] = None,
     ) -> "Occupier":
         """
@@ -110,7 +110,7 @@ class OccupierManager(BaseUserManager["Occupier"]):
             email=self.normalize_email(email),
             password=password,
             username=username,
-            occupations=occupation,
+            occupations=occupations,
         )
         user.is_business_page = True
         user.save(using=self._db)
