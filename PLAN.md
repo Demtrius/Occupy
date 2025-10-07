@@ -6,7 +6,6 @@ The remaining work includes:
 2. Add missing backend endpoints
 3. Implement Reviews tab functionality
 4. Add post editing/deletion
-5. Implement like/comment functionality
 
 ## 🔮 Next Steps
 

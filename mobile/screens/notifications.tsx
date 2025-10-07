@@ -15,8 +15,11 @@ import { Searchbar as PaperSearchbar } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenHeader } from "../components";
 import {
+  Notification,
   ScreenNavigationProp,
 } from "../types";
+
+const { width, height } = Dimensions.get("window");
 
 const NotificationsScreen: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);

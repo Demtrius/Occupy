@@ -165,8 +165,10 @@ class PostViewSet(viewsets.ModelViewSet):
         Get personalized feed of posts from cliques the user is a member of.
         """
         user = request.user
-        # Get cliques user is a member of
-        user_cliques = user.cliques.all()
+        # Get cliques user is a member of or owns
+        user_cliques = Clique.objects.filter(
+            Q(members=user) | Q(occupier=user)
+        ).distinct()
 
         # Get posts from those cliques
         posts = (

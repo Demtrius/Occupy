@@ -30,6 +30,15 @@ export type RootStackParamList = {
   NotificationsTab: undefined;
 };
 
+export type TabParamList = {
+  Home: undefined;
+  SearchTab: undefined;
+  CliquesTab: undefined;
+  PostCreate: undefined;
+  NotificationsTab: undefined;
+  Profile: undefined;
+};
+
 export type ScreenNavigationProp<T extends keyof RootStackParamList> =
   StackNavigationProp<RootStackParamList, T>;
 

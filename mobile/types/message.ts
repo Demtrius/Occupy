@@ -15,11 +15,16 @@ export interface Message {
 
 export interface Notification {
   id: number;
-  userId: number;
-  type: "message" | "like" | "comment" | "follow" | "cliqueInvite";
-  content: string;
-  read: boolean;
-  createdAt: string;
+  sender?: string;
+  text?: string;
+  unreadCount?: number;
+  avatar?: string;
+  timestamp?: string;
+  userId?: number;
+  type?: "message" | "like" | "comment" | "follow" | "cliqueInvite";
+  content?: string;
+  read?: boolean;
+  createdAt?: string;
   relatedUser?: User;
   relatedPost?: Post;
 }
