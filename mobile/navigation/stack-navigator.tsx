@@ -1,8 +1,11 @@
-import React from 'react';
-import { createStackNavigator, StackNavigationOptions } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
-import Feed from '@screens/feed';
-import PostDetail from '../screens/post-detail';
+import React from "react";
+import {
+  createStackNavigator,
+  StackNavigationOptions,
+} from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import Feed from "@screens/feed";
+import PostDetail from "../screens/post-detail";
 
 // Define the param list for this stack
 type FeedStackParamList = {
@@ -16,11 +19,11 @@ const Stack = createStackNavigator<FeedStackParamList>();
 const screenOptions: StackNavigationOptions = {
   headerShown: true,
   headerStyle: {
-    backgroundColor: '#6ba32d',
+    backgroundColor: "#6ba32d",
   },
-  headerTintColor: '#fff',
+  headerTintColor: "#fff",
   headerTitleStyle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 };
 
@@ -40,12 +43,12 @@ export default function StackNavigator(): React.ReactElement {
         <Stack.Screen
           name="Feed"
           component={Feed}
-          options={{ title: 'Feed' }}
+          options={{ title: "Feed" }}
         />
         <Stack.Screen
           name="PostDetail"
           component={PostDetail}
-          options={{ title: 'Post Details' }}
+          options={{ title: "Post Details" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,5 +1,11 @@
-import { apiHelpers } from './api';
-import { Clique, CreateCliqueData, PaginatedResponse, User, ApiError } from '../types';
+import { apiHelpers } from "./api";
+import {
+  Clique,
+  CreateCliqueData,
+  PaginatedResponse,
+  User,
+  ApiError,
+} from "../types";
 
 class CliquesService {
   /**
@@ -7,10 +13,10 @@ class CliquesService {
    */
   async getAllCliques(page: number = 1, limit: number = 20): Promise<Clique[]> {
     try {
-      const cliques = await apiHelpers.get<Clique[]>('/api/cliques/');
+      const cliques = await apiHelpers.get<Clique[]>("/api/cliques/");
       return cliques;
     } catch (error) {
-      console.error('Get all cliques error:', error);
+      console.error("Get all cliques error:", error);
       throw this.handleError(error);
     }
   }
@@ -23,7 +29,7 @@ class CliquesService {
       const clique = await apiHelpers.get<Clique>(`/api/cliques/${cliqueId}/`);
       return clique;
     } catch (error) {
-      console.error('Get clique by ID error:', error);
+      console.error("Get clique by ID error:", error);
       throw this.handleError(error);
     }
   }
@@ -33,10 +39,10 @@ class CliquesService {
    */
   async createClique(data: CreateCliqueData): Promise<Clique> {
     try {
-      const clique = await apiHelpers.post<Clique>('/api/cliques/', data);
+      const clique = await apiHelpers.post<Clique>("/api/cliques/", data);
       return clique;
     } catch (error) {
-      console.error('Create clique error:', error);
+      console.error("Create clique error:", error);
       throw this.handleError(error);
     }
   }
@@ -44,12 +50,18 @@ class CliquesService {
   /**
    * Update a clique
    */
-  async updateClique(cliqueId: number, data: Partial<CreateCliqueData>): Promise<Clique> {
+  async updateClique(
+    cliqueId: number,
+    data: Partial<CreateCliqueData>,
+  ): Promise<Clique> {
     try {
-      const clique = await apiHelpers.patch<Clique>(`/api/cliques/${cliqueId}/`, data);
+      const clique = await apiHelpers.patch<Clique>(
+        `/api/cliques/${cliqueId}/`,
+        data,
+      );
       return clique;
     } catch (error) {
-      console.error('Update clique error:', error);
+      console.error("Update clique error:", error);
       throw this.handleError(error);
     }
   }
@@ -61,7 +73,7 @@ class CliquesService {
     try {
       await apiHelpers.delete(`/api/cliques/${cliqueId}/`);
     } catch (error) {
-      console.error('Delete clique error:', error);
+      console.error("Delete clique error:", error);
       throw this.handleError(error);
     }
   }
@@ -71,10 +83,12 @@ class CliquesService {
    */
   async getCliquePosts(cliqueId: number): Promise<any[]> {
     try {
-      const response = await apiHelpers.get<any[]>(`/api/cliques/${cliqueId}/posts/`);
+      const response = await apiHelpers.get<any[]>(
+        `/api/cliques/${cliqueId}/posts/`,
+      );
       return response;
     } catch (error) {
-      console.error('Get clique posts error:', error);
+      console.error("Get clique posts error:", error);
       throw this.handleError(error);
     }
   }
@@ -86,7 +100,7 @@ class CliquesService {
     try {
       await apiHelpers.post(`/api/cliques/${cliqueId}/join/`, {});
     } catch (error) {
-      console.error('Join clique error:', error);
+      console.error("Join clique error:", error);
       throw this.handleError(error);
     }
   }
@@ -98,7 +112,7 @@ class CliquesService {
     try {
       await apiHelpers.post(`/api/cliques/${cliqueId}/leave/`, {});
     } catch (error) {
-      console.error('Leave clique error:', error);
+      console.error("Leave clique error:", error);
       throw this.handleError(error);
     }
   }
@@ -106,14 +120,18 @@ class CliquesService {
   /**
    * Get clique members
    */
-  async getCliqueMembers(cliqueId: number, page: number = 1, limit: number = 20): Promise<User[]> {
+  async getCliqueMembers(
+    cliqueId: number,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<User[]> {
     try {
       const members = await apiHelpers.get<User[]>(
-        `/api/cliques/${cliqueId}/members/?page=${page}&limit=${limit}`
+        `/api/cliques/${cliqueId}/members/?page=${page}&limit=${limit}`,
       );
       return members;
     } catch (error) {
-      console.error('Get clique members error:', error);
+      console.error("Get clique members error:", error);
       throw this.handleError(error);
     }
   }
@@ -123,10 +141,12 @@ class CliquesService {
    */
   async getMyCliques(): Promise<Clique[]> {
     try {
-      const cliques = await apiHelpers.get<Clique[]>('/api/cliques/my_cliques/');
+      const cliques = await apiHelpers.get<Clique[]>(
+        "/api/cliques/my_cliques/",
+      );
       return cliques;
     } catch (error) {
-      console.error('Get my cliques error:', error);
+      console.error("Get my cliques error:", error);
       throw this.handleError(error);
     }
   }
@@ -134,14 +154,18 @@ class CliquesService {
   /**
    * Search cliques
    */
-  async searchCliques(query: string, page: number = 1, limit: number = 20): Promise<Clique[]> {
+  async searchCliques(
+    query: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
+        `/api/cliques/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`,
       );
       return cliques;
     } catch (error) {
-      console.error('Search cliques error:', error);
+      console.error("Search cliques error:", error);
       throw this.handleError(error);
     }
   }
@@ -152,11 +176,11 @@ class CliquesService {
   async getPopularCliques(limit: number = 10): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/?ordering=-members_count&limit=${limit}`
+        `/api/cliques/?ordering=-members_count&limit=${limit}`,
       );
       return cliques;
     } catch (error) {
-      console.error('Get popular cliques error:', error);
+      console.error("Get popular cliques error:", error);
       throw this.handleError(error);
     }
   }
@@ -167,11 +191,11 @@ class CliquesService {
   async getRecommendedCliques(limit: number = 10): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/?limit=${limit}`
+        `/api/cliques/?limit=${limit}`,
       );
       return cliques;
     } catch (error) {
-      console.error('Get recommended cliques error:', error);
+      console.error("Get recommended cliques error:", error);
       throw this.handleError(error);
     }
   }
@@ -184,7 +208,7 @@ class CliquesService {
       const clique = await this.getCliqueById(cliqueId);
       return clique.isMember || false;
     } catch (error) {
-      console.error('Check membership error:', error);
+      console.error("Check membership error:", error);
       return false;
     }
   }
@@ -207,18 +231,18 @@ class CliquesService {
         };
       }
 
-      if (typeof data === 'object') {
+      if (typeof data === "object") {
         const messages = Object.entries(data)
           .map(([key, value]) => {
             if (Array.isArray(value)) {
-              return `${key}: ${value.join(', ')}`;
+              return `${key}: ${value.join(", ")}`;
             }
             return `${key}: ${value}`;
           })
-          .join('\n');
+          .join("\n");
 
         return {
-          message: messages || 'Clique operation failed',
+          message: messages || "Clique operation failed",
           status: error.response.status,
           details: data,
         };
@@ -226,7 +250,7 @@ class CliquesService {
     }
 
     return {
-      message: error.message || 'An error occurred with cliques',
+      message: error.message || "An error occurred with cliques",
       status: error.status || 500,
     };
   }

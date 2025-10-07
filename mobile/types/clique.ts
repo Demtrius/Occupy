@@ -1,4 +1,4 @@
-import { User } from './user';
+import { User } from "./user";
 
 // Clique Types
 export interface Clique {

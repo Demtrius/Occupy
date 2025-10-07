@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -9,17 +9,13 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-} from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useAuthStore } from '../store/auth.store';
-import { showError, showSuccess } from '../store/app.store';
-import { RegisterData } from '../types';
-import { RootStackParamList } from '../types';
-
-type RegisterBusinessNavigationProp = StackNavigationProp<RootStackParamList, 'RegisterBusiness'>;
+} from "react-native";
+import { useAuthStore } from "../store/auth.store";
+import { showError, showSuccess } from "../store/app.store";
+import { RegisterData, ScreenNavigationProp } from "../types";
 
 interface RegisterBusinessProps {
-  navigation: RegisterBusinessNavigationProp;
+  navigation: ScreenNavigationProp<"RegisterBusiness">;
 }
 
 interface FormErrors {
@@ -30,19 +26,20 @@ interface FormErrors {
   occupation?: string;
 }
 
-const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
-  const register = useAuthStore(state => state.register);
-  const isLoading = useAuthStore(state => state.isLoading);
-  const error = useAuthStore(state => state.error);
-  const clearError = useAuthStore(state => state.clearError);
+const RegisterBusinessScreen: React.FC<RegisterBusinessProps> = ({ navigation }) => {
+  const register = useAuthStore((state) => state.register);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
 
-  const [username, setUsername] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [occupation, setOccupation] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [occupation, setOccupation] = useState<string>("");
   const [securePassword, setSecurePassword] = useState<boolean>(true);
-  const [secureConfirmPassword, setSecureConfirmPassword] = useState<boolean>(true);
+  const [secureConfirmPassword, setSecureConfirmPassword] =
+    useState<boolean>(true);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // Validate form
@@ -51,39 +48,40 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
 
     // Username validation
     if (!username.trim()) {
-      errors.username = 'Username is required';
+      errors.username = "Username is required";
     } else if (username.length < 3) {
-      errors.username = 'Username must be at least 3 characters';
+      errors.username = "Username must be at least 3 characters";
     } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      errors.username = 'Username can only contain letters, numbers, and underscores';
+      errors.username =
+        "Username can only contain letters, numbers, and underscores";
     }
 
     // Email validation
     if (!email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Email is invalid';
+      errors.email = "Email is invalid";
     }
 
     // Occupation validation (required for business)
     if (!occupation.trim()) {
-      errors.occupation = 'Business type is required';
+      errors.occupation = "Business type is required";
     } else if (occupation.length < 2) {
-      errors.occupation = 'Business type must be at least 2 characters';
+      errors.occupation = "Business type must be at least 2 characters";
     }
 
     // Password validation
     if (!password.trim()) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
     } else if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
+      errors.password = "Password must be at least 8 characters";
     }
 
     // Confirm password validation
     if (!confirmPassword.trim()) {
-      errors.confirmPassword = 'Please confirm your password';
+      errors.confirmPassword = "Please confirm your password";
     } else if (password !== confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = "Passwords do not match";
     }
 
     setFormErrors(errors);
@@ -111,10 +109,11 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
       };
 
       await register(registerData);
-      showSuccess('Business registration successful! Welcome!');
+      showSuccess("Business registration successful! Welcome!");
     } catch (err: any) {
-      console.error('Business registration error:', err);
-      const errorMessage = err.message || 'Registration failed. Please try again.';
+      console.error("Business registration error:", err);
+      const errorMessage =
+        err.message || "Registration failed. Please try again.";
       showError(errorMessage);
     }
   };
@@ -122,7 +121,7 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
@@ -196,7 +195,10 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
                 }}
                 placeholder="Business Type (e.g., Restaurant, Retail)"
                 placeholderTextColor="#888"
-                style={[styles.input, formErrors.occupation && styles.inputError]}
+                style={[
+                  styles.input,
+                  formErrors.occupation && styles.inputError,
+                ]}
                 editable={!isLoading}
               />
               {formErrors.occupation && (
@@ -231,7 +233,7 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
                   style={styles.eyeIcon}
                 >
                   <Text style={styles.eyeIconText}>
-                    {securePassword ? '👁️' : '👁️‍🗨️'}
+                    {securePassword ? "👁️" : "👁️‍🗨️"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -248,7 +250,10 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
                   onChangeText={(text) => {
                     setConfirmPassword(text);
                     if (formErrors.confirmPassword) {
-                      setFormErrors({ ...formErrors, confirmPassword: undefined });
+                      setFormErrors({
+                        ...formErrors,
+                        confirmPassword: undefined,
+                      });
                     }
                   }}
                   placeholder="Confirm Password"
@@ -263,16 +268,20 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
                   editable={!isLoading}
                 />
                 <TouchableOpacity
-                  onPress={() => setSecureConfirmPassword(!secureConfirmPassword)}
+                  onPress={() =>
+                    setSecureConfirmPassword(!secureConfirmPassword)
+                  }
                   style={styles.eyeIcon}
                 >
                   <Text style={styles.eyeIconText}>
-                    {secureConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                    {secureConfirmPassword ? "👁️" : "👁️‍🗨️"}
                   </Text>
                 </TouchableOpacity>
               </View>
               {formErrors.confirmPassword && (
-                <Text style={styles.fieldError}>{formErrors.confirmPassword}</Text>
+                <Text style={styles.fieldError}>
+                  {formErrors.confirmPassword}
+                </Text>
               )}
             </View>
           </View>
@@ -292,11 +301,13 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
 
           {/* Back to Login Link */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('SignInBusiness')}
+            onPress={() => navigation.navigate("SignInBusiness")}
             style={styles.backButton}
             disabled={isLoading}
           >
-            <Text style={styles.backButtonText}>Already have an account? Sign in</Text>
+            <Text style={styles.backButtonText}>
+              Already have an account? Sign in
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -307,63 +318,63 @@ const RegisterBusiness: React.FC<RegisterBusinessProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 30,
-    color: '#000',
-    textAlign: 'center',
+    color: "#000",
+    textAlign: "center",
   },
   errorContainer: {
-    backgroundColor: '#ffebee',
+    backgroundColor: "#ffebee",
     padding: 12,
     borderRadius: 8,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: '#f44336',
-    width: '100%',
+    borderLeftColor: "#f44336",
+    width: "100%",
   },
   errorText: {
-    color: '#f44336',
+    color: "#f44336",
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
   inputContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 20,
   },
   inputGroup: {
     marginBottom: 15,
   },
   input: {
-    width: '100%',
+    width: "100%",
     height: 50,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingLeft: 15,
     paddingRight: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#333',
+    backgroundColor: "#fff",
+    color: "#333",
   },
   inputError: {
-    borderColor: '#f44336',
-    backgroundColor: '#ffebee',
+    borderColor: "#f44336",
+    backgroundColor: "#ffebee",
   },
   passwordContainer: {
-    position: 'relative',
+    position: "relative",
   },
   passwordInput: {
     paddingRight: 50,
   },
   eyeIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: 12,
     top: 15,
     padding: 4,
@@ -372,42 +383,42 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   fieldError: {
-    color: '#f44336',
+    color: "#f44336",
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
   },
   button: {
-    backgroundColor: '#6ba32d',
+    backgroundColor: "#6ba32d",
     borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     height: 50,
     marginBottom: 20,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     opacity: 0.7,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   backButton: {
     marginTop: 10,
   },
   backButtonText: {
-    color: '#6ba32d',
+    color: "#6ba32d",
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });
 
-export default RegisterBusiness;
+export default RegisterBusinessScreen;

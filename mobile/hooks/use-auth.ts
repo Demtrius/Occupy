@@ -1,5 +1,5 @@
-import { useAuthStore } from '@store/auth.store';
-import { User, LoginCredentials, RegisterData } from '../types';
+import { useAuthStore } from "@store/auth.store";
+import { User, LoginCredentials, RegisterData } from "../types";
 
 interface UseAuthReturn {
   isLoggedIn: boolean;
@@ -35,16 +35,16 @@ interface UseAuthReturn {
  * await logout();
  */
 export function useAuth(): UseAuthReturn {
-  const isLoggedIn = useAuthStore(state => state.isLoggedIn);
-  const user = useAuthStore(state => state.user);
-  const isLoading = useAuthStore(state => state.isLoading);
-  const isInitializing = useAuthStore(state => state.isInitializing);
-  const error = useAuthStore(state => state.error);
-  const login = useAuthStore(state => state.login);
-  const logout = useAuthStore(state => state.logout);
-  const register = useAuthStore(state => state.register);
-  const updateProfile = useAuthStore(state => state.updateProfile);
-  const clearError = useAuthStore(state => state.clearError);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const isInitializing = useAuthStore((state) => state.isInitializing);
+  const error = useAuthStore((state) => state.error);
+  const login = useAuthStore((state) => state.login);
+  const logout = useAuthStore((state) => state.logout);
+  const register = useAuthStore((state) => state.register);
+  const updateProfile = useAuthStore((state) => state.updateProfile);
+  const clearError = useAuthStore((state) => state.clearError);
 
   return {
     isLoggedIn,

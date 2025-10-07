@@ -5,11 +5,11 @@
  * Provides a unified API for storing sensitive data across all platforms.
  */
 
-import { Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const IS_WEB = Platform.OS === 'web';
+const IS_WEB = Platform.OS === "web";
 
 /**
  * Storage utility that automatically uses the correct storage mechanism
@@ -110,7 +110,7 @@ export const storage = {
 
       return result;
     } catch (error) {
-      console.error('Error getting multiple items from storage:', error);
+      console.error("Error getting multiple items from storage:", error);
       throw error;
     }
   },
@@ -137,7 +137,7 @@ export const storage = {
         }
       }
     } catch (error) {
-      console.error('Error setting multiple items in storage:', error);
+      console.error("Error setting multiple items in storage:", error);
       throw error;
     }
   },
@@ -161,7 +161,7 @@ export const storage = {
         }
       }
     } catch (error) {
-      console.error('Error removing multiple items from storage:', error);
+      console.error("Error removing multiple items from storage:", error);
       throw error;
     }
   },
@@ -177,10 +177,12 @@ export const storage = {
       if (IS_WEB) {
         await AsyncStorage.clear();
       } else {
-        console.warn('SecureStore does not support clearing all keys. Items must be removed individually.');
+        console.warn(
+          "SecureStore does not support clearing all keys. Items must be removed individually.",
+        );
       }
     } catch (error) {
-      console.error('Error clearing storage:', error);
+      console.error("Error clearing storage:", error);
       throw error;
     }
   },
@@ -198,11 +200,11 @@ export const storage = {
       if (IS_WEB) {
         return await AsyncStorage.getAllKeys();
       } else {
-        console.warn('SecureStore does not support getting all keys.');
+        console.warn("SecureStore does not support getting all keys.");
         return [];
       }
     } catch (error) {
-      console.error('Error getting all keys from storage:', error);
+      console.error("Error getting all keys from storage:", error);
       return [];
     }
   },
@@ -236,7 +238,7 @@ export const storage = {
       platform: Platform.OS,
       isWeb: IS_WEB,
       isNative: !IS_WEB,
-      storageType: IS_WEB ? 'AsyncStorage' : 'SecureStore',
+      storageType: IS_WEB ? "AsyncStorage" : "SecureStore",
     };
   },
 };

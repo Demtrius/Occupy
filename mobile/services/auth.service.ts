@@ -1,4 +1,4 @@
-import api, { tokenManager, apiHelpers } from './api';
+import api, { tokenManager, apiHelpers } from "./api";
 import {
   AuthTokens,
   AuthResponse,
@@ -6,7 +6,7 @@ import {
   RegisterData,
   User,
   ApiError,
-} from '../types';
+} from "../types";
 
 class AuthService {
   /**
@@ -15,8 +15,8 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const response = await apiHelpers.post<AuthResponse>(
-        '/api/auth/jwt/create/',
-        credentials
+        "/api/auth/jwt/create/",
+        credentials,
       );
 
       // Save tokens
@@ -38,7 +38,7 @@ class AuthService {
 
       return response;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       throw this.handleAuthError(error);
     }
   }
@@ -49,7 +49,7 @@ class AuthService {
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
       // Register the user
-      const registerResponse = await apiHelpers.post('/api/auth/users/', data);
+      const registerResponse = await apiHelpers.post("/api/auth/users/", data);
 
       // Auto-login after registration
       const loginResponse = await this.login({
@@ -59,7 +59,7 @@ class AuthService {
 
       return loginResponse;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       throw this.handleAuthError(error);
     }
   }
@@ -75,7 +75,7 @@ class AuthService {
       // Clear tokens and user data
       await tokenManager.clearTokens();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // Clear tokens even if API call fails
       await tokenManager.clearTokens();
     }
@@ -86,10 +86,10 @@ class AuthService {
    */
   async getCurrentUser(): Promise<User | null> {
     try {
-      const user = await apiHelpers.get<User>('/api/auth/users/me/');
+      const user = await apiHelpers.get<User>("/api/auth/users/me/");
       return user;
     } catch (error) {
-      console.error('Get current user error:', error);
+      console.error("Get current user error:", error);
       return null;
     }
   }
@@ -102,12 +102,12 @@ class AuthService {
       const refreshToken = await tokenManager.getRefreshToken();
 
       if (!refreshToken) {
-        throw new Error('No refresh token available');
+        throw new Error("No refresh token available");
       }
 
       const response = await apiHelpers.post<{ access: string }>(
-        '/api/auth/jwt/refresh/',
-        { refresh: refreshToken }
+        "/api/auth/jwt/refresh/",
+        { refresh: refreshToken },
       );
 
       if (response.access) {
@@ -122,7 +122,7 @@ class AuthService {
 
       return null;
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error("Token refresh error:", error);
       // Clear tokens if refresh fails
       await tokenManager.clearTokens();
       return null;
@@ -134,7 +134,7 @@ class AuthService {
    */
   async verifyToken(token: string): Promise<boolean> {
     try {
-      await apiHelpers.post('/api/auth/jwt/verify/', { token });
+      await apiHelpers.post("/api/auth/jwt/verify/", { token });
       return true;
     } catch (error) {
       return false;
@@ -172,11 +172,11 @@ class AuthService {
    */
   async updateProfile(data: Partial<User>): Promise<User> {
     try {
-      const user = await apiHelpers.patch<User>('/api/auth/users/me/', data);
+      const user = await apiHelpers.patch<User>("/api/auth/users/me/", data);
       await tokenManager.saveUser(user);
       return user;
     } catch (error) {
-      console.error('Update profile error:', error);
+      console.error("Update profile error:", error);
       throw this.handleAuthError(error);
     }
   }
@@ -184,14 +184,17 @@ class AuthService {
   /**
    * Change password
    */
-  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
     try {
-      await apiHelpers.post('/api/auth/users/set_password/', {
+      await apiHelpers.post("/api/auth/users/set_password/", {
         current_password: currentPassword,
         new_password: newPassword,
       });
     } catch (error) {
-      console.error('Change password error:', error);
+      console.error("Change password error:", error);
       throw this.handleAuthError(error);
     }
   }
@@ -201,9 +204,9 @@ class AuthService {
    */
   async requestPasswordReset(email: string): Promise<void> {
     try {
-      await apiHelpers.post('/api/auth/users/reset_password/', { email });
+      await apiHelpers.post("/api/auth/users/reset_password/", { email });
     } catch (error) {
-      console.error('Request password reset error:', error);
+      console.error("Request password reset error:", error);
       throw this.handleAuthError(error);
     }
   }
@@ -211,15 +214,19 @@ class AuthService {
   /**
    * Confirm password reset
    */
-  async confirmPasswordReset(uid: string, token: string, newPassword: string): Promise<void> {
+  async confirmPasswordReset(
+    uid: string,
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
     try {
-      await apiHelpers.post('/api/auth/users/reset_password_confirm/', {
+      await apiHelpers.post("/api/auth/users/reset_password_confirm/", {
         uid,
         token,
         new_password: newPassword,
       });
     } catch (error) {
-      console.error('Confirm password reset error:', error);
+      console.error("Confirm password reset error:", error);
       throw this.handleAuthError(error);
     }
   }
@@ -231,7 +238,7 @@ class AuthService {
     try {
       return await tokenManager.getUser();
     } catch (error) {
-      console.error('Get stored user error:', error);
+      console.error("Get stored user error:", error);
       return null;
     }
   }
@@ -257,18 +264,18 @@ class AuthService {
       }
 
       // Handle validation errors
-      if (typeof data === 'object') {
+      if (typeof data === "object") {
         const messages = Object.entries(data)
           .map(([key, value]) => {
             if (Array.isArray(value)) {
-              return `${key}: ${value.join(', ')}`;
+              return `${key}: ${value.join(", ")}`;
             }
             return `${key}: ${value}`;
           })
-          .join('\n');
+          .join("\n");
 
         return {
-          message: messages || 'Authentication failed',
+          message: messages || "Authentication failed",
           status: error.response.status,
           details: data,
         };
@@ -276,7 +283,7 @@ class AuthService {
     }
 
     return {
-      message: error.message || 'An error occurred during authentication',
+      message: error.message || "An error occurred during authentication",
       status: error.status || 500,
     };
   }

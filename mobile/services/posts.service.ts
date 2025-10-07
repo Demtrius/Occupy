@@ -1,18 +1,21 @@
-import { apiHelpers } from './api';
-import { Post, CreatePostData, PaginatedResponse, ApiError } from '../types';
+import { apiHelpers } from "./api";
+import { Post, CreatePostData, PaginatedResponse, ApiError } from "../types";
 
 class PostsService {
   /**
    * Get all posts
    */
-  async getAllPosts(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Post>> {
+  async getAllPosts(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedResponse<Post>> {
     try {
       const response = await apiHelpers.get<PaginatedResponse<Post>>(
-        `/api/posts/?page=${page}&limit=${limit}`
+        `/api/posts/?page=${page}&limit=${limit}`,
       );
       return response;
     } catch (error) {
-      console.error('Get all posts error:', error);
+      console.error("Get all posts error:", error);
       throw this.handleError(error);
     }
   }
@@ -25,7 +28,7 @@ class PostsService {
       const post = await apiHelpers.get<Post>(`/api/posts/${postId}/`);
       return post;
     } catch (error) {
-      console.error('Get post by ID error:', error);
+      console.error("Get post by ID error:", error);
       throw this.handleError(error);
     }
   }
@@ -35,10 +38,10 @@ class PostsService {
    */
   async createPost(data: CreatePostData): Promise<Post> {
     try {
-      const post = await apiHelpers.post<Post>('/api/posts/', data);
+      const post = await apiHelpers.post<Post>("/api/posts/", data);
       return post;
     } catch (error) {
-      console.error('Create post error:', error);
+      console.error("Create post error:", error);
       throw this.handleError(error);
     }
   }
@@ -46,12 +49,15 @@ class PostsService {
   /**
    * Update a post
    */
-  async updatePost(postId: number, data: Partial<CreatePostData>): Promise<Post> {
+  async updatePost(
+    postId: number,
+    data: Partial<CreatePostData>,
+  ): Promise<Post> {
     try {
       const post = await apiHelpers.patch<Post>(`/api/posts/${postId}/`, data);
       return post;
     } catch (error) {
-      console.error('Update post error:', error);
+      console.error("Update post error:", error);
       throw this.handleError(error);
     }
   }
@@ -63,7 +69,7 @@ class PostsService {
     try {
       await apiHelpers.delete(`/api/posts/${postId}/`);
     } catch (error) {
-      console.error('Delete post error:', error);
+      console.error("Delete post error:", error);
       throw this.handleError(error);
     }
   }
@@ -74,15 +80,15 @@ class PostsService {
   async getPostsByClique(
     cliqueId: number,
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
   ): Promise<PaginatedResponse<Post>> {
     try {
       const response = await apiHelpers.get<PaginatedResponse<Post>>(
-        `/api/cliques/${cliqueId}/posts/?page=${page}&limit=${limit}`
+        `/api/cliques/${cliqueId}/posts/?page=${page}&limit=${limit}`,
       );
       return response;
     } catch (error) {
-      console.error('Get posts by clique error:', error);
+      console.error("Get posts by clique error:", error);
       throw this.handleError(error);
     }
   }
@@ -93,15 +99,15 @@ class PostsService {
   async getPostsByUser(
     userId: number,
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
   ): Promise<PaginatedResponse<Post>> {
     try {
       const response = await apiHelpers.get<PaginatedResponse<Post>>(
-        `/api/users/${userId}/posts/?page=${page}&limit=${limit}`
+        `/api/users/${userId}/posts/?page=${page}&limit=${limit}`,
       );
       return response;
     } catch (error) {
-      console.error('Get posts by user error:', error);
+      console.error("Get posts by user error:", error);
       throw this.handleError(error);
     }
   }
@@ -115,7 +121,7 @@ class PostsService {
       const posts = await apiHelpers.get<Post[]>(`/api/posts/feed/`);
       return posts;
     } catch (error) {
-      console.error('Get feed posts error:', error);
+      console.error("Get feed posts error:", error);
       throw this.handleError(error);
     }
   }
@@ -127,7 +133,7 @@ class PostsService {
     try {
       await apiHelpers.post(`/api/posts/${postId}/like/`);
     } catch (error) {
-      console.error('Like post error:', error);
+      console.error("Like post error:", error);
       throw this.handleError(error);
     }
   }
@@ -139,7 +145,7 @@ class PostsService {
     try {
       await apiHelpers.delete(`/api/posts/${postId}/like/`);
     } catch (error) {
-      console.error('Unlike post error:', error);
+      console.error("Unlike post error:", error);
       throw this.handleError(error);
     }
   }
@@ -147,14 +153,18 @@ class PostsService {
   /**
    * Search posts
    */
-  async searchPosts(query: string, page: number = 1, limit: number = 20): Promise<Post[]> {
+  async searchPosts(
+    query: string,
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<Post[]> {
     try {
       const posts = await apiHelpers.get<Post[]>(
-        `/api/posts/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
+        `/api/posts/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`,
       );
       return posts;
     } catch (error) {
-      console.error('Search posts error:', error);
+      console.error("Search posts error:", error);
       throw this.handleError(error);
     }
   }
@@ -166,15 +176,15 @@ class PostsService {
     latitude: number,
     longitude: number,
     radius: number = 10,
-    limit: number = 20
+    limit: number = 20,
   ): Promise<Post[]> {
     try {
       const posts = await apiHelpers.get<Post[]>(
-        `/api/posts/nearby/?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`
+        `/api/posts/nearby/?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`,
       );
       return posts;
     } catch (error) {
-      console.error('Get nearby posts error:', error);
+      console.error("Get nearby posts error:", error);
       throw this.handleError(error);
     }
   }
@@ -186,7 +196,7 @@ class PostsService {
     try {
       await apiHelpers.post(`/api/posts/${postId}/report/`, { reason });
     } catch (error) {
-      console.error('Report post error:', error);
+      console.error("Report post error:", error);
       throw this.handleError(error);
     }
   }
@@ -209,18 +219,18 @@ class PostsService {
         };
       }
 
-      if (typeof data === 'object') {
+      if (typeof data === "object") {
         const messages = Object.entries(data)
           .map(([key, value]) => {
             if (Array.isArray(value)) {
-              return `${key}: ${value.join(', ')}`;
+              return `${key}: ${value.join(", ")}`;
             }
             return `${key}: ${value}`;
           })
-          .join('\n');
+          .join("\n");
 
         return {
-          message: messages || 'Post operation failed',
+          message: messages || "Post operation failed",
           status: error.response.status,
           details: data,
         };
@@ -228,7 +238,7 @@ class PostsService {
     }
 
     return {
-      message: error.message || 'An error occurred with posts',
+      message: error.message || "An error occurred with posts",
       status: error.status || 500,
     };
   }

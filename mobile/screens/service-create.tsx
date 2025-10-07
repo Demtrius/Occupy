@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { bookingService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  Alert,
-} from 'react-native';
-import { useNavigation, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
-import { bookingService } from '../services';
-import { showError, showSuccess } from '../store/app.store';
-import { RootStackParamList } from '../types';
+  ScreenNavigationProp,
+  ScreenRouteProp,
+} from "../types";
 import {
   ScreenHeader,
   FormSection,
@@ -23,50 +17,56 @@ import {
   OptionGrid,
   SwitchRow,
   Option,
-} from '../components';
-import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
-
-type ServiceCreateScreenRouteProp = RouteProp<RootStackParamList, 'ServiceCreate'>;
-type ServiceCreateScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+} from "../components";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  CommonStyles,
+} from "../theme";
 
 interface Props {
-  route: ServiceCreateScreenRouteProp;
+  route: ScreenRouteProp<"ServiceCreate">;
 }
 
 const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
-  const navigation = useNavigation<ServiceCreateScreenNavigationProp>();
+  const navigation = useNavigation<ScreenNavigationProp<"ServiceCreate">>();
   const { cliqueId } = route.params;
 
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [price, setPrice] = useState<string>('');
-  const [durationMinutes, setDurationMinutes] = useState<string>('30');
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
+  const [durationMinutes, setDurationMinutes] = useState<string>("30");
   const [isActive, setIsActive] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const validateForm = (): boolean => {
     if (!title.trim()) {
-      Alert.alert('Validation Error', 'Please enter a service title');
+      Alert.alert("Validation Error", "Please enter a service title");
       return false;
     }
 
     if (!description.trim()) {
-      Alert.alert('Validation Error', 'Please enter a service description');
+      Alert.alert("Validation Error", "Please enter a service description");
       return false;
     }
 
     if (!durationMinutes || parseInt(durationMinutes) < 1) {
-      Alert.alert('Validation Error', 'Please enter a valid duration (minimum 1 minute)');
+      Alert.alert(
+        "Validation Error",
+        "Please enter a valid duration (minimum 1 minute)",
+      );
       return false;
     }
 
     if (price && isNaN(parseFloat(price))) {
-      Alert.alert('Validation Error', 'Please enter a valid price');
+      Alert.alert("Validation Error", "Please enter a valid price");
       return false;
     }
 
     if (price && parseFloat(price) < 0) {
-      Alert.alert('Validation Error', 'Price cannot be negative');
+      Alert.alert("Validation Error", "Price cannot be negative");
       return false;
     }
 
@@ -91,31 +91,28 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
       };
 
       await bookingService.createService(serviceData);
-      showSuccess('Service created successfully!');
+      showSuccess("Service created successfully!");
       navigation.goBack();
     } catch (error: any) {
-      console.error('Error creating service:', error);
-      showError(error.message || 'Failed to create service');
+      console.error("Error creating service:", error);
+      showError(error.message || "Failed to create service");
     } finally {
       setSubmitting(false);
     }
   };
 
   const durationOptions: Option[] = [
-    { value: '15', label: '15 min' },
-    { value: '30', label: '30 min' },
-    { value: '45', label: '45 min' },
-    { value: '60', label: '1 hour' },
-    { value: '90', label: '1.5 hours' },
-    { value: '120', label: '2 hours' },
+    { value: "15", label: "15 min" },
+    { value: "30", label: "30 min" },
+    { value: "45", label: "45 min" },
+    { value: "60", label: "1 hour" },
+    { value: "90", label: "1.5 hours" },
+    { value: "120", label: "2 hours" },
   ];
 
   return (
     <View style={CommonStyles.container}>
-      <ScreenHeader
-        title="Create Service"
-        onBack={() => navigation.goBack()}
-      />
+      <ScreenHeader title="Create Service" onBack={() => navigation.goBack()} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Title */}
@@ -132,18 +129,14 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
         {/* Description */}
         <FormSection>
           <FormLabel required>Description</FormLabel>
-          <TextInput
-            style={styles.textArea}
+          <FormInput
             placeholder="Describe what this service includes..."
-            placeholderTextColor={Colors.textTertiary}
             value={description}
             onChangeText={setDescription}
             multiline
-            numberOfLines={5}
-            textAlignVertical="top"
             maxLength={500}
+            showCharacterCount
           />
-          <Text style={styles.characterCount}>{description.length}/500</Text>
         </FormSection>
 
         {/* Price */}
@@ -156,10 +149,13 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
               value={price}
               onChangeText={setPrice}
               keyboardType="decimal-pad"
+              containerStyle={{ flex: 1 }}
               style={styles.priceInput}
             />
           </View>
-          <Text style={styles.hint}>Leave empty if pricing varies or is free</Text>
+          <Text style={styles.hint}>
+            Leave empty if pricing varies or is free
+          </Text>
         </FormSection>
 
         {/* Duration */}
@@ -169,8 +165,11 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
             options={durationOptions}
             selectedValue={durationMinutes}
             onSelect={(value) => setDurationMinutes(value)}
+            style={{rowGap: "unset", columnGap: 8, justifyContent: "space-between"}}
           />
-          <FormLabel style={styles.customDurationLabel}>Custom Duration (minutes)</FormLabel>
+          <FormLabel style={styles.customDurationLabel}>
+            Custom Duration (minutes)
+          </FormLabel>
           <FormInput
             placeholder="Enter duration in minutes"
             value={durationMinutes}
@@ -185,8 +184,8 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
             label="Active Service"
             description={
               isActive
-                ? 'Clients can book this service'
-                : 'Service is hidden from clients'
+                ? "Clients can book this service"
+                : "Service is hidden from clients"
             }
             value={isActive}
             onValueChange={setIsActive}
@@ -196,8 +195,8 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
         {/* Info Box */}
         <InfoBox variant="info" style={styles.infoBox}>
           <Text style={styles.infoText}>
-            After creating your service, make sure to set up your availability so clients can
-            book appointments.
+            After creating your service, make sure to set up your availability
+            so clients can book appointments.
           </Text>
         </InfoBox>
 
@@ -207,7 +206,7 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
           onPress={handleCreateService}
           disabled={submitting}
           loading={submitting}
-          style={styles.createButton}
+          style={{ marginTop: Spacing.lg }}
         />
 
         <View style={styles.bottomSpacer} />
@@ -221,26 +220,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.lg,
   },
-  textArea: {
-    ...Typography.body,
-    color: Colors.textPrimary,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    minHeight: 120,
-    paddingTop: Spacing.lg,
-  },
-  characterCount: {
-    ...Typography.caption,
-    color: Colors.textTertiary,
-    textAlign: 'right',
-    marginTop: Spacing.xs,
-  },
   priceInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.sm,
   },
   currencySymbol: {
@@ -265,9 +247,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.textPrimary,
     lineHeight: 20,
-  },
-  createButton: {
-    marginTop: Spacing.lg,
   },
   bottomSpacer: {
     height: Spacing.xl,

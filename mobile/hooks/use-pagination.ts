@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { ApiError } from '../types';
+import { useState, useCallback } from "react";
+import { ApiError } from "../types";
 
 interface UsePaginationReturn<T> {
   data: T[];
@@ -35,7 +35,7 @@ interface UsePaginationReturn<T> {
  */
 export function usePagination<T>(
   fetchFunction: (page: number, limit: number) => Promise<T[]>,
-  limit: number = 20
+  limit: number = 20,
 ): UsePaginationReturn<T> {
   const [data, setData] = useState<T[]>([]);
   const [page, setPage] = useState(1);
@@ -56,8 +56,8 @@ export function usePagination<T>(
         setHasMore(false);
       }
 
-      setData(prev => [...prev, ...newData]);
-      setPage(prev => prev + 1);
+      setData((prev) => [...prev, ...newData]);
+      setPage((prev) => prev + 1);
     } catch (err) {
       setError(err as ApiError);
     } finally {

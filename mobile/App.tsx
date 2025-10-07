@@ -1,40 +1,39 @@
-import React, { useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { Provider as PaperProvider } from 'react-native-paper';
-import { StyleSheet, ActivityIndicator, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons, AntDesign, MaterialIcons } from '@expo/vector-icons';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, ActivityIndicator, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Stores
-import { useAuthStore } from '@store/auth.store';
-import { useAppStore } from '@store/app.store';
+import { useAuthStore } from "@store/auth.store";
+import { useAppStore } from "@store/app.store";
 
 // Screens
-import Feed from '@screens/feed';
-import PostDetail from '@screens/post-detail';
-import Search from '@screens/search';
-import Cliques from '@screens/cliques';
-import CliqueDetail from '@screens/clique-detail';
-import Post from '@screens/post';
-import Notifications from '@screens/notifications';
-import Profile from '@screens/profile';
-import MessageDetail from '@screens/message-detail';
-import ViewUser from '@screens/view-user';
-import CreateClique from '@screens/create-clique';
-import BookingCreate from '@screens/booking-create';
-import BookingDetail from '@screens/booking-detail';
-import ServiceCreate from '@screens/service-create';
-import AvailabilityCreate from '@screens/availability-create';
-import ReviewCreate from '@screens/review-create';
+import Feed from "@screens/feed";
+import PostDetail from "@screens/post-detail";
+import Search from "@screens/search";
+import Cliques from "@screens/cliques";
+import CliqueDetail from "@screens/clique-detail";
+import PostCreate from "@/screens/post-create";
+import Notifications from "@screens/notifications";
+import Profile from "@screens/profile";
+import MessageDetail from "@screens/message-detail";
+import ViewUser from "@screens/view-user";
+import CliqueCreate from "@/screens/clique-create";
+import BookingCreate from "@screens/booking-create";
+import BookingDetail from "@screens/booking-detail";
+import ServiceCreate from "@screens/service-create";
+import AvailabilityCreate from "@screens/availability-create";
+import ReviewCreate from "@screens/review-create";
 
 // Navigation
-import Navigator from '@navigation/navigator';
+import Navigator from "@navigation/navigator";
 
 // Types
-import { RootStackParamList, TabParamList } from './types';
+import { RootStackParamList, TabParamList } from "./types";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -55,9 +54,8 @@ function CliquesStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }} id={undefined}>
       <Stack.Screen name="Cliques" component={Cliques} />
-      <Stack.Screen name="Clique" component={CliqueDetail} />
       <Stack.Screen name="CliqueDetail" component={CliqueDetail} />
-      <Stack.Screen name="CreateClique" component={CreateClique} />
+      <Stack.Screen name="CliqueCreate" component={CliqueCreate} />
       <Stack.Screen name="PostDetail" component={PostDetail} />
       <Stack.Screen name="BookingCreate" component={BookingCreate} />
       <Stack.Screen name="BookingDetail" component={BookingDetail} />
@@ -104,8 +102,8 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#6ba32d',
-        tabBarInactiveTintColor: 'black',
+        tabBarActiveTintColor: "#6ba32d",
+        tabBarInactiveTintColor: "black",
         headerShown: false,
       }}
       id={undefined}
@@ -114,7 +112,7 @@ function MyTabs() {
         name="Home"
         component={FeedStack}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="home" size={24} color={color} />
           ),
@@ -124,7 +122,7 @@ function MyTabs() {
         name="SearchTab"
         component={SearchStack}
         options={{
-          tabBarLabel: 'Search',
+          tabBarLabel: "Search",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" size={24} color={color} />
           ),
@@ -134,17 +132,17 @@ function MyTabs() {
         name="CliquesTab"
         component={CliquesStack}
         options={{
-          tabBarLabel: 'Cliques',
+          tabBarLabel: "Cliques",
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="groups" size={24} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="Post"
-        component={Post}
+        name="PostCreate"
+        component={PostCreate}
         options={{
-          tabBarLabel: 'Post',
+          tabBarLabel: "Post",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="create" size={24} color={color} />
           ),
@@ -154,7 +152,7 @@ function MyTabs() {
         name="NotificationsTab"
         component={NotificationStack}
         options={{
-          tabBarLabel: 'Notifications',
+          tabBarLabel: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="notifications" size={24} color={color} />
           ),
@@ -164,7 +162,7 @@ function MyTabs() {
         name="Profile"
         component={Profile}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="user" size={24} color={color} />
           ),
@@ -212,10 +210,10 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       {/*<PaperProvider>*/}
-        <NavigationContainer>
-          <StatusBar style="auto" />
-          <AppContent />
-        </NavigationContainer>
+      <NavigationContainer>
+        <StatusBar style="auto" />
+        <AppContent />
+      </NavigationContainer>
       {/*</PaperProvider>*/}
     </QueryClientProvider>
   );
@@ -224,14 +222,14 @@ export default function App() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
   },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingTop: 50,
   },
 });

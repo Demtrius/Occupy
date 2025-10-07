@@ -133,7 +133,7 @@ class CliqueCreateUpdateSerializer(serializers.ModelSerializer):
 class PostListSerializer(serializers.ModelSerializer):
     """Serializer for listing posts with basic information."""
 
-    occupier = serializers.CharField(source="occupier.username", read_only=True)
+    occupier = UserBasicSerializer(read_only=True)
     clique = serializers.CharField(source="clique.name", read_only=True)
     user_id = serializers.IntegerField(source="occupier.id", read_only=True)
     clique_id = serializers.IntegerField(source="clique.id", read_only=True)

@@ -1,5 +1,11 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import React from "react";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+} from "react-native";
 
 export interface Option<T = any> {
   value: T;
@@ -47,7 +53,9 @@ export function OptionGrid<T = any>({
             onPress={() => onSelect(option.value)}
             activeOpacity={0.7}
           >
-            <Text style={[styles.optionText, selected && styles.optionTextSelected]}>
+            <Text
+              style={[styles.optionText, selected && styles.optionTextSelected]}
+            >
               {option.label}
             </Text>
           </TouchableOpacity>
@@ -59,8 +67,8 @@ export function OptionGrid<T = any>({
 
 const styles = StyleSheet.create({
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
     marginBottom: 8,
   },
@@ -69,21 +77,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f9f9f9',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#e0e0e0",
+    backgroundColor: "#f9f9f9",
+    alignItems: "center",
+    justifyContent: "center",
   },
   optionSelected: {
-    backgroundColor: '#6ba32d',
-    borderColor: '#6ba32d',
+    backgroundColor: "#6ba32d",
+    borderColor: "#6ba32d",
   },
   optionText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
   },
   optionTextSelected: {
-    color: '#fff',
+    color: "#fff",
   },
 });

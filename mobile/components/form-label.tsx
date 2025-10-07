@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, StyleSheet, TextStyle } from 'react-native';
+import React from "react";
+import { Text, StyleSheet, TextStyle } from "react-native";
 
 interface FormLabelProps {
   children: string;
@@ -23,11 +23,11 @@ export const FormLabel: React.FC<FormLabelProps> = ({
 const styles = StyleSheet.create({
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 8,
   },
   required: {
-    color: '#ff6b6b',
+    color: "#ff6b6b",
   },
 });

@@ -1,6 +1,6 @@
 // Post Types
 
-import { User } from './user';
+import { User } from "./user";
 
 export interface Post {
   id: number;

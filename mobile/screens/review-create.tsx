@@ -1,45 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
-} from 'react-native';
-import { useNavigation, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
-import { bookingService, socialService } from '../services';
-import { showError, showSuccess } from '../store/app.store';
-import { BookingDetail } from '../types';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { bookingService, socialService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
+import {
+  BookingDetail,
+  ScreenNavigationProp,
+  ScreenRouteProp,
+} from "../types";
 import {
   ScreenHeader,
   FormSection,
   FormLabel,
   PrimaryButton,
   InfoBox,
-} from '../components';
-import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
-
-type ReviewCreateScreenRouteProp = RouteProp<RootStackParamList, 'ReviewCreate'>;
-type ReviewCreateScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+  FormInput,
+} from "../components";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  CommonStyles,
+} from "../theme";
 
 interface Props {
-  route: ReviewCreateScreenRouteProp;
+  route: ScreenRouteProp<"ReviewCreate">;
 }
 
 const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
-  const navigation = useNavigation<ReviewCreateScreenNavigationProp>();
+  const navigation = useNavigation<ScreenNavigationProp<"ReviewCreate">>();
   const { bookingId } = route.params;
 
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [rating, setRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>('');
+  const [comment, setComment] = useState<string>("");
 
   useEffect(() => {
     loadBookingData();
@@ -51,8 +56,8 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
       const bookingData = await bookingService.getBookingById(bookingId);
       setBooking(bookingData);
     } catch (error: any) {
-      console.error('Error loading booking:', error);
-      showError(error.message || 'Failed to load booking');
+      console.error("Error loading booking:", error);
+      showError(error.message || "Failed to load booking");
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -61,12 +66,12 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 
   const handleSubmitReview = async () => {
     if (rating === 0) {
-      showError('Please select a rating');
+      showError("Please select a rating");
       return;
     }
 
     if (!booking) {
-      showError('Booking data not available');
+      showError("Booking data not available");
       return;
     }
 
@@ -80,11 +85,11 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
       };
 
       await socialService.createReview(reviewData);
-      showSuccess('Review submitted successfully!');
+      showSuccess("Review submitted successfully!");
       navigation.goBack();
     } catch (error: any) {
-      console.error('Error creating review:', error);
-      showError(error.message || 'Failed to submit review');
+      console.error("Error creating review:", error);
+      showError(error.message || "Failed to submit review");
     } finally {
       setSubmitting(false);
     }
@@ -100,11 +105,11 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
           style={styles.starButton}
         >
           <Ionicons
-            name={i <= rating ? 'star' : 'star-outline'}
+            name={i <= rating ? "star" : "star-outline"}
             size={40}
             color={i <= rating ? Colors.warning : Colors.textDisabled}
           />
-        </TouchableOpacity>
+        </TouchableOpacity>,
       );
     }
     return stars;
@@ -113,17 +118,17 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
   const getRatingLabel = (rating: number): string => {
     switch (rating) {
       case 1:
-        return 'Poor';
+        return "Poor";
       case 2:
-        return 'Fair';
+        return "Fair";
       case 3:
-        return 'Good';
+        return "Good";
       case 4:
-        return 'Very Good';
+        return "Very Good";
       case 5:
-        return 'Excellent';
+        return "Excellent";
       default:
-        return 'Select a rating';
+        return "Select a rating";
     }
   };
 
@@ -152,19 +157,22 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <View style={CommonStyles.container}>
-      <ScreenHeader
-        title="Write Review"
-        onBack={() => navigation.goBack()}
-      />
+      <ScreenHeader title="Write Review" onBack={() => navigation.goBack()} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Service Info */}
         <InfoBox variant="info" style={styles.serviceCard}>
           <Text style={styles.serviceTitle}>{booking.service.title}</Text>
-          <Text style={styles.serviceDescription}>{booking.service.description}</Text>
+          <Text style={styles.serviceDescription}>
+            {booking.service.description}
+          </Text>
           {booking.cliqueName && (
             <View style={styles.businessRow}>
-              <Ionicons name="business-outline" size={16} color={Colors.textSecondary} />
+              <Ionicons
+                name="business-outline"
+                size={16}
+                color={Colors.textSecondary}
+              />
               <Text style={styles.businessName}>{booking.cliqueName}</Text>
             </View>
           )}
@@ -174,7 +182,9 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
         <FormSection>
           <FormLabel required>Rating</FormLabel>
           <View style={styles.starsContainer}>{renderStars()}</View>
-          <Text style={[styles.ratingLabel, rating > 0 && styles.ratingLabelActive]}>
+          <Text
+            style={[styles.ratingLabel, rating > 0 && styles.ratingLabelActive]}
+          >
             {getRatingLabel(rating)}
           </Text>
         </FormSection>
@@ -182,25 +192,21 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
         {/* Comment Section */}
         <FormSection>
           <FormLabel>Your Review (Optional)</FormLabel>
-          <TextInput
-            style={styles.commentInput}
+          <FormInput
             placeholder="Share your experience with this service..."
-            placeholderTextColor={Colors.textTertiary}
             value={comment}
             onChangeText={setComment}
             multiline
-            numberOfLines={6}
-            textAlignVertical="top"
             maxLength={500}
+            showCharacterCount
           />
-          <Text style={styles.characterCount}>{comment.length}/500</Text>
         </FormSection>
 
         {/* Info Box */}
         <InfoBox variant="info" style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Your review will help others make better decisions and help the service provider
-            improve their services.
+            Your review will help others make better decisions and help the
+            service provider improve their services.
           </Text>
         </InfoBox>
 
@@ -210,7 +216,7 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
           onPress={handleSubmitReview}
           disabled={rating === 0 || submitting}
           loading={submitting}
-          style={styles.submitButton}
+          style={{ marginTop: Spacing.lg }}
         />
 
         <View style={styles.bottomSpacer} />
@@ -253,8 +259,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   businessRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.xs,
   },
   businessName: {
@@ -262,8 +268,8 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   starsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: Spacing.sm,
     marginBottom: Spacing.md,
   },
@@ -273,26 +279,10 @@ const styles = StyleSheet.create({
   ratingLabel: {
     ...Typography.bodyBold,
     color: Colors.textTertiary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   ratingLabelActive: {
     color: Colors.primary,
-  },
-  commentInput: {
-    ...Typography.body,
-    color: Colors.textPrimary,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    minHeight: 120,
-  },
-  characterCount: {
-    ...Typography.caption,
-    color: Colors.textTertiary,
-    textAlign: 'right',
-    marginTop: Spacing.xs,
   },
   infoBox: {
     marginTop: Spacing.lg,
@@ -301,9 +291,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.textPrimary,
     lineHeight: 20,
-  },
-  submitButton: {
-    marginTop: Spacing.lg,
   },
   bottomSpacer: {
     height: Spacing.xl,

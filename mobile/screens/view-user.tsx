@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -9,44 +9,36 @@ import {
   Dimensions,
   Image,
   RefreshControl,
-} from 'react-native';
-import { Searchbar as PaperSearchbar } from 'react-native-paper';
-import { useNavigation, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
-import { postsService } from '../services';
-import usersService from '../services/users.service';
-import { showError } from '@store/app.store';
-import { Post, User } from '../types';
-
-const { width, height } = Dimensions.get('window');
-
-// Types
-type RootStackParamList = {
-  ViewUser: { id: number };
-  NotificationsTab: { screen: string; params: { id: number } };
-  PostDetail: { id: number };
-};
-
-type ViewUserScreenRouteProp = RouteProp<RootStackParamList, 'ViewUser'>;
-type ViewUserScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+} from "react-native";
+import { Searchbar as PaperSearchbar } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { postsService } from "../services";
+import usersService from "../services/users.service";
+import { showError } from "@store/app.store";
+import {
+  Post,
+  User,
+  ScreenNavigationProp,
+  ScreenRouteProp,
+} from "../types";
 
 interface Props {
-  route: ViewUserScreenRouteProp;
+  route: ScreenRouteProp<"ViewUser">;
 }
 
-const ViewUser: React.FC<Props> = ({ route }) => {
+const ViewUserScreen: React.FC<Props> = ({ route }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'Posts' | 'Reviews'>('Posts');
-  const [search, setSearch] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<"Posts" | "Reviews">("Posts");
+  const [search, setSearch] = useState<string>("");
   const [filteredDataSource, setFilteredDataSource] = useState<Post[]>([]);
   const [masterDataSource, setMasterDataSource] = useState<Post[]>([]);
   const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const searchBarRef = useRef<any>(null);
-  const navigation = useNavigation<ViewUserScreenNavigationProp>();
+  const navigation = useNavigation<ScreenNavigationProp<"ViewUser">>();
 
   const { id } = route.params;
 
@@ -61,8 +53,8 @@ const ViewUser: React.FC<Props> = ({ route }) => {
       const user = await usersService.getUserById(id);
       setUserData(user);
     } catch (error: any) {
-      console.error('Error fetching user:', error);
-      showError(error.message || 'Failed to load user data');
+      console.error("Error fetching user:", error);
+      showError(error.message || "Failed to load user data");
     } finally {
       setLoading(false);
     }
@@ -71,13 +63,13 @@ const ViewUser: React.FC<Props> = ({ route }) => {
   const getUserPosts = async () => {
     try {
       const response = await postsService.getPostsByUser(id);
-      const posts = Array.isArray(response) ? response : (response.results || []);
+      const posts = Array.isArray(response) ? response : response.results || [];
       setUserPosts(posts);
       setFilteredDataSource(posts);
       setMasterDataSource(posts);
     } catch (error: any) {
-      console.error('Error fetching user posts:', error);
-      showError(error.message || 'Failed to load user posts');
+      console.error("Error fetching user posts:", error);
+      showError(error.message || "Failed to load user posts");
     }
   };
 
@@ -86,7 +78,7 @@ const ViewUser: React.FC<Props> = ({ route }) => {
     try {
       await Promise.all([getUserData(), getUserPosts()]);
     } catch (error) {
-      console.error('Error refreshing:', error);
+      console.error("Error refreshing:", error);
     } finally {
       setRefreshing(false);
     }
@@ -95,10 +87,13 @@ const ViewUser: React.FC<Props> = ({ route }) => {
   const searchFilterFunction = (text: string) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
-        const captionData = item.caption ? item.caption.toUpperCase() : '';
-        const contentData = item.content ? item.content.toUpperCase() : '';
+        const captionData = item.caption ? item.caption.toUpperCase() : "";
+        const contentData = item.content ? item.content.toUpperCase() : "";
         const textData = text.toUpperCase();
-        return captionData.indexOf(textData) > -1 || contentData.indexOf(textData) > -1;
+        return (
+          captionData.indexOf(textData) > -1 ||
+          contentData.indexOf(textData) > -1
+        );
       });
       setFilteredDataSource(newData);
       setSearch(text);
@@ -110,13 +105,13 @@ const ViewUser: React.FC<Props> = ({ route }) => {
   };
 
   const handlePostPress = (postId: number) => {
-    navigation.navigate('PostDetail', { id: postId });
+    navigation.navigate("PostDetail", { id: postId });
   };
 
   const handleContactPress = () => {
-    navigation.navigate('NotificationsTab', {
-      screen: 'MessageDetail',
-      params: { id },
+    navigation.navigate("NotificationsTab", {
+      screen: "MessageDetail",
+      params: { messageId: id },
     });
   };
 
@@ -137,7 +132,7 @@ const ViewUser: React.FC<Props> = ({ route }) => {
           )}
         </View>
         <Text style={styles.postCaption} numberOfLines={2}>
-          {item.caption || 'No caption'}
+          {item.caption || "No caption"}
         </Text>
         {item.content && item.content !== item.caption && (
           <Text style={styles.postContent} numberOfLines={2}>
@@ -204,7 +199,10 @@ const ViewUser: React.FC<Props> = ({ route }) => {
         <View style={styles.userInfoContainer}>
           <View style={styles.userAvatarContainer}>
             {userData.profileImage ? (
-              <Image source={{ uri: userData.profileImage }} style={styles.userAvatar} />
+              <Image
+                source={{ uri: userData.profileImage }}
+                style={styles.userAvatar}
+              />
             ) : (
               <View style={styles.userAvatarPlaceholder}>
                 <Ionicons name="person" size={48} color="#9CA3AF" />
@@ -242,13 +240,18 @@ const ViewUser: React.FC<Props> = ({ route }) => {
       )}
 
       <View style={styles.tabContainer}>
-        {['Posts', 'Reviews'].map((tab) => (
+        {["Posts", "Reviews"].map((tab) => (
           <TouchableOpacity
             key={tab}
             style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab as 'Posts' | 'Reviews')}
+            onPress={() => setActiveTab(tab as "Posts" | "Reviews")}
           >
-            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === tab && styles.activeTabText,
+              ]}
+            >
               {tab}
             </Text>
           </TouchableOpacity>
@@ -268,7 +271,7 @@ const ViewUser: React.FC<Props> = ({ route }) => {
 
   return (
     <View style={styles.screenContainer}>
-      {activeTab === 'Posts' && (
+      {activeTab === "Posts" && (
         <FlatList
           data={filteredDataSource}
           keyExtractor={(item) => item.id.toString()}
@@ -280,18 +283,22 @@ const ViewUser: React.FC<Props> = ({ route }) => {
               refreshing={refreshing}
               onRefresh={onRefresh}
               tintColor="#6ba32d"
-              colors={['#6ba32d']}
+              colors={["#6ba32d"]}
             />
           }
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
-              <Ionicons name="document-text-outline" size={64} color="#9CA3AF" />
+              <Ionicons
+                name="document-text-outline"
+                size={64}
+                color="#9CA3AF"
+              />
               <Text style={styles.emptyText}>No posts yet</Text>
             </View>
           )}
         />
       )}
-      {activeTab === 'Reviews' && (
+      {activeTab === "Reviews" && (
         <View style={styles.screenContainer}>
           {renderHeader()}
           {renderReviews()}
@@ -304,34 +311,34 @@ const ViewUser: React.FC<Props> = ({ route }) => {
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     paddingTop: height * 0.08,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontWeight: "bold",
+    color: "#1F2937",
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
     paddingLeft: 40,
   },
   searchIcon: {
@@ -339,7 +346,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -348,10 +355,10 @@ const styles = StyleSheet.create({
   },
   userInfoContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    alignItems: 'center',
+    borderBottomColor: "#E5E7EB",
+    alignItems: "center",
   },
   userAvatarContainer: {
     marginBottom: 16,
@@ -360,59 +367,59 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
   },
   userAvatarPlaceholder: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#E5E7EB',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
   },
   userName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    fontWeight: "bold",
+    color: "#1F2937",
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#6B7280',
+    color: "#6B7280",
     marginBottom: 12,
   },
   userMetaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 4,
   },
   userMetaText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: "#6B7280",
     marginLeft: 8,
   },
   contactButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#6ba32d',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#6ba32d",
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
     marginTop: 16,
   },
   contactButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
   tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#fff",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: "#E5E7EB",
   },
   tab: {
     paddingVertical: 8,
@@ -420,26 +427,26 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#6ba32d',
+    borderBottomColor: "#6ba32d",
   },
   tabText: {
     fontSize: 16,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   activeTabText: {
-    color: '#6ba32d',
-    fontWeight: 'bold',
+    color: "#6ba32d",
+    fontWeight: "bold",
   },
   listContainer: {
     paddingBottom: 20,
   },
   cardContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 16,
     marginTop: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -449,69 +456,69 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardImage: {
-    width: '100%',
+    width: "100%",
     height: 150,
     borderRadius: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
   },
   cardImagePlaceholder: {
-    width: '100%',
+    width: "100%",
     height: 150,
     borderRadius: 8,
-    backgroundColor: '#E5E7EB',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
   },
   postCaption: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginBottom: 8,
     lineHeight: 22,
   },
   postContent: {
     fontSize: 14,
-    color: '#6B7280',
+    color: "#6B7280",
     marginBottom: 12,
     lineHeight: 20,
   },
   postMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 8,
   },
   postMetaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginRight: 16,
   },
   postMetaText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: "#6B7280",
     marginLeft: 6,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 60,
   },
   emptyText: {
     fontSize: 18,
-    color: '#6B7280',
+    color: "#6B7280",
     marginTop: 16,
   },
   placeholderContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 60,
   },
   placeholderText: {
     fontSize: 18,
-    color: '#6B7280',
+    color: "#6B7280",
     marginTop: 16,
   },
 });
 
-export default ViewUser;
+export default ViewUserScreen;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   TouchableOpacity,
   Text,
@@ -6,8 +6,8 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface PrimaryButtonProps {
   onPress: () => void;
@@ -17,7 +17,7 @@ interface PrimaryButtonProps {
   icon?: keyof typeof Ionicons.glyphMap;
   style?: ViewStyle;
   textStyle?: TextStyle;
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  variant?: "primary" | "secondary" | "danger" | "success";
 }
 
 export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
@@ -28,17 +28,17 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   icon,
   style,
   textStyle,
-  variant = 'primary',
+  variant = "primary",
 }) => {
   const getVariantStyle = () => {
     switch (variant) {
-      case 'primary':
+      case "primary":
         return styles.primaryButton;
-      case 'secondary':
+      case "secondary":
         return styles.secondaryButton;
-      case 'danger':
+      case "danger":
         return styles.dangerButton;
-      case 'success':
+      case "success":
         return styles.successButton;
       default:
         return styles.primaryButton;
@@ -71,34 +71,33 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
     padding: 16,
     borderRadius: 12,
-    marginHorizontal: 20,
     marginTop: 16,
   },
   primaryButton: {
-    backgroundColor: '#6ba32d',
+    backgroundColor: "#6ba32d",
   },
   secondaryButton: {
-    backgroundColor: '#FFA500',
+    backgroundColor: "#FFA500",
   },
   dangerButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: "#ff6b6b",
   },
   successButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

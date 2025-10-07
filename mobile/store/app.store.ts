@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { AppNotification } from '../types/store';
+import { create } from "zustand";
+import { AppNotification } from "../types/store";
 
 interface AppStore {
   // State
@@ -8,7 +8,7 @@ interface AppStore {
   isOnline: boolean;
   error: string | null;
   notifications: AppNotification[];
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
 
   // Loading state
@@ -24,12 +24,12 @@ interface AppStore {
   setOnlineStatus: (status: boolean) => void;
 
   // Notifications
-  addNotification: (notification: Omit<AppNotification, 'id'>) => void;
+  addNotification: (notification: Omit<AppNotification, "id">) => void;
   removeNotification: (id: string) => void;
   clearNotifications: () => void;
 
   // Theme
-  setTheme: (theme: 'light' | 'dark' | 'auto') => void;
+  setTheme: (theme: "light" | "dark" | "auto") => void;
 
   // Language
   setLanguage: (language: string) => void;
@@ -39,13 +39,13 @@ interface AppStore {
 }
 
 const initialState = {
-  domain: process.env.EXPO_PUBLIC_BACKEND_URL || '',
+  domain: process.env.EXPO_PUBLIC_BACKEND_URL || "",
   isLoading: false,
   isOnline: true,
   error: null,
   notifications: [],
-  theme: 'auto' as const,
-  language: 'en',
+  theme: "auto" as const,
+  language: "en",
 };
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -70,7 +70,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     if (error) {
       // Auto-add error notification
       get().addNotification({
-        type: 'error',
+        type: "error",
         message: error,
         duration: 5000,
       });
@@ -86,14 +86,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({ isOnline: status });
     if (!status) {
       get().addNotification({
-        type: 'warning',
-        message: 'No internet connection',
+        type: "warning",
+        message: "No internet connection",
         duration: 0, // Stay until dismissed
       });
     } else {
       // Clear offline notification when back online
       const offlineNotification = get().notifications.find(
-        n => n.message === 'No internet connection'
+        (n) => n.message === "No internet connection",
       );
       if (offlineNotification) {
         get().removeNotification(offlineNotification.id);
@@ -102,7 +102,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 
   // Notifications management
-  addNotification: (notification: Omit<AppNotification, 'id'>) => {
+  addNotification: (notification: Omit<AppNotification, "id">) => {
     const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newNotification: AppNotification = {
       ...notification,
@@ -133,7 +133,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 
   // Theme management
-  setTheme: (theme: 'light' | 'dark' | 'auto') => {
+  setTheme: (theme: "light" | "dark" | "auto") => {
     set({ theme });
     // You can persist this to AsyncStorage if needed
   },
@@ -156,7 +156,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 // Helper functions for common notification types
 export const showSuccess = (message: string, duration?: number) => {
   useAppStore.getState().addNotification({
-    type: 'success',
+    type: "success",
     message,
     duration,
   });
@@ -164,7 +164,7 @@ export const showSuccess = (message: string, duration?: number) => {
 
 export const showError = (message: string, duration?: number) => {
   useAppStore.getState().addNotification({
-    type: 'error',
+    type: "error",
     message,
     duration,
   });
@@ -172,7 +172,7 @@ export const showError = (message: string, duration?: number) => {
 
 export const showWarning = (message: string, duration?: number) => {
   useAppStore.getState().addNotification({
-    type: 'warning',
+    type: "warning",
     message,
     duration,
   });
@@ -180,7 +180,7 @@ export const showWarning = (message: string, duration?: number) => {
 
 export const showInfo = (message: string, duration?: number) => {
   useAppStore.getState().addNotification({
-    type: 'info',
+    type: "info",
     message,
     duration,
   });

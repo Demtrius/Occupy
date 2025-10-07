@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,34 +9,41 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
-} from 'react-native';
-import { useNavigation, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Ionicons } from '@expo/vector-icons';
-import { bookingService } from '../services';
-import { showError, showSuccess } from '../store/app.store';
-import { useAuthStore } from '../store/auth.store';
-import { Service, Availability, TimeSlot } from '../types';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Ionicons } from "@expo/vector-icons";
+import { bookingService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
+import { useAuthStore } from "../store/auth.store";
+import {
+  Service,
+  Availability,
+  TimeSlot,
+  ScreenRouteProp,
+  ScreenNavigationProp,
+} from "../types";
 import {
   ScreenHeader,
   FormSection,
   FormLabel,
   PrimaryButton,
   InfoBox,
-} from '../components';
-import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
-
-type BookingCreateScreenRouteProp = RouteProp<RootStackParamList, 'BookingCreate'>;
-type BookingCreateScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+} from "../components";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  CommonStyles,
+} from "../theme";
 
 interface Props {
-  route: BookingCreateScreenRouteProp;
+  route: ScreenRouteProp<"BookingCreate">;
 }
 
 const BookingCreateScreen: React.FC<Props> = ({ route }) => {
-  const navigation = useNavigation<BookingCreateScreenNavigationProp>();
+  const navigation = useNavigation<ScreenNavigationProp<"BookingCreate">>();
   const user = useAuthStore((state) => state.user);
   const { serviceId } = route.params;
 
@@ -46,8 +53,11 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [availability, setAvailability] = useState<Availability[]>([]);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: string; end: string } | null>(null);
-  const [notes, setNotes] = useState<string>('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
+  const [notes, setNotes] = useState<string>("");
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
 
   useEffect(() => {
@@ -66,8 +76,8 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
       const serviceData = await bookingService.getServiceById(serviceId);
       setService(serviceData);
     } catch (error: any) {
-      console.error('Error loading service:', error);
-      showError(error.message || 'Failed to load service');
+      console.error("Error loading service:", error);
+      showError(error.message || "Failed to load service");
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -83,12 +93,12 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
       const availabilityData = await bookingService.getCliqueAvailability(
         service.clique.id,
         dateStr,
-        dateStr
+        dateStr,
       );
       setAvailability(availabilityData);
     } catch (error: any) {
-      console.error('Error loading availability:', error);
-      showError('Failed to load available time slots');
+      console.error("Error loading availability:", error);
+      showError("Failed to load available time slots");
     } finally {
       setLoadingSlots(false);
     }
@@ -96,16 +106,16 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
 
   const formatDateForAPI = (date: Date): string => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
   const formatTime = (time: string): string => {
     // Format time from HH:MM:SS to HH:MM AM/PM
-    const [hours, minutes] = time.split(':');
+    const [hours, minutes] = time.split(":");
     const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour % 12 || 12;
     return `${displayHour}:${minutes} ${ampm}`;
   };
@@ -134,7 +144,8 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
       if (service) {
         const duration = service.durationMinutes || 30;
         const slotCount = Math.floor(
-          (parseTimeToMinutes(endTime) - parseTimeToMinutes(startTime)) / duration
+          (parseTimeToMinutes(endTime) - parseTimeToMinutes(startTime)) /
+            duration,
         );
 
         for (let i = 0; i < slotCount; i++) {
@@ -154,7 +165,7 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
   };
 
   const parseTimeToMinutes = (time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
     return hours * 60 + minutes;
   };
 
@@ -162,11 +173,11 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
     const totalMinutes = parseTimeToMinutes(time) + minutesToAdd;
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
   };
 
   const handleDateChange = (event: any, date?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
+    setShowDatePicker(Platform.OS === "ios");
     if (date) {
       setSelectedDate(date);
       setSelectedTimeSlot(null); // Reset time slot when date changes
@@ -179,12 +190,12 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
 
   const handleCreateBooking = async () => {
     if (!selectedTimeSlot) {
-      Alert.alert('Error', 'Please select a time slot');
+      Alert.alert("Error", "Please select a time slot");
       return;
     }
 
     if (!service) {
-      Alert.alert('Error', 'Service not found');
+      Alert.alert("Error", "Service not found");
       return;
     }
 
@@ -200,11 +211,11 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
       };
 
       await bookingService.createBooking(bookingData);
-      showSuccess('Booking created successfully!');
+      showSuccess("Booking created successfully!");
       navigation.goBack();
     } catch (error: any) {
-      console.error('Error creating booking:', error);
-      showError(error.message || 'Failed to create booking');
+      console.error("Error creating booking:", error);
+      showError(error.message || "Failed to create booking");
     } finally {
       setSubmitting(false);
     }
@@ -238,10 +249,7 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
 
   return (
     <View style={CommonStyles.container}>
-      <ScreenHeader
-        title="Book Service"
-        onBack={() => navigation.goBack()}
-      />
+      <ScreenHeader title="Book Service" onBack={() => navigation.goBack()} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Service Info */}
@@ -250,12 +258,22 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
           <Text style={styles.serviceDescription}>{service.description}</Text>
           <View style={styles.serviceMetaRow}>
             <View style={styles.serviceMeta}>
-              <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
-              <Text style={styles.serviceMetaText}>{service.durationMinutes} min</Text>
+              <Ionicons
+                name="time-outline"
+                size={16}
+                color={Colors.textSecondary}
+              />
+              <Text style={styles.serviceMetaText}>
+                {service.durationMinutes} min
+              </Text>
             </View>
             {service.price && (
               <View style={styles.serviceMeta}>
-                <Ionicons name="cash-outline" size={16} color={Colors.textSecondary} />
+                <Ionicons
+                  name="cash-outline"
+                  size={16}
+                  color={Colors.textSecondary}
+                />
                 <Text style={styles.serviceMetaText}>${service.price}</Text>
               </View>
             )}
@@ -269,13 +287,17 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
             style={styles.dateButton}
             onPress={() => setShowDatePicker(true)}
           >
-            <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+              color={Colors.primary}
+            />
             <Text style={styles.dateButtonText}>
-              {selectedDate.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
+              {selectedDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </Text>
           </TouchableOpacity>
@@ -284,7 +306,7 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
             <DateTimePicker
               value={selectedDate}
               mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={handleDateChange}
               minimumDate={minDate}
             />
@@ -297,7 +319,9 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
           {loadingSlots ? (
             <View style={styles.loadingSlotsContainer}>
               <ActivityIndicator size="small" color={Colors.primary} />
-              <Text style={styles.loadingSlotsText}>Loading available slots...</Text>
+              <Text style={styles.loadingSlotsText}>
+                Loading available slots...
+              </Text>
             </View>
           ) : timeSlots.length > 0 ? (
             <View style={styles.timeSlotsGrid}>
@@ -306,7 +330,8 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
                   key={index}
                   style={[
                     styles.timeSlot,
-                    selectedTimeSlot?.start === slot.startTime && styles.timeSlotSelected,
+                    selectedTimeSlot?.start === slot.startTime &&
+                      styles.timeSlotSelected,
                     !slot.available && styles.timeSlotDisabled,
                   ]}
                   onPress={() => handleTimeSlotSelect(slot)}
@@ -315,7 +340,8 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
                   <Text
                     style={[
                       styles.timeSlotText,
-                      selectedTimeSlot?.start === slot.startTime && styles.timeSlotTextSelected,
+                      selectedTimeSlot?.start === slot.startTime &&
+                        styles.timeSlotTextSelected,
                       !slot.available && styles.timeSlotTextDisabled,
                     ]}
                   >
@@ -327,9 +353,17 @@ const BookingCreateScreen: React.FC<Props> = ({ route }) => {
           ) : (
             <InfoBox variant="warning">
               <View style={styles.noSlotsContainer}>
-                <Ionicons name="calendar-outline" size={48} color={Colors.textTertiary} />
-                <Text style={styles.noSlotsText}>No available time slots for this date</Text>
-                <Text style={styles.noSlotsSubtext}>Please select a different date</Text>
+                <Ionicons
+                  name="calendar-outline"
+                  size={48}
+                  color={Colors.textTertiary}
+                />
+                <Text style={styles.noSlotsText}>
+                  No available time slots for this date
+                </Text>
+                <Text style={styles.noSlotsSubtext}>
+                  Please select a different date
+                </Text>
               </View>
             </InfoBox>
           )}
@@ -398,12 +432,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   serviceMetaRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.lg,
   },
   serviceMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.xs,
   },
   serviceMetaText: {
@@ -411,8 +445,8 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.white,
     padding: Spacing.lg,
     borderRadius: BorderRadius.md,
@@ -426,9 +460,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loadingSlotsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     padding: Spacing.xl,
     gap: Spacing.md,
   },
@@ -437,8 +471,8 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   timeSlotsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: Spacing.md,
   },
   timeSlot: {
@@ -449,7 +483,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.white,
     minWidth: 100,
-    alignItems: 'center',
+    alignItems: "center",
   },
   timeSlotSelected: {
     backgroundColor: Colors.primary,
@@ -471,19 +505,19 @@ const styles = StyleSheet.create({
     color: Colors.textDisabled,
   },
   noSlotsContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: Spacing.xl,
     gap: Spacing.sm,
   },
   noSlotsText: {
     ...Typography.body,
     color: Colors.textPrimary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   noSlotsSubtext: {
     ...Typography.small,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
   },
   notesInput: {
     ...Typography.body,

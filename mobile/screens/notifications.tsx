@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,39 +9,25 @@ import {
   Dimensions,
   ActivityIndicator,
   RefreshControl,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Searchbar as PaperSearchbar } from 'react-native-paper';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Searchbar as PaperSearchbar } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
+import { ScreenHeader } from "../components";
+import {
+  ScreenNavigationProp,
+} from "../types";
 
-const { width, height } = Dimensions.get('window');
-
-// Types
-interface Notification {
-  id: number;
-  sender: string;
-  text: string;
-  unreadCount: number;
-  avatar?: string;
-  timestamp?: string;
-  type?: 'message' | 'system';
-}
-
-type RootStackParamList = {
-  MessageDetail: { messageId: number };
-};
-
-type NotificationsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MessageDetail'>;
-
-const Notifications: React.FC = () => {
+const NotificationsScreen: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [search, setSearch] = useState<string>('');
-  const [filteredDataSource, setFilteredDataSource] = useState<Notification[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [filteredDataSource, setFilteredDataSource] = useState<Notification[]>(
+    [],
+  );
   const [masterDataSource, setMasterDataSource] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const navigation = useNavigation<NotificationsScreenNavigationProp>();
+  const navigation = useNavigation<ScreenNavigationProp<"Notifications">>();
 
   useEffect(() => {
     loadNotifications();
@@ -56,67 +42,67 @@ const Notifications: React.FC = () => {
     const hardcodedNotifications: Notification[] = [
       {
         id: 1,
-        sender: 'Haley James',
-        text: 'Hey! How are you doing?',
+        sender: "Haley James",
+        text: "Hey! How are you doing?",
         unreadCount: 9,
-        timestamp: '2m ago',
-        type: 'message'
+        timestamp: "2m ago",
+        type: "message",
       },
       {
         id: 2,
-        sender: 'Nathan Scott',
-        text: 'Thanks for your help yesterday!',
+        sender: "Nathan Scott",
+        text: "Thanks for your help yesterday!",
         unreadCount: 0,
-        timestamp: '1h ago',
-        type: 'message'
+        timestamp: "1h ago",
+        type: "message",
       },
       {
         id: 3,
-        sender: 'Brooke Davis',
-        text: 'Can we meet tomorrow?',
+        sender: "Brooke Davis",
+        text: "Can we meet tomorrow?",
         unreadCount: 2,
-        timestamp: '3h ago',
-        type: 'message'
+        timestamp: "3h ago",
+        type: "message",
       },
       {
         id: 4,
-        sender: 'Jamie Scott',
-        text: 'Great post!',
+        sender: "Jamie Scott",
+        text: "Great post!",
         unreadCount: 0,
-        timestamp: '5h ago',
-        type: 'message'
+        timestamp: "5h ago",
+        type: "message",
       },
       {
         id: 5,
-        sender: 'Marvin McFadden',
-        text: 'Looking forward to the event',
+        sender: "Marvin McFadden",
+        text: "Looking forward to the event",
         unreadCount: 0,
-        timestamp: '1d ago',
-        type: 'message'
+        timestamp: "1d ago",
+        type: "message",
       },
       {
         id: 6,
-        sender: 'Antwon Taylor',
-        text: 'Let me know when you\'re free',
+        sender: "Antwon Taylor",
+        text: "Let me know when you're free",
         unreadCount: 0,
-        timestamp: '2d ago',
-        type: 'message'
+        timestamp: "2d ago",
+        type: "message",
       },
       {
         id: 7,
-        sender: 'Jake Jagielski',
-        text: 'Did you see my message?',
+        sender: "Jake Jagielski",
+        text: "Did you see my message?",
         unreadCount: 0,
-        timestamp: '3d ago',
-        type: 'message'
+        timestamp: "3d ago",
+        type: "message",
       },
       {
         id: 8,
-        sender: 'Peyton Sawyer',
-        text: 'Happy to connect!',
+        sender: "Peyton Sawyer",
+        text: "Happy to connect!",
         unreadCount: 0,
-        timestamp: '1w ago',
-        type: 'message'
+        timestamp: "1w ago",
+        type: "message",
       },
     ];
 
@@ -139,10 +125,13 @@ const Notifications: React.FC = () => {
   const searchFilterFunction = (text: string) => {
     if (text) {
       const newData = masterDataSource.filter((item) => {
-        const senderData = item.sender ? item.sender.toUpperCase() : '';
-        const textData = item.text ? item.text.toUpperCase() : '';
+        const senderData = item.sender ? item.sender.toUpperCase() : "";
+        const textData = item.text ? item.text.toUpperCase() : "";
         const searchText = text.toUpperCase();
-        return senderData.indexOf(searchText) > -1 || textData.indexOf(searchText) > -1;
+        return (
+          senderData.indexOf(searchText) > -1 ||
+          textData.indexOf(searchText) > -1
+        );
       });
       setFilteredDataSource(newData);
       setSearch(text);
@@ -154,7 +143,7 @@ const Notifications: React.FC = () => {
 
   const handleNotificationPress = (item: Notification) => {
     // Mark as read (will be implemented with real API)
-    navigation.navigate('MessageDetail', { messageId: item.id });
+    navigation.navigate("MessageDetail", { messageId: item.id });
   };
 
   const renderNotification = ({ item }: { item: Notification }) => (
@@ -200,7 +189,7 @@ const Notifications: React.FC = () => {
       {item.unreadCount > 0 && (
         <View style={styles.unreadBadge}>
           <Text style={styles.unreadCount}>
-            {item.unreadCount > 9 ? '9+' : item.unreadCount}
+            {item.unreadCount > 9 ? "9+" : item.unreadCount}
           </Text>
         </View>
       )}
@@ -228,9 +217,7 @@ const Notifications: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Messages</Text>
-      </View>
+      <ScreenHeader title="Messages" showBackButton={false} />
 
       <PaperSearchbar
         style={styles.searchBar}
@@ -253,7 +240,7 @@ const Notifications: React.FC = () => {
             refreshing={refreshing}
             onRefresh={onRefresh}
             tintColor="#6ba32d"
-            colors={['#6ba32d']}
+            colors={["#6ba32d"]}
           />
         }
         ListEmptyComponent={renderEmptyState}
@@ -266,29 +253,18 @@ const Notifications: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-    paddingTop: height * 0.08,
-  },
-  header: {
-    paddingHorizontal: width * 0.04,
-    paddingBottom: 12,
-    backgroundColor: '#fff',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    backgroundColor: "#F9FAFB",
   },
   searchBar: {
     marginHorizontal: width * 0.04,
     marginBottom: height * 0.01,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   listContainer: {
     paddingHorizontal: width * 0.04,
@@ -300,127 +276,127 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   notificationContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
     marginBottom: 12,
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   unreadNotification: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: "#F0FDF4",
     borderLeftWidth: 4,
-    borderLeftColor: '#6ba32d',
+    borderLeftColor: "#6ba32d",
   },
   avatarContainer: {
-    position: 'relative',
+    position: "relative",
     marginRight: 12,
   },
   avatar: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
   },
   avatarPlaceholder: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#E5E7EB',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#E5E7EB",
+    justifyContent: "center",
+    alignItems: "center",
   },
   onlineIndicator: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 2,
     right: 2,
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: '#10B981',
+    backgroundColor: "#10B981",
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 4,
   },
   senderName: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginRight: 8,
   },
   timestamp: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: "#9CA3AF",
   },
   messageText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: "#6B7280",
     lineHeight: 20,
   },
   unreadMessageText: {
-    color: '#374151',
-    fontWeight: '500',
+    color: "#374151",
+    fontWeight: "500",
   },
   unreadBadge: {
-    backgroundColor: '#6ba32d',
+    backgroundColor: "#6ba32d",
     borderRadius: 12,
     minWidth: 24,
     height: 24,
     paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 8,
   },
   unreadCount: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 60,
     paddingHorizontal: 40,
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
+    color: "#6B7280",
+    textAlign: "center",
     lineHeight: 20,
   },
 });
 
-export default Notifications;
+export default NotificationsScreen;

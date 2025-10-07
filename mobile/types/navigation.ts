@@ -1,4 +1,5 @@
-// Navigation Types
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RouteProp } from "@react-navigation/native";
 
 export type RootStackParamList = {
   Landing: undefined;
@@ -9,28 +10,30 @@ export type RootStackParamList = {
   Home: undefined;
   Feed: undefined;
   Search: undefined;
-  ViewUser: { id: number };
-  Cliques: undefined;
-  Clique: { id: number };
-  CliqueDetail: { id: number };
-  CreateClique: undefined;
-  Post: undefined;
-  PostDetail: { id: number };
   Notifications: undefined;
-  MessageDetail: { id: number };
-  Profile: undefined;
+  Profile: { userId?: string };
+  ViewUser: { userId: number };
+  Cliques: undefined;
+  CliqueCreate: { id?: number };
+  CliqueDetail: { id: number };
+  PostDetail: { id: number };
+  MessageDetail: { messageId: number };
   BookingCreate: { serviceId: number };
   BookingDetail: { id: number };
   ServiceCreate: { cliqueId: number };
   AvailabilityCreate: { cliqueId: number };
   ReviewCreate: { bookingId: number };
-};
-
-export type TabParamList = {
-  Home: undefined;
+  HomeTab: undefined;
   SearchTab: undefined;
   CliquesTab: undefined;
-  Post: undefined;
+  PostCreateTab: undefined;
   NotificationsTab: undefined;
-  Profile: undefined;
 };
+
+export type ScreenNavigationProp<T extends keyof RootStackParamList> =
+  StackNavigationProp<RootStackParamList, T>;
+
+export type ScreenRouteProp<T extends keyof RootStackParamList> = RouteProp<
+  RootStackParamList,
+  T
+>;

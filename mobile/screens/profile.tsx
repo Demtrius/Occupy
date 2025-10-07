@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,23 +8,23 @@ import {
   Dimensions,
   Image,
   ScrollView,
-} from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useAuthStore } from '../store/auth.store';
-import { showSuccess } from '../store/app.store';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import { useAuthStore } from "../store/auth.store";
+import { showSuccess } from "../store/app.store";
+import {
+  ScreenNavigationProp,
+} from "../types";
+import { PrimaryButton } from "../components";
 
-const { width, height } = Dimensions.get('window');
-
-type ProfileNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
+const { width, height } = Dimensions.get("window");
 
 interface ProfileProps {
-  navigation: ProfileNavigationProp;
+  navigation: ScreenNavigationProp<"Profile">;
 }
 
-const Profile: React.FC<ProfileProps> = ({ navigation }) => {
-  const user = useAuthStore(state => state.user);
-  const logout = useAuthStore(state => state.logout);
+const ProfileScreen: React.FC<ProfileProps> = ({ navigation }) => {
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   const [showAccountInfo, setShowAccountInfo] = useState<boolean>(false);
   const [showAppearanceInfo, setShowAppearanceInfo] = useState<boolean>(false);
@@ -35,9 +35,9 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
     try {
       await logout();
       setLogoutModalVisible(false);
-      showSuccess('Logged out successfully');
+      showSuccess("Logged out successfully");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       setLogoutModalVisible(false);
     }
   };
@@ -60,14 +60,14 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
       <View style={styles.header}>
         <Image
           source={{
-            uri: user?.profileImage || 'https://www.gravatar.com/avatar/?d=mp',
+            uri: user?.profileImage || "https://www.gravatar.com/avatar/?d=mp",
           }}
           style={styles.profileImage}
         />
         <Text style={styles.name}>
-          {user?.fullName || user?.username || 'User'}
+          {user?.fullName || user?.username || "User"}
         </Text>
-        <Text style={styles.username}>@{user?.username || 'username'}</Text>
+        <Text style={styles.username}>@{user?.username || "username"}</Text>
         <Text style={styles.bio}>
           {user?.bio || "This user hasn't added a bio yet."}
         </Text>
@@ -78,7 +78,7 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
             style={styles.followItem}
             onPress={() => {
               // Navigate to followers screen when implemented
-              console.log('Followers:', user?.followers);
+              console.log("Followers:", user?.followers);
             }}
           >
             <Text style={styles.followCount}>
@@ -91,7 +91,7 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
             style={styles.followItem}
             onPress={() => {
               // Navigate to following screen when implemented
-              console.log('Following:', user?.following);
+              console.log("Following:", user?.following);
             }}
           >
             <Text style={styles.followCount}>
@@ -106,21 +106,21 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={toggleAccountInfo}>
           <Text style={styles.menuText}>Account info</Text>
-          <Text style={styles.menuIcon}>{showAccountInfo ? '▼' : '▶'}</Text>
+          <Text style={styles.menuIcon}>{showAccountInfo ? "▼" : "▶"}</Text>
         </TouchableOpacity>
         {showAccountInfo && (
           <View style={styles.accountInfo}>
             <Text style={styles.infoText}>Username: {user?.username}</Text>
             <Text style={styles.infoText}>Email: {user?.email}</Text>
             <Text style={styles.infoText}>
-              Occupations: {user?.occupations || 'None'}
+              Occupations: {user?.occupations || "None"}
             </Text>
           </View>
         )}
 
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('NotificationsTab' as never)}
+          onPress={() => navigation.navigate("NotificationsTab")}
         >
           <Text style={styles.menuText}>Recent messages</Text>
           <Text style={styles.menuIcon}>▶</Text>
@@ -131,9 +131,12 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
           <Text style={styles.menuIcon}>▶</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={toggleAppearanceInfo}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={toggleAppearanceInfo}
+        >
           <Text style={styles.menuText}>Appearance</Text>
-          <Text style={styles.menuIcon}>{showAppearanceInfo ? '▼' : '▶'}</Text>
+          <Text style={styles.menuIcon}>{showAppearanceInfo ? "▼" : "▶"}</Text>
         </TouchableOpacity>
         {showAppearanceInfo && (
           <View style={styles.accountInfo}>
@@ -143,7 +146,7 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
 
         <TouchableOpacity style={styles.menuItem} onPress={toggleLanguageInfo}>
           <Text style={styles.menuText}>Language</Text>
-          <Text style={styles.menuIcon}>{showLanguageInfo ? '▼' : '▶'}</Text>
+          <Text style={styles.menuIcon}>{showLanguageInfo ? "▼" : "▶"}</Text>
         </TouchableOpacity>
         {showLanguageInfo && (
           <View style={styles.accountInfo}>
@@ -175,18 +178,18 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
               use the app.
             </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
+              <PrimaryButton
+                title="Cancel"
                 onPress={() => setLogoutModalVisible(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.logoutConfirmButton]}
+                variant="secondary"
+                style={{ flex: 1, margin: 5 }}
+              />
+              <PrimaryButton
+                title="Log out"
                 onPress={handleLogout}
-              >
-                <Text style={styles.logoutConfirmButtonText}>Log out</Text>
-              </TouchableOpacity>
+                variant="primary"
+                style={{ flex: 1, margin: 5 }}
+              />
             </View>
           </View>
         </View>
@@ -198,11 +201,11 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: height * 0.08,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
     paddingHorizontal: 20,
   },
@@ -210,45 +213,45 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
     marginBottom: 15,
   },
   name: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 5,
   },
   username: {
     fontSize: 16,
-    color: '#777',
+    color: "#777",
     marginBottom: 10,
   },
   bio: {
     fontSize: 14,
-    color: '#555',
-    textAlign: 'center',
+    color: "#555",
+    textAlign: "center",
     paddingHorizontal: 20,
     marginBottom: 20,
   },
   followContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 10,
   },
   followItem: {
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 20,
   },
   followCount: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   followLabel: {
     fontSize: 14,
-    color: '#777',
+    color: "#777",
     marginTop: 2,
   },
   menu: {
@@ -256,102 +259,79 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   menuText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   menuIcon: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   accountInfo: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 5,
     marginBottom: 10,
   },
   infoText: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
     marginBottom: 5,
   },
   logoutButton: {
     marginHorizontal: 20,
     marginTop: 20,
     marginBottom: 40,
-    alignItems: 'center',
+    alignItems: "center",
     padding: 15,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#6ba32d',
+    borderColor: "#6ba32d",
   },
   logoutButtonText: {
-    color: '#6ba32d',
+    color: "#6ba32d",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
     width: width * 0.8,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
-    color: '#333',
+    color: "#333",
   },
   modalMessage: {
     fontSize: 16,
-    color: '#555',
-    textAlign: 'center',
+    color: "#555",
+    textAlign: "center",
     marginBottom: 20,
     lineHeight: 22,
   },
   modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  modalButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
-  },
-  cancelButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  logoutConfirmButton: {
-    backgroundColor: '#6ba32d',
-  },
-  logoutConfirmButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
 });
 
-export default Profile;
+export default ProfileScreen;

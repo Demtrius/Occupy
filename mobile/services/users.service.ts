@@ -5,8 +5,8 @@
  * followers, following, and user search functionality.
  */
 
-import { apiHelpers } from './api';
-import { User, Occupation } from '../types';
+import { apiHelpers } from "./api";
+import { User, Occupation } from "../types";
 
 /**
  * Interface for user list response
@@ -45,11 +45,11 @@ class UsersService {
   async getAllUsers(page: number = 1, limit: number = 20): Promise<User[]> {
     try {
       const response = await apiHelpers.get<UserListResponse>(
-        `/api/users/?page=${page}&limit=${limit}`
+        `/api/users/?page=${page}&limit=${limit}`,
       );
-      return response.results || response as any;
+      return response.results || (response as any);
     } catch (error) {
-      console.error('Get all users error:', error);
+      console.error("Get all users error:", error);
       throw error;
     }
   }
@@ -62,7 +62,7 @@ class UsersService {
       const user = await apiHelpers.get<User>(`/api/users/${userId}/`);
       return user;
     } catch (error) {
-      console.error('Get user by ID error:', error);
+      console.error("Get user by ID error:", error);
       throw error;
     }
   }
@@ -72,10 +72,12 @@ class UsersService {
    */
   async getUserByUsername(username: string): Promise<User> {
     try {
-      const user = await apiHelpers.get<User>(`/api/users/username/${username}/`);
+      const user = await apiHelpers.get<User>(
+        `/api/users/username/${username}/`,
+      );
       return user;
     } catch (error) {
-      console.error('Get user by username error:', error);
+      console.error("Get user by username error:", error);
       throw error;
     }
   }
@@ -85,10 +87,10 @@ class UsersService {
    */
   async getCurrentUser(): Promise<User> {
     try {
-      const user = await apiHelpers.get<User>('/api/auth/users/me/');
+      const user = await apiHelpers.get<User>("/api/auth/users/me/");
       return user;
     } catch (error) {
-      console.error('Get current user error:', error);
+      console.error("Get current user error:", error);
       throw error;
     }
   }
@@ -98,10 +100,10 @@ class UsersService {
    */
   async updateProfile(data: UserUpdateData): Promise<User> {
     try {
-      const user = await apiHelpers.patch<User>('/api/auth/users/me/', data);
+      const user = await apiHelpers.patch<User>("/api/auth/users/me/", data);
       return user;
     } catch (error) {
-      console.error('Update profile error:', error);
+      console.error("Update profile error:", error);
       throw error;
     }
   }
@@ -112,11 +114,11 @@ class UsersService {
   async searchUsers(query: string): Promise<User[]> {
     try {
       const response = await apiHelpers.get<UserListResponse>(
-        `/api/users/search/?q=${encodeURIComponent(query)}`
+        `/api/users/search/?q=${encodeURIComponent(query)}`,
       );
-      return response.results || response as any;
+      return response.results || (response as any);
     } catch (error) {
-      console.error('Search users error:', error);
+      console.error("Search users error:", error);
       throw error;
     }
   }
@@ -127,11 +129,11 @@ class UsersService {
   async getUserFollowers(userId: number): Promise<User[]> {
     try {
       const response = await apiHelpers.get<User[]>(
-        `/api/users/${userId}/followers/`
+        `/api/users/${userId}/followers/`,
       );
       return response;
     } catch (error) {
-      console.error('Get user followers error:', error);
+      console.error("Get user followers error:", error);
       throw error;
     }
   }
@@ -142,11 +144,11 @@ class UsersService {
   async getUserFollowing(userId: number): Promise<User[]> {
     try {
       const response = await apiHelpers.get<User[]>(
-        `/api/users/${userId}/following/`
+        `/api/users/${userId}/following/`,
       );
       return response;
     } catch (error) {
-      console.error('Get user following error:', error);
+      console.error("Get user following error:", error);
       throw error;
     }
   }
@@ -157,11 +159,11 @@ class UsersService {
   async followUser(userId: number): Promise<FollowResponse> {
     try {
       const response = await apiHelpers.post<FollowResponse>(
-        `/api/users/${userId}/follow/`
+        `/api/users/${userId}/follow/`,
       );
       return response;
     } catch (error) {
-      console.error('Follow user error:', error);
+      console.error("Follow user error:", error);
       throw error;
     }
   }
@@ -172,11 +174,11 @@ class UsersService {
   async unfollowUser(userId: number): Promise<FollowResponse> {
     try {
       const response = await apiHelpers.delete<FollowResponse>(
-        `/api/users/${userId}/follow/`
+        `/api/users/${userId}/follow/`,
       );
       return response;
     } catch (error) {
-      console.error('Unfollow user error:', error);
+      console.error("Unfollow user error:", error);
       throw error;
     }
   }
@@ -187,11 +189,11 @@ class UsersService {
   async isFollowing(userId: number): Promise<boolean> {
     try {
       const response = await apiHelpers.get<{ is_following: boolean }>(
-        `/api/users/${userId}/is-following/`
+        `/api/users/${userId}/is-following/`,
       );
       return response.is_following;
     } catch (error) {
-      console.error('Check following error:', error);
+      console.error("Check following error:", error);
       return false;
     }
   }
@@ -202,11 +204,11 @@ class UsersService {
   async getUserPosts(userId: number): Promise<any[]> {
     try {
       const response = await apiHelpers.get<any[]>(
-        `/api/users/${userId}/posts/`
+        `/api/users/${userId}/posts/`,
       );
       return response;
     } catch (error) {
-      console.error('Get user posts error:', error);
+      console.error("Get user posts error:", error);
       throw error;
     }
   }
@@ -217,11 +219,11 @@ class UsersService {
   async getSuggestedUsers(limit: number = 10): Promise<User[]> {
     try {
       const response = await apiHelpers.get<User[]>(
-        `/api/users/suggested/?limit=${limit}`
+        `/api/users/suggested/?limit=${limit}`,
       );
       return response;
     } catch (error) {
-      console.error('Get suggested users error:', error);
+      console.error("Get suggested users error:", error);
       throw error;
     }
   }
@@ -232,11 +234,11 @@ class UsersService {
   async blockUser(userId: number): Promise<{ message: string }> {
     try {
       const response = await apiHelpers.post<{ message: string }>(
-        `/api/users/${userId}/block/`
+        `/api/users/${userId}/block/`,
       );
       return response;
     } catch (error) {
-      console.error('Block user error:', error);
+      console.error("Block user error:", error);
       throw error;
     }
   }
@@ -247,11 +249,11 @@ class UsersService {
   async unblockUser(userId: number): Promise<{ message: string }> {
     try {
       const response = await apiHelpers.delete<{ message: string }>(
-        `/api/users/${userId}/block/`
+        `/api/users/${userId}/block/`,
       );
       return response;
     } catch (error) {
-      console.error('Unblock user error:', error);
+      console.error("Unblock user error:", error);
       throw error;
     }
   }
@@ -266,12 +268,10 @@ class UsersService {
     cliques_count: number;
   }> {
     try {
-      const response = await apiHelpers.get(
-        `/api/users/${userId}/stats/`
-      );
+      const response = await apiHelpers.get(`/api/users/${userId}/stats/`);
       return response;
     } catch (error) {
-      console.error('Get user stats error:', error);
+      console.error("Get user stats error:", error);
       throw error;
     }
   }
@@ -281,10 +281,12 @@ class UsersService {
    */
   async getOccupations(): Promise<Occupation[]> {
     try {
-      const occupations = await apiHelpers.get<Occupation[]>('/api/users/occupations/');
+      const occupations = await apiHelpers.get<Occupation[]>(
+        "/api/users/occupations/",
+      );
       return occupations;
     } catch (error) {
-      console.error('Get occupations error:', error);
+      console.error("Get occupations error:", error);
       throw error;
     }
   }
@@ -294,10 +296,12 @@ class UsersService {
    */
   async searchOccupations(query: string): Promise<Occupation[]> {
     try {
-      const occupations = await apiHelpers.get<Occupation[]>(`/api/users/search_occupations/?q=${encodeURIComponent(query)}`);
+      const occupations = await apiHelpers.get<Occupation[]>(
+        `/api/users/search_occupations/?q=${encodeURIComponent(query)}`,
+      );
       return occupations;
     } catch (error) {
-      console.error('Search occupations error:', error);
+      console.error("Search occupations error:", error);
       throw error;
     }
   }

@@ -1,7 +1,7 @@
 // Message/Notification Types
 
-import { User } from './user';
-import { Post } from './post';
+import { User } from "./user";
+import { Post } from "./post";
 
 export interface Message {
   id: number;
@@ -16,7 +16,7 @@ export interface Message {
 export interface Notification {
   id: number;
   userId: number;
-  type: 'message' | 'like' | 'comment' | 'follow' | 'cliqueInvite';
+  type: "message" | "like" | "comment" | "follow" | "cliqueInvite";
   content: string;
   read: boolean;
   createdAt: string;

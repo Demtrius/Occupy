@@ -2,55 +2,55 @@
 
 export const Colors = {
   // Primary
-  primary: '#6ba32d',
-  primaryDark: '#5a8c25',
-  primaryLight: '#7cb637',
+  primary: "#6ba32d",
+  primaryDark: "#5a8c25",
+  primaryLight: "#7cb637",
 
   // Secondary
-  secondary: '#FFA500',
-  secondaryDark: '#e69500',
-  secondaryLight: '#ffb733',
+  secondary: "#FFA500",
+  secondaryDark: "#e69500",
+  secondaryLight: "#ffb733",
 
   // Semantic Colors
-  success: '#4CAF50',
-  error: '#ff6b6b',
-  warning: '#FFA500',
-  info: '#2196F3',
+  success: "#4CAF50",
+  error: "#ff6b6b",
+  warning: "#FFA500",
+  info: "#2196F3",
 
   // Neutral Colors
-  white: '#ffffff',
-  black: '#000000',
-  gray50: '#f9f9f9',
-  gray100: '#f5f5f5',
-  gray200: '#e0e0e0',
-  gray300: '#ccc',
-  gray400: '#999',
-  gray500: '#666',
-  gray600: '#333',
+  white: "#ffffff",
+  black: "#000000",
+  gray50: "#f9f9f9",
+  gray100: "#f5f5f5",
+  gray200: "#e0e0e0",
+  gray300: "#ccc",
+  gray400: "#999",
+  gray500: "#666",
+  gray600: "#333",
 
   // Text Colors
-  textPrimary: '#333',
-  textSecondary: '#666',
-  textTertiary: '#999',
-  textDisabled: '#ccc',
-  textInverse: '#fff',
+  textPrimary: "#333",
+  textSecondary: "#666",
+  textTertiary: "#999",
+  textDisabled: "#ccc",
+  textInverse: "#fff",
 
   // Background Colors
-  background: '#f5f5f5',
-  backgroundLight: '#fff',
-  backgroundDark: '#f9f9f9',
+  background: "#f5f5f5",
+  backgroundLight: "#fff",
+  backgroundDark: "#f9f9f9",
 
   // Border Colors
-  border: '#e0e0e0',
-  borderLight: '#f0f0f0',
-  borderDark: '#ccc',
+  border: "#e0e0e0",
+  borderLight: "#f0f0f0",
+  borderDark: "#ccc",
 
   // Status Colors
-  like: '#ff6b6b',
-  verified: '#4CAF50',
-  pending: '#FFA500',
-  completed: '#4CAF50',
-  cancelled: '#ff6b6b',
+  like: "#ff6b6b",
+  verified: "#4CAF50",
+  pending: "#FFA500",
+  completed: "#4CAF50",
+  cancelled: "#ff6b6b",
 };
 
 export const Spacing = {
@@ -66,47 +66,47 @@ export const Spacing = {
 export const Typography = {
   h1: {
     fontSize: 32,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     lineHeight: 40,
   },
   h2: {
     fontSize: 24,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     lineHeight: 32,
   },
   h3: {
     fontSize: 20,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     lineHeight: 28,
   },
   h4: {
     fontSize: 18,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     lineHeight: 24,
   },
   body: {
     fontSize: 15,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
     lineHeight: 22,
   },
   bodyBold: {
     fontSize: 15,
-    fontWeight: '600' as const,
+    fontWeight: "600" as const,
     lineHeight: 22,
   },
   small: {
     fontSize: 13,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
     lineHeight: 18,
   },
   caption: {
     fontSize: 12,
-    fontWeight: '400' as const,
+    fontWeight: "400" as const,
     lineHeight: 16,
   },
   button: {
     fontSize: 16,
-    fontWeight: '700' as const,
+    fontWeight: "700" as const,
     lineHeight: 24,
   },
 };
@@ -121,7 +121,7 @@ export const BorderRadius = {
 
 export const Shadows = {
   small: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -131,7 +131,7 @@ export const Shadows = {
     elevation: 2,
   },
   medium: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -141,7 +141,7 @@ export const Shadows = {
     elevation: 4,
   },
   large: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 4,
@@ -166,8 +166,8 @@ export const CommonStyles = {
   },
   centered: {
     flex: 1,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
   },
   shadow: Shadows.medium,
   card: {

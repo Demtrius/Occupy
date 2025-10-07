@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,33 +6,39 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { useNavigation, RouteProp, useFocusEffect } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
-import { bookingService } from '../services';
-import { showError, showSuccess } from '../store/app.store';
-import { useAuthStore } from '../store/auth.store';
-import { BookingDetail as BookingDetailType, BookingStatus } from '../types';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { bookingService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
+import { useAuthStore } from "../store/auth.store";
+import {
+  BookingDetail as BookingDetailType,
+  BookingStatus,
+  ScreenNavigationProp,
+  ScreenRouteProp,
+} from "../types";
 import {
   ScreenHeader,
   FormLabel,
   FormSection,
   PrimaryButton,
   InfoBox,
-} from '../components';
-import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
-
-type BookingDetailScreenRouteProp = RouteProp<RootStackParamList, 'BookingDetail'>;
-type BookingDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+} from "../components";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  CommonStyles,
+} from "../theme";
 
 interface Props {
-  route: BookingDetailScreenRouteProp;
+  route: ScreenRouteProp<"BookingDetail">;
 }
 
 const BookingDetailScreen: React.FC<Props> = ({ route }) => {
-  const navigation = useNavigation<BookingDetailScreenNavigationProp>();
+  const navigation = useNavigation<ScreenNavigationProp<"BookingDetail">>();
   const user = useAuthStore((state) => state.user);
   const { id } = route.params;
 
@@ -46,7 +52,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
   useFocusEffect(
     React.useCallback(() => {
       loadBookingData();
-    }, [id])
+    }, [id]),
   );
 
   const loadBookingData = async () => {
@@ -55,8 +61,8 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
       const bookingData = await bookingService.getBookingById(id);
       setBooking(bookingData);
     } catch (error: any) {
-      console.error('Error loading booking:', error);
-      showError(error.message || 'Failed to load booking');
+      console.error("Error loading booking:", error);
+      showError(error.message || "Failed to load booking");
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -67,27 +73,27 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
     if (!booking) return;
 
     Alert.alert(
-      'Confirm Booking',
-      'Are you sure you want to confirm this booking?',
+      "Confirm Booking",
+      "Are you sure you want to confirm this booking?",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Confirm',
+          text: "Confirm",
           onPress: async () => {
             try {
               setActionLoading(true);
               await bookingService.confirmBooking(booking.id);
-              showSuccess('Booking confirmed successfully');
+              showSuccess("Booking confirmed successfully");
               await loadBookingData();
             } catch (error: any) {
-              console.error('Error confirming booking:', error);
-              showError(error.message || 'Failed to confirm booking');
+              console.error("Error confirming booking:", error);
+              showError(error.message || "Failed to confirm booking");
             } finally {
               setActionLoading(false);
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -95,73 +101,69 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
     if (!booking) return;
 
     Alert.alert(
-      'Cancel Booking',
-      'Are you sure you want to cancel this booking?',
+      "Cancel Booking",
+      "Are you sure you want to cancel this booking?",
       [
-        { text: 'No', style: 'cancel' },
+        { text: "No", style: "cancel" },
         {
-          text: 'Yes, Cancel',
-          style: 'destructive',
+          text: "Yes, Cancel",
+          style: "destructive",
           onPress: async () => {
             try {
               setActionLoading(true);
               await bookingService.cancelBooking(booking.id);
-              showSuccess('Booking cancelled successfully');
+              showSuccess("Booking cancelled successfully");
               await loadBookingData();
             } catch (error: any) {
-              console.error('Error cancelling booking:', error);
-              showError(error.message || 'Failed to cancel booking');
+              console.error("Error cancelling booking:", error);
+              showError(error.message || "Failed to cancel booking");
             } finally {
               setActionLoading(false);
             }
           },
         },
-      ]
+      ],
     );
   };
 
   const handleCompleteBooking = async () => {
     if (!booking) return;
 
-    Alert.alert(
-      'Complete Booking',
-      'Mark this booking as completed?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete',
-          onPress: async () => {
-            try {
-              setActionLoading(true);
-              await bookingService.completeBooking(booking.id);
-              showSuccess('Booking completed successfully');
-              await loadBookingData();
-            } catch (error: any) {
-              console.error('Error completing booking:', error);
-              showError(error.message || 'Failed to complete booking');
-            } finally {
-              setActionLoading(false);
-            }
-          },
+    Alert.alert("Complete Booking", "Mark this booking as completed?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Complete",
+        onPress: async () => {
+          try {
+            setActionLoading(true);
+            await bookingService.completeBooking(booking.id);
+            showSuccess("Booking completed successfully");
+            await loadBookingData();
+          } catch (error: any) {
+            console.error("Error completing booking:", error);
+            showError(error.message || "Failed to complete booking");
+          } finally {
+            setActionLoading(false);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleWriteReview = () => {
     if (!booking) return;
-    (navigation as any).navigate('ReviewCreate', { bookingId: booking.id });
+    navigation.navigate("ReviewCreate", { bookingId: booking.id });
   };
 
   const getStatusColor = (status: BookingStatus): string => {
     switch (status) {
-      case 'pending':
+      case "pending":
         return Colors.pending;
-      case 'confirmed':
+      case "confirmed":
         return Colors.primary;
-      case 'cancelled':
+      case "cancelled":
         return Colors.cancelled;
-      case 'completed':
+      case "completed":
         return Colors.completed;
       default:
         return Colors.textTertiary;
@@ -170,33 +172,33 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 
   const getStatusIcon = (status: BookingStatus): string => {
     switch (status) {
-      case 'pending':
-        return 'time-outline';
-      case 'confirmed':
-        return 'checkmark-circle-outline';
-      case 'cancelled':
-        return 'close-circle-outline';
-      case 'completed':
-        return 'checkmark-done-circle-outline';
+      case "pending":
+        return "time-outline";
+      case "confirmed":
+        return "checkmark-circle-outline";
+      case "cancelled":
+        return "close-circle-outline";
+      case "completed":
+        return "checkmark-done-circle-outline";
       default:
-        return 'help-circle-outline';
+        return "help-circle-outline";
     }
   };
 
   const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatTime = (time: string): string => {
-    const [hours, minutes] = time.split(':');
+    const [hours, minutes] = time.split(":");
     const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour % 12 || 12;
     return `${displayHour}:${minutes} ${ampm}`;
   };
@@ -234,9 +236,20 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Status Badge */}
         <View style={styles.statusContainer}>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
-            <Ionicons name={getStatusIcon(booking.status) as any} size={24} color={Colors.white} />
-            <Text style={styles.statusText}>{booking.status.toUpperCase()}</Text>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusColor(booking.status) },
+            ]}
+          >
+            <Ionicons
+              name={getStatusIcon(booking.status) as any}
+              size={24}
+              color={Colors.white}
+            />
+            <Text style={styles.statusText}>
+              {booking.status.toUpperCase()}
+            </Text>
           </View>
         </View>
 
@@ -245,10 +258,16 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
           <FormLabel>SERVICE</FormLabel>
           <InfoBox variant="info" style={styles.serviceCard}>
             <Text style={styles.serviceName}>{booking.service.title}</Text>
-            <Text style={styles.serviceDescription}>{booking.service.description}</Text>
+            <Text style={styles.serviceDescription}>
+              {booking.service.description}
+            </Text>
             {booking.service.price && (
               <View style={styles.priceRow}>
-                <Ionicons name="cash-outline" size={18} color={Colors.primary} />
+                <Ionicons
+                  name="cash-outline"
+                  size={18}
+                  color={Colors.primary}
+                />
                 <Text style={styles.priceText}>${booking.service.price}</Text>
               </View>
             )}
@@ -260,7 +279,11 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
           <FormLabel>DATE & TIME</FormLabel>
           <View style={styles.dateTimeCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+              <Ionicons
+                name="calendar-outline"
+                size={20}
+                color={Colors.primary}
+              />
               <Text style={styles.infoText}>{formatDate(booking.date)}</Text>
             </View>
             <View style={styles.infoRow}>
@@ -274,7 +297,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 
         {/* Client/Provider Information */}
         <FormSection>
-          <FormLabel>{isProvider ? 'CLIENT' : 'SERVICE PROVIDER'}</FormLabel>
+          <FormLabel>{isProvider ? "CLIENT" : "SERVICE PROVIDER"}</FormLabel>
           <View style={styles.userCard}>
             <View style={styles.userInfo}>
               <View style={styles.avatarPlaceholder}>
@@ -286,7 +309,9 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
               </View>
               <View>
                 <Text style={styles.userName}>
-                  {isProvider ? booking.client.username : booking.provider.username}
+                  {isProvider
+                    ? booking.client.username
+                    : booking.provider.username}
                 </Text>
                 <Text style={styles.userEmail}>
                   {isProvider ? booking.client.email : booking.provider.email}
@@ -301,7 +326,11 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
           <FormSection>
             <FormLabel>BUSINESS</FormLabel>
             <View style={styles.infoCard}>
-              <Ionicons name="business-outline" size={20} color={Colors.primary} />
+              <Ionicons
+                name="business-outline"
+                size={20}
+                color={Colors.primary}
+              />
               <Text style={styles.infoText}>{booking.cliqueName}</Text>
             </View>
           </FormSection>
@@ -318,11 +347,13 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
         )}
 
         {/* Cancellation Reason */}
-        {booking.status === 'cancelled' && booking.cancellationReason && (
+        {booking.status === "cancelled" && booking.cancellationReason && (
           <FormSection>
             <FormLabel>CANCELLATION REASON</FormLabel>
             <InfoBox variant="error">
-              <Text style={styles.cancellationText}>{booking.cancellationReason}</Text>
+              <Text style={styles.cancellationText}>
+                {booking.cancellationReason}
+              </Text>
             </InfoBox>
           </FormSection>
         )}
@@ -351,7 +382,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
         </FormSection>
 
         {/* Action Buttons */}
-        {booking.status === 'pending' && (
+        {booking.status === "pending" && (
           <View style={styles.actionsSection}>
             {isProvider && (
               <>
@@ -360,13 +391,13 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
                   onPress={handleConfirmBooking}
                   disabled={actionLoading}
                   loading={actionLoading}
-                  style={styles.confirmButton}
+                  variant="success"
                 />
                 <PrimaryButton
                   title="Decline Booking"
                   onPress={handleCancelBooking}
                   disabled={actionLoading}
-                  style={styles.cancelButton}
+                  variant="danger"
                 />
               </>
             )}
@@ -375,13 +406,13 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
                 title="Cancel Booking"
                 onPress={handleCancelBooking}
                 disabled={actionLoading}
-                style={styles.cancelButton}
+                variant="danger"
               />
             )}
           </View>
         )}
 
-        {booking.status === 'confirmed' && (
+        {booking.status === "confirmed" && (
           <View style={styles.actionsSection}>
             {isProvider && (
               <>
@@ -390,13 +421,13 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
                   onPress={handleCompleteBooking}
                   disabled={actionLoading}
                   loading={actionLoading}
-                  style={styles.completeButton}
+                  variant="success"
                 />
                 <PrimaryButton
                   title="Cancel Booking"
                   onPress={handleCancelBooking}
                   disabled={actionLoading}
-                  style={styles.cancelButton}
+                  variant="danger"
                 />
               </>
             )}
@@ -405,19 +436,19 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
                 title="Cancel Booking"
                 onPress={handleCancelBooking}
                 disabled={actionLoading}
-                style={styles.cancelButton}
+                variant="danger"
               />
             )}
           </View>
         )}
 
-        {booking.status === 'completed' && (
+        {booking.status === "completed" && (
           <View style={styles.actionsSection}>
             {isClient && (
               <PrimaryButton
                 title="Write Review"
                 onPress={handleWriteReview}
-                style={styles.reviewButton}
+                variant="secondary"
               />
             )}
           </View>
@@ -449,15 +480,15 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
   },
   statusContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: Spacing.xl,
     backgroundColor: Colors.white,
     marginBottom: Spacing.lg,
     borderRadius: BorderRadius.md,
   },
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
@@ -483,8 +514,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.xs,
   },
   priceText: {
@@ -500,8 +531,8 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.md,
   },
   infoText: {
@@ -516,8 +547,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.md,
   },
   avatarPlaceholder: {
@@ -525,8 +556,8 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarText: {
     ...Typography.h3,
@@ -542,8 +573,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   infoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.md,
     backgroundColor: Colors.white,
     padding: Spacing.lg,
@@ -573,9 +604,9 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   metadataRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   metadataLabel: {
     ...Typography.body,
@@ -588,18 +619,6 @@ const styles = StyleSheet.create({
   actionsSection: {
     gap: Spacing.md,
     marginTop: Spacing.lg,
-  },
-  confirmButton: {
-    backgroundColor: Colors.primary,
-  },
-  completeButton: {
-    backgroundColor: Colors.completed,
-  },
-  cancelButton: {
-    backgroundColor: Colors.cancelled,
-  },
-  reviewButton: {
-    backgroundColor: Colors.warning,
   },
   bottomSpacer: {
     height: Spacing.xl,

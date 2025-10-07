@@ -1,14 +1,19 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthTokens, ApiError } from '../types';
-import env from '../config/env';
-import { storage } from '../utils/storage';
+import axios, {
+  AxiosInstance,
+  AxiosError,
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+} from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthTokens, ApiError } from "../types";
+import env from "../config/env";
+import { storage } from "../utils/storage";
 
 // Storage keys
 const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'access_token',
-  REFRESH_TOKEN: 'refresh_token',
-  USER: 'user',
+  ACCESS_TOKEN: "access_token",
+  REFRESH_TOKEN: "refresh_token",
+  USER: "user",
 };
 
 // Create axios instance
@@ -16,8 +21,8 @@ const api: AxiosInstance = axios.create({
   baseURL: env.BACKEND_URL,
   timeout: env.API_TIMEOUT,
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
@@ -27,7 +32,7 @@ export const tokenManager = {
     try {
       return await storage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     } catch (error) {
-      console.error('Error getting access token:', error);
+      console.error("Error getting access token:", error);
       return null;
     }
   },
@@ -36,7 +41,7 @@ export const tokenManager = {
     try {
       return await storage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     } catch (error) {
-      console.error('Error getting refresh token:', error);
+      console.error("Error getting refresh token:", error);
       return null;
     }
   },
@@ -48,7 +53,7 @@ export const tokenManager = {
         [STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh],
       ]);
     } catch (error) {
-      console.error('Error setting tokens:', error);
+      console.error("Error setting tokens:", error);
       throw error;
     }
   },
@@ -61,7 +66,7 @@ export const tokenManager = {
       ]);
       await AsyncStorage.removeItem(STORAGE_KEYS.USER);
     } catch (error) {
-      console.error('Error clearing tokens:', error);
+      console.error("Error clearing tokens:", error);
     }
   },
 
@@ -69,7 +74,7 @@ export const tokenManager = {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error("Error saving user:", error);
     }
   },
 
@@ -78,7 +83,7 @@ export const tokenManager = {
       const userData = await AsyncStorage.getItem(STORAGE_KEYS.USER);
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
-      console.error('Error getting user:', error);
+      console.error("Error getting user:", error);
       return null;
     }
   },
@@ -97,15 +102,17 @@ api.interceptors.request.use(
 
     // Log request in development
     if (__DEV__) {
-      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(
+        `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
+      );
     }
 
     return config;
   },
   (error: AxiosError) => {
-    console.error('[API Request Error]', error);
+    console.error("[API Request Error]", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor
@@ -131,7 +138,10 @@ api.interceptors.response.use(
   (response: AxiosResponse) => {
     // Log response in development
     if (__DEV__) {
-      console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`, response.status);
+      console.log(
+        `[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`,
+        response.status,
+      );
     }
     return response;
   },
@@ -140,10 +150,10 @@ api.interceptors.response.use(
 
     // Handle network errors
     if (!error.response) {
-      console.error('[API Network Error]', error.message);
+      console.error("[API Network Error]", error.message);
       const apiError: ApiError = {
-        message: 'Network error. Please check your connection.',
-        code: 'NETWORK_ERROR',
+        message: "Network error. Please check your connection.",
+        code: "NETWORK_ERROR",
       };
       return Promise.reject(apiError);
     }
@@ -171,13 +181,13 @@ api.interceptors.response.use(
         const refreshToken = await tokenManager.getRefreshToken();
 
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          throw new Error("No refresh token available");
         }
 
         // Attempt to refresh the token
         const response = await axios.post(
           `${env.BACKEND_URL}/auth/jwt/refresh/`,
-          { refresh: refreshToken }
+          { refresh: refreshToken },
         );
 
         const { access } = response.data;
@@ -189,7 +199,7 @@ api.interceptors.response.use(
         });
 
         // Update authorization header
-        api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+        api.defaults.headers.common["Authorization"] = `Bearer ${access}`;
         originalRequest.headers.Authorization = `Bearer ${access}`;
 
         // Process queued requests
@@ -205,9 +215,9 @@ api.interceptors.response.use(
         await tokenManager.clearTokens();
 
         const apiError: ApiError = {
-          message: 'Session expired. Please login again.',
+          message: "Session expired. Please login again.",
           status: 401,
-          code: 'TOKEN_REFRESH_FAILED',
+          code: "TOKEN_REFRESH_FAILED",
         };
 
         return Promise.reject(apiError);
@@ -216,15 +226,16 @@ api.interceptors.response.use(
 
     // Handle other errors
     const apiError: ApiError = {
-      message: error.response?.data?.message || error.message || 'An error occurred',
+      message:
+        error.response?.data?.message || error.message || "An error occurred",
       status: error.response?.status,
       code: error.code,
       details: error.response?.data?.details,
     };
 
-    console.error('[API Error]', apiError);
+    console.error("[API Error]", apiError);
     return Promise.reject(apiError);
-  }
+  },
 );
 
 // API helper methods

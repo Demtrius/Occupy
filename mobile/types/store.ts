@@ -1,7 +1,7 @@
 // Store Types (for Zustand)
 
-import { User } from './user';
-import { AuthTokens, LoginCredentials, RegisterData } from './auth';
+import { User } from "./user";
+import { AuthTokens, LoginCredentials, RegisterData } from "./auth";
 
 export interface AuthState {
   isLoggedIn: boolean;
@@ -25,7 +25,7 @@ export interface AuthState {
 
 export interface AppNotification {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   message: string;
   duration?: number;
 }
@@ -36,7 +36,7 @@ export interface AppState {
   isOnline: boolean;
   error: string | null;
   notifications: AppNotification[];
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
   setLoading: (loading: boolean) => void;
   startLoading: () => void;
@@ -44,10 +44,10 @@ export interface AppState {
   setError: (error: string | null) => void;
   clearError: () => void;
   setOnlineStatus: (status: boolean) => void;
-  addNotification: (notification: Omit<AppNotification, 'id'>) => void;
+  addNotification: (notification: Omit<AppNotification, "id">) => void;
   removeNotification: (id: string) => void;
   clearNotifications: () => void;
-  setTheme: (theme: 'light' | 'dark' | 'auto') => void;
+  setTheme: (theme: "light" | "dark" | "auto") => void;
   setLanguage: (language: string) => void;
   reset: () => void;
 }

@@ -1,7 +1,7 @@
 // Booking-related Types
 
-import { User } from './user';
-import { Clique } from './clique';
+import { User } from "./user";
+import { Clique } from "./clique";
 
 export interface Service {
   id: number;
@@ -54,7 +54,7 @@ export interface CreateAvailabilityData {
   dayOfWeek?: number;
 }
 
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
 export interface Booking {
   id: number;
@@ -73,7 +73,7 @@ export interface Booking {
   updatedAt: string;
 }
 
-export interface BookingDetail extends Omit<Booking, 'service'> {
+export interface BookingDetail extends Omit<Booking, "service"> {
   service: Service;
   cliqueDetail?: Clique;
 }
@@ -87,7 +87,7 @@ export interface CreateBookingData {
 }
 
 export interface BookingFilter {
-  role?: 'client' | 'provider';
+  role?: "client" | "provider";
   status?: BookingStatus;
   cliqueId?: number;
   serviceId?: number;

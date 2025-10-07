@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,25 +7,24 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useAuthStore } from '../store/auth.store';
-import { showError, showSuccess } from '../store/app.store';
-import { RegisterData } from '../types/auth';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import { useAuthStore } from "../store/auth.store";
+import { showError, showSuccess } from "../store/app.store";
+import { RegisterData } from "../types/auth";
 import {
-  FormSection,
+  ScreenNavigationProp,
+} from "../types";
+import {
   FormLabel,
   FormInput,
   PrimaryButton,
   InfoBox,
-} from '../components';
-import { Colors, Spacing, Typography } from '../theme';
-
-type RegisterNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
+  ScreenHeader,
+} from "../components";
+import { Colors, Spacing, Typography } from "../theme";
 
 interface RegisterProps {
-  navigation: RegisterNavigationProp;
+  navigation: ScreenNavigationProp<"Register">;
 }
 
 interface FormErrors {
@@ -36,19 +35,20 @@ interface FormErrors {
   occupation?: string;
 }
 
-const Register: React.FC<RegisterProps> = ({ navigation }) => {
-  const register = useAuthStore(state => state.register);
-  const isLoading = useAuthStore(state => state.isLoading);
-  const error = useAuthStore(state => state.error);
-  const clearError = useAuthStore(state => state.clearError);
+const RegisterScreen: React.FC<RegisterProps> = ({ navigation }) => {
+  const register = useAuthStore((state) => state.register);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const clearError = useAuthStore((state) => state.clearError);
 
-  const [username, setUsername] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [occupation, setOccupation] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [occupation, setOccupation] = useState<string>("");
   const [securePassword, setSecurePassword] = useState<boolean>(true);
-  const [secureConfirmPassword, setSecureConfirmPassword] = useState<boolean>(true);
+  const [secureConfirmPassword, setSecureConfirmPassword] =
+    useState<boolean>(true);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // Validate form
@@ -57,39 +57,40 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
 
     // Username validation
     if (!username.trim()) {
-      errors.username = 'Username is required';
+      errors.username = "Username is required";
     } else if (username.length < 3) {
-      errors.username = 'Username must be at least 3 characters';
+      errors.username = "Username must be at least 3 characters";
     } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      errors.username = 'Username can only contain letters, numbers, and underscores';
+      errors.username =
+        "Username can only contain letters, numbers, and underscores";
     }
 
     // Email validation
     if (!email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Email is invalid';
+      errors.email = "Email is invalid";
     }
 
     // Password validation
     if (!password.trim()) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
     } else if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
+      errors.password = "Password must be at least 8 characters";
     }
 
     // Confirm password validation
     if (!confirmPassword.trim()) {
-      errors.confirmPassword = 'Please confirm your password';
+      errors.confirmPassword = "Please confirm your password";
     } else if (password !== confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = "Passwords do not match";
     }
 
     // Occupation validation (required field)
     if (!occupation.trim()) {
-      errors.occupation = 'Occupation is required';
+      errors.occupation = "Occupation is required";
     } else if (occupation.length < 2) {
-      errors.occupation = 'Occupation must be at least 2 characters';
+      errors.occupation = "Occupation must be at least 2 characters";
     }
 
     setFormErrors(errors);
@@ -104,7 +105,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
 
     // Validate form
     if (!validateForm()) {
-      showError('Please fill in all required fields correctly');
+      showError("Please fill in all required fields correctly");
       return;
     }
 
@@ -117,10 +118,11 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
       };
 
       await register(registerData);
-      showSuccess('Registration successful! Welcome!');
+      showSuccess("Registration successful! Welcome!");
     } catch (err: any) {
-      console.error('Registration error:', err);
-      const errorMessage = err.message || 'Registration failed. Please try again.';
+      console.error("Registration error:", err);
+      const errorMessage =
+        err.message || "Registration failed. Please try again.";
       showError(errorMessage);
     }
   };
@@ -128,16 +130,15 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      <ScreenHeader title="Create Account" onBack={() => navigation.goBack()} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Create Account</Text>
-
           {/* Display global error */}
           {error && (
             <InfoBox variant="error" style={styles.errorBox}>
@@ -146,7 +147,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
           )}
 
           {/* Username Input */}
-          <FormSection style={styles.formSection}>
+          <View style={styles.inputGroup}>
             <FormLabel required>Username</FormLabel>
             <FormInput
               value={username}
@@ -164,10 +165,10 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
             {formErrors.username && (
               <Text style={styles.fieldError}>{formErrors.username}</Text>
             )}
-          </FormSection>
+          </View>
 
           {/* Email Input */}
-          <FormSection style={styles.formSection}>
+          <View style={styles.inputGroup}>
             <FormLabel required>Email</FormLabel>
             <FormInput
               value={email}
@@ -186,10 +187,10 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
             {formErrors.email && (
               <Text style={styles.fieldError}>{formErrors.email}</Text>
             )}
-          </FormSection>
+          </View>
 
           {/* Occupation Input */}
-          <FormSection style={styles.formSection}>
+          <View style={styles.inputGroup}>
             <FormLabel required>Occupation</FormLabel>
             <FormInput
               value={occupation}
@@ -205,10 +206,10 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
             {formErrors.occupation && (
               <Text style={styles.fieldError}>{formErrors.occupation}</Text>
             )}
-          </FormSection>
+          </View>
 
           {/* Password Input */}
-          <FormSection style={styles.formSection}>
+          <View style={styles.inputGroup}>
             <FormLabel required>Password</FormLabel>
             <View style={styles.passwordContainer}>
               <FormInput
@@ -230,17 +231,17 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                 style={styles.eyeIcon}
               >
                 <Text style={styles.eyeIconText}>
-                  {securePassword ? '👁️' : '👁️‍🗨️'}
+                  {securePassword ? "👁️" : "👁️‍🗨️"}
                 </Text>
               </TouchableOpacity>
             </View>
             {formErrors.password && (
               <Text style={styles.fieldError}>{formErrors.password}</Text>
             )}
-          </FormSection>
+          </View>
 
           {/* Confirm Password Input */}
-          <FormSection style={styles.formSection}>
+          <View style={styles.inputGroup}>
             <FormLabel required>Confirm Password</FormLabel>
             <View style={styles.passwordContainer}>
               <FormInput
@@ -248,7 +249,10 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                 onChangeText={(text) => {
                   setConfirmPassword(text);
                   if (formErrors.confirmPassword) {
-                    setFormErrors({ ...formErrors, confirmPassword: undefined });
+                    setFormErrors({
+                      ...formErrors,
+                      confirmPassword: undefined,
+                    });
                   }
                 }}
                 placeholder="Re-enter your password"
@@ -262,14 +266,16 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                 style={styles.eyeIcon}
               >
                 <Text style={styles.eyeIconText}>
-                  {secureConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                  {secureConfirmPassword ? "👁️" : "👁️‍🗨️"}
                 </Text>
               </TouchableOpacity>
             </View>
             {formErrors.confirmPassword && (
-              <Text style={styles.fieldError}>{formErrors.confirmPassword}</Text>
+              <Text style={styles.fieldError}>
+                {formErrors.confirmPassword}
+              </Text>
             )}
-          </FormSection>
+          </View>
 
           {/* Register Button */}
           <PrimaryButton
@@ -277,16 +283,18 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
             onPress={handleRegister}
             disabled={isLoading}
             loading={isLoading}
-            style={styles.registerButton}
+            style={{ marginTop: Spacing.lg, marginBottom: Spacing.xl }}
           />
 
           {/* Back to Login Link */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('SignIn')}
+            onPress={() => navigation.navigate("SignIn")}
             style={styles.backButton}
             disabled={isLoading}
           >
-            <Text style={styles.backButtonText}>Already have an account? Sign in</Text>
+            <Text style={styles.backButtonText}>
+              Already have an account? Sign in
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -303,32 +311,22 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   content: {
-    flex: 1,
     padding: Spacing.xl,
-    justifyContent: 'center',
-  },
-  title: {
-    ...Typography.h2,
-    textAlign: 'center',
-    marginBottom: Spacing.xxxl,
-    color: Colors.textPrimary,
   },
   errorBox: {
     marginBottom: Spacing.lg,
   },
-  formSection: {
-    backgroundColor: 'transparent',
-    padding: 0,
+  inputGroup: {
     marginBottom: Spacing.lg,
   },
   passwordContainer: {
-    position: 'relative',
+    position: "relative",
   },
   passwordInput: {
     paddingRight: 50,
   },
   eyeIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: Spacing.md,
     top: Spacing.md,
     padding: Spacing.xs,
@@ -341,18 +339,14 @@ const styles = StyleSheet.create({
     color: Colors.error,
     marginTop: Spacing.xs,
   },
-  registerButton: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xl,
-  },
   backButton: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   backButtonText: {
     ...Typography.body,
     color: Colors.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 
-export default Register;
+export default RegisterScreen;

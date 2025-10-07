@@ -1,8 +1,14 @@
-import { create } from 'zustand';
-import { authService } from '../services/auth.service';
-import { tokenManager } from '../services/api';
-import { AuthState } from '../types/store';
-import { User, AuthTokens, ApiError, LoginCredentials, RegisterData } from '../types';
+import { create } from "zustand";
+import { authService } from "../services/auth.service";
+import { tokenManager } from "../services/api";
+import { AuthState } from "../types/store";
+import {
+  User,
+  AuthTokens,
+  ApiError,
+  LoginCredentials,
+  RegisterData,
+} from "../types";
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   // Initial state
@@ -65,14 +71,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       }
     } catch (error) {
-      console.error('Initialize auth error:', error);
+      console.error("Initialize auth error:", error);
       await tokenManager.clearTokens();
       set({
         isLoggedIn: false,
         user: null,
         tokens: null,
         isInitializing: false,
-        error: 'Failed to initialize authentication',
+        error: "Failed to initialize authentication",
       });
     }
   },
@@ -101,7 +107,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: null,
         tokens: null,
         isLoading: false,
-        error: apiError.message || 'Login failed',
+        error: apiError.message || "Login failed",
       });
       throw error;
     }
@@ -131,7 +137,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: null,
         tokens: null,
         isLoading: false,
-        error: apiError.message || 'Registration failed',
+        error: apiError.message || "Registration failed",
       });
       throw error;
     }
@@ -152,7 +158,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // Clear state even if API call fails
       set({
         isLoggedIn: false,
@@ -184,7 +190,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await get().logout();
       }
     } catch (error) {
-      console.error('Refresh token error:', error);
+      console.error("Refresh token error:", error);
       await get().logout();
     }
   },
@@ -205,7 +211,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const apiError = error as ApiError;
       set({
         isLoading: false,
-        error: apiError.message || 'Failed to update profile',
+        error: apiError.message || "Failed to update profile",
       });
       throw error;
     }
@@ -226,7 +232,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       return isAuthenticated;
     } catch (error) {
-      console.error('Check auth error:', error);
+      console.error("Check auth error:", error);
       return false;
     }
   },

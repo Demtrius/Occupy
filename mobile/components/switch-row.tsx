@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Switch, StyleSheet, ViewStyle } from 'react-native';
+import React from "react";
+import { View, Text, Switch, StyleSheet, ViewStyle } from "react-native";
 
 interface SwitchRowProps {
   label: string;
@@ -28,8 +28,8 @@ export const SwitchRow: React.FC<SwitchRowProps> = ({
         value={value}
         onValueChange={onValueChange}
         disabled={disabled}
-        trackColor={{ false: '#ccc', true: '#6ba32d' }}
-        thumbColor={value ? '#fff' : '#f4f3f4'}
+        trackColor={{ false: "#ccc", true: "#6ba32d" }}
+        thumbColor={value ? "#fff" : "#f4f3f4"}
       />
     </View>
   );
@@ -37,9 +37,9 @@ export const SwitchRow: React.FC<SwitchRowProps> = ({
 
 const styles = StyleSheet.create({
   switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   switchLabel: {
     flex: 1,
@@ -47,13 +47,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   hint: {
     fontSize: 13,
-    color: '#999',
+    color: "#999",
     marginTop: 4,
   },
 });

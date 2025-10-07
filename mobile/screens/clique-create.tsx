@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,26 +9,34 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  TextInput,
-} from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { cliquesService } from '../services';
-import { showError, showSuccess } from '../store/app.store';
-import { useAuthStore } from '../store/auth.store';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { cliquesService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
+import { useAuthStore } from "../store/auth.store";
+import {
+  ScreenNavigationProp,
+  ScreenRouteProp,
+} from "../types";
 import {
   ScreenHeader,
-  FormSection,
   FormLabel,
   FormInput,
   PrimaryButton,
   InfoBox,
-} from '../components';
-import { Colors, Spacing, Typography, BorderRadius, CommonStyles } from '../theme';
+} from "../components";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  CommonStyles,
+}
+from "../theme";
 
-type Level = 'PRIVATE' | 'PUBLIC';
+type Level = "PRIVATE" | "PUBLIC";
 
 interface LevelItem {
   label: string;
@@ -42,21 +50,23 @@ interface FormErrors {
   level?: string;
 }
 
-type CreateCliqueNavigationProp = StackNavigationProp<RootStackParamList, 'CreateClique'>;
+interface Props {
+  route: ScreenRouteProp<"CliqueCreate">;
+}
 
-const CreateClique: React.FC = () => {
-  const navigation = useNavigation<CreateCliqueNavigationProp>();
+const CliqueCreate: React.FC<Props> = ({ route }) => {
+  const navigation = useNavigation<ScreenNavigationProp<"CliqueCreate">>();
   const user = useAuthStore((state) => state.user);
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
-  const [name, setName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [level, setLevel] = useState<Level | null>('PUBLIC');
-  const [occupation, setOccupation] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [level, setLevel] = useState<Level | null>("PUBLIC");
+  const [occupation, setOccupation] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [levelItems, setLevelItems] = useState<LevelItem[]>([
-    { label: 'Public - Anyone can join', value: 'PUBLIC' },
-    { label: 'Private - Invite only', value: 'PRIVATE' },
+    { label: "Public - Anyone can join", value: "PUBLIC" },
+    { label: "Private - Invite only", value: "PRIVATE" },
   ]);
   const [loading, setLoading] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -66,25 +76,25 @@ const CreateClique: React.FC = () => {
     const errors: FormErrors = {};
 
     if (!name.trim()) {
-      errors.name = 'Clique name is required';
+      errors.name = "Clique name is required";
     } else if (name.trim().length < 3) {
-      errors.name = 'Clique name must be at least 3 characters';
+      errors.name = "Clique name must be at least 3 characters";
     }
 
     if (!occupation.trim()) {
-      errors.occupation = 'Occupation is required';
+      errors.occupation = "Occupation is required";
     } else if (occupation.trim().length < 2) {
-      errors.occupation = 'Occupation must be at least 2 characters';
+      errors.occupation = "Occupation must be at least 2 characters";
     }
 
     if (!description.trim()) {
-      errors.description = 'Description is required';
+      errors.description = "Description is required";
     } else if (description.trim().length < 10) {
-      errors.description = 'Description must be at least 10 characters';
+      errors.description = "Description must be at least 10 characters";
     }
 
     if (!level) {
-      errors.level = 'Please select a privacy level';
+      errors.level = "Please select a privacy level";
     }
 
     setFormErrors(errors);
@@ -95,8 +105,8 @@ const CreateClique: React.FC = () => {
   const handleCreateClique = async () => {
     // Check authentication
     if (!isLoggedIn || !user) {
-      showError('You must be logged in to create a clique');
-      navigation.navigate('SignIn' as never);
+      showError("You must be logged in to create a clique");
+      navigation.navigate("SignIn");
       return;
     }
 
@@ -105,7 +115,7 @@ const CreateClique: React.FC = () => {
 
     // Validate form
     if (!validateForm()) {
-      showError('Please fill in all required fields correctly');
+      showError("Please fill in all required fields correctly");
       return;
     }
 
@@ -121,22 +131,22 @@ const CreateClique: React.FC = () => {
 
       await cliquesService.createClique(cliqueData);
 
-      showSuccess('Clique created successfully!');
+      showSuccess("Clique created successfully!");
 
       // Reset form
-      setName('');
-      setDescription('');
-      setOccupation('');
-      setLevel('PUBLIC');
+      setName("");
+      setDescription("");
+      setOccupation("");
+      setLevel("PUBLIC");
 
       // Navigate to cliques list
       setTimeout(() => {
-        navigation.navigate('Cliques' as never);
+        navigation.navigate("Cliques");
       }, 500);
     } catch (error: any) {
-      console.error('Error creating clique:', error);
+      console.error("Error creating clique:", error);
       const errorMessage =
-        error.message || 'Failed to create clique. Please try again.';
+        error.message || "Failed to create clique. Please try again.";
       showError(errorMessage);
     } finally {
       setLoading(false);
@@ -146,7 +156,7 @@ const CreateClique: React.FC = () => {
   return (
     <KeyboardAvoidingView
       style={CommonStyles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScreenHeader
         title="Create New Clique"
@@ -167,7 +177,7 @@ const CreateClique: React.FC = () => {
             </Text>
 
             {/* Clique Name */}
-            <FormSection style={styles.formSection}>
+            <View style={styles.inputGroup}>
               <FormLabel required>Clique Name</FormLabel>
               <FormInput
                 value={name}
@@ -184,10 +194,10 @@ const CreateClique: React.FC = () => {
               {formErrors.name && (
                 <Text style={styles.errorText}>{formErrors.name}</Text>
               )}
-            </FormSection>
+            </View>
 
             {/* Occupation */}
-            <FormSection style={styles.formSection}>
+            <View style={styles.inputGroup}>
               <FormLabel required>Occupation</FormLabel>
               <FormInput
                 value={occupation}
@@ -204,12 +214,12 @@ const CreateClique: React.FC = () => {
               {formErrors.occupation && (
                 <Text style={styles.errorText}>{formErrors.occupation}</Text>
               )}
-            </FormSection>
+            </View>
 
             {/* Description */}
-            <FormSection style={styles.formSection}>
+            <View style={styles.inputGroup}>
               <FormLabel required>Description</FormLabel>
-              <TextInput
+              <FormInput
                 value={description}
                 onChangeText={(text) => {
                   setDescription(text);
@@ -218,24 +228,18 @@ const CreateClique: React.FC = () => {
                   }
                 }}
                 placeholder="Describe what this clique is about..."
-                style={styles.textArea}
-                placeholderTextColor={Colors.textTertiary}
                 multiline
-                numberOfLines={4}
-                textAlignVertical="top"
                 editable={!loading}
                 maxLength={500}
+                showCharacterCount
               />
               {formErrors.description && (
                 <Text style={styles.errorText}>{formErrors.description}</Text>
               )}
-              <Text style={styles.helperText}>
-                {description.length}/500 characters
-              </Text>
-            </FormSection>
+            </View>
 
             {/* Privacy Level */}
-            <FormSection style={styles.formSection}>
+            <View style={styles.inputGroup}>
               <FormLabel required>Privacy Level</FormLabel>
               <DropDownPicker
                 open={open}
@@ -257,14 +261,17 @@ const CreateClique: React.FC = () => {
               {formErrors.level && (
                 <Text style={styles.errorText}>{formErrors.level}</Text>
               )}
-            </FormSection>
+            </View>
 
             {/* Info Box */}
-            <InfoBox variant={level === 'PUBLIC' ? 'info' : 'warning'} style={styles.infoBox}>
+            <InfoBox
+              variant={level === "PUBLIC" ? "info" : "warning"}
+              style={styles.infoBox}
+            >
               <Text style={styles.infoText}>
-                {level === 'PUBLIC'
-                  ? 'Public cliques are visible to everyone and anyone can join.'
-                  : 'Private cliques require an invitation to join and are only visible to members.'}
+                {level === "PUBLIC"
+                  ? "Public cliques are visible to everyone and anyone can join."
+                  : "Private cliques require an invitation to join and are only visible to members."}
               </Text>
             </InfoBox>
 
@@ -274,7 +281,7 @@ const CreateClique: React.FC = () => {
               onPress={handleCreateClique}
               disabled={loading}
               loading={loading}
-              style={styles.createButton}
+              style={{ marginBottom: Spacing.md }}
             />
 
             {/* Cancel Button */}
@@ -304,36 +311,16 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     ...Typography.body,
-    textAlign: 'center',
     color: Colors.textSecondary,
     marginBottom: Spacing.xxxl,
-    paddingHorizontal: Spacing.xl,
   },
-  formSection: {
-    backgroundColor: 'transparent',
-    padding: 0,
+  inputGroup: {
     marginBottom: Spacing.lg,
-  },
-  textArea: {
-    ...Typography.body,
-    color: Colors.textPrimary,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.lg,
-    minHeight: 120,
   },
   errorText: {
     ...Typography.caption,
     color: Colors.error,
     marginTop: Spacing.xs,
-  },
-  helperText: {
-    ...Typography.caption,
-    color: Colors.textTertiary,
-    marginTop: Spacing.xs,
-    textAlign: 'right',
   },
   dropdown: {
     borderColor: Colors.border,
@@ -355,13 +342,10 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     lineHeight: 20,
   },
-  createButton: {
-    marginBottom: Spacing.md,
-  },
   cancelButton: {
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.md,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -371,4 +355,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateClique;
+export default CliqueCreate;
