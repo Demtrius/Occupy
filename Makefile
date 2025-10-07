@@ -127,7 +127,7 @@ superuser: ## Create Django superuser
 
 shell: ## Open Django shell
 	@echo "$(BLUE)🐍 Opening Django shell...$(RESET)"
-	@cd backend && DJANGO_ENVIRONMENT=development python manage.py shell_plus
+	@cd backend && DJANGO_ENVIRONMENT=development python manage.py shell
 
 collectstatic: ## Collect static files
 	@echo "$(BLUE)📁 Collecting static files...$(RESET)"
