@@ -27,6 +27,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost 127.0.0.1 [::1]}
       - DATABASE_URL=postgres://${DATABASE_USER:-sam}:${DATABASE_PASSWORD:-chiraqmony}@db:5432/${DATABASE_NAME:-occupy7}
+    command: python manage.py runserver 0.0.0.0:8000
 
 volumes:
   postgres_data:
