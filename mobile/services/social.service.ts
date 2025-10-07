@@ -104,22 +104,23 @@ class SocialService {
 	/**
 	 * Create a comment
 	 */
-	async createComment(data: CreateCommentData): Promise<Comment> {
-		try {
-			const { postId, ...rest } = data
-			const payload = {
-				content: rest.content,
-			}
-			const comment = await apiHelpers.post<Comment>(
-				`/api/posts/${postId}/add_comment/`,
-				payload
-			)
-			return comment
-		} catch (error) {
-			console.error('Create comment error:', error)
-			throw this.handleError(error)
-		}
-	}
+ 	async createComment(data: CreateCommentData): Promise<Comment> {
+ 		try {
+ 			const { postId, ...rest } = data
+ 			const payload = {
+ 				post: postId,
+ 				content: rest.content,
+ 			}
+ 			const comment = await apiHelpers.post<Comment>(
+ 				`/api/posts/${postId}/add_comment/`,
+ 				payload
+ 			)
+ 			return comment
+ 		} catch (error) {
+ 			console.error('Create comment error:', error)
+ 			throw this.handleError(error)
+ 		}
+ 	}
 
 	/**
 	 * Update a comment
