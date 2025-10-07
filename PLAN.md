@@ -11,9 +11,9 @@ This plan is divided into phases for easier trackability. Use checkboxes to mark
 
 ### Backend Refactoring
 
-- [ ] Modularize Django apps: Separate concerns into distinct apps (e.g., authentication, core, users) with clear responsibilities.
-- [ ] Improve model structure: Normalize database schemas, add proper relationships, and implement base abstract models for common fields like timestamps and soft deletes.
-- [ ] Refactor views and serializers: Use DRF best practices, implement pagination, and ensure consistent API responses.
+- [x] Modularize Django apps: Separate concerns into distinct apps (e.g., authentication, core, users) with clear responsibilities.
+- [x] Improve model structure: Normalize database schemas, add proper relationships, and implement base abstract models for common fields like timestamps and soft deletes.
+- [x] Refactor views and serializers: Use DRF best practices, implement pagination, and ensure consistent API responses.
 - [ ] Optimize queries: Reduce N+1 queries, add select_related/prefetch_related where needed.
 - [ ] Update URL configurations: Organize URLs logically and add versioning if necessary.
 

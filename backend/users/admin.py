@@ -125,11 +125,10 @@ class OccupierAdmin(BaseUserAdmin):
     list_display: Tuple[str, ...] = (
         "username",
         "email",
-        "occupations",
         "colored_account_type",
         "is_active",
         "is_staff",
-        "date_joined",
+        "created",
     )
 
     # Fields that are links to the detail page
@@ -142,7 +141,7 @@ class OccupierAdmin(BaseUserAdmin):
         "is_active",
         "is_business_page",
         "private_account",
-        "date_joined",
+        "created",
     )
 
     # Fields to search
@@ -155,7 +154,7 @@ class OccupierAdmin(BaseUserAdmin):
     )
 
     # Default ordering
-    ordering: Tuple[str, ...] = ("-date_joined",)
+    ordering: Tuple[str, ...] = ("-created",)
 
     # Number of items per page
     list_per_page: int = 25
@@ -203,7 +202,7 @@ class OccupierAdmin(BaseUserAdmin):
         (
             "Important Dates",
             {
-                "fields": ("last_login", "date_joined"),
+                "fields": ("modified", "created"),
                 "classes": ("collapse",),
             },
         ),
@@ -242,7 +241,7 @@ class OccupierAdmin(BaseUserAdmin):
     )
 
     # Read-only fields
-    readonly_fields: Tuple[str, ...] = ("last_login", "date_joined")
+    readonly_fields: Tuple[str, ...] = ("modified", "created")
 
     # Custom methods for list display
     @admin.display(description="Account Type", ordering="is_business_page")

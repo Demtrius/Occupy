@@ -56,22 +56,25 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
 
 INSTALLED_APPS = [
-    "rest_framework",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "users",
-    "core",
-    "authentication.apps.AuthenticationConfig",
-    "django_filters",
-    "corsheaders",
+    # 3rd party
+    "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
+    "django_filters",
+    "drf_spectacular",
     "channels",
+    # Local
+    "users",
+    "core",
+    "authentication.apps.AuthenticationConfig",
 ]
 CORS_ORIGIN_WHITELIST = ["http://localhost:3000"]
 
@@ -95,6 +98,7 @@ REST_FRAMEWORK = {
         # 'rest_framework.permissions.IsAuthenticated',
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
         # JWT Authentication - does not require CSRF
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
@@ -111,6 +115,20 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "core.exception_handlers.exception_handler",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Occupy API",
+    "DESCRIPTION": "API for the Occupy application",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+    },
 }
 
 SIMPLE_JWT = {

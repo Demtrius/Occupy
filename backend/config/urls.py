@@ -1,46 +1,30 @@
 """
-URL Configuration for Occupy Backend
-
-The `urlpatterns` list routes URLs to views.
+Main URL Configuration for the Occupy project.
 """
 
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponse
-from django.conf import settings
-from django.conf.urls.static import static
-from rest_framework.routers import DefaultRouter
-
-# API version
-API_VERSION = "v1"
-
-
-def home_view(request):
-    """Simple home view with API information."""
-    return HttpResponse(
-        "<h1>🚀 Occupy Backend API</h1>"
-        f"<p>API Version: {API_VERSION}</p>"
-        "<p>Visit <a href='/admin/'>Admin Panel</a> or <a href='/api/v1/'>API Endpoints</a></p>"
-    )
-
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 urlpatterns = [
-    path("", lambda request: HttpResponse("Occupy Backend is Live 🚀")),
     path("admin/", admin.site.urls),
-    # DRF login/logout views
-    path("api-auth/", include("rest_framework.urls")),
-    # Authentication routes
+    # API endpoints
+    path("api/", include("core.urls", namespace="core")),
+    path("api/auth/", include("authentication.urls")),
+    # API Schema and Documentation
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/auth/",
-        include(("authentication.urls", "authentication"), namespace="authentication"),
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
     ),
-    # Core API endpoints (Posts, Cliques)
-    path("api/", include(("core.urls", "core"), namespace="core")),
-    # Users API endpoints
-    path("api/", include(("users.urls", "users"), namespace="users")),
+    path(
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
 ]
-
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

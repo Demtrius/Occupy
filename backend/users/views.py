@@ -18,7 +18,7 @@ from .serializers import (
     UserUpdateSerializer,
     OccupationSerializer,
 )
-from core.models import Follow
+from .models import Follow
 
 User = get_user_model()
 
@@ -35,8 +35,8 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_business_page", "occupations"]
     search_fields = ["username", "email", "occupations", "first_name", "last_name"]
-    ordering_fields = ["date_joined", "username"]
-    ordering = ["-date_joined"]
+    ordering_fields = ["created", "username"]
+    ordering = ["-created"]
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
@@ -47,11 +47,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return UserDetailSerializer
 
     def get_queryset(self) -> QuerySet:
-        """
-        Get queryset with optional filtering.
-
-        Returns only active users.
-        """
+        """Get queryset with optional filtering."""
         queryset = super().get_queryset().filter(is_active=True)
 
         # Filter by business pages
@@ -225,7 +221,7 @@ class UserViewSet(viewsets.ModelViewSet):
         posts = (
             user.posts.filter(status="posted")
             .select_related("clique")
-            .order_by("-created_at")
+            .order_by("-created")
         )
 
         # Paginate
@@ -270,13 +266,22 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # TODO: Implement follow functionality when Follow model is added
+        # Check if already following
+        if Follow.objects.filter(follower=request.user, followed=user).exists():
+            return Response(
+                {"detail": "You are already following this user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Create follow relationship
+        Follow.objects.create(follower=request.user, followed=user)
+
         return Response(
             {
-                "detail": "Follow functionality will be implemented soon.",
-                "is_following": False,
+                "detail": "Successfully followed user",
+                "is_following": True,
             },
-            status=status.HTTP_200_OK,
+            status=status.HTTP_201_CREATED,
         )
 
     @action(
@@ -288,38 +293,60 @@ class UserViewSet(viewsets.ModelViewSet):
         """Unfollow a user."""
         user = self.get_object()
 
-        # TODO: Implement unfollow functionality when Follow model is added
+        if user == request.user:
+            return Response(
+                {"detail": "You cannot unfollow yourself."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Find and delete follow relationship
+        follow_obj = Follow.objects.filter(
+            follower=request.user, followed=user
+        ).first()
+        if not follow_obj:
+            return Response(
+                {"detail": "You are not following this user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        follow_obj.delete()
+
         return Response(
             {
-                "detail": "Unfollow functionality will be implemented soon.",
+                "detail": "Successfully unfollowed user",
                 "is_following": False,
             },
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated])
     def is_following(self, request: Request, pk: int = None) -> Response:
         """Check if current user is following this user."""
         user = self.get_object()
 
-        # TODO: Implement when Follow model is added
-        return Response({"is_following": False})
+        is_following = Follow.objects.filter(
+            follower=request.user, followed=user
+        ).exists()
+
+        return Response({"is_following": is_following})
 
     @action(detail=True, methods=["get"])
     def followers(self, request: Request, pk: int = None) -> Response:
         """Get user's followers."""
         user = self.get_object()
 
-        # TODO: Implement when Follow model is added
-        return Response([])
+        followers = Follow.objects.filter(followed=user).select_related("follower")
+        serializer = UserListSerializer([f.follower for f in followers], many=True, context={"request": request})
+        return Response(serializer.data)
 
     @action(detail=True, methods=["get"])
     def following(self, request: Request, pk: int = None) -> Response:
         """Get users that this user is following."""
         user = self.get_object()
 
-        # TODO: Implement when Follow model is added
-        return Response([])
+        following = Follow.objects.filter(follower=user).select_related("followed")
+        serializer = UserListSerializer([f.followed for f in following], many=True, context={"request": request})
+        return Response(serializer.data)
 
     @action(
         detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
@@ -339,3 +366,38 @@ class UserViewSet(viewsets.ModelViewSet):
             suggested_users, many=True, context={"request": request}
         )
         return Response(serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def occupations(self, request: Request) -> Response:
+        occupations = [
+            "Software Developer",
+            "Designer",
+            "Marketing Manager",
+            "Sales Representative",
+            "Project Manager",
+            "Data Analyst",
+            "Teacher",
+            "Nurse",
+            "Engineer",
+            "Accountant",
+            "Lawyer",
+            "Doctor",
+            "Chef",
+            "Electrician",
+            "Plumber",
+            "Mechanic",
+            "Carpenter",
+            "Photographer",
+            "Writer",
+            "Artist",
+            "Musician",
+            "Actor",
+            "Athlete",
+            "Scientist",
+            "Researcher",
+            "Consultant",
+            "Entrepreneur",
+            "Freelancer",
+            "Other",
+        ]
+        return Response({"occupations": occupations})

@@ -5,7 +5,7 @@ This module provides serializers for user authentication, registration, and JWT 
 All serializers include comprehensive type annotations for better code clarity and type safety.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from users.models import Occupier
@@ -21,6 +21,8 @@ class UserSerializer(serializers.ModelSerializer):
     Includes all essential user information except sensitive data like passwords.
     """
 
+    occupations = serializers.SerializerMethodField()
+
     class Meta:
         model = Occupier
         fields = (
@@ -30,11 +32,15 @@ class UserSerializer(serializers.ModelSerializer):
             "occupations",
             "first_name",
             "last_name",
-            "date_joined",
+            "created",
             "is_business_page",
             "private_account",
         )
-        read_only_fields = ("id", "date_joined")
+        read_only_fields = ("id", "created")
+
+    def get_occupations(self, obj: Occupier) -> List[str]:
+        """Get a list of occupation names for the user."""
+        return [occupation.name for occupation in obj.occupations.all()]
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -62,10 +68,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         style={"input_type": "password"},
         help_text="Password must be at least 8 characters long",
     )
-    occupations = serializers.CharField(
-        max_length=200,
+    occupations = serializers.ListField(
+        child=serializers.CharField(max_length=100),
         required=True,
-        help_text="Your occupation or profession",
+        help_text="Your occupation(s) or profession as a list of strings",
     )
     is_business_page = serializers.BooleanField(
         required=False,
@@ -137,12 +143,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         """
         # Extract is_business_page flag if present
         is_business_page = validated_data.pop("is_business_page", False)
+        occupations_data = validated_data.pop("occupations", [])
 
         # Create user with appropriate method
         if is_business_page:
             user = Occupier.objects.create_business_page(**validated_data)
         else:
             user = Occupier.objects.create_user(**validated_data)
+
+        # Add occupations
+        from core.models import Occupation
+        for occupation_name in occupations_data:
+            occupation, _ = Occupation.objects.get_or_create(name=occupation_name.lower())
+            user.occupations.add(occupation)
 
         return user
 
@@ -252,5 +265,5 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token: Token = super().get_token(user)
         token["username"] = user.username
         token["email"] = user.email
-        token["occupations"] = user.occupations
+        token["occupations"] = [occupation.name for occupation in user.occupations.all()]
         return token

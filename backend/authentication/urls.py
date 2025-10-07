@@ -8,12 +8,6 @@ from .views import (
     MyTokenObtainPairView,
     MyTokenRefreshView,
     LogoutView,
-    follow_user,
-    unfollow_user,
-    is_following,
-    user_stats,
-    get_user_by_id,
-    get_occupations,
 )
 
 app_name = "authentication"
@@ -37,11 +31,5 @@ urlpatterns = [
     path("user/", CurrentUserView.as_view(), name="current_user_legacy"),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    # User follow/unfollow endpoints
-    path("users/<int:user_id>/follow/", follow_user, name="follow_user"),
-    path("users/<int:user_id>/unfollow/", unfollow_user, name="unfollow_user"),
-    path("users/<int:user_id>/is-following/", is_following, name="is_following"),
-    path("users/<int:user_id>/stats/", user_stats, name="user_stats"),
-    path("users/<int:user_id>/", get_user_by_id, name="get_user_by_id"),
-    path("occupations/", get_occupations, name="get_occupations"),
+
 ]

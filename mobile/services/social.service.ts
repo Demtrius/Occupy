@@ -104,23 +104,22 @@ class SocialService {
 	/**
 	 * Create a comment
 	 */
- 	async createComment(data: CreateCommentData): Promise<Comment> {
- 		try {
- 			const { postId, ...rest } = data
- 			const payload = {
- 				post: postId,
- 				content: rest.content,
- 			}
- 			const comment = await apiHelpers.post<Comment>(
- 				`/api/posts/${postId}/add_comment/`,
- 				payload
- 			)
- 			return comment
- 		} catch (error) {
- 			console.error('Create comment error:', error)
- 			throw this.handleError(error)
- 		}
- 	}
+	async createComment(data: CreateCommentData): Promise<Comment> {
+		try {
+			const { postId, ...rest } = data
+			// The backend now expects 'content' instead of 'body'
+			const payload = { content: rest.content }
+
+			const comment = await apiHelpers.post<Comment>(
+				`/api/posts/${postId}/add-comment/`,
+				payload
+			)
+			return comment
+		} catch (error) {
+			console.error('Create comment error:', error)
+			throw this.handleError(error)
+		}
+	}
 
 	/**
 	 * Update a comment
@@ -131,7 +130,7 @@ class SocialService {
 	): Promise<Comment> {
 		try {
 			const comment = await apiHelpers.patch<Comment>(
-				`/api/comments/${commentId}/`,
+				`/api/comments/${commentId}/update/`,
 				data
 			)
 			return comment
@@ -146,7 +145,7 @@ class SocialService {
 	 */
 	async deleteComment(commentId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/comments/${commentId}/`)
+			await apiHelpers.delete(`/api/comments/${commentId}/delete/`)
 		} catch (error) {
 			console.error('Delete comment error:', error)
 			throw this.handleError(error)
@@ -161,7 +160,7 @@ class SocialService {
 	async getCliqueReviews(cliqueId: number): Promise<Review[]> {
 		try {
 			const reviews = await apiHelpers.get<Review[]>(
-				`/api/reviews/?clique=${cliqueId}`
+				`/api/reviews/?clique_id=${cliqueId}`
 			)
 			return reviews
 		} catch (error) {
@@ -176,7 +175,7 @@ class SocialService {
 	async getReviewByBooking(bookingId: number): Promise<Review | null> {
 		try {
 			const reviews = await apiHelpers.get<Review[]>(
-				`/api/reviews/?booking=${bookingId}`
+				`/api/reviews/?booking_id=${bookingId}`
 			)
 			return reviews.length > 0 ? reviews[0] : null
 		} catch (error) {
@@ -203,11 +202,7 @@ class SocialService {
 	 */
 	async createReview(data: CreateReviewData): Promise<Review> {
 		try {
-			const { bookingId, ...rest } = data
-			const payload = {
-				booking: bookingId,
-				...rest,
-			}
+			const payload = { booking_id: data.bookingId, ...data }
 			const review = await apiHelpers.post<Review>('/api/reviews/', payload)
 			return review
 		} catch (error) {
@@ -225,7 +220,7 @@ class SocialService {
 	): Promise<Review> {
 		try {
 			const review = await apiHelpers.patch<Review>(
-				`/api/reviews/${reviewId}/`,
+				`/api/reviews/${reviewId}/update/`,
 				data
 			)
 			return review
@@ -240,7 +235,7 @@ class SocialService {
 	 */
 	async deleteReview(reviewId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/reviews/${reviewId}/`)
+			await apiHelpers.delete(`/api/reviews/${reviewId}/delete/`)
 		} catch (error) {
 			console.error('Delete review error:', error)
 			throw this.handleError(error)

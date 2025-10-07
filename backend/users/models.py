@@ -1,14 +1,7 @@
-"""
-User Models
-
-This module defines the custom user model (Occupier) and its manager.
-The Occupier model extends Django's AbstractBaseUser to provide custom
-authentication and user management functionality.
-
-All classes and methods include comprehensive type annotations for better
-code clarity, IDE support, and type safety.
-"""
-
+from django.conf import settings
+from datetime import datetime, timedelta
+import jwt
+import uuid
 from typing import Optional
 from django.db import models
 from django.contrib.auth.models import (
@@ -16,10 +9,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
-from django.conf import settings
-from datetime import datetime, timedelta
-import jwt
-import uuid
+from core.models.base import BaseModel
 
 
 class OccupierManager(BaseUserManager["Occupier"]):
@@ -158,7 +148,7 @@ class OccupierManager(BaseUserManager["Occupier"]):
         return user
 
 
-class Occupier(AbstractBaseUser, PermissionsMixin):
+class Occupier(AbstractBaseUser, PermissionsMixin, BaseModel):
     """
     Custom user model for the Occupy application.
 
@@ -171,8 +161,8 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
         email: Unique email address for the user
         username: Unique username (used for login)
         occupations: User's occupation(s) or profession
-        date_joined: Date when the user registered
-        last_login: Timestamp of last login (auto-updated)
+        created: Date when the user registered
+        modified: Timestamp of last login (auto-updated)
         is_admin: Boolean flag for admin privileges
         is_active: Boolean flag indicating if account is active
         is_staff: Boolean flag for Django admin access
@@ -211,22 +201,11 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
         unique=True,
         help_text="Unique username (used for login)",
     )
-    occupations = models.CharField(
-        max_length=200,
-        null=False,
+    occupations = models.ManyToManyField(
+        "core.Occupation",
+        blank=True,
+        related_name="occupiers",
         help_text="User's occupation(s) or profession",
-    )
-
-    # Timestamps
-    date_joined = models.DateField(
-        verbose_name="date joined",
-        auto_now_add=True,
-        help_text="Date when the user registered",
-    )
-    last_login = models.DateTimeField(
-        verbose_name="last login",
-        auto_now=True,
-        help_text="Timestamp of last login",
     )
 
     # Permission flags
@@ -277,21 +256,6 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
         help_text="Indicates if this is a business account",
     )
 
-    followers = models.ManyToManyField(
-        "self",
-        symmetrical=False,
-        related_name="occupier_following",
-        blank=True,
-        help_text="Users who follow this user",
-    )
-    following = models.ManyToManyField(
-        "self",
-        symmetrical=False,
-        related_name="occupier_followers",
-        blank=True,
-        help_text="Users this user is following",
-    )
-
     # Custom manager
     objects: OccupierManager = OccupierManager()
 
@@ -299,10 +263,9 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "occupations", "password"]
 
-    class Meta:
+    class Meta(BaseModel.Meta):
         verbose_name = "Occupier"
         verbose_name_plural = "Occupiers"
-        ordering = ["-date_joined"]
 
     @property
     def token(self) -> str:
@@ -451,3 +414,38 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
             'janedoe'
         """
         return self.first_name if self.first_name else self.username
+
+
+class Follow(BaseModel):
+    """
+    Follow model represents a follower-followed relationship between users.
+
+    This model enables social networking features by tracking who follows whom.
+
+    Attributes:
+        follower: The user who is following
+        followed: The user being followed
+        created: Timestamp when the follow relationship was created
+    """
+
+    follower = models.ForeignKey(
+        Occupier, related_name="following", on_delete=models.CASCADE, null=True
+    )
+    followed = models.ForeignKey(
+        Occupier, related_name="followers", on_delete=models.CASCADE
+    )
+
+    class Meta(BaseModel.Meta):
+        unique_together = ("follower", "followed")
+        verbose_name = "Follow"
+        verbose_name_plural = "Follows"
+
+    def __str__(self) -> str:
+        """
+        Return string representation of the follow relationship."""
+        return f"{self.follower} follows {self.followed}"
+
+    def __repr__(self) -> str:
+        """
+        Return detailed string representation of the follow relationship."""
+        return f"<Follow: {self.follower} -> {self.followed}>"

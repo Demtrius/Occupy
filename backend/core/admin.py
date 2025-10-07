@@ -15,10 +15,10 @@ from .models import (
 class LikeAdmin(admin.ModelAdmin):
     """Admin interface for Like model."""
 
-    list_display = ["id", "user", "post", "created_at"]
-    list_filter = ["created_at"]
+    list_display = ["id", "user", "post", "created"]
+    list_filter = ["created"]
     search_fields = ["user__username", "post__caption"]
-    readonly_fields = ["created_at"]
+    readonly_fields = ["created"]
     raw_id_fields = ["user", "post"]
 
 
@@ -26,10 +26,10 @@ class LikeAdmin(admin.ModelAdmin):
 class CommentPostAdmin(admin.ModelAdmin):
     """Admin interface for CommentPost model."""
 
-    list_display = ["id", "occupier", "post", "body_preview", "date"]
-    list_filter = ["date"]
+    list_display = ["id", "occupier", "post", "body_preview", "created"]
+    list_filter = ["created"]
     search_fields = ["occupier__username", "body", "post__caption"]
-    readonly_fields = ["date"]
+    readonly_fields = ["created"]
     raw_id_fields = ["occupier", "post"]
 
     def body_preview(self, obj):
@@ -43,10 +43,10 @@ class CommentPostAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     """Admin interface for Review model."""
 
-    list_display = ["id", "user", "clique", "booking", "rating", "created_at"]
-    list_filter = ["rating", "created_at"]
+    list_display = ["id", "user", "clique", "booking", "rating", "created"]
+    list_filter = ["rating", "created"]
     search_fields = ["user__username", "clique__name", "comment"]
-    readonly_fields = ["created_at", "updated_at"]
+    readonly_fields = ["created", "modified"]
     raw_id_fields = ["user", "clique", "booking"]
 
 
@@ -54,20 +54,20 @@ class ReviewAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     """Admin interface for Post model."""
 
-    list_display = ["id", "caption", "occupier", "clique", "created_at"]
-    list_filter = ["created_at"]
+    list_display = ["id", "caption", "occupier", "clique", "created"]
+    list_filter = ["created"]
     search_fields = ["caption", "content", "occupier__username"]
-    readonly_fields = ["created_at", "updated_at"]
+    readonly_fields = ["created", "modified"]
 
 
 @admin.register(Clique)
 class CliqueAdmin(admin.ModelAdmin):
     """Admin interface for Clique model."""
 
-    list_display = ["id", "name", "occupier", "level", "created_at"]
-    list_filter = ["level", "created_at"]
+    list_display = ["id", "name", "occupier", "level", "created"]
+    list_filter = ["level", "created"]
     search_fields = ["name", "description", "occupation"]
-    readonly_fields = ["created_at"]
+    readonly_fields = ["created"]
 
 
 @admin.register(Service)
@@ -83,9 +83,9 @@ class ServiceAdmin(admin.ModelAdmin):
         "duration_minutes",
         "is_active",
     ]
-    list_filter = ["is_active", "created_at"]
+    list_filter = ["is_active", "created"]
     search_fields = ["title", "description", "clique__name"]
-    readonly_fields = ["created_at", "updated_at"]
+    readonly_fields = ["created", "modified"]
 
 
 @admin.register(Availability)
@@ -116,8 +116,8 @@ class BookingAdmin(admin.ModelAdmin):
         "provider",
         "date",
         "status",
-        "created_at",
+        "created",
     ]
-    list_filter = ["status", "date", "created_at"]
+    list_filter = ["status", "date", "created"]
     search_fields = ["client__username", "provider__username", "service__title"]
-    readonly_fields = ["created_at", "updated_at"]
+    readonly_fields = ["created", "modified"]

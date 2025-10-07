@@ -9,6 +9,15 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class UserBasicSerializer(serializers.ModelSerializer):
+    """Basic user information for nested serialization."""
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "profile_image"]
+        read_only_fields = ["id", "username", "email", "profile_image"]
+
+
 class UserListSerializer(serializers.ModelSerializer):
     """Serializer for listing users with basic information."""
 
@@ -25,7 +34,7 @@ class UserListSerializer(serializers.ModelSerializer):
             "profile_image",
             "occupations",
             "is_business_page",
-            "date_joined",
+            "created",
             "followers_count",
             "following_count",
             "posts_count",
@@ -33,7 +42,7 @@ class UserListSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "email",
-            "date_joined",
+            "created",
             "followers_count",
             "following_count",
             "posts_count",
@@ -76,7 +85,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "occupations",
             "is_business_page",
             "private_account",
-            "date_joined",
+            "created",
             "followers_count",
             "following_count",
             "posts_count",
@@ -85,7 +94,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "email",
-            "date_joined",
+            "created",
             "followers_count",
             "following_count",
             "posts_count",
