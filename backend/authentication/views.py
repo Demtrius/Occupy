@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -23,8 +23,13 @@ from .serializers import (
     UserSerializer,
 )
 from users.models import Occupier
+from core.models import Follow
 from django.contrib.auth import authenticate
 from .utils import create_jwt_pair_for_user
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -290,6 +295,16 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
+class MyTokenRefreshView(TokenRefreshView):
+    """
+    Custom JWT token refresh view with CSRF exemption
+
+    POST /api/auth/jwt/refresh/
+    """
+    pass
+
+
+@method_decorator(csrf_exempt, name="dispatch")
 class LogoutView(APIView):
     """
     Logout user by blacklisting the refresh token
@@ -324,13 +339,194 @@ class LogoutView(APIView):
             token: RefreshToken = RefreshToken(refresh_token)
             token.blacklist()
 
-            return Response(
-                {"detail": "Successfully logged out"},
-                status=status.HTTP_205_RESET_CONTENT,
-            )
-
         except Exception as e:
             return Response(
                 {"detail": str(e), "message": "Logout failed"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def follow_user(request, user_id):
+    """
+    Follow a user.
+    """
+    try:
+        user_to_follow = Occupier.objects.get(id=user_id)
+    except Occupier.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user_to_follow == request.user:
+        return Response(
+            {"error": "You cannot follow yourself"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Check if already following
+    if Follow.objects.filter(follower=request.user, followed=user_to_follow).exists():
+        return Response(
+            {"error": "You are already following this user"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Create follow relationship
+    Follow.objects.create(follower=request.user, followed=user_to_follow)
+
+    # Get updated followers count
+    followers_count = Follow.objects.filter(followed=user_to_follow).count()
+
+    return Response(
+        {
+            "message": "Successfully followed user",
+            "is_following": True,
+            "followers_count": followers_count,
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def unfollow_user(request, user_id):
+    """
+    Unfollow a user.
+    """
+    try:
+        user_to_unfollow = Occupier.objects.get(id=user_id)
+    except Occupier.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user_to_unfollow == request.user:
+        return Response(
+            {"error": "You cannot unfollow yourself"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Find and delete follow relationship
+    follow_obj = Follow.objects.filter(
+        follower=request.user, followed=user_to_unfollow
+    ).first()
+    if not follow_obj:
+        return Response(
+            {"error": "You are not following this user"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    follow_obj.delete()
+
+    # Get updated followers count
+    followers_count = Follow.objects.filter(followed=user_to_unfollow).count()
+
+    return Response(
+        {
+            "message": "Successfully unfollowed user",
+            "is_following": False,
+            "followers_count": followers_count,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def is_following(request, user_id):
+    """
+    Check if current user is following the specified user.
+    """
+    try:
+        user_to_check = Occupier.objects.get(id=user_id)
+    except Occupier.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user_to_check == request.user:
+        return Response({"is_following": False})
+
+    is_following = Follow.objects.filter(
+        follower=request.user, followed=user_to_check
+    ).exists()
+
+    return Response({"is_following": is_following})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_stats(request, user_id):
+    """
+    Get user statistics (followers, following, posts, cliques).
+    """
+    try:
+        target_user = Occupier.objects.get(id=user_id)
+        # Use Follow model for proper follower/following counts
+        followers_count = Follow.objects.filter(followed=target_user).count()
+        following_count = Follow.objects.filter(follower=target_user).count()
+        # TODO: Get posts and cliques counts from proper models
+        posts_count = 0  # TODO: Get from Post model
+        cliques_count = 0  # TODO: Get from Clique model
+
+        return Response(
+            {
+                "followers_count": followers_count,
+                "following_count": following_count,
+                "posts_count": posts_count,
+                "cliques_count": cliques_count,
+            }
+        )
+    except Occupier.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"DEBUG: user_stats error: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_user_by_id(request, user_id):
+    """
+    Get user by ID.
+    """
+    try:
+        user = Occupier.objects.get(id=user_id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    except Occupier.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_occupations(request):
+    """
+    Get list of possible occupations.
+    """
+    occupations = [
+        "Software Developer",
+        "Designer",
+        "Marketing Manager",
+        "Sales Representative",
+        "Project Manager",
+        "Data Analyst",
+        "Teacher",
+        "Nurse",
+        "Engineer",
+        "Accountant",
+        "Lawyer",
+        "Doctor",
+        "Chef",
+        "Electrician",
+        "Plumber",
+        "Mechanic",
+        "Carpenter",
+        "Photographer",
+        "Writer",
+        "Artist",
+        "Musician",
+        "Actor",
+        "Athlete",
+        "Scientist",
+        "Researcher",
+        "Consultant",
+        "Entrepreneur",
+        "Freelancer",
+        "Other",
+    ]
+    return Response({"occupations": occupations})

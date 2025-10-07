@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native'
 import { cliquesService } from '../services'
 import usersService from '@services/users.service'
 import { showError } from '../store/app.store'
+import { useAuthStore } from '../store/auth.store'
 import type { Clique, User, Occupation, ScreenNavigationProp } from '../types'
 
 const { width, height } = Dimensions.get('window')
@@ -29,6 +30,7 @@ interface SearchItem {
 
 const SearchScreen: React.FC = () => {
 	const navigation = useNavigation<ScreenNavigationProp<'Search'>>()
+	const { user: currentUser } = useAuthStore()
 
 	const [search, setSearch] = useState<string>('')
 	const [filteredDataSource, setFilteredDataSource] = useState<SearchItem[]>([])
@@ -95,11 +97,13 @@ const SearchScreen: React.FC = () => {
 					...item,
 					type: 'Occupation' as const,
 				})),
-				...userList.map(user => ({
-					id: user.id,
-					username: user.username,
-					type: 'User' as const,
-				})),
+				...userList
+					.filter(user => currentUser && user.id !== currentUser.id)
+					.map(user => ({
+						id: user.id,
+						username: user.username,
+						type: 'User' as const,
+					})),
 				...cliques.map(clique => ({
 					id: clique.id,
 					name: clique.name,
@@ -108,7 +112,7 @@ const SearchScreen: React.FC = () => {
 			]
 			setFilteredDataSource(allData)
 		}
-	}, [masterDataSource, userList, cliques, category])
+	}, [masterDataSource, userList, cliques, category, currentUser])
 
 	// Search filter function
 	const searchFilterFunction = (text: string) => {
@@ -124,7 +128,8 @@ const SearchScreen: React.FC = () => {
 						.map(item => ({ ...item, type: 'Occupation' as const })),
 					...userList
 						.filter(user =>
-							user.username.toUpperCase().includes(text.toUpperCase())
+							user.username.toUpperCase().includes(text.toUpperCase()) &&
+							currentUser && user.id !== currentUser.id
 						)
 						.map(user => ({
 							id: user.id,
@@ -148,7 +153,8 @@ const SearchScreen: React.FC = () => {
 			} else if (category === 'Persons') {
 				newData = userList
 					.filter(user =>
-						user.username.toUpperCase().includes(text.toUpperCase())
+						user.username.toUpperCase().includes(text.toUpperCase()) &&
+						currentUser && user.id !== currentUser.id
 					)
 					.map(user => ({
 						id: user.id,
@@ -184,11 +190,13 @@ const SearchScreen: React.FC = () => {
 					...item,
 					type: 'Occupation' as const,
 				})),
-				...userList.map(user => ({
-					id: user.id,
-					username: user.username,
-					type: 'User' as const,
-				})),
+				...userList
+					.filter(user => currentUser && user.id !== currentUser.id)
+					.map(user => ({
+						id: user.id,
+						username: user.username,
+						type: 'User' as const,
+					})),
 				...cliques.map(clique => ({
 					id: clique.id,
 					name: clique.name,
@@ -204,11 +212,13 @@ const SearchScreen: React.FC = () => {
 			setFilteredDataSource(newData)
 		} else if (selectedCategory === 'Persons') {
 			setFilteredDataSource(
-				userList.map(user => ({
-					id: user.id,
-					username: user.username,
-					type: 'User' as const,
-				}))
+				userList
+					.filter(user => currentUser && user.id !== currentUser.id)
+					.map(user => ({
+						id: user.id,
+						username: user.username,
+						type: 'User' as const,
+					}))
 			)
 		} else if (selectedCategory === 'Cliques') {
 			setFilteredDataSource(

@@ -7,6 +7,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.pagination import PageNumberPagination
 from django.db.models import QuerySet, Q
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
@@ -44,6 +45,11 @@ from .serializers import (
 User = get_user_model()
 
 
+class CliquePostsPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'limit'
+
+
 class PostViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing posts.
@@ -60,6 +66,7 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ["content", "caption"]
     ordering_fields = ["created_at", "updated_at"]
     ordering = ["-created_at"]
+    pagination_class = CliquePostsPagination
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
@@ -116,10 +123,28 @@ class PostViewSet(viewsets.ModelViewSet):
     def like(self, request: Request, pk: int = None) -> Response:
         """Like a post."""
         post = self.get_object()
-        # TODO: Implement like functionality when Like model is added
+        user = request.user
+
+        # Check if already liked
+        existing_like = Like.objects.filter(post=post, user=user).first()
+        if existing_like:
+            return Response(
+                {"detail": "You have already liked this post."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Create the like
+        Like.objects.create(post=post, user=user)
+
+        # Return updated like count and status
+        likes_count = Like.objects.filter(post=post).count()
         return Response(
-            {"detail": "Like functionality will be implemented soon."},
-            status=status.HTTP_200_OK,
+            {
+                "detail": "Post liked successfully.",
+                "likes_count": likes_count,
+                "is_liked": True,
+            },
+            status=status.HTTP_201_CREATED,
         )
 
     @action(
@@ -130,9 +155,26 @@ class PostViewSet(viewsets.ModelViewSet):
     def unlike(self, request: Request, pk: int = None) -> Response:
         """Unlike a post."""
         post = self.get_object()
-        # TODO: Implement unlike functionality when Like model is added
+        user = request.user
+
+        # Find and delete the like
+        like = Like.objects.filter(post=post, user=user).first()
+        if not like:
+            return Response(
+                {"detail": "You have not liked this post."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        like.delete()
+
+        # Return updated like count and status
+        likes_count = Like.objects.filter(post=post).count()
         return Response(
-            {"detail": "Unlike functionality will be implemented soon."},
+            {
+                "detail": "Post unliked successfully.",
+                "likes_count": likes_count,
+                "is_liked": False,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -202,6 +244,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description"]
     ordering_fields = ["created_at", "name"]
     ordering = ["-created_at"]
+    pagination_class = CliquePostsPagination
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""

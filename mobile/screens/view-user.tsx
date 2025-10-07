@@ -19,6 +19,8 @@ import usersService from '../services/users.service'
 import { showError } from '@store/app.store'
 import { Post, User, ScreenNavigationProp, ScreenRouteProp } from '../types'
 import { PostItem } from '../components'
+import UserProfileHeader from '../components/user-profile-header'
+import useAuthStore from '../store/auth.store'
 
 interface Props {
 	route: ScreenRouteProp<'ViewUser'>
@@ -35,15 +37,21 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 	const [masterDataSource, setMasterDataSource] = useState<Post[]>([])
 	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
 	const [userData, setUserData] = useState<User | null>(null)
+	const [isFollowing, setIsFollowing] = useState<boolean>(false)
+	const [followersCount, setFollowersCount] = useState<number>(0)
+	const [followingCount, setFollowingCount] = useState<number>(0)
 
 	const searchBarRef = useRef<any>(null)
 	const navigation = useNavigation<ScreenNavigationProp<'ViewUser'>>()
+	const { user: currentUser } = useAuthStore()
 
 	const { userId } = route.params
 
 	useEffect(() => {
 		getUserData()
 		getUserPosts()
+		getUserStats()
+		checkFollowingStatus()
 	}, [userId])
 
 	const getUserData = async () => {
@@ -68,6 +76,49 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 		} catch (error: any) {
 			console.error('Error fetching user posts:', error)
 			showError(error.message || 'Failed to load user posts')
+		}
+	}
+
+	const getUserStats = async () => {
+		try {
+			const stats = await usersService.getUserStats(userId)
+			setFollowersCount(stats.followersCount)
+			setFollowingCount(stats.followingCount)
+		} catch (error: any) {
+			console.error('Error fetching user stats:', error)
+		}
+	}
+
+	const checkFollowingStatus = async () => {
+		if (currentUser && currentUser.id !== userId) {
+			try {
+				const following = await usersService.isFollowing(userId)
+				setIsFollowing(following)
+			} catch (error: any) {
+				console.error('Error checking following status:', error)
+			}
+		}
+	}
+
+	const handleFollow = async () => {
+		try {
+			await usersService.followUser(userId)
+			setIsFollowing(true)
+			setFollowersCount(prev => prev + 1)
+		} catch (error: any) {
+			console.error('Error following user:', error)
+			showError(error.message || 'Failed to follow user')
+		}
+	}
+
+	const handleUnfollow = async () => {
+		try {
+			await usersService.unfollowUser(userId)
+			setIsFollowing(false)
+			setFollowersCount(prev => prev - 1)
+		} catch (error: any) {
+			console.error('Error unfollowing user:', error)
+			showError(error.message || 'Failed to unfollow user')
 		}
 	}
 
@@ -122,107 +173,16 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 		)
 	}
 
-	const renderHeader = () => (
-		<>
-			<View style={styles.headerContainer}>
-				{!showSearchBar && (
-					<>
-						<Text style={styles.headerTitle}>User Profile</Text>
-						<TouchableOpacity
-							onPress={() => {
-								setShowSearchBar(true)
-								setTimeout(() => {
-									searchBarRef.current?.focus()
-								}, 100)
-							}}
-							style={styles.searchIcon}
-						>
-							<Ionicons name='search' size={24} color='#1F2937' />
-						</TouchableOpacity>
-					</>
-				)}
-				{showSearchBar && (
-					<PaperSearchbar
-						ref={searchBarRef}
-						style={styles.searchBar}
-						placeholder='Search posts'
-						value={search}
-						onChangeText={text => searchFilterFunction(text)}
-						onBlur={() => {
-							if (!search) setShowSearchBar(false)
-						}}
-					/>
-				)}
-			</View>
+	const handleSearchPress = () => {
+		setShowSearchBar(true)
+		setTimeout(() => {
+			searchBarRef.current?.focus()
+		}, 100)
+	}
 
-			{userData && (
-				<View style={styles.userInfoContainer}>
-					<View style={styles.userAvatarContainer}>
-						{userData.profileImage ? (
-							<Image
-								source={{ uri: userData.profileImage }}
-								style={styles.userAvatar}
-							/>
-						) : (
-							<View style={styles.userAvatarPlaceholder}>
-								<Ionicons name='person' size={48} color='#9CA3AF' />
-							</View>
-						)}
-					</View>
-
-					<Text style={styles.userName}>{userData.username}</Text>
-					<Text style={styles.userEmail}>{userData.email}</Text>
-
-					{userData.occupations && (
-						<View style={styles.userMetaItem}>
-							<Ionicons name='briefcase-outline' size={16} color='#6B7280' />
-							<Text style={styles.userMetaText}>{userData.occupations}</Text>
-						</View>
-					)}
-
-					{userData.createdAt && (
-						<View style={styles.userMetaItem}>
-							<Ionicons name='calendar-outline' size={16} color='#6B7280' />
-							<Text style={styles.userMetaText}>
-								Joined {new Date(userData.createdAt).toLocaleDateString()}
-							</Text>
-						</View>
-					)}
-
-					<TouchableOpacity
-						style={styles.contactButton}
-						onPress={handleContactPress}
-					>
-						<Ionicons name='chatbubble-outline' size={20} color='#ffffff' />
-						<Text style={styles.contactButtonText}>Contact</Text>
-					</TouchableOpacity>
-				</View>
-			)}
-
-			<View style={styles.tabContainer}>
-				{['Posts', 'Reviews'].map(tab => (
-					<TouchableOpacity
-						key={tab}
-						style={[
-							styles.tab,
-							{ flex: 1 },
-							activeTab === tab && styles.activeTab,
-						]}
-						onPress={() => setActiveTab(tab as 'Posts' | 'Reviews')}
-					>
-						<Text
-							style={[
-								styles.tabText,
-								activeTab === tab && styles.activeTabText,
-							]}
-						>
-							{tab}
-						</Text>
-					</TouchableOpacity>
-				))}
-			</View>
-		</>
-	)
+	const handleTabPress = (tab: string) => {
+		setActiveTab(tab as 'Posts' | 'Reviews')
+	}
 
 	if (loading && !refreshing) {
 		return (
@@ -236,93 +196,20 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 				style={styles.postsList}
 				ListHeaderComponent={
 					<View>
-						<PaperSearchbar
-							style={styles.searchBar}
-							placeholder='Search'
-							value={search}
-							onChangeText={searchFilterFunction}
+						<UserProfileHeader
+							user={userData}
+							showSearchBar={true}
+							showTabs={true}
+							showFollowButton={false}
+							followersCount={followersCount}
+							followingCount={followingCount}
+							onTabPress={handleTabPress}
+							activeTab={activeTab}
+							searchValue={search}
+							onSearchChange={searchFilterFunction}
+							onContact={handleContactPress}
+							isOwnProfile={false}
 						/>
-
-						<View style={styles.headerContainer}>
-							{!showSearchBar && userData && (
-								<View style={styles.userInfoContainer}>
-									{userData.profileImage ? (
-										<Image
-											source={{ uri: userData.profileImage }}
-											style={styles.userAvatar}
-										/>
-									) : (
-										<View style={styles.userAvatarPlaceholder}>
-											<Ionicons name='person' size={32} color='#9CA3AF' />
-										</View>
-									)}
-
-									<View style={styles.userDetails}>
-										<Text style={styles.userName}>{userData.username}</Text>
-										<Text style={styles.userEmail}>{userData.email}</Text>
-
-										{userData.occupations && (
-											<View style={styles.userMetaItem}>
-												<Ionicons
-													name='briefcase-outline'
-													size={16}
-													color='#6B7280'
-												/>
-												<Text style={styles.userMetaText}>
-													{userData.occupations}
-												</Text>
-											</View>
-										)}
-
-										{userData.createdAt && (
-											<View style={styles.userMetaItem}>
-												<Ionicons
-													name='calendar-outline'
-													size={16}
-													color='#6B7280'
-												/>
-												<Text style={styles.userMetaText}>
-													Joined{' '}
-													{new Date(userData.createdAt).toLocaleDateString()}
-												</Text>
-											</View>
-										)}
-
-										<TouchableOpacity
-											style={styles.contactButton}
-											onPress={handleContactPress}
-										>
-											<Ionicons
-												name='chatbubble-outline'
-												size={20}
-												color='#ffffff'
-											/>
-											<Text style={styles.contactButtonText}>Contact</Text>
-										</TouchableOpacity>
-									</View>
-								</View>
-							)}
-
-							<View style={styles.tabContainer}>
-								{['Posts', 'Reviews'].map(tab => (
-									<TouchableOpacity
-										key={tab}
-										style={[styles.tab, activeTab === tab && styles.activeTab]}
-										onPress={() => setActiveTab(tab as 'Posts' | 'Reviews')}
-									>
-										<Text
-											style={[
-												styles.tabText,
-												activeTab === tab && styles.activeTabText,
-											]}
-										>
-											{tab}
-										</Text>
-									</TouchableOpacity>
-								))}
-							</View>
-						</View>
-
 						{activeTab === 'Reviews' && renderReviews()}
 					</View>
 				}
@@ -342,7 +229,27 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 			style={styles.screenContainer}
 			contentContainerStyle={styles.scrollContentContainer}
 		>
-			{renderHeader()}
+			<UserProfileHeader
+				user={userData}
+				showSearchBar={showSearchBar}
+				showTabs={true}
+				showFollowButton={true}
+				isFollowing={isFollowing}
+				followersCount={followersCount}
+				followingCount={followingCount}
+				onSearchPress={handleSearchPress}
+				onTabPress={handleTabPress}
+				activeTab={activeTab}
+				searchValue={search}
+				onSearchChange={searchFilterFunction}
+				onSearchBlur={() => {
+					if (!search) setShowSearchBar(false)
+				}}
+				onFollow={handleFollow}
+				onUnfollow={handleUnfollow}
+				onContact={handleContactPress}
+				isOwnProfile={false}
+			/>
 			{activeTab === 'Posts' && (
 				<FlatList
 					data={filteredDataSource}
@@ -466,6 +373,24 @@ const styles = StyleSheet.create({
 		color: '#6B7280',
 		marginLeft: 8,
 	},
+	statsContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+		marginVertical: 16,
+	},
+	statItem: {
+		alignItems: 'center',
+	},
+	statNumber: {
+		fontSize: 20,
+		fontWeight: 'bold',
+		color: '#1F2937',
+	},
+	statLabel: {
+		fontSize: 14,
+		color: '#6B7280',
+		marginTop: 4,
+	},
 	contactButton: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -474,6 +399,9 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 24,
 		borderRadius: 8,
 		marginTop: 16,
+	},
+	followingButton: {
+		backgroundColor: '#ef4444',
 	},
 	contactButtonText: {
 		color: '#ffffff',

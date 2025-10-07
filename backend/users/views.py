@@ -18,6 +18,7 @@ from .serializers import (
     UserUpdateSerializer,
     OccupationSerializer,
 )
+from core.models import Follow
 
 User = get_user_model()
 
@@ -243,9 +244,13 @@ class UserViewSet(viewsets.ModelViewSet):
         """Get user statistics."""
         user = self.get_object()
 
+        # Get follower and following counts using the Follow model
+        followers_count = Follow.objects.filter(followed=user).count()
+        following_count = Follow.objects.filter(follower=user).count()
+
         stats = {
-            "followers_count": 0,  # Placeholder
-            "following_count": 0,  # Placeholder
+            "followers_count": followers_count,
+            "following_count": following_count,
             "posts_count": user.posts.count() if hasattr(user, "posts") else 0,
             "cliques_count": user.cliques.count() if hasattr(user, "cliques") else 0,
         }

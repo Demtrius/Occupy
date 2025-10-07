@@ -1,6 +1,6 @@
 // import { useNavigation } from "@react-navigation/native";
 import type React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
 	ActivityIndicator,
 	Dimensions,
@@ -31,10 +31,16 @@ const FeedScreen: React.FC = () => {
 	const [loadingMore, setLoadingMore] = useState<boolean>(false)
 	const [hasMore, setHasMore] = useState<boolean>(true)
 	const [page, setPage] = useState<number>(1)
+	const [lastRequestTime, setLastRequestTime] = useState<number>(0)
 
 	const [search, setSearch] = useState<string>('')
-	const [filteredDataSource, setFilteredDataSource] = useState<Post[]>([])
 	const [category, setCategory] = useState<number | 'all'>('all')
+
+	// Use refs for cache to avoid dependency issues and unnecessary re-renders
+	const postsCacheRef = useRef<Record<string, Post[]>>({})
+	const categoryPagesRef = useRef<Record<string, number>>({})
+	const categoryHasMoreRef = useRef<Record<string, boolean>>({})
+	const categoryRef = useRef<number | 'all'>('all')
 
 	// const [nearYouPosts, setNearYouPosts] = useState<Post[]>([]);
 
@@ -53,24 +59,65 @@ const FeedScreen: React.FC = () => {
 		}
 	}, [])
 
-	// Fetch posts
+	// Fetch posts with caching
 	const getPosts = useCallback(
-		async (pageNum: number = 1, append: boolean = false) => {
+		async (categoryFilter: number | 'all' = 'all', pageNum: number = 1, append: boolean = false) => {
 			try {
-				const data = await postsService.getFeedPosts(pageNum, 20)
-				if (append) {
-					setPosts(prev => [...prev, ...data])
-				} else {
-					setPosts(data)
-					setFilteredDataSource(data)
+				// Check cache first
+				const cacheKey = categoryFilter.toString()
+				const cachedPosts = postsCacheRef.current[cacheKey] || []
+				const currentPage = categoryPagesRef.current[cacheKey] || 1
+				const currentHasMore = categoryHasMoreRef.current[cacheKey] ?? true
+
+				// If we have cached data and not appending, use cache
+				if (!append && cachedPosts.length > 0 && pageNum === 1) {
+					setPosts(cachedPosts)
+					setHasMore(currentHasMore)
+					setPage(currentPage)
+					return
 				}
-				setHasMore(data.length === 20) // If we got 20 posts, there might be more
+
+				let data: Post[] = []
+
+				if (categoryFilter === 'all') {
+					data = await postsService.getFeedPosts(pageNum, 20)
+				} else {
+					// For specific cliques, get posts by clique
+					const response = await postsService.getPostsByClique(categoryFilter, pageNum, 20)
+					data = response.results || []
+				}
+
+				if (append) {
+					// Remove duplicates when appending
+					const existingPosts = postsCacheRef.current[cacheKey] || []
+					const combined = [...existingPosts, ...data]
+					const unique = combined.filter(
+						(item, index, self) =>
+							self.findIndex(p => p.id === item.id) === index
+					)
+
+					postsCacheRef.current = { ...postsCacheRef.current, [cacheKey]: unique }
+					setPosts(unique)
+				} else {
+					postsCacheRef.current = { ...postsCacheRef.current, [cacheKey]: data }
+					setPosts(data)
+				}
+
+				// Update pagination state for this category
+				const currentPageForCategory = categoryPagesRef.current[cacheKey] || 1
+				const newPage = append ? currentPageForCategory + 1 : pageNum
+				const newHasMore = data.length === 20 && newPage < 10
+
+				categoryPagesRef.current = { ...categoryPagesRef.current, [cacheKey]: newPage }
+				categoryHasMoreRef.current = { ...categoryHasMoreRef.current, [cacheKey]: newHasMore }
+				setHasMore(newHasMore)
+				setPage(newPage)
 			} catch (error) {
 				console.error('Error fetching posts:', error)
 				showError('Failed to load posts')
 			}
 		},
-		[]
+		[] // No dependencies needed since we use refs
 	)
 
 	// Fetch posts for "near you" section
@@ -85,79 +132,95 @@ const FeedScreen: React.FC = () => {
 
 	// Load more posts for infinite scroll
 	const loadMorePosts = useCallback(async () => {
-		if (loadingMore || !hasMore) return
+		const now = Date.now()
+		const timeSinceLastRequest = now - lastRequestTime
+
+		if (loadingMore || !hasMore || page >= 10 || timeSinceLastRequest < 1000)
+			return // 1 second cooldown
 
 		setLoadingMore(true)
+		setLastRequestTime(now)
 		const nextPage = page + 1
 		try {
-			await getPosts(nextPage, true)
-			setPage(nextPage)
+			await getPosts(categoryRef.current, nextPage, true)
 		} catch (error) {
 			console.error('Error loading more posts:', error)
 		} finally {
 			setLoadingMore(false)
 		}
-	}, [loadingMore, hasMore, page, getPosts])
+	}, [loadingMore, hasMore, page, getPosts, lastRequestTime]) // Removed category from dependencies
 
 	// Refresh handler
-	const onRefresh = async () => {
+	const onRefresh = useCallback(async () => {
 		setRefreshing(true)
 		setPage(1)
 		setHasMore(true)
+		setLastRequestTime(0) // Reset cooldown on refresh
+
+		// Clear cache for current category to force refresh
+		const cacheKey = categoryRef.current.toString()
+		const newCache = { ...postsCacheRef.current }
+		delete newCache[cacheKey]
+		postsCacheRef.current = newCache
+
+		const newPages = { ...categoryPagesRef.current }
+		delete newPages[cacheKey]
+		categoryPagesRef.current = newPages
+
+		const newHasMore = { ...categoryHasMoreRef.current }
+		delete newHasMore[cacheKey]
+		categoryHasMoreRef.current = newHasMore
+
 		try {
-			await Promise.all([getCliques(), getPosts(1, false)])
+			await Promise.all([getCliques(), getPosts(categoryRef.current, 1, false)])
 		} catch (error) {
 			console.error('Error refreshing:', error)
 		} finally {
 			setRefreshing(false)
 		}
-	}
+	}, [getCliques, getPosts]) // Removed category from dependencies
 
 	// Filter by category
 	const filterByCategory = useCallback(
 		(selectedCategory: number | 'all') => {
 			setCategory(selectedCategory)
-			if (selectedCategory === 'all') {
-				setFilteredDataSource(posts)
-			} else {
-				const filtered = posts.filter(
-					item => item.cliqueId === selectedCategory
-				)
-				setFilteredDataSource(filtered)
-			}
+			categoryRef.current = selectedCategory
+			// Don't refetch if we already have cached data for this category
+			getPosts(selectedCategory, 1, false)
 		},
-		[posts]
+		[getPosts]
 	)
 
 	// Initial load
 	useEffect(() => {
+		categoryRef.current = 'all'
 		getCliques()
-		getPosts(1, false)
+		getPosts('all', 1, false)
 		setPage(1)
 	}, [getCliques, getPosts])
 
-	// Reset posts when search changes
-	useEffect(() => {
-		if (debouncedSearch) {
-			setPosts([])
-			setFilteredDataSource([])
-			setPage(1)
-			setHasMore(true)
-		}
-	}, [debouncedSearch])
+	// Memoize filtered data to prevent unnecessary re-renders
+	const filteredDataSource = useMemo(() => {
+		let filtered = posts
 
-	// Search filter with debounce
-	useEffect(() => {
+		// Apply search filter if active
 		if (debouncedSearch) {
-			const filtered = posts.filter(item => {
+			filtered = filtered.filter(item => {
 				const itemData = item.caption ? item.caption.toUpperCase() : ''
 				return itemData.includes(debouncedSearch.toUpperCase())
 			})
-			setFilteredDataSource(filtered.slice(0, 3))
-		} else {
-			filterByCategory(category)
 		}
-	}, [debouncedSearch, category, posts, filterByCategory])
+
+		// Remove duplicates based on post ID (shouldn't be necessary but keeping for safety)
+		return filtered.filter(
+			(item, index, self) => self.findIndex(p => p.id === item.id) === index
+		)
+	}, [posts, debouncedSearch])
+
+	// Update hasMore based on search state
+	useEffect(() => {
+		setHasMore(!debouncedSearch)
+	}, [debouncedSearch])
 
 	// Navigate to messages (commented out)
 	// const navigateToMessages = (userId: number) => {

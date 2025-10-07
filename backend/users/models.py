@@ -277,6 +277,21 @@ class Occupier(AbstractBaseUser, PermissionsMixin):
         help_text="Indicates if this is a business account",
     )
 
+    followers = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="occupier_following",
+        blank=True,
+        help_text="Users who follow this user",
+    )
+    following = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        related_name="occupier_followers",
+        blank=True,
+        help_text="Users this user is following",
+    )
+
     # Custom manager
     objects: OccupierManager = OccupierManager()
 

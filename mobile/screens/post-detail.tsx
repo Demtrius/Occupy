@@ -12,7 +12,7 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native'
-import { FormInput, InfoBox, PrimaryButton, ScreenHeader } from '../components'
+import { FormInput, PrimaryButton, ScreenHeader } from '../components'
 import { cliquesService, postsService, socialService } from '../services'
 import type {
 	Clique,
@@ -42,7 +42,6 @@ const PostDetailScreen: React.FC<Props> = ({ route }) => {
 	const [likesCount, setLikesCount] = useState<number>(0)
 	const [submittingComment, setSubmittingComment] = useState<boolean>(false)
 	const [likingPost, setLikingPost] = useState<boolean>(false)
-	const [showFeatureNotice, setShowFeatureNotice] = useState<boolean>(false)
 
 	const { id } = route.params
 
@@ -100,19 +99,18 @@ const PostDetailScreen: React.FC<Props> = ({ route }) => {
 		try {
 			setLikingPost(true)
 			if (isLiked) {
-				await socialService.unlikePost(id)
-				setIsLiked(false)
-				setLikesCount(prev => Math.max(0, prev - 1))
+				const response = await socialService.unlikePost(id)
+				setIsLiked(response.isLiked)
+				setLikesCount(response.likesCount)
 			} else {
-				await socialService.likePost(id)
-				setIsLiked(true)
-				setLikesCount(prev => prev + 1)
+				const response = await socialService.likePost(id)
+				setIsLiked(response.isLiked)
+				setLikesCount(response.likesCount)
 			}
 		} catch (error: unknown) {
 			const err = error as ApiError
 			console.error('Error liking post:', err)
 			showError(err.message || 'Failed to like post')
-			setShowFeatureNotice(true)
 		} finally {
 			setLikingPost(false)
 		}
@@ -135,10 +133,7 @@ const PostDetailScreen: React.FC<Props> = ({ route }) => {
 		} catch (error: unknown) {
 			const err = error as ApiError
 			console.error('Error submitting comment:', err)
-			if (err.status === 404) {
-				setShowFeatureNotice(true)
-			}
-			showError(err.message || 'Comments feature coming soon!')
+			showError(err.message || 'Failed to add comment')
 		} finally {
 			setSubmittingComment(false)
 		}
@@ -262,13 +257,6 @@ const PostDetailScreen: React.FC<Props> = ({ route }) => {
 							</View>
 						</TouchableOpacity>
 					</View>
-				)}
-
-				{/* Feature Notice */}
-				{showFeatureNotice && (
-					<InfoBox variant='warning'>
-						Social features (likes & comments) are being set up on the backend.
-					</InfoBox>
 				)}
 
 				{/* Comments Section */}

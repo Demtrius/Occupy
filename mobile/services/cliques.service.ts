@@ -13,8 +13,8 @@ class CliquesService {
    */
   async getAllCliques(page: number = 1, limit: number = 20): Promise<Clique[]> {
     try {
-      const cliques = await apiHelpers.get<Clique[]>("/api/cliques/");
-      return cliques;
+      const response = await apiHelpers.get<PaginatedResponse<Clique>>("/api/cliques/");
+      return response.results || [];
     } catch (error) {
       console.error("Get all cliques error:", error);
       throw this.handleError(error);

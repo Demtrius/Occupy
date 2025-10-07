@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native'
 import type React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import type { Post, ScreenNavigationProp } from '../types'
+import useAuthStore from '../store/auth.store'
 
 type IconName = 'heart' | 'heart-o' | 'comment-o'
 
@@ -37,6 +38,7 @@ const IconButton: React.FC<IconButtonProps> = ({
 
 export const PostItem: React.FC<PostItemProps> = ({ post }) => {
 	const navigation = useNavigation<ScreenNavigationProp<'PostDetail'>>()
+	const { user: currentUser } = useAuthStore()
 
 	const navigateToPostDetail = (postId: number) => {
 		navigation.navigate('PostDetail', { id: postId })
@@ -50,10 +52,14 @@ export const PostItem: React.FC<PostItemProps> = ({ post }) => {
 	}
 
 	const navigateToProfile = (userId: number) => {
-		navigation.navigate('SearchTab', {
-			screen: 'ViewUser',
-			params: { userId },
-		} as never)
+		if (currentUser && currentUser.id === userId) {
+			navigation.navigate('Profile' as never)
+		} else {
+			navigation.navigate('SearchTab', {
+				screen: 'ViewUser',
+				params: { userId },
+			} as never)
+		}
 	}
 
 	return (
