@@ -9,6 +9,7 @@ import {
 	Dimensions,
 	Image,
 	RefreshControl,
+	ScrollView,
 } from 'react-native'
 import { Searchbar as PaperSearchbar } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native'
@@ -17,6 +18,7 @@ import { postsService } from '../services'
 import usersService from '../services/users.service'
 import { showError } from '@store/app.store'
 import { Post, User, ScreenNavigationProp, ScreenRouteProp } from '../types'
+import { PostItem } from '../components'
 
 interface Props {
 	route: ScreenRouteProp<'ViewUser'>
@@ -33,21 +35,21 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 	const [masterDataSource, setMasterDataSource] = useState<Post[]>([])
 	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
 	const [userData, setUserData] = useState<User | null>(null)
-	const [userPosts, setUserPosts] = useState<Post[]>([])
+
 	const searchBarRef = useRef<any>(null)
 	const navigation = useNavigation<ScreenNavigationProp<'ViewUser'>>()
 
-	const { id } = route.params
+	const { userId } = route.params
 
 	useEffect(() => {
 		getUserData()
 		getUserPosts()
-	}, [id])
+	}, [userId])
 
 	const getUserData = async () => {
 		try {
 			setLoading(true)
-			const user = await usersService.getUserById(id)
+			const user = await usersService.getUserById(userId)
 			setUserData(user)
 		} catch (error: any) {
 			console.error('Error fetching user:', error)
@@ -59,9 +61,8 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 
 	const getUserPosts = async () => {
 		try {
-			const response = await postsService.getPostsByUser(id)
+			const response = await postsService.getPostsByUser(userId)
 			const posts = Array.isArray(response) ? response : response.results || []
-			setUserPosts(posts)
 			setFilteredDataSource(posts)
 			setMasterDataSource(posts)
 		} catch (error: any) {
@@ -101,53 +102,15 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 		}
 	}
 
-	const handlePostPress = (postId: number) => {
-		navigation.navigate('PostDetail', { id: postId })
-	}
-
 	const handleContactPress = () => {
 		navigation.navigate('NotificationsTab', {
 			screen: 'MessageDetail',
-			params: { messageId: id },
-		})
+			params: { messageId: userId },
+		} as never)
 	}
 
 	const renderPosts = ({ item }: { item: Post }) => {
-		return (
-			<TouchableOpacity
-				style={styles.cardContainer}
-				onPress={() => handlePostPress(item.id)}
-				activeOpacity={0.7}
-			>
-				<View style={styles.cardHeader}>
-					{item.avatar ? (
-						<Image source={{ uri: item.avatar }} style={styles.cardImage} />
-					) : (
-						<View style={styles.cardImagePlaceholder}>
-							<Ionicons name='image-outline' size={32} color='#9CA3AF' />
-						</View>
-					)}
-				</View>
-				<Text style={styles.postCaption} numberOfLines={2}>
-					{item.caption || 'No caption'}
-				</Text>
-				{item.content && item.content !== item.caption && (
-					<Text style={styles.postContent} numberOfLines={2}>
-						{item.content}
-					</Text>
-				)}
-				<View style={styles.postMeta}>
-					<View style={styles.postMetaItem}>
-						<Ionicons name='heart-outline' size={16} color='#6B7280' />
-						<Text style={styles.postMetaText}>{item.likesCount || 0}</Text>
-					</View>
-					<View style={styles.postMetaItem}>
-						<Ionicons name='chatbubble-outline' size={16} color='#6B7280' />
-						<Text style={styles.postMetaText}>{item.commentsCount || 0}</Text>
-					</View>
-				</View>
-			</TouchableOpacity>
-		)
+		return <PostItem post={item} />
 	}
 
 	const renderReviews = () => {
@@ -240,7 +203,11 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 				{['Posts', 'Reviews'].map(tab => (
 					<TouchableOpacity
 						key={tab}
-						style={[styles.tab, activeTab === tab && styles.activeTab]}
+						style={[
+							styles.tab,
+							{ flex: 1 },
+							activeTab === tab && styles.activeTab,
+						]}
 						onPress={() => setActiveTab(tab as 'Posts' | 'Reviews')}
 					>
 						<Text
@@ -259,30 +226,130 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 
 	if (loading && !refreshing) {
 		return (
-			<View style={styles.loadingContainer}>
-				<ActivityIndicator size='large' color='#6ba32d' />
-				<Text style={styles.loadingText}>Loading profile...</Text>
-			</View>
+			<FlatList
+				data={activeTab === 'Posts' ? filteredDataSource : []}
+				keyExtractor={item => item.id.toString()}
+				renderItem={renderPosts}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
+				style={styles.postsList}
+				ListHeaderComponent={
+					<View>
+						<PaperSearchbar
+							style={styles.searchBar}
+							placeholder='Search'
+							value={search}
+							onChangeText={searchFilterFunction}
+						/>
+
+						<View style={styles.headerContainer}>
+							{!showSearchBar && userData && (
+								<View style={styles.userInfoContainer}>
+									{userData.profileImage ? (
+										<Image
+											source={{ uri: userData.profileImage }}
+											style={styles.userAvatar}
+										/>
+									) : (
+										<View style={styles.userAvatarPlaceholder}>
+											<Ionicons name='person' size={32} color='#9CA3AF' />
+										</View>
+									)}
+
+									<View style={styles.userDetails}>
+										<Text style={styles.userName}>{userData.username}</Text>
+										<Text style={styles.userEmail}>{userData.email}</Text>
+
+										{userData.occupations && (
+											<View style={styles.userMetaItem}>
+												<Ionicons
+													name='briefcase-outline'
+													size={16}
+													color='#6B7280'
+												/>
+												<Text style={styles.userMetaText}>
+													{userData.occupations}
+												</Text>
+											</View>
+										)}
+
+										{userData.createdAt && (
+											<View style={styles.userMetaItem}>
+												<Ionicons
+													name='calendar-outline'
+													size={16}
+													color='#6B7280'
+												/>
+												<Text style={styles.userMetaText}>
+													Joined{' '}
+													{new Date(userData.createdAt).toLocaleDateString()}
+												</Text>
+											</View>
+										)}
+
+										<TouchableOpacity
+											style={styles.contactButton}
+											onPress={handleContactPress}
+										>
+											<Ionicons
+												name='chatbubble-outline'
+												size={20}
+												color='#ffffff'
+											/>
+											<Text style={styles.contactButtonText}>Contact</Text>
+										</TouchableOpacity>
+									</View>
+								</View>
+							)}
+
+							<View style={styles.tabContainer}>
+								{['Posts', 'Reviews'].map(tab => (
+									<TouchableOpacity
+										key={tab}
+										style={[styles.tab, activeTab === tab && styles.activeTab]}
+										onPress={() => setActiveTab(tab as 'Posts' | 'Reviews')}
+									>
+										<Text
+											style={[
+												styles.tabText,
+												activeTab === tab && styles.activeTabText,
+											]}
+										>
+											{tab}
+										</Text>
+									</TouchableOpacity>
+								))}
+							</View>
+						</View>
+
+						{activeTab === 'Reviews' && renderReviews()}
+					</View>
+				}
+				ListEmptyComponent={
+					activeTab === 'Posts' ? (
+						<View style={styles.emptyContainer}>
+							<Text style={styles.emptyText}>No posts available</Text>
+						</View>
+					) : null
+				}
+			/>
 		)
 	}
 
 	return (
-		<View style={styles.screenContainer}>
+		<ScrollView
+			style={styles.screenContainer}
+			contentContainerStyle={styles.scrollContentContainer}
+		>
+			{renderHeader()}
 			{activeTab === 'Posts' && (
 				<FlatList
 					data={filteredDataSource}
 					keyExtractor={item => item.id.toString()}
 					renderItem={renderPosts}
-					ListHeaderComponent={renderHeader}
+					scrollEnabled={false}
 					contentContainerStyle={styles.listContainer}
-					refreshControl={
-						<RefreshControl
-							refreshing={refreshing}
-							onRefresh={onRefresh}
-							tintColor='#6ba32d'
-							colors={['#6ba32d']}
-						/>
-					}
 					ListEmptyComponent={() => (
 						<View style={styles.emptyContainer}>
 							<Ionicons
@@ -295,13 +362,8 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 					)}
 				/>
 			)}
-			{activeTab === 'Reviews' && (
-				<View style={styles.screenContainer}>
-					{renderHeader()}
-					{renderReviews()}
-				</View>
-			)}
-		</View>
+			{activeTab === 'Reviews' && renderReviews()}
+		</ScrollView>
 	)
 }
 
@@ -309,7 +371,16 @@ const styles = StyleSheet.create({
 	screenContainer: {
 		flex: 1,
 		backgroundColor: '#ffffff',
+	},
+	scrollContentContainer: {
 		paddingTop: height * 0.08,
+		flexGrow: 1,
+	},
+	postsList: {
+		flex: 1,
+	},
+	userDetails: {
+		padding: 20,
 	},
 	loadingContainer: {
 		flex: 1,
@@ -428,6 +499,7 @@ const styles = StyleSheet.create({
 	},
 	tabText: {
 		fontSize: 16,
+		textAlign: 'center',
 		color: '#6B7280',
 	},
 	activeTabText: {
@@ -435,7 +507,9 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 	},
 	listContainer: {
+		paddingTop: 8,
 		paddingBottom: 20,
+		paddingHorizontal: 8,
 	},
 	cardContainer: {
 		backgroundColor: '#fff',

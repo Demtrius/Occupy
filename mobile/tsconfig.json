@@ -4,7 +4,7 @@
     "lib": ["esnext"],
     "jsx": "react-native",
     "module": "esnext",
-    "moduleResolution": "node",
+     "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,

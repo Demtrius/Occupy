@@ -116,8 +116,6 @@ const FeedScreen: React.FC = () => {
 	// Filter by category
 	const filterByCategory = useCallback(
 		(selectedCategory: number | 'all') => {
-			console.log('selectedCategory', selectedCategory)
-
 			setCategory(selectedCategory)
 			if (selectedCategory === 'all') {
 				setFilteredDataSource(posts)
@@ -258,7 +256,11 @@ const FeedScreen: React.FC = () => {
 			<Text
 				style={[
 					styles.sectionTitle,
-					{ marginLeft: width * 0.04, marginTop: height * 0.02 },
+					{
+						marginLeft: width * 0.04,
+						marginTop: height * 0.02,
+						marginBottom: height * 0.01,
+					},
 				]}
 			>
 				Posts for you
