@@ -27,6 +27,8 @@ class ServiceListCreateApi(APIView):
     POST /api/services/
     """
 
+    tags = ['Services']
+    serializer_class = ServiceCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     class FilterSerializer(serializers.Serializer):
@@ -80,6 +82,8 @@ class ServiceRetrieveUpdateDestroyApi(APIView):
     DELETE /api/services/<id>/
     """
 
+    tags = ['Services']
+    serializer_class = ServiceCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request: Request, id: int) -> Response:

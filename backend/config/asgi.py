@@ -14,7 +14,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from Occupy.routing import websocket_urlpatterns
 
-_ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")
+_ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.django.development")
 
 application = get_asgi_application()
 

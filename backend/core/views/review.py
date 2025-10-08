@@ -15,6 +15,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     Provides CRUD operations for reviews with filtering by clique, booking, and user.
     """
 
+    tags = ['Reviews']
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = []  # Will be imported if needed

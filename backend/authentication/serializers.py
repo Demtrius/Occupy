@@ -181,6 +181,15 @@ class LoginSerializer(serializers.ModelSerializer):
         read_only_fields = ["token"]
 
 
+class LogoutSerializer(serializers.Serializer):
+    """
+    Serializer for user logout.
+
+    Expects a refresh token to blacklist.
+    """
+    refresh_token = serializers.CharField(required=True, help_text="The refresh token to blacklist")
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
     Custom JWT token serializer that supports email or username login.

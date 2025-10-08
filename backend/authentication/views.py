@@ -19,6 +19,7 @@ from django.utils.decorators import method_decorator
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
+    LogoutSerializer,
     MyTokenObtainPairSerializer,
     UserSerializer,
 )
@@ -39,6 +40,7 @@ class RegisterView(APIView):
     POST /api/auth/users/
     """
 
+    tags = ['Authentication']
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
@@ -92,6 +94,7 @@ class OccupierLoginView(APIView):
     POST /api/auth/login/
     """
 
+    tags = ['Authentication']
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
 
@@ -163,6 +166,7 @@ class CurrentUserView(APIView):
     PUT /api/auth/users/me/
     """
 
+    tags = ['Authentication']
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -246,6 +250,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
     POST /api/auth/jwt/create/
     """
 
+    tags = ['Authentication']
     serializer_class = MyTokenObtainPairSerializer
     permission_classes = [AllowAny]
 
@@ -300,6 +305,7 @@ class MyTokenRefreshView(TokenRefreshView):
 
     POST /api/auth/jwt/refresh/
     """
+    tags = ['Authentication']
     pass
 
 
@@ -311,6 +317,8 @@ class LogoutView(APIView):
     POST /api/auth/logout/
     """
 
+    tags = ['Authentication']
+    serializer_class = LogoutSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:

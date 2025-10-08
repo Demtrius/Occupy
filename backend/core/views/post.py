@@ -51,6 +51,8 @@ class PostListApi(APIView):
     GET /api/posts/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.AllowAny]
 
     class FilterSerializer(serializers.Serializer):
@@ -85,6 +87,8 @@ class PostDetailApi(APIView):
     GET /api/posts/<id>/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.AllowAny]
 
     def get(self, request: Request, id: int) -> Response:
@@ -105,6 +109,8 @@ class PostCreateApi(APIView):
     POST /api/posts/create/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -155,6 +161,8 @@ class PostUpdateApi(APIView):
     POST /api/posts/<id>/update/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -198,6 +206,8 @@ class PostDeleteApi(APIView):
     DELETE /api/posts/<id>/delete/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request: Request, id: int) -> Response:
@@ -225,6 +235,8 @@ class PostLikeApi(APIView):
     POST, DELETE /api/posts/<id>/like/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request: Request, id: int) -> Response:
@@ -263,6 +275,8 @@ class PostCommentsApi(APIView):
     GET /api/posts/<id>/comments/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.AllowAny]
 
     def get(self, request: Request, id: int) -> Response:
@@ -286,6 +300,8 @@ class PostAddCommentApi(APIView):
     POST /api/posts/<id>/add-comment/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -321,6 +337,8 @@ class PostFeedApi(APIView):
     GET /api/posts/feed/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request: Request) -> Response:
@@ -347,6 +365,8 @@ class CommentUpdateApi(APIView):
     PATCH /api/comments/<id>/update/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -389,6 +409,8 @@ class CommentDeleteApi(APIView):
     DELETE /api/comments/<id>/delete/
     """
 
+    tags = ['Posts']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request: Request, id: int) -> Response:

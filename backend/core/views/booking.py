@@ -30,6 +30,8 @@ class BookingListCreateApi(APIView):
     API for listing and creating bookings.
     """
 
+    tags = ['Bookings']
+    serializer_class = BookingCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     class FilterSerializer(serializers.Serializer):
@@ -78,6 +80,8 @@ class BookingRetrieveUpdateDestroyApi(APIView):
     API for retrieving, updating, and deleting a booking.
     """
 
+    tags = ['Bookings']
+    serializer_class = BookingCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request: Request, id: int) -> Response:
@@ -108,6 +112,8 @@ class BookingRetrieveUpdateDestroyApi(APIView):
 
 
 class BookingConfirmApi(APIView):
+    tags = ['Bookings']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request: Request, id: int) -> Response:
@@ -125,6 +131,8 @@ class BookingConfirmApi(APIView):
 
 
 class BookingCancelApi(APIView):
+    tags = ['Bookings']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -151,6 +159,8 @@ class BookingCancelApi(APIView):
 
 
 class BookingCompleteApi(APIView):
+    tags = ['Bookings']
+    serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request: Request, id: int) -> Response:

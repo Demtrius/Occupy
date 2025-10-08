@@ -30,6 +30,7 @@ class UserViewSet(viewsets.ModelViewSet):
     Provides CRUD operations for users with filtering, search, and ordering.
     """
 
+    tags = ['Users']
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]

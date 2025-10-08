@@ -14,7 +14,7 @@ from rest_framework.serializers import as_serializer_error
 from rest_framework.response import Response
 
 
-def exception_handler(exc, context):
+def drf_default_with_modifications_exception_handler(exc, context):
     """
     Custom exception handler that returns consistent error responses.
 

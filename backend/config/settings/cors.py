@@ -1,0 +1,8 @@
+import os
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+BASE_BACKEND_URL = os.environ.get("DJANGO_BASE_BACKEND_URL", "http://localhost:8000")
+BASE_FRONTEND_URL = os.environ.get("DJANGO_BASE_FRONTEND_URL", "http://localhost:3000")
+CORS_ORIGIN_WHITELIST = os.environ.get("DJANGO_CORS_ORIGIN_WHITELIST", BASE_FRONTEND_URL).split(",")

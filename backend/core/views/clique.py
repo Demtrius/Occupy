@@ -25,6 +25,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
     Provides CRUD operations for cliques with filtering, search, and ordering.
     """
 
+    tags = ['Cliques']
     queryset = Clique.objects.prefetch_related("members", "posts")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = []  # Will be imported if needed
