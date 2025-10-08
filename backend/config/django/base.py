@@ -175,17 +175,13 @@ SPECTACULAR_SETTINGS = {
         {"name": "Availability", "description": "Availability slots"},
         {"name": "Reviews", "description": "Reviews and ratings"},
     ],
-    "TAG_EXTRACTOR": lambda path, method, view, **kwargs: getattr(view, 'tags', ['v1']),
+    "TAG_EXTRACTOR": lambda path, method, view, **kwargs: getattr(view, "tags", ["v1"]),
 }
 
 # Import modular settings
-from config.settings.celery import *  # noqa
 from config.settings.cors import *  # noqa
-from config.settings.email_sending import *  # noqa
 from config.settings.files_and_storages import *  # noqa
-from config.settings.google_oauth2 import *  # noqa
 from config.settings.jwt import *  # noqa
-from config.settings.sentry import *  # noqa
 from config.settings.sessions import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
