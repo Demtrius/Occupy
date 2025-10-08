@@ -1,5 +1,7 @@
 """
 URL Configuration for users app.
+
+This module defines URL patterns for user management.
 """
 
 from django.urls import path, include
@@ -10,7 +12,7 @@ app_name = "users"
 
 # Create a router and register our viewsets
 router = DefaultRouter()
-router.register(r"users", UserViewSet, basename="user")
+router.register(r"", UserViewSet, basename="user")
 
 urlpatterns = [
     # Include all router URLs

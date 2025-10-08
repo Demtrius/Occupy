@@ -3,7 +3,7 @@ Selectors for core app data fetching.
 """
 
 from typing import List, Optional, Iterable
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Exists, OuterRef
 from django.contrib.auth import get_user_model
 
 from .models import Post, CommentPost, Like, Clique, Service, Booking
@@ -18,6 +18,12 @@ def post_list(*, filters=None, user=None) -> Iterable[Post]:
     queryset = Post.objects.select_related("occupier", "clique").prefetch_related(
         "comments", "likes"
     )
+
+    # Annotate is_liked for authenticated users
+    if user and user.is_authenticated:
+        queryset = queryset.annotate(
+            is_liked=Exists(Like.objects.filter(post=OuterRef('pk'), user=user))
+        )
 
     # Filter by status - only show posted posts to unauthenticated users
     if not user or not user.is_authenticated:
@@ -37,9 +43,17 @@ def post_list(*, filters=None, user=None) -> Iterable[Post]:
 def post_get(*, id: int, user=None) -> Optional[Post]:
     """Get a single post by ID."""
     try:
-        post = Post.objects.select_related("occupier", "clique").prefetch_related(
+        queryset = Post.objects.select_related("occupier", "clique").prefetch_related(
             "comments", "likes"
-        ).get(id=id)
+        )
+
+        # Annotate is_liked for authenticated users
+        if user and user.is_authenticated:
+            queryset = queryset.annotate(
+                is_liked=Exists(Like.objects.filter(post=OuterRef('pk'), user=user))
+            )
+
+        post = queryset.get(id=id)
 
         # Check permissions
         if post.status != "posted" and (not user or not user.is_authenticated):
@@ -60,7 +74,11 @@ def post_feed_get(*, user) -> Iterable[Post]:
     # Get posts from those cliques
     posts = Post.objects.filter(
         clique__in=user_cliques, status="posted"
-    ).select_related("occupier", "clique").order_by("-created")
+    ).select_related("occupier", "clique").prefetch_related(
+        "comments", "likes"
+    ).annotate(
+        is_liked=Exists(Like.objects.filter(post=OuterRef('pk'), user=user))
+    ).order_by("-created")
 
     return posts
 
@@ -102,6 +120,14 @@ def clique_list(*, filters=None, user=None) -> Iterable[Clique]:
     """Get a list of cliques with optional filtering."""
     filters = filters or {}
     queryset = Clique.objects.select_related("occupier").prefetch_related("members")
+
+    # Annotate is_member for authenticated users
+    if user and user.is_authenticated:
+        queryset = queryset.annotate(
+            is_member=Exists(Clique.members.through.objects.filter(
+                clique=OuterRef('pk'), occupier=user
+            ))
+        )
 
     # Apply filters
     if "occupier" in filters:

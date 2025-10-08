@@ -42,10 +42,7 @@ class CliqueListSerializer(serializers.ModelSerializer):
 
     def get_is_member(self, obj: Clique) -> bool:
         """Check if the current user is a member of this clique."""
-        request = self.context.get("request")
-        if request and request.user.is_authenticated:
-            return obj.members.filter(id=request.user.id).exists()
-        return False
+        return getattr(obj, 'is_member', False)
 
     def get_is_public(self, obj: Clique) -> bool:
         """Return true if the clique is public."""
@@ -92,10 +89,7 @@ class CliqueDetailSerializer(serializers.ModelSerializer):
 
     def get_is_member(self, obj: Clique) -> bool:
         """Check if the current user is a member of this clique."""
-        request = self.context.get("request")
-        if request and request.user.is_authenticated:
-            return obj.members.filter(id=request.user.id).exists()
-        return False
+        return getattr(obj, 'is_member', False)
 
     def get_is_public(self, obj: Clique) -> bool:
         """Return true if the clique is public."""

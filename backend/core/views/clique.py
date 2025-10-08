@@ -154,7 +154,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
         clique = self.get_object()
         posts = (
             clique.posts.filter(status="posted")
-            .select_related("occupier")
+            .select_related("occupier", "clique")
             .order_by("-created")
         )
 
@@ -175,8 +175,8 @@ class CliqueViewSet(viewsets.ModelViewSet):
     def my_cliques(self, request: Request) -> Response:
         """Get all cliques the current user is a member of."""
         user = request.user
-        cliques = user.cliques.all()
+        cliques = user.cliques.select_related("occupier").prefetch_related("members").all()
         serializer = CliqueListSerializer(
             cliques, many=True, context={"request": request}
         )
-        return success_response(data=serializer.data)
+        return Response(serializer.data)

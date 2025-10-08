@@ -1,7 +1,5 @@
-from typing import Optional
 from django.db import models
 from django.db.models import Manager, QuerySet
-from django.utils import timezone
 
 from .base import SoftDeleteModel
 
@@ -109,7 +107,9 @@ class Like(SoftDeleteModel):
     """
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
-    user = models.ForeignKey("users.Occupier", on_delete=models.CASCADE, related_name="likes")
+    user = models.ForeignKey(
+        "users.Occupier", on_delete=models.CASCADE, related_name="likes"
+    )
 
     class Meta(SoftDeleteModel.Meta):
         verbose_name = "Like"
