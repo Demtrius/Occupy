@@ -11,7 +11,7 @@ class PostsService {
 	): Promise<PaginatedResponse<Post>> {
 		try {
 			const response = await apiHelpers.get<PaginatedResponse<Post>>(
-				`/api/posts/?page=${page}&limit=${limit}`
+				`/api/v1/posts/?page=${page}&limit=${limit}`
 			)
 			return response
 		} catch (error) {
@@ -25,7 +25,7 @@ class PostsService {
 	 */
 	async getPostById(postId: number): Promise<Post> {
 		try {
-			const post = await apiHelpers.get<Post>(`/api/posts/${postId}/`)
+			const post = await apiHelpers.get<Post>(`/api/v1/posts/${postId}/`)
 			return post
 		} catch (error) {
 			console.error('Get post by ID error:', error)
@@ -38,7 +38,7 @@ class PostsService {
 	 */
 	async createPost(data: CreatePostData): Promise<Post> {
 		try {
-			const post = await apiHelpers.post<Post>('/api/posts/', data)
+			const post = await apiHelpers.post<Post>('/api/v1/posts/', data)
 			return post
 		} catch (error) {
 			console.error('Create post error:', error)
@@ -54,7 +54,7 @@ class PostsService {
 		data: Partial<CreatePostData>
 	): Promise<Post> {
 		try {
-			const post = await apiHelpers.patch<Post>(`/api/posts/${postId}/`, data)
+			const post = await apiHelpers.patch<Post>(`/api/v1/posts/${postId}/`, data)
 			return post
 		} catch (error) {
 			console.error('Update post error:', error)
@@ -67,7 +67,7 @@ class PostsService {
 	 */
 	async deletePost(postId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/posts/${postId}/`)
+			await apiHelpers.delete(`/api/v1/posts/${postId}/`)
 		} catch (error) {
 			console.error('Delete post error:', error)
 			throw this.handleError(error)
@@ -84,7 +84,7 @@ class PostsService {
 	): Promise<PaginatedResponse<Post>> {
 		try {
 			const response = await apiHelpers.get<PaginatedResponse<Post>>(
-				`/api/cliques/${cliqueId}/posts/?page=${page}&limit=${limit}`
+				`/api/v1/cliques/${cliqueId}/posts/?page=${page}&limit=${limit}`
 			)
 			return response
 		} catch (error) {
@@ -103,7 +103,7 @@ class PostsService {
 	): Promise<PaginatedResponse<Post>> {
 		try {
 			const response = await apiHelpers.get<PaginatedResponse<Post>>(
-				`/api/users/${userId}/posts/?page=${page}&limit=${limit}`
+				`/api/v1/users/${userId}/posts/?page=${page}&limit=${limit}`
 			)
 			return response
 		} catch (error) {
@@ -115,14 +115,14 @@ class PostsService {
 	/**
 	 * Get feed posts (posts from followed users and joined cliques)
 	 */
-	async getFeedPosts(page: number = 1, limit: number = 20): Promise<Post[]> {
+	async getFeedPosts(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Post>> {
 		try {
 			// Get feed posts from the backend with pagination
-			const response = await apiHelpers.get<any>(
-				`/api/posts/feed/?page=${page}&limit=${limit}`
+			const response = await apiHelpers.get<PaginatedResponse<Post>>(
+				`/api/v1/posts/feed/?page=${page}&limit=${limit}`
 			)
 
-			return response.results || response || []
+			return response
 		} catch (error) {
 			console.error('Get feed posts error:', error)
 			throw this.handleError(error)
@@ -134,7 +134,7 @@ class PostsService {
 	 */
 	async likePost(postId: number): Promise<void> {
 		try {
-			await apiHelpers.post(`/api/posts/${postId}/like/`)
+			await apiHelpers.post(`/api/v1/posts/${postId}/like/`)
 		} catch (error) {
 			console.error('Like post error:', error)
 			throw this.handleError(error)
@@ -146,7 +146,7 @@ class PostsService {
 	 */
 	async unlikePost(postId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/posts/${postId}/like/`)
+			await apiHelpers.delete(`/api/v1/posts/${postId}/like/`)
 		} catch (error) {
 			console.error('Unlike post error:', error)
 			throw this.handleError(error)
@@ -160,14 +160,14 @@ class PostsService {
 		query: string,
 		page: number = 1,
 		limit: number = 20
-	): Promise<Post[]> {
+	): Promise<PaginatedResponse<Post>> {
 		try {
-			const posts = await apiHelpers.get<Post[]>(
-				`/api/posts/?search=${encodeURIComponent(
+			const response = await apiHelpers.get<PaginatedResponse<Post>>(
+				`/api/v1/posts/?search=${encodeURIComponent(
 					query
 				)}&page=${page}&limit=${limit}`
 			)
-			return posts
+			return response
 		} catch (error) {
 			console.error('Search posts error:', error)
 			throw this.handleError(error)
@@ -182,12 +182,12 @@ class PostsService {
 		longitude: number,
 		radius: number = 10,
 		limit: number = 20
-	): Promise<Post[]> {
+	): Promise<PaginatedResponse<Post>> {
 		try {
-			const posts = await apiHelpers.get<Post[]>(
-				`/api/posts/nearby/?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`
+			const response = await apiHelpers.get<PaginatedResponse<Post>>(
+				`/api/v1/posts/nearby/?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`
 			)
-			return posts
+			return response
 		} catch (error) {
 			console.error('Get nearby posts error:', error)
 			throw this.handleError(error)

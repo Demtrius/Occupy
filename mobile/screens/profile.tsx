@@ -77,7 +77,6 @@ const ProfileScreen: React.FC<ProfileProps> = ({ navigation }) => {
 	return (
 		<ScrollView style={styles.container}>
 			<UserProfileHeader
-				user={user}
 				showFollowButton={false}
 				followersCount={userStats?.followersCount || 0}
 				followingCount={userStats?.followingCount || 0}

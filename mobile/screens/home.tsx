@@ -27,8 +27,8 @@ const HomeScreen: React.FC = () => {
 	// Fetch posts
 	const getPosts = async () => {
 		try {
-			const data = await postsService.getFeedPosts()
-			setPosts(data)
+			const response = await postsService.getFeedPosts()
+			setPosts(response.results || [])
 		} catch (error) {
 			console.error('Error fetching posts:', error)
 			showError('Failed to load posts. Please try again.')

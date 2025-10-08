@@ -1,6 +1,6 @@
 // import { useNavigation } from "@react-navigation/native";
 import type React from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
 	ActivityIndicator,
 	Dimensions,
@@ -15,7 +15,8 @@ import {
 import { Button, Searchbar } from 'react-native-paper'
 import { PostItem } from '../components'
 import { useDebounce } from '../hooks'
-import { cliquesService, postsService } from '../services'
+import { cliquesService } from '../services'
+import { usePostsStore } from '../store/posts.store'
 import { showError } from '../store/app.store'
 import type { Clique, Post } from '../types'
 
@@ -24,25 +25,23 @@ const { width, height } = Dimensions.get('window')
 const FeedScreen: React.FC = () => {
 	// const navigation = useNavigation<ScreenNavigationProp<"Feed">>();
 
-	const [posts, setPosts] = useState<Post[]>([])
+	// Use posts store
+	const {
+		posts,
+		loading,
+		refreshing,
+		loadingMore,
+		hasMore,
+		search,
+		category,
+		setSearch,
+		setCategory,
+		fetchPosts,
+		refreshPosts,
+		loadMorePosts,
+	} = usePostsStore()
+
 	const [cliques, setCliques] = useState<Clique[]>([])
-	const [loading, setLoading] = useState<boolean>(true)
-	const [refreshing, setRefreshing] = useState<boolean>(false)
-	const [loadingMore, setLoadingMore] = useState<boolean>(false)
-	const [hasMore, setHasMore] = useState<boolean>(true)
-	const [page, setPage] = useState<number>(1)
-	const [lastRequestTime, setLastRequestTime] = useState<number>(0)
-
-	const [search, setSearch] = useState<string>('')
-	const [category, setCategory] = useState<number | 'all'>('all')
-
-	// Use refs for cache to avoid dependency issues and unnecessary re-renders
-	const postsCacheRef = useRef<Record<string, Post[]>>({})
-	const categoryPagesRef = useRef<Record<string, number>>({})
-	const categoryHasMoreRef = useRef<Record<string, boolean>>({})
-	const categoryRef = useRef<number | 'all'>('all')
-
-	// const [nearYouPosts, setNearYouPosts] = useState<Post[]>([]);
 
 	const debouncedSearch = useDebounce(search, 500)
 
@@ -54,150 +53,29 @@ const FeedScreen: React.FC = () => {
 		} catch (error) {
 			console.error('Error fetching cliques:', error)
 			showError('Failed to load cliques')
-		} finally {
-			setLoading(false)
 		}
 	}, [])
-
-	// Fetch posts with caching
-	const getPosts = useCallback(
-		async (categoryFilter: number | 'all' = 'all', pageNum: number = 1, append: boolean = false) => {
-			try {
-				// Check cache first
-				const cacheKey = categoryFilter.toString()
-				const cachedPosts = postsCacheRef.current[cacheKey] || []
-				const currentPage = categoryPagesRef.current[cacheKey] || 1
-				const currentHasMore = categoryHasMoreRef.current[cacheKey] ?? true
-
-				// If we have cached data and not appending, use cache
-				if (!append && cachedPosts.length > 0 && pageNum === 1) {
-					setPosts(cachedPosts)
-					setHasMore(currentHasMore)
-					setPage(currentPage)
-					return
-				}
-
-				let data: Post[] = []
-
-				if (categoryFilter === 'all') {
-					data = await postsService.getFeedPosts(pageNum, 20)
-				} else {
-					// For specific cliques, get posts by clique
-					const response = await postsService.getPostsByClique(categoryFilter, pageNum, 20)
-					data = response.results || []
-				}
-
-				if (append) {
-					// Remove duplicates when appending
-					const existingPosts = postsCacheRef.current[cacheKey] || []
-					const combined = [...existingPosts, ...data]
-					const unique = combined.filter(
-						(item, index, self) =>
-							self.findIndex(p => p.id === item.id) === index
-					)
-
-					postsCacheRef.current = { ...postsCacheRef.current, [cacheKey]: unique }
-					setPosts(unique)
-				} else {
-					postsCacheRef.current = { ...postsCacheRef.current, [cacheKey]: data }
-					setPosts(data)
-				}
-
-				// Update pagination state for this category
-				const currentPageForCategory = categoryPagesRef.current[cacheKey] || 1
-				const newPage = append ? currentPageForCategory + 1 : pageNum
-				const newHasMore = data.length === 20 && newPage < 10
-
-				categoryPagesRef.current = { ...categoryPagesRef.current, [cacheKey]: newPage }
-				categoryHasMoreRef.current = { ...categoryHasMoreRef.current, [cacheKey]: newHasMore }
-				setHasMore(newHasMore)
-				setPage(newPage)
-			} catch (error) {
-				console.error('Error fetching posts:', error)
-				showError('Failed to load posts')
-			}
-		},
-		[] // No dependencies needed since we use refs
-	)
-
-	// Fetch posts for "near you" section
-	// const getPostsHorizontal = useCallback(async () => {
-	//   try {
-	//     const data = await postsService.getFeedPosts();
-	//     setNearYouPosts(data.slice(0, 5));
-	//   } catch (error) {
-	//     console.error("Error fetching near you posts:", error);
-	//   }
-	// }, []);
-
-	// Load more posts for infinite scroll
-	const loadMorePosts = useCallback(async () => {
-		const now = Date.now()
-		const timeSinceLastRequest = now - lastRequestTime
-
-		if (loadingMore || !hasMore || page >= 10 || timeSinceLastRequest < 1000)
-			return // 1 second cooldown
-
-		setLoadingMore(true)
-		setLastRequestTime(now)
-		const nextPage = page + 1
-		try {
-			await getPosts(categoryRef.current, nextPage, true)
-		} catch (error) {
-			console.error('Error loading more posts:', error)
-		} finally {
-			setLoadingMore(false)
-		}
-	}, [loadingMore, hasMore, page, getPosts, lastRequestTime]) // Removed category from dependencies
-
-	// Refresh handler
-	const onRefresh = useCallback(async () => {
-		setRefreshing(true)
-		setPage(1)
-		setHasMore(true)
-		setLastRequestTime(0) // Reset cooldown on refresh
-
-		// Clear cache for current category to force refresh
-		const cacheKey = categoryRef.current.toString()
-		const newCache = { ...postsCacheRef.current }
-		delete newCache[cacheKey]
-		postsCacheRef.current = newCache
-
-		const newPages = { ...categoryPagesRef.current }
-		delete newPages[cacheKey]
-		categoryPagesRef.current = newPages
-
-		const newHasMore = { ...categoryHasMoreRef.current }
-		delete newHasMore[cacheKey]
-		categoryHasMoreRef.current = newHasMore
-
-		try {
-			await Promise.all([getCliques(), getPosts(categoryRef.current, 1, false)])
-		} catch (error) {
-			console.error('Error refreshing:', error)
-		} finally {
-			setRefreshing(false)
-		}
-	}, [getCliques, getPosts]) // Removed category from dependencies
 
 	// Filter by category
 	const filterByCategory = useCallback(
 		(selectedCategory: number | 'all') => {
 			setCategory(selectedCategory)
-			categoryRef.current = selectedCategory
-			// Don't refetch if we already have cached data for this category
-			getPosts(selectedCategory, 1, false)
+			// Fetch posts for the new category
+			fetchPosts(selectedCategory, 1, false)
 		},
-		[getPosts]
+		[fetchPosts, setCategory]
 	)
+
+	// Refresh handler
+	const onRefresh = useCallback(async () => {
+		await Promise.all([getCliques(), refreshPosts()])
+	}, [getCliques, refreshPosts])
 
 	// Initial load
 	useEffect(() => {
-		categoryRef.current = 'all'
 		getCliques()
-		getPosts('all', 1, false)
-		setPage(1)
-	}, [getCliques, getPosts])
+		fetchPosts('all', 1, false)
+	}, [getCliques, fetchPosts])
 
 	// Memoize filtered data to prevent unnecessary re-renders
 	const filteredDataSource = useMemo(() => {
@@ -216,11 +94,6 @@ const FeedScreen: React.FC = () => {
 			(item, index, self) => self.findIndex(p => p.id === item.id) === index
 		)
 	}, [posts, debouncedSearch])
-
-	// Update hasMore based on search state
-	useEffect(() => {
-		setHasMore(!debouncedSearch)
-	}, [debouncedSearch])
 
 	// Navigate to messages (commented out)
 	// const navigateToMessages = (userId: number) => {

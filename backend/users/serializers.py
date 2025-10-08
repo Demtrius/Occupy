@@ -50,13 +50,11 @@ class UserListSerializer(serializers.ModelSerializer):
 
     def get_followers_count(self, obj: User) -> int:
         """Get the count of followers."""
-        # Placeholder - implement when follower model is added
-        return 0
+        return obj.followers.count()
 
     def get_following_count(self, obj: User) -> int:
         """Get the count of following."""
-        # Placeholder - implement when following model is added
-        return 0
+        return obj.following.count()
 
     def get_posts_count(self, obj: User) -> int:
         """Get the count of posts by this user."""
@@ -109,13 +107,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     def get_followers_count(self, obj: User) -> int:
         """Get the count of followers."""
-        # Placeholder - implement when follower model is added
-        return 0
+        return obj.followers.count()
 
     def get_following_count(self, obj: User) -> int:
         """Get the count of following."""
-        # Placeholder - implement when following model is added
-        return 0
+        return obj.following.count()
 
     def get_posts_count(self, obj: User) -> int:
         """Get the count of posts by this user."""

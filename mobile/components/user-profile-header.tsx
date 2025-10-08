@@ -9,12 +9,13 @@ import {
 } from 'react-native'
 import { Searchbar as PaperSearchbar } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
+import { useAuthStore } from '../store/auth.store'
 import { User } from '../types'
 
 const { width, height } = Dimensions.get('window')
 
 interface UserProfileHeaderProps {
-	user: User | null
+	user?: User | null
 	showSearchBar?: boolean
 	showTabs?: boolean
 	showFollowButton?: boolean
@@ -34,7 +35,7 @@ interface UserProfileHeaderProps {
 }
 
 const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
-	user,
+	user: propUser,
 	showSearchBar = false,
 	showTabs = false,
 	showFollowButton = false,
@@ -53,6 +54,10 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
 	isOwnProfile = false,
 }) => {
 	const searchBarRef = useRef<any>(null)
+
+	// Get current user from auth store if this is the current user's profile
+	const currentUser = useAuthStore(state => state.user)
+	const user = isOwnProfile ? currentUser : propUser
 
 	const handleSearchPress = () => {
 		onSearchPress?.()

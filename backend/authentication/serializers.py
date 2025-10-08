@@ -38,9 +38,9 @@ class UserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "created")
 
-    def get_occupations(self, obj: Occupier) -> List[str]:
-        """Get a list of occupation names for the user."""
-        return [occupation.name for occupation in obj.occupations.all()]
+    def get_occupations(self, obj: Occupier) -> str:
+        """Get the occupation name for the user."""
+        return obj.occupations or ""
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -68,10 +68,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         style={"input_type": "password"},
         help_text="Password must be at least 8 characters long",
     )
-    occupations = serializers.ListField(
-        child=serializers.CharField(max_length=100),
+    occupations = serializers.CharField(
+        max_length=200,
         required=True,
-        help_text="Your occupation(s) or profession as a list of strings",
+        help_text="Your occupation or profession",
     )
     is_business_page = serializers.BooleanField(
         required=False,
@@ -143,19 +143,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         """
         # Extract is_business_page flag if present
         is_business_page = validated_data.pop("is_business_page", False)
-        occupations_data = validated_data.pop("occupations", [])
+        occupations_data = validated_data.pop("occupations", "")
 
         # Create user with appropriate method
         if is_business_page:
-            user = Occupier.objects.create_business_page(**validated_data)
+            user = Occupier.objects.create_business_page(**validated_data, occupations=occupations_data)
         else:
-            user = Occupier.objects.create_user(**validated_data)
-
-        # Add occupations
-        from core.models import Occupation
-        for occupation_name in occupations_data:
-            occupation, _ = Occupation.objects.get_or_create(name=occupation_name.lower())
-            user.occupations.add(occupation)
+            user = Occupier.objects.create_user(**validated_data, occupations=occupations_data)
 
         return user
 
@@ -274,5 +268,5 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token: Token = super().get_token(user)
         token["username"] = user.username
         token["email"] = user.email
-        token["occupations"] = [occupation.name for occupation in user.occupations.all()]
+        token["occupations"] = user.occupations or ""
         return token

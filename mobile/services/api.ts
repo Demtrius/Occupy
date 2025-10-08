@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthTokens, ApiError } from "../types";
 import env from "../config/env";
 import { storage } from "../utils/storage";
+import { transformResponse, transformRequest } from "../utils/transformers";
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -241,28 +242,31 @@ api.interceptors.response.use(
 // API helper methods
 export const apiHelpers = {
   async get<T = any>(url: string, config = {}): Promise<T> {
-    const response = await api.get<T>(url, config);
-    return response.data;
+    const response = await api.get(url, config);
+    return transformResponse<T>(response.data);
   },
 
   async post<T = any>(url: string, data?: any, config = {}): Promise<T> {
-    const response = await api.post<T>(url, data, config);
-    return response.data;
+    const transformedData = data ? transformRequest(data) : data;
+    const response = await api.post(url, transformedData, config);
+    return transformResponse<T>(response.data);
   },
 
   async put<T = any>(url: string, data?: any, config = {}): Promise<T> {
-    const response = await api.put<T>(url, data, config);
-    return response.data;
+    const transformedData = data ? transformRequest(data) : data;
+    const response = await api.put(url, transformedData, config);
+    return transformResponse<T>(response.data);
   },
 
   async patch<T = any>(url: string, data?: any, config = {}): Promise<T> {
-    const response = await api.patch<T>(url, data, config);
-    return response.data;
+    const transformedData = data ? transformRequest(data) : data;
+    const response = await api.patch(url, transformedData, config);
+    return transformResponse<T>(response.data);
   },
 
   async delete<T = any>(url: string, config = {}): Promise<T> {
-    const response = await api.delete<T>(url, config);
-    return response.data;
+    const response = await api.delete(url, config);
+    return transformResponse<T>(response.data);
   },
 };
 

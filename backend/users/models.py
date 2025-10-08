@@ -24,29 +24,27 @@ class OccupierManager(BaseUserManager["Occupier"]):
         self,
         email: str,
         username: str,
-        occupations: str,
         password: Optional[str] = None,
+        occupations: str = "",
     ) -> "Occupier":
         """
-        Create and save a regular user with the given email, username, and occupation.
+        Create and save a regular user with the given email and username.
 
         Args:
             email: User's email address (will be normalized)
             username: Unique username for the user
-            occupations: User's occupation(s)
             password: User's password (will be hashed)
 
         Returns:
             Occupier: The newly created user instance
 
         Raises:
-            ValueError: If email, username, or occupations are not provided
+            ValueError: If email or username are not provided
 
         Examples:
             >>> user = Occupier.objects.create_user(
             ...     email='john@example.com',
             ...     username='johndoe',
-            ...     occupations='Developer',
             ...     password='securepass123'
             ... )
         """
@@ -54,8 +52,6 @@ class OccupierManager(BaseUserManager["Occupier"]):
             raise ValueError("Users must have email address")
         if not username:
             raise ValueError("Users must have username")
-        if not occupations:
-            raise ValueError("Occupiers must have occupation")
 
         user: Occupier = self.model(
             email=self.normalize_email(email),
@@ -201,11 +197,10 @@ class Occupier(AbstractBaseUser, PermissionsMixin, BaseModel):
         unique=True,
         help_text="Unique username (used for login)",
     )
-    occupations = models.ManyToManyField(
-        "core.Occupation",
+    occupations = models.CharField(
+        max_length=200,
         blank=True,
-        related_name="occupiers",
-        help_text="User's occupation(s) or profession",
+        help_text="User's occupation or profession",
     )
 
     # Permission flags
@@ -244,6 +239,12 @@ class Occupier(AbstractBaseUser, PermissionsMixin, BaseModel):
         null=True,
         blank=True,
         help_text="User's profile image",
+    )
+    bio = models.TextField(
+        max_length=500,
+        null=True,
+        blank=True,
+        help_text="User's biography or description",
     )
 
     # Account type flags

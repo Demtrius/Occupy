@@ -309,7 +309,7 @@ class BookingService {
 	 */
 	async getMyBookings(status?: string): Promise<Booking[]> {
 		try {
-			let url = '/api/bookings/?role=client'
+			let url = '/api/v1/bookings/?role=client'
 			if (status) url += `&status=${status}`
 
 			const bookings = await apiHelpers.get<Booking[]>(url)
@@ -325,7 +325,7 @@ class BookingService {
 	 */
 	async getProviderBookings(status?: string): Promise<Booking[]> {
 		try {
-			let url = '/api/bookings/?role=provider'
+			let url = '/api/v1/bookings/?role=provider'
 			if (status) url += `&status=${status}`
 
 			const bookings = await apiHelpers.get<Booking[]>(url)
@@ -344,7 +344,7 @@ class BookingService {
     status?: string
   ): Promise<Booking[]> {
     try {
-      let url = `/api/bookings/?clique_id=${cliqueId}`
+      let url = `/api/v1/bookings/?clique_id=${cliqueId}`
       if (status) url += `&status=${status}`
 
       const response = await apiHelpers.get<PaginatedResponse<Booking>>(url)
@@ -361,7 +361,7 @@ class BookingService {
 	async getBookingById(bookingId: number): Promise<BookingDetail> {
 		try {
 			const booking = await apiHelpers.get<BookingDetail>(
-				`/api/bookings/${bookingId}/`
+				`/api/v1/bookings/${bookingId}/`
 			)
 			return booking
 		} catch (error) {
@@ -373,9 +373,9 @@ class BookingService {
 	/**
 	 * Create a new booking
 	 */
-	async createBooking(data: CreateBookingData): Promise<Booking> {
+ 	async createBooking(data: CreateBookingData): Promise<Booking> {
 		try {
-			const booking = await apiHelpers.post<Booking>('/api/bookings/', data)
+			const booking = await apiHelpers.post<Booking>('/api/v1/bookings/', data)
 			return booking
 		} catch (error) {
 			console.error('Create booking error:', error)
@@ -392,7 +392,7 @@ class BookingService {
 	): Promise<Booking> {
 		try {
 			const booking = await apiHelpers.patch<Booking>(
-				`/api/bookings/${bookingId}/`,
+				`/api/v1/bookings/${bookingId}/`,
 				data
 			)
 			return booking
@@ -408,7 +408,7 @@ class BookingService {
 	async confirmBooking(bookingId: number): Promise<BookingDetail> {
 		try {
 			const booking = await apiHelpers.post<BookingDetail>(
-				`/api/bookings/${bookingId}/confirm/`,
+				`/api/v1/bookings/${bookingId}/confirm/`,
 				{}
 			)
 			return booking
@@ -427,7 +427,7 @@ class BookingService {
 	): Promise<BookingDetail> {
 		try {
 			const booking = await apiHelpers.post<BookingDetail>(
-				`/api/bookings/${bookingId}/cancel/`,
+				`/api/v1/bookings/${bookingId}/cancel/`,
 				{ reason }
 			)
 			return booking
@@ -443,7 +443,7 @@ class BookingService {
 	async completeBooking(bookingId: number): Promise<BookingDetail> {
 		try {
 			const booking = await apiHelpers.post<BookingDetail>(
-				`/api/bookings/${bookingId}/complete/`,
+				`/api/v1/bookings/${bookingId}/complete/`,
 				{}
 			)
 			return booking

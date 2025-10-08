@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native'
+import { useCliquesStore } from '../store/cliques.store'
 import { showError } from '@store/app.store'
 import type React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import {
 	ActivityIndicator,
 	Dimensions,
@@ -13,7 +14,6 @@ import {
 	View,
 } from 'react-native'
 import { Searchbar } from 'react-native-paper'
-import { cliquesService } from '../services'
 
 import type { Clique, ScreenNavigationProp } from '../types'
 
@@ -22,63 +22,22 @@ const { height } = Dimensions.get('window')
 const CliquesScreen: React.FC = () => {
 	const navigation = useNavigation<ScreenNavigationProp<'Cliques'>>()
 
-	const [cliques, setCliques] = useState<Clique[]>([])
-	const [filteredCliques, setFilteredCliques] = useState<Clique[]>([])
-	const [loading, setLoading] = useState<boolean>(true)
-	const [refreshing, setRefreshing] = useState<boolean>(false)
-	const [search, setSearch] = useState<string>('')
-
-	// Fetch cliques
-	const fetchCliques = useCallback(async () => {
-		try {
-			const data = await cliquesService.getAllCliques()
-			setCliques(data)
-			setFilteredCliques(data)
-		} catch (error) {
-			console.error('Error fetching cliques:', error)
-			showError('Failed to load cliques. Please try again.')
-		} finally {
-			setLoading(false)
-		}
-	}, [])
+	// Use cliques store
+	const {
+		cliques,
+		filteredCliques,
+		loading,
+		refreshing,
+		search,
+		setSearch,
+		fetchCliques,
+		refreshCliques,
+	} = useCliquesStore()
 
 	// Initial load
 	useEffect(() => {
 		fetchCliques()
 	}, [fetchCliques])
-
-	// Search filter
-	useEffect(() => {
-		if (search.trim()) {
-			const filtered = cliques.filter(clique => {
-				const name = clique.name?.toLowerCase() || ''
-				const description = clique.description?.toLowerCase() || ''
-				const occupation = clique.occupation?.toLowerCase() || ''
-				const searchTerm = search.toLowerCase()
-
-				return (
-					name.includes(searchTerm) ||
-					description.includes(searchTerm) ||
-					occupation.includes(searchTerm)
-				)
-			})
-			setFilteredCliques(filtered)
-		} else {
-			setFilteredCliques(cliques)
-		}
-	}, [search, cliques])
-
-	// Refresh handler
-	const onRefresh = async () => {
-		setRefreshing(true)
-		try {
-			await fetchCliques()
-		} catch (error) {
-			console.error('Error refreshing:', error)
-		} finally {
-			setRefreshing(false)
-		}
-	}
 
 	// Navigate to clique detail
 	const navigateToClique = (cliqueId: number) => {
@@ -203,7 +162,7 @@ const CliquesScreen: React.FC = () => {
 				refreshControl={
 					<RefreshControl
 						refreshing={refreshing}
-						onRefresh={onRefresh}
+						onRefresh={refreshCliques}
 						colors={['#6ba32d']}
 						tintColor='#6ba32d'
 					/>

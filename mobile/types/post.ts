@@ -11,7 +11,6 @@ export interface Post {
   occupier?: User;
   clique?: string;
   avatar?: string;
-  posted?: string;
   createdAt?: string;
   updatedAt?: string;
   likesCount?: number;

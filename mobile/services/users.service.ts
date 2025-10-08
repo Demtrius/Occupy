@@ -34,30 +34,30 @@ class UsersService {
 	/**
 	 * Get all users with optional pagination
 	 */
-	async getAllUsers(page: number = 1, limit: number = 20): Promise<User[]> {
-		try {
-			const response = await apiHelpers.get<UserListResponse>(
-				`/api/users/?page=${page}&limit=${limit}`
-			)
-			return response.results || (response as any)
-		} catch (error) {
-			console.error('Get all users error:', error)
-			throw error
-		}
-	}
+  async getAllUsers(page: number = 1, limit: number = 20): Promise<User[]> {
+    try {
+      const response = await apiHelpers.get<UserListResponse>(
+        `/api/v1/users/?page=${page}&limit=${limit}`
+      )
+      return response.results || (response as any)
+    } catch (error) {
+      console.error('Get all users error:', error)
+      throw error
+    }
+  }
 
 	/**
 	 * Get user by ID
 	 */
-	async getUserById(userId: number): Promise<User> {
-		try {
-			const user = await apiHelpers.get<User>(`/api/auth/users/${userId}/`)
-			return user
-		} catch (error) {
-			console.error('Get user by ID error:', error)
-			throw error
-		}
-	}
+  async getUserById(userId: number): Promise<User> {
+    try {
+      const user = await apiHelpers.get<User>(`/api/v1/users/${userId}/`)
+      return user
+    } catch (error) {
+      console.error('Get user by ID error:', error)
+      throw error
+    }
+  }
 
 	/**
 	 * Get user profile by username
@@ -103,47 +103,47 @@ class UsersService {
 	/**
 	 * Search users by query
 	 */
-	async searchUsers(query: string): Promise<User[]> {
-		try {
-			const response = await apiHelpers.get<UserListResponse>(
-				`/api/users/search/?q=${encodeURIComponent(query)}`
-			)
-			return response.results || (response as any)
-		} catch (error) {
-			console.error('Search users error:', error)
-			throw error
-		}
-	}
+  async searchUsers(query: string): Promise<User[]> {
+    try {
+      const response = await apiHelpers.get<UserListResponse>(
+        `/api/v1/users/?search=${encodeURIComponent(query)}`
+      )
+      return response.results || (response as any)
+    } catch (error) {
+      console.error('Search users error:', error)
+      throw error
+    }
+  }
 
 	/**
 	 * Get user's followers
 	 */
-	async getUserFollowers(userId: number): Promise<User[]> {
-		try {
-			const response = await apiHelpers.get<User[]>(
-				`/api/auth/users/${userId}/followers/`
-			)
-			return response
-		} catch (error) {
-			console.error('Get user followers error:', error)
-			throw error
-		}
-	}
+  async getUserFollowers(userId: number): Promise<User[]> {
+    try {
+      const response = await apiHelpers.get<User[]>(
+        `/api/v1/users/${userId}/followers/`
+      )
+      return response
+    } catch (error) {
+      console.error('Get user followers error:', error)
+      throw error
+    }
+  }
 
 	/**
 	 * Get user's following
 	 */
-	async getUserFollowing(userId: number): Promise<User[]> {
-		try {
-			const response = await apiHelpers.get<User[]>(
-				`/api/auth/users/${userId}/following/`
-			)
-			return response
-		} catch (error) {
-			console.error('Get user following error:', error)
-			throw error
-		}
-	}
+  async getUserFollowing(userId: number): Promise<User[]> {
+    try {
+      const response = await apiHelpers.get<User[]>(
+        `/api/v1/users/${userId}/following/`
+      )
+      return response
+    } catch (error) {
+      console.error('Get user following error:', error)
+      throw error
+    }
+  }
 
 	/**
 	 * Follow a user

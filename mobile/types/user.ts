@@ -8,8 +8,8 @@ export interface User {
   bio?: string;
   profileImage?: string;
   occupations?: string;
-  followers?: number[];
-  following?: number[];
+  followers?: number;
+  following?: number;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -35,7 +35,6 @@ class PostListSerializer(serializers.ModelSerializer):
             "likes_count",
             "comments_count",
             "is_liked",
-            "created",
             "modified",
         ]
 

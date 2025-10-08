@@ -368,37 +368,4 @@ class UserViewSet(viewsets.ModelViewSet):
         )
         return Response(serializer.data)
 
-    @action(detail=False, methods=["get"])
-    def occupations(self, request: Request) -> Response:
-        occupations = [
-            "Software Developer",
-            "Designer",
-            "Marketing Manager",
-            "Sales Representative",
-            "Project Manager",
-            "Data Analyst",
-            "Teacher",
-            "Nurse",
-            "Engineer",
-            "Accountant",
-            "Lawyer",
-            "Doctor",
-            "Chef",
-            "Electrician",
-            "Plumber",
-            "Mechanic",
-            "Carpenter",
-            "Photographer",
-            "Writer",
-            "Artist",
-            "Musician",
-            "Actor",
-            "Athlete",
-            "Scientist",
-            "Researcher",
-            "Consultant",
-            "Entrepreneur",
-            "Freelancer",
-            "Other",
-        ]
-        return Response({"occupations": occupations})
+

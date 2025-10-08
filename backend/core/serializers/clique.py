@@ -18,6 +18,7 @@ class CliqueListSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(source="occupier", read_only=True)
     is_member = serializers.SerializerMethodField()
     is_public = serializers.SerializerMethodField()
+    occupation = serializers.SerializerMethodField()
 
     class Meta:
         model = Clique
@@ -26,6 +27,7 @@ class CliqueListSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "image",
+            "occupation",
             "members_count",
             "created_by",
             "created",
@@ -47,6 +49,10 @@ class CliqueListSerializer(serializers.ModelSerializer):
     def get_is_public(self, obj: Clique) -> bool:
         """Return true if the clique is public."""
         return obj.level == Clique.Type.PUBLIC
+
+    def get_occupation(self, obj: Clique) -> str:
+        """Get the occupation name for the clique."""
+        return obj.occupation.name if obj.occupation else ""
 
 
 class CliqueDetailSerializer(serializers.ModelSerializer):

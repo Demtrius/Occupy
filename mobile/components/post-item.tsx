@@ -97,7 +97,7 @@ export const PostItem: React.FC<PostItemProps> = ({ post }) => {
 					</Text>
 				)}
 
-				<Text style={styles.posted}>{post.posted}</Text>
+				<Text style={styles.posted}>{post.createdAt}</Text>
 
 				{/* Post Footer */}
 				<View style={styles.footer}>

@@ -139,11 +139,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "occupations",
-                    models.ManyToManyField(
+                    models.CharField(
                         blank=True,
-                        help_text="User's occupation(s) or profession",
-                        related_name="occupiers",
-                        to="core.occupation",
+                        help_text="User's occupation or profession",
+                        max_length=200,
                     ),
                 ),
                 (
