@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
-import { FormInput } from "../ui/form-input";
-import { FormLabel } from "../ui/form-label";
-import { type Option, OptionGrid } from "../ui/option-grid";
-import { Colors, Spacing, Typography } from "../../theme";
+import React, { useState, useEffect } from 'react'
+import { View, Text, StyleSheet } from 'react-native'
+import DropDownPicker from 'react-native-dropdown-picker'
+import { FormInput } from '../ui/form-input'
+import { FormLabel } from '../ui/form-label'
+import { type Option, OptionGrid } from '../ui/option-grid'
+import { Colors, Spacing, Typography } from '../../theme'
 
 interface PostFormValues {
-	caption: string;
-	content: string;
-	selectedCliqueId: number | null;
-	selectedLanguage: string;
+	caption: string
+	content: string
+	selectedCliqueId: number | null
+	selectedLanguage: string
 }
 
 interface PostFormProps {
-	values: PostFormValues;
-	errors: Partial<Record<keyof PostFormValues, string>>;
-	handleChange: (name: keyof PostFormValues, value: any) => void;
-	cliqueOptions: { label: string; value: number }[];
+	values: PostFormValues
+	errors: Partial<Record<keyof PostFormValues, string>>
+	handleChange: (name: keyof PostFormValues, value: any) => void
+	cliqueOptions: { label: string; value: number }[]
 }
 
 const PostForm: React.FC<PostFormProps> = ({
@@ -26,14 +26,19 @@ const PostForm: React.FC<PostFormProps> = ({
 	handleChange,
 	cliqueOptions,
 }) => {
-	const [open, setOpen] = useState<boolean>(false);
+	const [open, setOpen] = useState<boolean>(false)
+	const [selectedCliqueId, setSelectedCliqueId] = useState(values.selectedCliqueId)
+
+	useEffect(() => {
+		setSelectedCliqueId(values.selectedCliqueId)
+	}, [values.selectedCliqueId])
 
 	const languageOptions: Option[] = [
-		{ value: "ALL", label: "All" },
-		{ value: "ENGLISH", label: "English" },
-		{ value: "DUTCH", label: "Dutch" },
-		{ value: "GERMAN", label: "German" },
-	];
+		{ value: 'ALL', label: 'All' },
+		{ value: 'ENGLISH', label: 'English' },
+		{ value: 'DUTCH', label: 'Dutch' },
+		{ value: 'GERMAN', label: 'German' },
+	]
 
 	return (
 		<>
@@ -42,8 +47,8 @@ const PostForm: React.FC<PostFormProps> = ({
 				<FormLabel>Post Content</FormLabel>
 				<FormInput
 					value={values.caption}
-					onChangeText={(text) => handleChange("caption", text)}
-					placeholder="Share something with your clique..."
+					onChangeText={text => handleChange('caption', text)}
+					placeholder='Share something with your clique...'
 					multiline
 					numberOfLines={5}
 					style={styles.captionInput}
@@ -60,8 +65,8 @@ const PostForm: React.FC<PostFormProps> = ({
 				<FormLabel>Additional Details (Optional)</FormLabel>
 				<FormInput
 					value={values.content}
-					onChangeText={(text) => handleChange("content", text)}
-					placeholder="Any additional information..."
+					onChangeText={text => handleChange('content', text)}
+					placeholder='Any additional information...'
 					multiline
 					numberOfLines={3}
 					style={styles.contentInput}
@@ -74,7 +79,7 @@ const PostForm: React.FC<PostFormProps> = ({
 				<OptionGrid
 					options={languageOptions}
 					selectedValue={values.selectedLanguage}
-					onSelect={(value) => handleChange("selectedLanguage", value)}
+					onSelect={value => handleChange('selectedLanguage', value)}
 				/>
 			</View>
 
@@ -83,15 +88,18 @@ const PostForm: React.FC<PostFormProps> = ({
 				<FormLabel>Choose a Clique</FormLabel>
 				<DropDownPicker
 					open={open}
-					value={values.selectedCliqueId}
+					value={selectedCliqueId}
 					items={cliqueOptions}
 					setOpen={setOpen}
-					setValue={(value) => handleChange("selectedCliqueId", value)}
+					setValue={(value) => {
+						setSelectedCliqueId(value)
+						handleChange('selectedCliqueId', value)
+					}}
 					setItems={() => {}} // Not needed since options come from props
 					style={styles.dropdown}
-					placeholder="Select a clique to post in"
+					placeholder='Select a clique to post in'
 					dropDownContainerStyle={styles.dropdownContainer}
-					listMode="SCROLLVIEW"
+					listMode='SCROLLVIEW'
 					scrollViewProps={{
 						nestedScrollEnabled: true,
 					}}
@@ -101,8 +109,8 @@ const PostForm: React.FC<PostFormProps> = ({
 				)}
 			</View>
 		</>
-	);
-};
+	)
+}
 
 const styles = StyleSheet.create({
 	inputGroup: {
@@ -128,6 +136,6 @@ const styles = StyleSheet.create({
 		color: Colors.error,
 		marginTop: Spacing.xs,
 	},
-});
+})
 
-export { PostForm };
+export { PostForm }

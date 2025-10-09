@@ -1,71 +1,71 @@
-import { useCallback, useEffect } from "react";
-import { useForm } from "./use-form";
-import { useCliquesStore } from "../store/cliques.store";
-import { postsService } from "../services";
-import { showError, showSuccess } from "../store/app.store";
-import type { CreatePostData } from "../types";
+import { useCallback, useEffect } from 'react'
+import { useForm } from './use-form'
+import { useCliquesStore } from '../store/cliques.store'
+import { postsService } from '../services'
+import { showError, showSuccess } from '../store/app.store'
+import type { CreatePostData } from '../types'
 
 interface PostFormValues {
-	caption: string;
-	content: string;
-	selectedCliqueId: number | null;
-	selectedLanguage: string;
+	caption: string
+	content: string
+	selectedCliqueId: number | null
+	selectedLanguage: string
 }
 
 const initialValues: PostFormValues = {
-	caption: "",
-	content: "",
+	caption: '',
+	content: '',
 	selectedCliqueId: null,
-	selectedLanguage: "ALL",
-};
+	selectedLanguage: 'ALL',
+}
 
 const validate = (values: PostFormValues) => {
-	const errors: Partial<Record<keyof PostFormValues, string>> = {};
+	const errors: Partial<Record<keyof PostFormValues, string>> = {}
 	if (!values.caption.trim()) {
-		errors.caption = "Please enter post content";
+		errors.caption = 'Please enter post content'
 	}
 	if (!values.selectedCliqueId) {
-		errors.selectedCliqueId = "Please select a clique";
+		errors.selectedCliqueId = 'Please select a clique'
 	}
-	return errors;
-};
+	return errors
+}
 
 export function usePostForm() {
-	const { cliques, fetchCliques } = useCliquesStore();
+	const { cliques, fetchCliques } = useCliquesStore()
 
-	const form = useForm(initialValues, validate);
+	const form = useForm(initialValues, validate)
 
 	const handleSubmit = useCallback(async () => {
-		await form.handleSubmit(async (values) => {
+		await form.handleSubmit(async values => {
 			try {
 				const postData: CreatePostData = {
 					content: values.content.trim() || values.caption.trim(),
 					caption: values.caption.trim(),
-					cliqueId: values.selectedCliqueId!,
-				};
-				await postsService.createPost(postData);
-				showSuccess("Post created successfully");
-				form.reset();
+					clique_id: values.selectedCliqueId,
+				}
+				await postsService.createPost(postData)
+				showSuccess('Post created successfully')
+				form.reset()
 			} catch (error: any) {
-				showError(error.message || "Failed to create post");
+				showError(error.message || 'Failed to create post')
 			}
-		});
-	}, [form]);
+		})
+	}, [form])
 
 	useEffect(() => {
-		fetchCliques();
-	}, [fetchCliques]);
+		fetchCliques()
+	}, [fetchCliques])
 
-	const cliqueOptions = cliques.map((clique) => ({
+	const cliqueOptions = cliques.map(clique => ({
 		label: clique.name,
 		value: clique.id,
-	}));
+	}))
 
 	return {
 		...form,
 		handleSubmit,
 		cliqueOptions,
-	};
+	}
 }
 
-export default usePostForm;
+export default usePostForm

@@ -28,7 +28,13 @@
 	"submit": {
 		"production": {
 			"ios": {
-				"appleId": "samihuomaoccupy@gmail.com"
+				"appleId": "samihuomaoccupy@gmail.com",
+				"env": {
+					"EXPO_PUBLIC_BACKEND_URL": "https://www.occupy-app.com",
+					"EXPO_PUBLIC_ENV": "development",
+					"EXPO_PUBLIC_DEBUG": true,
+					"EXPO_PUBLIC_API_TIMEOUT": 15000
+				}
 			}
 		}
 	}
