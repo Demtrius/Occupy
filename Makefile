@@ -138,12 +138,12 @@ collectstatic: ## Collect static files
 
 backend-install: ## Install backend dependencies only
 	@echo "$(BLUE)🔧 Installing backend dependencies...$(RESET)"
-	@cd backend && pip install -r requirements/development.txt
+	@cd backend && pip install -r requirements.txt
 	@echo "$(GREEN)✅ Backend dependencies installed!$(RESET)"
 
 backend-install-prod: ## Install production backend dependencies
 	@echo "$(BLUE)🔧 Installing production backend dependencies...$(RESET)"
-	@cd backend && pip install -r requirements/production.txt
+	@cd backend && pip install -r requirements.txt
 	@echo "$(GREEN)✅ Production dependencies installed!$(RESET)"
 
 backend-test: ## Run backend tests
