@@ -57,56 +57,58 @@ export const useCliquesStore = create<CliquesState>((set, get) => ({
     }
   },
 
-  fetchCliques: async () => {
-    try {
-      set({ loading: true });
-      const cliques = await cliquesService.getAllCliques();
-      set({
-        cliques,
-        filteredCliques: cliques,
-        loading: false,
-      });
-    } catch (error) {
-      console.error("Error fetching cliques:", error);
-      showError("Failed to load cliques");
-      set({ loading: false });
-    }
-  },
+   fetchCliques: async () => {
+     try {
+       set({ loading: true });
+       const response = await cliquesService.getAllCliques();
+       const cliques = response.results || [];
+       set({
+         cliques,
+         filteredCliques: cliques,
+         loading: false,
+       });
+     } catch (error) {
+       console.error("Error fetching cliques:", error);
+       showError("Failed to load cliques");
+       set({ loading: false });
+     }
+   },
 
-  refreshCliques: async () => {
-    set({ refreshing: true });
-    try {
-      const cliques = await cliquesService.getAllCliques();
-      const { search } = get();
+   refreshCliques: async () => {
+     set({ refreshing: true });
+     try {
+       const response = await cliquesService.getAllCliques();
+       const cliques = response.results || [];
+       const { search } = get();
 
-      // Apply current search filter
-      let filteredCliques = cliques;
-      if (search.trim()) {
-        filteredCliques = cliques.filter(clique => {
-          const name = clique.name?.toLowerCase() || '';
-          const description = clique.description?.toLowerCase() || '';
-          const occupation = clique.occupation?.toLowerCase() || '';
-          const searchTerm = search.toLowerCase();
+       // Apply current search filter
+       let filteredCliques = cliques;
+       if (search.trim()) {
+         filteredCliques = cliques.filter(clique => {
+           const name = clique.name?.toLowerCase() || '';
+           const description = clique.description?.toLowerCase() || '';
+           const occupation = clique.occupation?.toLowerCase() || '';
+           const searchTerm = search.toLowerCase();
 
-          return (
-            name.includes(searchTerm) ||
-            description.includes(searchTerm) ||
-            occupation.includes(searchTerm)
-          );
-        });
-      }
+           return (
+             name.includes(searchTerm) ||
+             description.includes(searchTerm) ||
+             occupation.includes(searchTerm)
+           );
+         });
+       }
 
-      set({
-        cliques,
-        filteredCliques,
-        refreshing: false,
-      });
-    } catch (error) {
-      console.error("Error refreshing cliques:", error);
-      showError("Failed to refresh cliques");
-      set({ refreshing: false });
-    }
-  },
+       set({
+         cliques,
+         filteredCliques,
+         refreshing: false,
+       });
+     } catch (error) {
+       console.error("Error refreshing cliques:", error);
+       showError("Failed to refresh cliques");
+       set({ refreshing: false });
+     }
+   },
 
   joinClique: async (cliqueId: number) => {
     try {

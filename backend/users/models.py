@@ -268,43 +268,24 @@ class Occupier(AbstractBaseUser, PermissionsMixin, BaseModel):
         verbose_name = "Occupier"
         verbose_name_plural = "Occupiers"
 
-    @property
-    def token(self) -> str:
-        """
-        Generate a JWT token for the user.
-
-        Creates a JWT token containing the user's ID, username, email, and a
-        unique token identifier (JTI). The token expires after 24 hours.
-
-        Returns:
-            str: Encoded JWT token
-
-        Examples:
-            >>> user = Occupier.objects.get(username='johndoe')
-            >>> token = user.token
-            >>> print(token[:20])
-            'eyJhbGciOiJIUzI1NiI...'
-
-        Note:
-            Token payload includes:
-            - jti: Unique token identifier
-            - user_id: User's primary key
-            - username: User's username
-            - email: User's email
-            - exp: Expiration timestamp (24 hours from now)
-            - token_type: 'access'
-        """
-        payload: dict = {
-            "jti": str(uuid.uuid4()),  # Unique token identifier
-            "user_id": self.id,  # User ID
-            "username": self.username,
-            "email": self.email,
-            "exp": datetime.utcnow() + timedelta(hours=24),  # Token expiration
-            "token_type": "access",  # Explicitly define token type
-        }
-
-        token: str = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
-        return token
+    # @property
+    # def token(self) -> str:
+    #     """
+    #     DEPRECATED: This method of token generation is not compatible with
+    #     rest_framework_simplejwt and should not be used.
+    #     All token generation is handled by the authentication views and serializers.
+    #     """
+    #     payload: dict = {
+    #         "jti": str(uuid.uuid4()),  # Unique token identifier
+    #         "user_id": self.id,  # User ID
+    #         "username": self.username,
+    #         "email": self.email,
+    #         "exp": datetime.utcnow() + timedelta(hours=24),  # Token expiration
+    #         "token_type": "access",  # Explicitly define token type
+    #     }
+    #
+    #     token: str = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+    #     return token
 
     def __str__(self) -> str:
         """

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from django.core.exceptions import ValidationError
 
+from authentication.backends import CustomJWTAuthentication
 from ..models import Clique
 from ..selectors import service_list, service_get
 from ..services import service_create, service_update
@@ -27,12 +28,13 @@ class ServiceListCreateApi(APIView):
     POST /api/services/
     """
 
-    tags = ['Services']
+    tags = ["Services"]
     serializer_class = ServiceCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     class FilterSerializer(serializers.Serializer):
-        clique = serializers.IntegerField(required=False)
+        clique_id = serializers.IntegerField(required=False)
         provider = serializers.IntegerField(required=False)
         is_active = serializers.BooleanField(required=False)
 
@@ -40,7 +42,9 @@ class ServiceListCreateApi(APIView):
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
 
-        services = service_list(filters=filter_serializer.validated_data)
+        services = service_list(
+            filters=filter_serializer.validated_data, user=request.user
+        )
 
         paginator = PostPagination()
         page = paginator.paginate_queryset(services, request)
@@ -82,9 +86,10 @@ class ServiceRetrieveUpdateDestroyApi(APIView):
     DELETE /api/services/<id>/
     """
 
-    tags = ['Services']
+    tags = ["Services"]
     serializer_class = ServiceCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def get(self, request: Request, id: int) -> Response:
         service = service_get(id=id, user=request.user)

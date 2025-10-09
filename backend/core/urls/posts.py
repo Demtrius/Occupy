@@ -29,9 +29,9 @@ urlpatterns = [
 
     # Post endpoints
     path("", PostListApi.as_view(), name="post-list"),
+    path("<int:id>/", PostDetailApi.as_view(), name="post-detail"),
     path("create/", PostCreateApi.as_view(), name="post-create"),
     path("feed/", PostFeedApi.as_view(), name="post-feed"),
-    path("<int:id>/", PostDetailApi.as_view(), name="post-detail"),
     path("<int:id>/update/", PostUpdateApi.as_view(), name="post-update"),
     path("<int:id>/delete/", PostDeleteApi.as_view(), name="post-delete"),
     path("<int:id>/like/", PostLikeApi.as_view(), name="post-like"),

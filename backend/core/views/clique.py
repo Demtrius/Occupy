@@ -6,9 +6,16 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.request import Request
-from django.db.models import QuerySet
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import QuerySet, Exists, OuterRef
 
+from authentication.backends import CustomJWTAuthentication
 from ..models import Clique
+
+
+class CliquePagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "limit"
 from ..serializers import (
     CliqueListSerializer,
     CliqueDetailSerializer,
@@ -28,11 +35,12 @@ class CliqueViewSet(viewsets.ModelViewSet):
     tags = ['Cliques']
     queryset = Clique.objects.prefetch_related("members", "posts")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [CustomJWTAuthentication]
+    pagination_class = CliquePagination
     filter_backends = []  # Will be imported if needed
     search_fields = ["name", "description"]
     ordering_fields = ["created", "name"]
     ordering = ["-created"]
-    pagination_class = None  # Disable pagination for main list, use in actions
 
 
     def get_serializer_class(self):
@@ -51,6 +59,17 @@ class CliqueViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
 
+        # Annotate is_member for authenticated users
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                is_member=Exists(
+                    Clique.members.through.objects.filter(
+                        clique_id=OuterRef('pk'),
+                        occupier_id=self.request.user.id
+                    )
+                )
+            )
+
         # Filter by visibility
         if not self.request.user.is_authenticated:
             queryset = queryset.filter(level=Clique.Type.PUBLIC)
@@ -66,7 +85,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
         if owner_id:
             queryset = queryset.filter(occupier_id=owner_id)
 
-        return queryset
+        return queryset.distinct()
 
     def perform_create(self, serializer) -> None:
         """Create a clique with the current user as the occupier."""

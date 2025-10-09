@@ -4,8 +4,6 @@ Import all views from modular files.
 
 from .post import (
     PostListApi,
-    PostDetailApi,
-    PostCreateApi,
     PostUpdateApi,
     PostDeleteApi,
     PostLikeApi,
@@ -23,8 +21,6 @@ from .post import (
 
 __all__ = [
     "PostListApi",
-    "PostDetailApi",
-    "PostCreateApi",
     "PostUpdateApi",
     "PostDeleteApi",
     "PostLikeApi",

@@ -4,10 +4,17 @@ Views for Availability model.
 
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.db.models import QuerySet
 
+from authentication.backends import CustomJWTAuthentication
 from ..models import Availability
 from ..serializers.availability import AvailabilitySerializer
+
+
+class AvailabilityPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "limit"
 
 
 class AvailabilityViewSet(viewsets.ModelViewSet):
@@ -21,6 +28,8 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
     queryset = Availability.objects.select_related("clique", "provider").all()
     serializer_class = AvailabilitySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [CustomJWTAuthentication]
+    pagination_class = AvailabilityPagination
     filter_backends = []  # Will be imported if needed
     filterset_fields = ["clique", "provider", "date", "day_of_week", "is_recurring"]
     ordering_fields = ["date", "start_time"]

@@ -30,7 +30,7 @@ setup-mobile: ## Install mobile dependencies
 
 setup-backend: ## Install backend dependencies and run migrations
 	@echo "$(BLUE)🔧 Setting up backend dependencies...$(RESET)"
-	@cd backend && pip install -r requirements/development.txt
+	@cd backend && pip install -r requirements.txt
 	@cd backend && cp env.example .env || echo "$(YELLOW)⚠️  .env file already exists$(RESET)"
 	@cd backend && DJANGO_ENVIRONMENT=development python manage.py migrate
 	@echo "$(GREEN)✅ Backend dependencies installed and migrations applied!$(RESET)"

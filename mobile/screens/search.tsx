@@ -40,16 +40,16 @@ const SearchScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [category, setCategory] = useState<SearchCategory>('all')
 
-	// Fetch cliques
-	const getCliques = async () => {
-		try {
-			const data = await cliquesService.getAllCliques()
-			setCliques(data)
-		} catch (error) {
-			console.error('Error fetching cliques:', error)
-			showError('Failed to load cliques')
-		}
-	}
+ 	// Fetch cliques
+ 	const getCliques = async () => {
+ 		try {
+ 			const response = await cliquesService.getAllCliques()
+ 			setCliques(response.results || [])
+ 		} catch (error) {
+ 			console.error('Error fetching cliques:', error)
+ 			showError('Failed to load cliques')
+ 		}
+ 	}
 
 	// Fetch users
 	const getUsers = async () => {

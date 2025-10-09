@@ -38,7 +38,7 @@ class PostsService {
 	 */
 	async createPost(data: CreatePostData): Promise<Post> {
 		try {
-			const post = await apiHelpers.post<Post>('/api/v1/posts/', data)
+			const post = await apiHelpers.post<Post>('/api/v1/posts/create/', data)
 			return post
 		} catch (error) {
 			console.error('Create post error:', error)
@@ -54,7 +54,10 @@ class PostsService {
 		data: Partial<CreatePostData>
 	): Promise<Post> {
 		try {
-			const post = await apiHelpers.patch<Post>(`/api/v1/posts/${postId}/`, data)
+			const post = await apiHelpers.patch<Post>(
+				`/api/v1/posts/${postId}/update/`,
+				data
+			)
 			return post
 		} catch (error) {
 			console.error('Update post error:', error)
@@ -67,7 +70,7 @@ class PostsService {
 	 */
 	async deletePost(postId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/v1/posts/${postId}/`)
+			await apiHelpers.delete(`/api/v1/posts/${postId}/delete/`)
 		} catch (error) {
 			console.error('Delete post error:', error)
 			throw this.handleError(error)
@@ -94,28 +97,12 @@ class PostsService {
 	}
 
 	/**
-	 * Get posts by user
+	 * Get feed posts (posts from followed users and joined cliques)
 	 */
-	async getPostsByUser(
-		userId: number,
+	async getFeedPosts(
 		page: number = 1,
 		limit: number = 20
 	): Promise<PaginatedResponse<Post>> {
-		try {
-			const response = await apiHelpers.get<PaginatedResponse<Post>>(
-				`/api/v1/users/${userId}/posts/?page=${page}&limit=${limit}`
-			)
-			return response
-		} catch (error) {
-			console.error('Get posts by user error:', error)
-			throw this.handleError(error)
-		}
-	}
-
-	/**
-	 * Get feed posts (posts from followed users and joined cliques)
-	 */
-	async getFeedPosts(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Post>> {
 		try {
 			// Get feed posts from the backend with pagination
 			const response = await apiHelpers.get<PaginatedResponse<Post>>(
@@ -125,83 +112,6 @@ class PostsService {
 			return response
 		} catch (error) {
 			console.error('Get feed posts error:', error)
-			throw this.handleError(error)
-		}
-	}
-
-	/**
-	 * Like a post
-	 */
-	async likePost(postId: number): Promise<void> {
-		try {
-			await apiHelpers.post(`/api/v1/posts/${postId}/like/`)
-		} catch (error) {
-			console.error('Like post error:', error)
-			throw this.handleError(error)
-		}
-	}
-
-	/**
-	 * Unlike a post
-	 */
-	async unlikePost(postId: number): Promise<void> {
-		try {
-			await apiHelpers.delete(`/api/v1/posts/${postId}/like/`)
-		} catch (error) {
-			console.error('Unlike post error:', error)
-			throw this.handleError(error)
-		}
-	}
-
-	/**
-	 * Search posts
-	 */
-	async searchPosts(
-		query: string,
-		page: number = 1,
-		limit: number = 20
-	): Promise<PaginatedResponse<Post>> {
-		try {
-			const response = await apiHelpers.get<PaginatedResponse<Post>>(
-				`/api/v1/posts/?search=${encodeURIComponent(
-					query
-				)}&page=${page}&limit=${limit}`
-			)
-			return response
-		} catch (error) {
-			console.error('Search posts error:', error)
-			throw this.handleError(error)
-		}
-	}
-
-	/**
-	 * Get nearby posts
-	 */
-	async getNearbyPosts(
-		latitude: number,
-		longitude: number,
-		radius: number = 10,
-		limit: number = 20
-	): Promise<PaginatedResponse<Post>> {
-		try {
-			const response = await apiHelpers.get<PaginatedResponse<Post>>(
-				`/api/v1/posts/nearby/?lat=${latitude}&lng=${longitude}&radius=${radius}&limit=${limit}`
-			)
-			return response
-		} catch (error) {
-			console.error('Get nearby posts error:', error)
-			throw this.handleError(error)
-		}
-	}
-
-	/**
-	 * Report a post
-	 */
-	async reportPost(postId: number, reason: string): Promise<void> {
-		try {
-			await apiHelpers.post(`/api/v1/posts/${postId}/report/`, { reason })
-		} catch (error) {
-			console.error('Report post error:', error)
 			throw this.handleError(error)
 		}
 	}

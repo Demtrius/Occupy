@@ -13,6 +13,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 # pyright: reportArgumentType=false
 
 from config.env import APPS_DIR, BASE_DIR, env
+from rest_framework.pagination import PageNumberPagination
+
+
+class DefaultPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "limit"
+
 
 # Quick-start development settings - unsuitable for production
 
@@ -27,9 +34,9 @@ SECRET_KEY = env.str(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = env.bool("DJANGO_DEBUG", default=True)  # pyright: ignore[reportArgumentType]
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 # Application definition
 
@@ -42,8 +49,6 @@ LOCAL_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
-    "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
     "drf_spectacular",
@@ -138,8 +143,8 @@ AUTH_USER_MODEL = "users.Occupier"
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
-    'authentication.backends.EmailOrUsernameModelBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "authentication.backends.EmailOrUsernameModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 # Internationalization
@@ -164,13 +169,13 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "core.exception_handlers.drf_default_with_modifications_exception_handler",
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_PAGINATION_CLASS": "config.django.base.DefaultPagination",
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "authentication.backends.CustomJWTAuthentication",
     ],
     "DEFAULT_RENDERER_CLASSES": (
         "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
         "djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer",
-        "rest_framework.renderers.JSONRenderer",
     ),
     "DEFAULT_PARSER_CLASSES": (
         "djangorestframework_camel_case.parser.CamelCaseJSONParser",

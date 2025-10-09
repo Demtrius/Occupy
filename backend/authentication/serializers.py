@@ -9,8 +9,6 @@ from typing import Any, Dict, Optional, List
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from users.models import Occupier
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import Token
 from django.contrib.auth import authenticate
 
 
@@ -149,15 +147,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Create user with appropriate method
         if is_business_page:
             user = Occupier.objects.create_business_page(
-                occupations=occupations_data, 
-                password=password,
-                **validated_data
+                occupations=occupations_data, password=password, **validated_data
             )
         else:
             user = Occupier.objects.create_user(
-                occupations=occupations_data,
-                password=password,
-                **validated_data
+                occupations=occupations_data, password=password, **validated_data
             )
 
         return user
@@ -168,7 +162,8 @@ class LoginSerializer(serializers.ModelSerializer):
     Serializer for user login.
 
     Handles user authentication with email or username and password.
-    Returns JWT token upon successful authentication.
+    This serializer is used to validate the login request, but the token
+    is generated and returned by the view.
     """
 
     password = serializers.CharField(
@@ -180,8 +175,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Occupier
-        fields = ("email", "password", "token")
-        read_only_fields = ["token"]
+        fields = ("email", "password")
 
 
 class LogoutSerializer(serializers.Serializer):
@@ -190,10 +184,13 @@ class LogoutSerializer(serializers.Serializer):
 
     Expects a refresh token to blacklist.
     """
-    refresh_token = serializers.CharField(required=True, help_text="The refresh token to blacklist")
+
+    refresh_token = serializers.CharField(
+        required=True, help_text="The refresh token to blacklist"
+    )
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+class MyTokenObtainPairSerializer(serializers.Serializer):
     """
     Custom JWT token serializer that supports email or username login.
 
@@ -206,16 +203,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField(required=False, allow_blank=True)
     username = serializers.CharField(required=False, allow_blank=True)
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Initialize serializer and make username field optional.
-
-        Args:
-            *args: Variable length argument list
-            **kwargs: Arbitrary keyword arguments
-        """
-        super().__init__(*args, **kwargs)
-        self.fields[self.username_field].required = False
+    email = serializers.EmailField(required=False, allow_blank=True)
+    username = serializers.CharField(required=False, allow_blank=True)
+    password = serializers.CharField(write_only=True)
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -244,38 +234,25 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not password:
             raise serializers.ValidationError({"detail": "Password is required."})
 
-        # Remove 'email' from attrs if it was provided, as the parent serializer doesn't need it.
-        if "email" in attrs:
-            del attrs["email"]
+        # Authenticate user
+        from django.contrib.auth import authenticate
+        user = authenticate(username=username_or_email, password=password)
 
-        # Ensure username field is set with the provided username or email value
-        # The custom backend will handle authenticating with email or username
-        attrs["username"] = username_or_email
+        if user is None:
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
 
-        # Call the parent's validate method, which will use the custom backend
-        try:
-            validated_data: Dict[str, Any] = super().validate(attrs)
-            # Add user data to the response
-            validated_data["user"] = UserSerializer(self.user).data
-            return validated_data
-        except AuthenticationFailed as e:
-            raise serializers.ValidationError({"detail": str(e)})
+        if not user.is_active:
+            raise serializers.ValidationError({"detail": "User account is disabled."})
 
-    @classmethod
-    def get_token(cls, user: Occupier) -> Token:
-        """
-        Generate JWT token with custom claims for the user.
+        # Generate tokens
+        from .utils import create_jwt_pair_for_user
+        tokens = create_jwt_pair_for_user(user)
 
-        Adds username, email, and occupations to the token payload.
+        # Add user data
+        user_serializer = UserSerializer(user)
 
-        Args:
-            user: The user instance to generate token for
-
-        Returns:
-            Token: JWT token with custom claims
-        """
-        token: Token = super().get_token(user)
-        token["username"] = user.username
-        token["email"] = user.email
-        token["occupations"] = user.occupations or ""
-        return token
+        return {
+            "access": tokens["access"],
+            "refresh": tokens["refresh"],
+            "user": user_serializer.data,
+        }

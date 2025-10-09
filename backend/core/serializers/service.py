@@ -37,11 +37,15 @@ class ServiceListSerializer(serializers.ModelSerializer):
 
     def get_provider(self, obj: Service) -> Dict[str, Any]:
         """Get basic provider info."""
+        profile_image_url = ""
+        if obj.provider.profile_image and obj.provider.profile_image.name:
+            profile_image_url = obj.provider.profile_image.url
+
         return {
             "id": obj.provider.id,
             "username": obj.provider.username,
             "email": obj.provider.email,
-            "profile_image": obj.provider.profile_image,
+            "profile_image": profile_image_url,
         }
 
     def get_bookings_count(self, obj) -> int:
@@ -77,20 +81,28 @@ class ServiceDetailSerializer(serializers.ModelSerializer):
 
     def get_provider(self, obj: Service) -> Dict[str, Any]:
         """Get basic provider info."""
+        profile_image_url = ""
+        if obj.provider.profile_image and obj.provider.profile_image.name:
+            profile_image_url = obj.provider.profile_image.url
+
         return {
             "id": obj.provider.id,
             "username": obj.provider.username,
             "email": obj.provider.email,
-            "profile_image": obj.provider.profile_image,
+            "profile_image": profile_image_url,
         }
 
     def get_clique(self, obj: Service) -> Dict[str, Any]:
         """Get basic clique info."""
+        image_url = ""
+        if obj.clique.image and obj.clique.image.name:
+            image_url = obj.clique.image.url
+
         return {
             "id": obj.clique.id,
             "name": obj.clique.name,
             "description": obj.clique.description,
-            "image": obj.clique.image,
+            "image": image_url,
         }
 
     def get_bookings_count(self, obj) -> int:

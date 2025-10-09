@@ -14,9 +14,6 @@ app_name = "services"
 router = DefaultRouter()
 
 urlpatterns = [
-    # Include router URLs (for future expansion)
-    path("", include(router.urls)),
-
     # Service endpoints
     path("", ServiceListCreateApi.as_view(), name="service-list-create"),
     path("<int:id>/", ServiceRetrieveUpdateDestroyApi.as_view(), name="service-detail"),

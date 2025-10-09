@@ -20,11 +20,13 @@ services:
       - "80:8000"
     depends_on:
       - db
+
     environment:
-      - DEBUG=${DJANGO_DEBUG:-False}
+      - DJANGO_SETTINGS_MODULE=config.django.production
       - SECRET_KEY=${SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-      - DATABASE_URL=postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_HOST=db
 
 volumes:
   postgres_data:

@@ -5,12 +5,13 @@ This module defines URL patterns for user authentication and authorization.
 """
 
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from .views import (
     RegisterView,
     OccupierLoginView,
     CurrentUserView,
     MyTokenObtainPairView,
+    MyTokenRefreshView,
+    MyTokenVerifyView,
     LogoutView,
 )
 
@@ -25,6 +26,6 @@ urlpatterns = [
 
     # JWT Token management
     path("jwt/create/", MyTokenObtainPairView.as_view(), name="jwt_create"),
-    path("jwt/refresh/", TokenRefreshView.as_view(), name="jwt_refresh"),
-    path("jwt/verify/", TokenVerifyView.as_view(), name="jwt_verify"),
+    path("jwt/refresh/", MyTokenRefreshView.as_view(), name="jwt_refresh"),
+    path("jwt/verify/", MyTokenVerifyView.as_view(), name="jwt_verify"),
 ]

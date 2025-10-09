@@ -49,24 +49,25 @@ const PostCreateScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false)
 	const [fetchingCliques, setFetchingCliques] = useState<boolean>(true)
 
-	const fetchCliques = useCallback(async () => {
-		try {
-			setFetchingCliques(true)
-			const cliques = await cliquesService.getAllCliques()
-			setItems(
-				cliques.map((clique: Clique) => ({
-					label: clique.name,
-					value: clique.id,
-				}))
-			)
-		} catch (error: unknown) {
-			const err = error as Error
-			console.error('Error fetching cliques:', err)
-			showError('Failed to load cliques')
-		} finally {
-			setFetchingCliques(false)
-		}
-	}, [])
+ 	const fetchCliques = useCallback(async () => {
+ 		try {
+ 			setFetchingCliques(true)
+ 			const response = await cliquesService.getAllCliques()
+ 			const cliques = response.results || []
+ 			setItems(
+ 				cliques.map((clique: Clique) => ({
+ 					label: clique.name,
+ 					value: clique.id,
+ 				}))
+ 			)
+ 		} catch (error: unknown) {
+ 			const err = error as Error
+ 			console.error('Error fetching cliques:', err)
+ 			showError('Failed to load cliques')
+ 		} finally {
+ 			setFetchingCliques(false)
+ 		}
+ 	}, [])
 
 	// Fetch cliques on mount
 	useEffect(() => {

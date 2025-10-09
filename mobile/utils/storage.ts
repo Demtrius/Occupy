@@ -195,14 +195,14 @@ export const storage = {
    * @example
    * const keys = await storage.getAllKeys();
    */
-  async getAllKeys(): Promise<string[]> {
-    try {
-      if (IS_WEB) {
-        return await AsyncStorage.getAllKeys();
-      } else {
-        console.warn("SecureStore does not support getting all keys.");
-        return [];
-      }
+   async getAllKeys(): Promise<string[]> {
+     try {
+       if (IS_WEB) {
+         return await AsyncStorage.getAllKeys() as string[];
+       } else {
+         console.warn("SecureStore does not support getting all keys.");
+         return [];
+       }
     } catch (error) {
       console.error("Error getting all keys from storage:", error);
       return [];

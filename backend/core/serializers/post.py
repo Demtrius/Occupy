@@ -15,6 +15,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
     occupier = serializers.SerializerMethodField()
     clique = serializers.CharField(source="clique.name", read_only=True)
+    clique_id = serializers.SerializerMethodField()
     created = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
@@ -28,9 +29,7 @@ class PostListSerializer(serializers.ModelSerializer):
             "caption",
             "occupier",
             "clique",
-            "user_id",
             "clique_id",
-            "avatar",
             "created",
             "likes_count",
             "comments_count",
@@ -40,12 +39,20 @@ class PostListSerializer(serializers.ModelSerializer):
 
     def get_occupier(self, obj: Post) -> Dict[str, Any]:
         """Get basic occupier info."""
+        profile_image_url = ""
+        if obj.occupier.profile_image and obj.occupier.profile_image.name:
+            profile_image_url = obj.occupier.profile_image.url
+
         return {
             "id": obj.occupier.id,
             "username": obj.occupier.username,
             "email": obj.occupier.email,
-            "profile_image": obj.occupier.profile_image,
+            "profile_image": profile_image_url,
         }
+
+    def get_clique_id(self, obj: Post) -> int:
+        """Get the clique's ID."""
+        return obj.clique.id
 
     def get_created(self, obj: Post) -> str:
         """Get a human-readable time since post was created."""
@@ -93,6 +100,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     occupier = serializers.SerializerMethodField()
     clique = serializers.SerializerMethodField()
+    clique_id = serializers.SerializerMethodField()
     created = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
@@ -107,33 +115,42 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "status",
             "occupier",
             "clique",
-            "user_id",
             "clique_id",
-            "avatar",
             "created",
             "likes_count",
             "comments_count",
             "is_liked",
-            "created",
             "modified",
         ]
 
     def get_occupier(self, obj: Post) -> Dict[str, Any]:
         """Get basic occupier info."""
+        profile_image_url = ""
+        if obj.occupier.profile_image and obj.occupier.profile_image.name:
+            profile_image_url = obj.occupier.profile_image.url
+
         return {
             "id": obj.occupier.id,
             "username": obj.occupier.username,
             "email": obj.occupier.email,
-            "profile_image": obj.occupier.profile_image,
+            "profile_image": profile_image_url,
         }
+
+    def get_clique_id(self, obj: Post) -> int:
+        """Get the clique's ID."""
+        return obj.clique.id
 
     def get_clique(self, obj: Post) -> Dict[str, Any]:
         """Get basic clique info."""
+        image_url = ""
+        if obj.clique.image and obj.clique.image.name:
+            image_url = obj.clique.image.url
+
         return {
             "id": obj.clique.id,
             "name": obj.clique.name,
             "description": obj.clique.description,
-            "image": obj.clique.image,
+            "image": image_url,
         }
 
     def get_created(self, obj: Post) -> str:
@@ -191,11 +208,15 @@ class LikeSerializer(serializers.ModelSerializer):
 
     def get_user(self, obj: Like) -> Dict[str, Any]:
         """Get basic user info."""
+        profile_image_url = ""
+        if obj.user.profile_image and obj.user.profile_image.name:
+            profile_image_url = obj.user.profile_image.url
+
         return {
             "id": obj.user.id,
             "username": obj.user.username,
             "email": obj.user.email,
-            "profile_image": obj.user.profile_image,
+            "profile_image": profile_image_url,
         }
 
 
@@ -203,6 +224,7 @@ class CommentSerializer(serializers.ModelSerializer):
     """Serializer for CommentPost model."""
 
     user = serializers.SerializerMethodField()
+    content = serializers.CharField(source='body')
 
     class Meta:
         model = CommentPost
@@ -210,9 +232,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_user(self, obj: CommentPost) -> Dict[str, Any]:
         """Get basic user info."""
+        profile_image_url = ""
+        if obj.occupier.profile_image and obj.occupier.profile_image.name:
+            profile_image_url = obj.occupier.profile_image.url
+
         return {
             "id": obj.occupier.id,
             "username": obj.occupier.username,
             "email": obj.occupier.email,
-            "profile_image": obj.occupier.profile_image,
+            "profile_image": profile_image_url,
         }

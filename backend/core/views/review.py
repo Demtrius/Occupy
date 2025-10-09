@@ -4,6 +4,7 @@ Views for Review model.
 
 from rest_framework import viewsets, permissions
 
+from authentication.backends import CustomJWTAuthentication
 from ..models import Review
 from ..serializers import ReviewSerializer
 
@@ -18,6 +19,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     tags = ['Reviews']
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [CustomJWTAuthentication]
     filter_backends = []  # Will be imported if needed
     filterset_fields = ["clique", "booking", "rating"]
     ordering_fields = ["created", "rating"]

@@ -77,7 +77,10 @@ class ServicesService {
 	async createService(data: CreateServiceData): Promise<Service> {
 		try {
 			// Transform cliqueId to clique for backend
-			const service = await apiHelpers.post<Service>('/api/v1/services/', data)
+			const service = await apiHelpers.post<Service>(
+				'/api/v1/services/',
+				data
+			)
 			return service
 		} catch (error) {
 			console.error('Create service error:', error)

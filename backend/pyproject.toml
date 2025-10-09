@@ -63,7 +63,7 @@ addopts = "--cov=apps --cov-report=html --cov-report=term-missing --cov-fail-und
 testpaths = ["apps"]
 
 [tool.coverage.run]
-source = "."
+source = ["."]
 omit = [
     "*/migrations/*",
     "*/venv/*",

@@ -5,7 +5,7 @@ Serializers for Availability model.
 from typing import Any, Dict
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from ..models import Availability
+from ..models import Availability, Clique
 
 User = get_user_model()
 
@@ -16,6 +16,10 @@ class AvailabilitySerializer(serializers.ModelSerializer):
     provider = serializers.SerializerMethodField()
     clique_name = serializers.CharField(source="clique.name", read_only=True)
     day_name = serializers.CharField(source="get_day_of_week_display", read_only=True)
+    clique = serializers.PrimaryKeyRelatedField(
+        queryset=Clique.all_objects.all()
+    )
+    date = serializers.DateField(required=False, allow_null=True)
 
     class Meta:
         model = Availability
@@ -35,11 +39,15 @@ class AvailabilitySerializer(serializers.ModelSerializer):
 
     def get_provider(self, obj: Availability) -> Dict[str, Any]:
         """Get basic provider info."""
+        profile_image_url = ""
+        if obj.provider.profile_image and obj.provider.profile_image.name:
+            profile_image_url = obj.provider.profile_image.url
+
         return {
             "id": obj.provider.id,
             "username": obj.provider.username,
             "email": obj.provider.email,
-            "profile_image": obj.provider.profile_image,
+            "profile_image": profile_image_url,
         }
 
     def validate(self, attrs):

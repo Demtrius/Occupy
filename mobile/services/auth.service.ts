@@ -181,55 +181,7 @@ class AuthService {
     }
   }
 
-  /**
-   * Change password
-   */
-  async changePassword(
-    currentPassword: string,
-    newPassword: string,
-  ): Promise<void> {
-    try {
-      await apiHelpers.post("/api/v1/auth/users/set_password/", {
-        current_password: currentPassword,
-        new_password: newPassword,
-      });
-    } catch (error) {
-      console.error("Change password error:", error);
-      throw this.handleAuthError(error);
-    }
-  }
 
-  /**
-   * Request password reset
-   */
-  async requestPasswordReset(email: string): Promise<void> {
-    try {
-      await apiHelpers.post("/api/v1/auth/users/reset_password/", { email });
-    } catch (error) {
-      console.error("Request password reset error:", error);
-      throw this.handleAuthError(error);
-    }
-  }
-
-  /**
-   * Confirm password reset
-   */
-  async confirmPasswordReset(
-    uid: string,
-    token: string,
-    newPassword: string,
-  ): Promise<void> {
-    try {
-      await apiHelpers.post("/api/v1/auth/users/reset_password_confirm/", {
-        uid,
-        token,
-        new_password: newPassword,
-      });
-    } catch (error) {
-      console.error("Confirm password reset error:", error);
-      throw this.handleAuthError(error);
-    }
-  }
 
   /**
    * Get stored user from local storage

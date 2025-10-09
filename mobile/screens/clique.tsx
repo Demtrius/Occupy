@@ -32,33 +32,36 @@ const CliqueScreen: React.FC<Props> = ({ route }) => {
 	const user = useAuthStore(state => state.user)
 	const isLoggedIn = useAuthStore(state => state.isLoggedIn)
 
-	const { id } = route.params
+ 	const { id } = (route.params as { id: number }) || {}
 
-	const [clique, setClique] = useState<Clique | null>(null)
-	const [posts, setPosts] = useState<Post[]>([])
-	const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
-	const [loading, setLoading] = useState<boolean>(true)
-	const [refreshing, setRefreshing] = useState<boolean>(false)
-	const [activeTab, setActiveTab] = useState<TabType>('Posts')
-	const [search, setSearch] = useState<string>('')
-	const [isMember, setIsMember] = useState<boolean>(false)
-	const [joiningClique, setJoiningClique] = useState<boolean>(false)
+ 	if (!id || typeof id !== 'number') {
+ 		showError('Clique ID is required')
+ 		return
+ 	}
 
-	// Fetch clique details
-	const fetchCliqueDetails = async () => {
-		try {
-			const cliqueData = await cliquesService.getCliqueById(id)
-			setClique(cliqueData)
+ 	const [clique, setClique] = useState<Clique | null>(null)
+ 	const [posts, setPosts] = useState<Post[]>([])
+ 	const [filteredPosts, setFilteredPosts] = useState<Post[]>([])
+ 	const [loading, setLoading] = useState<boolean>(true)
+ 	const [refreshing, setRefreshing] = useState<boolean>(false)
+ 	const [activeTab, setActiveTab] = useState<TabType>('Posts')
+ 	const [search, setSearch] = useState<string>('')
+ 	const [isMember, setIsMember] = useState<boolean>(false)
+ 	const [joiningClique, setJoiningClique] = useState<boolean>(false)
 
-			// Check if current user is a member
-			if (user && cliqueData.members) {
-				setIsMember(cliqueData.members.includes(user.id))
-			}
-		} catch (error) {
-			console.error('Error fetching clique:', error)
-			showError('Failed to load clique details')
-		}
-	}
+  // Fetch clique details
+  const fetchCliqueDetails = async () => {
+  		try {
+  			const cliqueData = await cliquesService.getCliqueById(id)
+  			setClique(cliqueData)
+
+  			// Use isMember field from API
+  			setIsMember(cliqueData.isMember || false)
+  		} catch (error) {
+  			console.error('Error fetching clique:', error)
+  			showError('Failed to load clique details')
+  		}
+  }
 
 	// Fetch clique posts
 	const fetchCliquePosts = async () => {

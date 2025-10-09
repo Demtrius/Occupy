@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+from authentication.backends import CustomJWTAuthentication
 from .serializers import (
     UserListSerializer,
     UserDetailSerializer,
@@ -33,6 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
     tags = ['Users']
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [CustomJWTAuthentication]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_business_page", "occupations"]
     search_fields = ["username", "email", "occupations", "first_name", "last_name"]

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from django.core.exceptions import ValidationError
 
+from authentication.backends import CustomJWTAuthentication
 from ..models import Service
 from ..selectors import booking_list, booking_get
 from ..services import (
@@ -33,6 +34,7 @@ class BookingListCreateApi(APIView):
     tags = ['Bookings']
     serializer_class = BookingCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     class FilterSerializer(serializers.Serializer):
         status = serializers.CharField(required=False)
@@ -83,6 +85,7 @@ class BookingRetrieveUpdateDestroyApi(APIView):
     tags = ['Bookings']
     serializer_class = BookingCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def get(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
@@ -115,6 +118,7 @@ class BookingConfirmApi(APIView):
     tags = ['Bookings']
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def post(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
@@ -134,6 +138,7 @@ class BookingCancelApi(APIView):
     tags = ['Bookings']
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     class InputSerializer(serializers.Serializer):
         reason = serializers.CharField(required=False, allow_blank=True)
@@ -162,6 +167,7 @@ class BookingCompleteApi(APIView):
     tags = ['Bookings']
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def post(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)

@@ -8,10 +8,15 @@ username or email address, providing flexibility in the login process.
 
 from typing import Optional
 import logging
+import jwt
+from datetime import datetime, timedelta
+from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.http import HttpRequest
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -150,3 +155,92 @@ class EmailOrUsernameModelBackend(ModelBackend):
         """
         is_active: Optional[bool] = getattr(user, "is_active", None)
         return is_active or is_active is None
+
+
+class CustomJWTAuthentication(BaseAuthentication):
+    """
+    Custom JWT authentication class using PyJWT.
+
+    Authenticates users based on JWT tokens in the Authorization header.
+    Supports access and refresh token validation.
+    """
+
+    def authenticate(self, request):
+        """
+        Authenticate the request using JWT token from Authorization header.
+
+        Returns:
+            tuple: (user, token) if authentication succeeds
+            None: if no token is provided
+        Raises:
+            AuthenticationFailed: if token is invalid or expired
+        """
+        # Get the authorization header
+        auth_header = self.get_authorization_header(request)
+        if not auth_header:
+            return None
+
+        # Decode the header
+        try:
+            auth_header = auth_header.decode('utf-8')
+        except UnicodeDecodeError:
+            raise AuthenticationFailed('Invalid token header encoding')
+
+        # Check for Bearer prefix
+        if not auth_header.startswith('Bearer '):
+            return None
+
+        # Extract token
+        token = auth_header[7:]  # Remove 'Bearer ' prefix
+
+        # Validate token
+        return self.authenticate_credentials(token)
+
+    def authenticate_credentials(self, token):
+        """
+        Validate JWT token and return user.
+
+        Args:
+            token: JWT token string
+
+        Returns:
+            tuple: (user, token)
+
+        Raises:
+            AuthenticationFailed: if token is invalid
+        """
+        try:
+            # Decode the token
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Token has expired')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Invalid token')
+
+        # Get user from payload
+        user_id = payload.get('user_id')
+        if not user_id:
+            raise AuthenticationFailed('Token missing user_id')
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise AuthenticationFailed('User not found')
+
+        # Check if user is active
+        if not user.is_active:
+            raise AuthenticationFailed('User account is disabled')
+
+        return (user, token)
+
+    def get_authorization_header(self, request):
+        """
+        Return the Authorization header from the request.
+
+        Returns:
+            bytes: The authorization header value
+        """
+        auth = request.META.get('HTTP_AUTHORIZATION', b'')
+        if isinstance(auth, str):
+            auth = auth.encode('iso-8859-1')
+        return auth

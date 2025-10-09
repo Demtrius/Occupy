@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.pagination import PageNumberPagination
 from django.core.exceptions import ValidationError
 
+from authentication.backends import CustomJWTAuthentication
 from ..models import Post, Like, CommentPost, Clique
 from ..serializers import (
     PostListSerializer,
@@ -51,67 +52,11 @@ class PostListApi(APIView):
     GET /api/posts/
     """
 
-    tags = ['Posts']
-    serializer_class = serializers.Serializer
-    permission_classes = [permissions.AllowAny]
-
-    class FilterSerializer(serializers.Serializer):
-        clique = serializers.IntegerField(required=False)
-        occupier = serializers.IntegerField(required=False)
-        status = serializers.CharField(required=False)
-
-    def get(self, request: Request) -> Response:
-        # Validate filters
-        filter_serializer = self.FilterSerializer(data=request.query_params)
-        filter_serializer.is_valid(raise_exception=True)
-
-        posts = post_list(filters=filter_serializer.validated_data, user=request.user)
-
-        # Paginate
-        paginator = PostPagination()
-        page = paginator.paginate_queryset(posts, request)
-        if page is not None:
-            serializer = PostListSerializer(
-                page, many=True, context={"request": request}
-            )
-            return paginator.get_paginated_response(serializer.data)
-
-        serializer = PostListSerializer(posts, many=True, context={"request": request})
-        return Response(serializer.data)
-
-
-class PostDetailApi(APIView):
-    """
-    API for retrieving a single post.
-
-    GET /api/posts/<id>/
-    """
-
-    tags = ['Posts']
-    serializer_class = serializers.Serializer
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request: Request, id: int) -> Response:
-        post = post_get(id=id, user=request.user)
-        if not post:
-            return Response(
-                {"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = PostDetailSerializer(post, context={"request": request})
-        return Response(serializer.data)
-
-
-class PostCreateApi(APIView):
-    """
-    API for creating posts.
-
-    POST /api/posts/create/
-    """
-
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
 
     class InputSerializer(serializers.Serializer):
         content = serializers.CharField(max_length=400)
@@ -131,6 +76,22 @@ class PostCreateApi(APIView):
                 return value
             except Clique.DoesNotExist:
                 raise serializers.ValidationError("Clique does not exist.")
+
+    def get(self, request: Request) -> Response:
+        """List posts with pagination."""
+        posts = post_list(user=request.user)
+
+        # Paginate
+        paginator = PostPagination()
+        page = paginator.paginate_queryset(posts, request)
+        if page is not None:
+            serializer = PostListSerializer(
+                page, many=True, context={"request": request}
+            )
+            return paginator.get_paginated_response(serializer.data)
+
+        serializer = PostListSerializer(posts, many=True, context={"request": request})
+        return Response(serializer.data)
 
     def post(self, request: Request) -> Response:
         serializer = self.InputSerializer(
@@ -161,9 +122,10 @@ class PostUpdateApi(APIView):
     POST /api/posts/<id>/update/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     class InputSerializer(serializers.Serializer):
         content = serializers.CharField(max_length=400, required=False)
@@ -206,9 +168,10 @@ class PostDeleteApi(APIView):
     DELETE /api/posts/<id>/delete/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def delete(self, request: Request, id: int) -> Response:
         post = post_get(id=id, user=request.user)
@@ -235,9 +198,10 @@ class PostLikeApi(APIView):
     POST, DELETE /api/posts/<id>/like/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def post(self, request: Request, id: int) -> Response:
         post = post_get(id=id, user=request.user)
@@ -248,12 +212,23 @@ class PostLikeApi(APIView):
 
         try:
             like_create(post=post, user=request.user)
+            likes_count = Like.objects.filter(post=post).count()
             return Response(
-                {"detail": "Post liked successfully."}, status=status.HTTP_201_CREATED
+                {
+                    "likesCount": likes_count,
+                    "isLiked": True,
+                    "detail": "Post liked successfully."
+                },
+                status=status.HTTP_201_CREATED
             )
         except ValidationError:
+            likes_count = Like.objects.filter(post=post).count()
             return Response(
-                {"detail": "You have already liked this post."},
+                {
+                    "likesCount": likes_count,
+                    "isLiked": True,
+                    "detail": "You have already liked this post."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -265,7 +240,12 @@ class PostLikeApi(APIView):
             )
 
         like_delete(post=post, user=request.user)
-        return Response({"detail": "Post unliked successfully."})
+        likes_count = Like.objects.filter(post=post).count()
+        return Response({
+            "likesCount": likes_count,
+            "isLiked": False,
+            "detail": "Post unliked successfully."
+        })
 
 
 class PostCommentsApi(APIView):
@@ -275,7 +255,7 @@ class PostCommentsApi(APIView):
     GET /api/posts/<id>/comments/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.AllowAny]
 
@@ -300,9 +280,10 @@ class PostAddCommentApi(APIView):
     POST /api/posts/<id>/add-comment/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     class InputSerializer(serializers.Serializer):
         content = serializers.CharField()
@@ -337,9 +318,10 @@ class PostFeedApi(APIView):
     GET /api/posts/feed/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def get(self, request: Request) -> Response:
         posts = post_feed_get(user=request.user)
@@ -357,6 +339,32 @@ class PostFeedApi(APIView):
         return Response(serializer.data)
 
 
+class PostDetailApi(APIView):
+    """
+    API for getting a single post detail.
+
+    GET /api/posts/<id>/
+    """
+
+    tags = ["Posts"]
+    serializer_class = serializers.Serializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
+
+    def get(self, request: Request, id: int) -> Response:
+        post = post_get(id=id, user=request.user)
+        if not post:
+            return Response(
+                {"detail": "Post not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = PostDetailSerializer(post, context={"request": request})
+        return Response(serializer.data)
+
+
+# Alias for backward compatibility
+PostCreateApi = PostListApi
+
 # Comment APIs
 class CommentUpdateApi(APIView):
     """
@@ -365,9 +373,10 @@ class CommentUpdateApi(APIView):
     PATCH /api/comments/<id>/update/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     class InputSerializer(serializers.Serializer):
         content = serializers.CharField()
@@ -409,9 +418,10 @@ class CommentDeleteApi(APIView):
     DELETE /api/comments/<id>/delete/
     """
 
-    tags = ['Posts']
+    tags = ["Posts"]
     serializer_class = serializers.Serializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [CustomJWTAuthentication]
 
     def delete(self, request: Request, id: int) -> Response:
         comment = comment_get(id=id)

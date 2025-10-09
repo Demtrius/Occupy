@@ -9,7 +9,6 @@ from typing import Dict
 from datetime import datetime, timedelta
 import jwt
 from django.conf import settings
-from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import Occupier
 
 
@@ -52,9 +51,7 @@ def create_jwt_pair_for_user(occupier: Occupier) -> Dict[str, str]:
     """
     Create a JWT token pair (access and refresh) for the given user.
 
-    This function uses djangorestframework-simplejwt to generate a standard
-    JWT token pair. The tokens follow the configuration defined in
-    settings.SIMPLE_JWT.
+    This function uses PyJWT to generate JWT tokens with custom payloads.
 
     Args:
         occupier: The Occupier (user) instance to generate tokens for
@@ -73,13 +70,33 @@ def create_jwt_pair_for_user(occupier: Occupier) -> Dict[str, str]:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
 
     Note:
-        Token lifetimes are configured in settings.SIMPLE_JWT:
-        - ACCESS_TOKEN_LIFETIME: Default 2 hours
-        - REFRESH_TOKEN_LIFETIME: Default 1 day
+        Access token expires in 2 hours, refresh token in 24 hours.
     """
-    refresh: RefreshToken = RefreshToken.for_user(occupier)
+    # Access token payload
+    access_payload = {
+        'user_id': occupier.id,
+        'username': occupier.username,
+        'email': occupier.email,
+        'occupations': occupier.occupations or '',
+        'exp': datetime.utcnow() + timedelta(hours=2),
+        'iat': datetime.utcnow(),
+        'token_type': 'access'
+    }
+
+    # Refresh token payload
+    refresh_payload = {
+        'user_id': occupier.id,
+        'exp': datetime.utcnow() + timedelta(days=1),
+        'iat': datetime.utcnow(),
+        'token_type': 'refresh'
+    }
+
+    # Generate tokens
+    access_token = jwt.encode(access_payload, settings.SECRET_KEY, algorithm='HS256')
+    refresh_token = jwt.encode(refresh_payload, settings.SECRET_KEY, algorithm='HS256')
+
     tokens: Dict[str, str] = {
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
+        "access": access_token,
+        "refresh": refresh_token,
     }
     return tokens

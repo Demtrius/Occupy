@@ -65,7 +65,7 @@ class UsersService {
 	async getUserByUsername(username: string): Promise<User> {
 		try {
 			const user = await apiHelpers.get<User>(
-				`/api/auth/users/username/${username}/`
+				`/api/v1/users/username/${username}/`
 			)
 			return user
 		} catch (error) {
@@ -79,7 +79,7 @@ class UsersService {
 	 */
 	async getCurrentUser(): Promise<User> {
 		try {
-			const user = await apiHelpers.get<User>('/api/auth/users/me/')
+			const user = await apiHelpers.get<User>('/api/v1/auth/me/')
 			return user
 		} catch (error) {
 			console.error('Get current user error:', error)
@@ -92,7 +92,7 @@ class UsersService {
 	 */
 	async updateProfile(data: UserUpdateData): Promise<User> {
 		try {
-			const user = await apiHelpers.patch<User>('/api/auth/users/me/', data)
+			const user = await apiHelpers.patch<User>('/api/v1/users/me/', data)
 			return user
 		} catch (error) {
 			console.error('Update profile error:', error)
@@ -158,7 +158,7 @@ class UsersService {
 				message: string
 				isFollowing: boolean
 				followersCount: number
-			}>(`/api/auth/users/${userId}/follow/`)
+			}>(`/api/v1/users/${userId}/follow/`)
 			return response
 		} catch (error) {
 			console.error('Follow user error:', error)
@@ -179,7 +179,7 @@ class UsersService {
 				message: string
 				isFollowing: boolean
 				followersCount: number
-			}>(`/api/auth/users/${userId}/unfollow/`)
+			}>(`/api/v1/users/${userId}/unfollow/`)
 			return response
 		} catch (error) {
 			console.error('Unfollow user error:', error)
@@ -193,7 +193,7 @@ class UsersService {
 	async isFollowing(userId: number): Promise<boolean> {
 		try {
 			const response = await apiHelpers.get<{ isFollowing: boolean }>(
-				`/api/auth/users/${userId}/is-following/`
+				`/api/v1/users/${userId}/is-following/`
 			)
 			return response.isFollowing
 		} catch (error) {
@@ -208,7 +208,7 @@ class UsersService {
 	async getUserPosts(userId: number): Promise<Post[]> {
 		try {
 			const response = await apiHelpers.get<Post[]>(
-				`/api/auth/users/${userId}/posts/`
+				`/api/v1/users/${userId}/posts/`
 			)
 			return response
 		} catch (error) {
@@ -223,7 +223,7 @@ class UsersService {
 	async getSuggestedUsers(limit: number = 10): Promise<User[]> {
 		try {
 			const response = await apiHelpers.get<User[]>(
-				`/api/auth/users/suggested/?limit=${limit}`
+				`/api/v1/users/suggested/?limit=${limit}`
 			)
 			return response
 		} catch (error) {
@@ -238,7 +238,7 @@ class UsersService {
 	async blockUser(userId: number): Promise<{ message: string }> {
 		try {
 			const response = await apiHelpers.post<{ message: string }>(
-				`/api/auth/users/${userId}/block/`
+				`/api/v1/users/${userId}/block/`
 			)
 			return response
 		} catch (error) {
@@ -253,7 +253,7 @@ class UsersService {
 	async unblockUser(userId: number): Promise<{ message: string }> {
 		try {
 			const response = await apiHelpers.delete<{ message: string }>(
-				`/api/auth/users/${userId}/block/`
+				`/api/v1/users/${userId}/block/`
 			)
 			return response
 		} catch (error) {
@@ -277,7 +277,7 @@ class UsersService {
 				followingCount: number
 				postsCount: number
 				cliquesCount: number
-			}>(`/api/auth/users/${userId}/stats/`)
+			}>(`/api/v1/users/${userId}/stats/`)
 			return response
 		} catch (error) {
 			console.error('Get user stats error:', error)

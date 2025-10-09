@@ -6,9 +6,11 @@ export interface Clique {
 	name: string
 	description?: string
 	image?: string
+	banner?: string
 	occupation?: string
 	membersCount?: number
 	postsCount?: number
+	members?: User[]
 	createdBy?: User
 	createdAt?: string
 	updatedAt?: string

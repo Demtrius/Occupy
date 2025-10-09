@@ -49,7 +49,7 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 
 	useEffect(() => {
 		getUserData()
-		getUserPosts()
+		// getUserPosts() // TODO: Implement when backend endpoint is available
 		getUserStats()
 		checkFollowingStatus()
 	}, [userId])
@@ -67,17 +67,17 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 		}
 	}
 
-	const getUserPosts = async () => {
-		try {
-			const response = await postsService.getPostsByUser(userId)
-			const posts = Array.isArray(response) ? response : response.results || []
-			setFilteredDataSource(posts)
-			setMasterDataSource(posts)
-		} catch (error: any) {
-			console.error('Error fetching user posts:', error)
-			showError(error.message || 'Failed to load user posts')
-		}
-	}
+	// const getUserPosts = async () => {
+	// 	try {
+	// 		const response = await postsService.getPostsByUser(userId)
+	// 		const posts = Array.isArray(response) ? response : response.results || []
+	// 		setFilteredDataSource(posts)
+	// 		setMasterDataSource(posts)
+	// 	} catch (error: any) {
+	// 		console.error('Error fetching user posts:', error)
+	// 		showError(error.message || 'Failed to load user posts')
+	// 	}
+	// }
 
 	const getUserStats = async () => {
 		try {
@@ -125,7 +125,7 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 	const onRefresh = async () => {
 		setRefreshing(true)
 		try {
-			await Promise.all([getUserData(), getUserPosts()])
+			await Promise.all([getUserData(), getUserStats()])
 		} catch (error) {
 			console.error('Error refreshing:', error)
 		} finally {

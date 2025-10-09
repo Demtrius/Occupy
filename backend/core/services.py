@@ -128,6 +128,8 @@ def clique_delete(*, clique: Clique) -> None:
 @transaction.atomic
 def service_create(*, provider: Occupier, clique: Clique, **fields) -> Service:
     """Create a new service."""
+    # Remove clique_id if present, since clique is passed separately
+    fields = {k: v for k, v in fields.items() if k != 'clique_id'}
     service = Service(
         provider=provider,
         clique=clique,

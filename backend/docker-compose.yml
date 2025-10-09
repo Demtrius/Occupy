@@ -16,7 +16,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file: .env
     volumes:
       - ./:/app
     ports:
@@ -24,10 +23,13 @@ services:
     depends_on:
       - db
     environment:
-      - DEBUG=${DJANGO_DEBUG:-1}
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost 127.0.0.1 [::1]}
-      - DATABASE_URL=postgres://${DATABASE_USER:-sam}:${DATABASE_PASSWORD:-chiraqmony}@db:5432/${DATABASE_NAME:-occupy7}
+      - DJANGO_DEBUG=True
+      - SECRET_KEY=django-insecure-dev-secret-key-change-this-in-production-12345abcdef
+      - ALLOWED_HOSTS=localhost,127.0.0.1,occupy-app.com,[::1]
+      - DJANGO_SETTINGS_MODULE=config.django.development
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_HOST=db
+
     command: python manage.py runserver 0.0.0.0:8000
 
 volumes:

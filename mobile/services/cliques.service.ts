@@ -8,18 +8,18 @@ import {
 } from "../types";
 
 class CliquesService {
-  /**
-   * Get all cliques
-   */
-  async getAllCliques(page: number = 1, limit: number = 20): Promise<Clique[]> {
-    try {
-      const response = await apiHelpers.get<PaginatedResponse<Clique>>("/api/v1/cliques/");
-      return response.results || [];
-    } catch (error) {
-      console.error("Get all cliques error:", error);
-      throw this.handleError(error);
-    }
-  }
+   /**
+     * Get all cliques
+     */
+   async getAllCliques(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Clique>> {
+     try {
+       const response = await apiHelpers.get<PaginatedResponse<Clique>>("/api/v1/cliques/");
+       return response;
+     } catch (error) {
+       console.error("Get all cliques error:", error);
+       throw this.handleError(error);
+     }
+   }
 
   /**
    * Get clique by ID
@@ -139,17 +139,17 @@ class CliquesService {
   /**
    * Get user's joined cliques
    */
-  async getMyCliques(): Promise<Clique[]> {
-    try {
-      const cliques = await apiHelpers.get<Clique[]>(
-        "/api/v1/cliques/my_cliques/",
-      );
-      return cliques;
-    } catch (error) {
-      console.error("Get my cliques error:", error);
-      throw this.handleError(error);
-    }
-  }
+  	async getMyCliques(): Promise<Clique[]> {
+		try {
+			const cliques = await apiHelpers.get<Clique[]>(
+				"/api/v1/cliques/me/",
+			);
+			return cliques;
+		} catch (error) {
+			console.error("Get my cliques error:", error);
+			throw this.handleError(error);
+		}
+	}
 
   /**
    * Search cliques

@@ -45,16 +45,16 @@ const FeedScreen: React.FC = () => {
 
 	const debouncedSearch = useDebounce(search, 500)
 
-	// Fetch cliques
-	const getCliques = useCallback(async () => {
-		try {
-			const data = await cliquesService.getAllCliques()
-			setCliques(data)
-		} catch (error) {
-			console.error('Error fetching cliques:', error)
-			showError('Failed to load cliques')
-		}
-	}, [])
+ 	// Fetch cliques
+ 	const getCliques = useCallback(async () => {
+ 		try {
+ 			const data = await cliquesService.getAllCliques()
+ 			setCliques(data.results || [])
+ 		} catch (error) {
+ 			console.error('Error fetching cliques:', error)
+ 			showError('Failed to load cliques')
+ 		}
+ 	}, [])
 
 	// Filter by category
 	const filterByCategory = useCallback(
