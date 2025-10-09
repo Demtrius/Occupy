@@ -217,9 +217,9 @@ class PostLikeApi(APIView):
                 {
                     "likesCount": likes_count,
                     "isLiked": True,
-                    "detail": "Post liked successfully."
+                    "detail": "Post liked successfully.",
                 },
-                status=status.HTTP_201_CREATED
+                status=status.HTTP_201_CREATED,
             )
         except ValidationError:
             likes_count = Like.objects.filter(post=post).count()
@@ -227,7 +227,7 @@ class PostLikeApi(APIView):
                 {
                     "likesCount": likes_count,
                     "isLiked": True,
-                    "detail": "You have already liked this post."
+                    "detail": "You have already liked this post.",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -241,11 +241,13 @@ class PostLikeApi(APIView):
 
         like_delete(post=post, user=request.user)
         likes_count = Like.objects.filter(post=post).count()
-        return Response({
-            "likesCount": likes_count,
-            "isLiked": False,
-            "detail": "Post unliked successfully."
-        })
+        return Response(
+            {
+                "likesCount": likes_count,
+                "isLiked": False,
+                "detail": "Post unliked successfully.",
+            }
+        )
 
 
 class PostCommentsApi(APIView):
@@ -277,7 +279,7 @@ class PostAddCommentApi(APIView):
     """
     API for adding comments to posts.
 
-    POST /api/posts/<id>/add-comment/
+    POST /api/posts/<id>/comments/add
     """
 
     tags = ["Posts"]
@@ -364,6 +366,7 @@ class PostDetailApi(APIView):
 
 # Alias for backward compatibility
 PostCreateApi = PostListApi
+
 
 # Comment APIs
 class CommentUpdateApi(APIView):

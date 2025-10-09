@@ -69,6 +69,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     posts_count = serializers.SerializerMethodField()
     cliques_count = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -88,6 +89,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "following_count",
             "posts_count",
             "cliques_count",
+            "is_following",
         ]
         read_only_fields = [
             "id",
@@ -97,6 +99,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "following_count",
             "posts_count",
             "cliques_count",
+            "is_following",
         ]
 
     def get_full_name(self, obj: User) -> str:
@@ -120,6 +123,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_cliques_count(self, obj: User) -> int:
         """Get the count of cliques the user is a member of."""
         return obj.cliques.count() if hasattr(obj, "cliques") else 0
+
+    def get_is_following(self, obj: User) -> bool:
+        """Check if the current user is following this user."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            from .models import Follow
+            return Follow.objects.filter(follower=request.user, followed=obj).exists()
+        return False
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

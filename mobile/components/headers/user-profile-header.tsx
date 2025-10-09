@@ -9,8 +9,8 @@ import {
 } from 'react-native'
 import { Searchbar as PaperSearchbar } from 'react-native-paper'
 import { Ionicons } from '@expo/vector-icons'
-import { useAuthStore } from '../store/auth.store'
-import { User } from '../types'
+import { useAuthStore } from '../../store/auth.store'
+import { User } from '../../types'
 
 const { width, height } = Dimensions.get('window')
 

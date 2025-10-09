@@ -19,69 +19,83 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   tokens: null,
   error: null,
 
-  // Initialize authentication state from storage
-  initialize: async () => {
-    try {
-      set({ isInitializing: true, error: null });
+   // Initialize authentication state from storage
+   initialize: async () => {
+     try {
+       set({ isInitializing: true, error: null });
 
-      // Get stored tokens
-      const accessToken = await tokenManager.getAccessToken();
-      const refreshToken = await tokenManager.getRefreshToken();
+       // Get stored tokens
+       const accessToken = await tokenManager.getAccessToken();
+       const refreshToken = await tokenManager.getRefreshToken();
 
-      if (!accessToken || !refreshToken) {
-        set({ isLoggedIn: false, isInitializing: false });
-        return;
-      }
+       if (!accessToken || !refreshToken) {
+         set({ isLoggedIn: false, isInitializing: false });
+         return;
+       }
 
-      // Set tokens
-      set({
-        tokens: {
-          access: accessToken,
-          refresh: refreshToken,
-        },
-      });
+       // Set tokens
+       set({
+         tokens: {
+           access: accessToken,
+           refresh: refreshToken,
+         },
+       });
 
-      // Try to get user data
-      const storedUser = await tokenManager.getUser();
+       // Verify if user is authenticated (this will refresh token if needed)
+       const isAuthenticated = await authService.isAuthenticated();
 
-      if (storedUser) {
-        set({
-          user: storedUser,
-          isLoggedIn: true,
-          isInitializing: false,
-        });
-      } else {
-        // Fetch user from API
-        const user = await authService.getCurrentUser();
-        if (user) {
-          await tokenManager.saveUser(user);
-          set({
-            user,
-            isLoggedIn: true,
-            isInitializing: false,
-          });
-        } else {
-          // Clear invalid tokens
-          await tokenManager.clearTokens();
-          set({
-            isLoggedIn: false,
-            tokens: null,
-            isInitializing: false,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Initialize auth error:", error);
-      await tokenManager.clearTokens();
-      set({
-        isLoggedIn: false,
-        user: null,
-        tokens: null,
-        isInitializing: false,
-        error: "Failed to initialize authentication",
-      });
-    }
-  },
+       if (!isAuthenticated) {
+         // Refresh failed, clear tokens
+         await tokenManager.clearTokens();
+         set({
+           isLoggedIn: false,
+           tokens: null,
+           isInitializing: false,
+         });
+         return;
+       }
+
+       // Get user data
+       const storedUser = await tokenManager.getUser();
+
+       if (storedUser) {
+         set({
+           user: storedUser,
+           isLoggedIn: true,
+           isInitializing: false,
+         });
+       } else {
+         // Fetch user from API
+         const user = await authService.getCurrentUser();
+         if (user) {
+           await tokenManager.saveUser(user);
+           set({
+             user,
+             isLoggedIn: true,
+             isInitializing: false,
+           });
+         } else {
+           // Clear invalid tokens
+           await tokenManager.clearTokens();
+           set({
+             isLoggedIn: false,
+             tokens: null,
+             isInitializing: false,
+           });
+         }
+       }
+     } catch (error) {
+       console.error("Initialize auth error:", error);
+       await tokenManager.clearTokens();
+       set({
+         isLoggedIn: false,
+         user: null,
+         tokens: null,
+         isInitializing: false,
+         error: "Failed to initialize authentication",
+       });
+     }
+   },
 
   // Login action
   login: async (credentials: LoginCredentials) => {

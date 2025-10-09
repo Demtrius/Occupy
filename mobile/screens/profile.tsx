@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import {
-	View,
 	Text,
 	StyleSheet,
 	TouchableOpacity,
-	Modal,
-	Dimensions,
 	ScrollView,
+	Dimensions,
 } from 'react-native'
 import { useAuthStore } from '../store/auth.store'
 import { showSuccess } from '../store/app.store'
 import { ScreenNavigationProp } from '../types'
-import { PrimaryButton } from '../components'
-import UserProfileHeader from '../components/user-profile-header'
+import { MenuSection, LogoutModal } from '../components'
+import { UserProfileHeader } from '../components'
 import { usersService } from '../services'
 
 const { width, height } = Dimensions.get('window')
@@ -83,58 +81,16 @@ const ProfileScreen: React.FC<ProfileProps> = ({ navigation }) => {
 				isOwnProfile={true}
 			/>
 
-			{/* Menu Section */}
-			<View style={styles.menu}>
-				<TouchableOpacity style={styles.menuItem} onPress={toggleAccountInfo}>
-					<Text style={styles.menuText}>Account info</Text>
-					<Text style={styles.menuIcon}>{showAccountInfo ? '▼' : '▶'}</Text>
-				</TouchableOpacity>
-				{showAccountInfo && (
-					<View style={styles.accountInfo}>
-						<Text style={styles.infoText}>Username: {user?.username}</Text>
-						<Text style={styles.infoText}>Email: {user?.email}</Text>
-						<Text style={styles.infoText}>
-							Occupations: {user?.occupations || 'None'}
-						</Text>
-					</View>
-				)}
-
-				<TouchableOpacity
-					style={styles.menuItem}
-					onPress={() => navigation.navigate('NotificationsTab')}
-				>
-					<Text style={styles.menuText}>Recent messages</Text>
-					<Text style={styles.menuIcon}>▶</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity style={styles.menuItem}>
-					<Text style={styles.menuText}>Recent jobs</Text>
-					<Text style={styles.menuIcon}>▶</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					style={styles.menuItem}
-					onPress={toggleAppearanceInfo}
-				>
-					<Text style={styles.menuText}>Appearance</Text>
-					<Text style={styles.menuIcon}>{showAppearanceInfo ? '▼' : '▶'}</Text>
-				</TouchableOpacity>
-				{showAppearanceInfo && (
-					<View style={styles.accountInfo}>
-						<Text style={styles.infoText}>Coming Soon</Text>
-					</View>
-				)}
-
-				<TouchableOpacity style={styles.menuItem} onPress={toggleLanguageInfo}>
-					<Text style={styles.menuText}>Language</Text>
-					<Text style={styles.menuIcon}>{showLanguageInfo ? '▼' : '▶'}</Text>
-				</TouchableOpacity>
-				{showLanguageInfo && (
-					<View style={styles.accountInfo}>
-						<Text style={styles.infoText}>Coming Soon</Text>
-					</View>
-				)}
-			</View>
+			<MenuSection
+				showAccountInfo={showAccountInfo}
+				toggleAccountInfo={toggleAccountInfo}
+				showAppearanceInfo={showAppearanceInfo}
+				toggleAppearanceInfo={toggleAppearanceInfo}
+				showLanguageInfo={showLanguageInfo}
+				toggleLanguageInfo={toggleLanguageInfo}
+				navigation={navigation}
+				user={user}
+			/>
 
 			{/* Logout Button */}
 			<TouchableOpacity
@@ -144,37 +100,11 @@ const ProfileScreen: React.FC<ProfileProps> = ({ navigation }) => {
 				<Text style={styles.logoutButtonText}>Logout</Text>
 			</TouchableOpacity>
 
-			{/* Logout Confirmation Modal */}
-			<Modal
+			<LogoutModal
 				visible={logoutModalVisible}
-				animationType='fade'
-				transparent={true}
-				onRequestClose={() => setLogoutModalVisible(false)}
-			>
-				<View style={styles.modalOverlay}>
-					<View style={styles.modalContainer}>
-						<Text style={styles.modalTitle}>Log out</Text>
-						<Text style={styles.modalMessage}>
-							Are you sure you want to log out? You'll need to log in again to
-							use the app.
-						</Text>
-						<View style={styles.modalButtons}>
-							<PrimaryButton
-								title='Cancel'
-								onPress={() => setLogoutModalVisible(false)}
-								variant='secondary'
-								style={{ flex: 1, margin: 5 }}
-							/>
-							<PrimaryButton
-								title='Log out'
-								onPress={handleLogout}
-								variant='primary'
-								style={{ flex: 1, margin: 5 }}
-							/>
-						</View>
-					</View>
-				</View>
-			</Modal>
+				onClose={() => setLogoutModalVisible(false)}
+				onLogout={handleLogout}
+			/>
 		</ScrollView>
 	)
 }

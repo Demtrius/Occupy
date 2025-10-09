@@ -21,5 +21,11 @@ export {
 // Toggle hook
 export { useToggle, default as useToggleDefault } from "./use-toggle";
 
+// Post form hook
+export { usePostForm, default as usePostFormDefault } from "./use-post-form";
+
+// Clique form hook
+export { useCliqueForm, default as useCliqueFormDefault } from "./use-clique-form";
+
 // Re-export types
 export type { ApiError } from "../types";

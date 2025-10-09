@@ -4,23 +4,18 @@ import {
 	Text,
 	StyleSheet,
 	FlatList,
-	ActivityIndicator,
-	TouchableOpacity,
 	Dimensions,
-	Image,
 	RefreshControl,
 	ScrollView,
 } from 'react-native'
-import { Searchbar as PaperSearchbar } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
-import { postsService } from '../services'
 import usersService from '../services/users.service'
 import { showError } from '@store/app.store'
-import { Post, User, ScreenNavigationProp, ScreenRouteProp } from '../types'
+import { Post, ScreenNavigationProp, ScreenRouteProp } from '../types'
 import { PostItem } from '../components'
-import UserProfileHeader from '../components/user-profile-header'
-import useAuthStore from '../store/auth.store'
+import { UserProfileHeader } from '../components'
+import { useUsersStore } from '../store'
 
 interface Props {
 	route: ScreenRouteProp<'ViewUser'>
@@ -29,82 +24,28 @@ interface Props {
 const { width, height } = Dimensions.get('window')
 
 const ViewUserScreen: React.FC<Props> = ({ route }) => {
-	const [loading, setLoading] = useState<boolean>(true)
-	const [refreshing, setRefreshing] = useState<boolean>(false)
 	const [activeTab, setActiveTab] = useState<'Posts' | 'Reviews'>('Posts')
 	const [search, setSearch] = useState<string>('')
-	const [filteredDataSource, setFilteredDataSource] = useState<Post[]>([])
-	const [masterDataSource, setMasterDataSource] = useState<Post[]>([])
 	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
-	const [userData, setUserData] = useState<User | null>(null)
-	const [isFollowing, setIsFollowing] = useState<boolean>(false)
-	const [followersCount, setFollowersCount] = useState<number>(0)
-	const [followingCount, setFollowingCount] = useState<number>(0)
 
 	const searchBarRef = useRef<any>(null)
 	const navigation = useNavigation<ScreenNavigationProp<'ViewUser'>>()
-	const { user: currentUser } = useAuthStore()
+	const { userProfile, loading, refreshing, fetchUserProfile, refreshUserProfile } = useUsersStore()
 
 	const { userId } = route.params
 
 	useEffect(() => {
-		getUserData()
-		// getUserPosts() // TODO: Implement when backend endpoint is available
-		getUserStats()
-		checkFollowingStatus()
-	}, [userId])
+		fetchUserProfile(userId)
+		// Posts will be fetched separately when needed
+	}, [userId, fetchUserProfile])
 
-	const getUserData = async () => {
-		try {
-			setLoading(true)
-			const user = await usersService.getUserById(userId)
-			setUserData(user)
-		} catch (error: any) {
-			console.error('Error fetching user:', error)
-			showError(error.message || 'Failed to load user data')
-		} finally {
-			setLoading(false)
-		}
-	}
 
-	// const getUserPosts = async () => {
-	// 	try {
-	// 		const response = await postsService.getPostsByUser(userId)
-	// 		const posts = Array.isArray(response) ? response : response.results || []
-	// 		setFilteredDataSource(posts)
-	// 		setMasterDataSource(posts)
-	// 	} catch (error: any) {
-	// 		console.error('Error fetching user posts:', error)
-	// 		showError(error.message || 'Failed to load user posts')
-	// 	}
-	// }
-
-	const getUserStats = async () => {
-		try {
-			const stats = await usersService.getUserStats(userId)
-			setFollowersCount(stats.followersCount)
-			setFollowingCount(stats.followingCount)
-		} catch (error: any) {
-			console.error('Error fetching user stats:', error)
-		}
-	}
-
-	const checkFollowingStatus = async () => {
-		if (currentUser && currentUser.id !== userId) {
-			try {
-				const following = await usersService.isFollowing(userId)
-				setIsFollowing(following)
-			} catch (error: any) {
-				console.error('Error checking following status:', error)
-			}
-		}
-	}
 
 	const handleFollow = async () => {
 		try {
 			await usersService.followUser(userId)
-			setIsFollowing(true)
-			setFollowersCount(prev => prev + 1)
+			// Refresh the user profile to get updated following status and counts
+			await refreshUserProfile()
 		} catch (error: any) {
 			console.error('Error following user:', error)
 			showError(error.message || 'Failed to follow user')
@@ -114,8 +55,8 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 	const handleUnfollow = async () => {
 		try {
 			await usersService.unfollowUser(userId)
-			setIsFollowing(false)
-			setFollowersCount(prev => prev - 1)
+			// Refresh the user profile to get updated following status and counts
+			await refreshUserProfile()
 		} catch (error: any) {
 			console.error('Error unfollowing user:', error)
 			showError(error.message || 'Failed to unfollow user')
@@ -123,32 +64,13 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 	}
 
 	const onRefresh = async () => {
-		setRefreshing(true)
-		try {
-			await Promise.all([getUserData(), getUserStats()])
-		} catch (error) {
-			console.error('Error refreshing:', error)
-		} finally {
-			setRefreshing(false)
-		}
+		await refreshUserProfile()
 	}
 
 	const searchFilterFunction = (text: string) => {
-		if (text) {
-			const newData = masterDataSource.filter(item => {
-				const captionData = item.caption ? item.caption.toUpperCase() : ''
-				const contentData = item.content ? item.content.toUpperCase() : ''
-				const textData = text.toUpperCase()
-				return (
-					captionData.indexOf(textData) > -1 ||
-					contentData.indexOf(textData) > -1
-				)
-			})
-			setFilteredDataSource(newData)
-			setSearch(text)
-		} else {
-			setFilteredDataSource(masterDataSource)
-			setSearch(text)
+		// TODO: Implement search when posts are fetched
+		setSearch(text)
+		if (!text) {
 			setShowSearchBar(false)
 		}
 	}
@@ -187,7 +109,7 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 	if (loading && !refreshing) {
 		return (
 			<FlatList
-				data={activeTab === 'Posts' ? filteredDataSource : []}
+				data={[]}
 				keyExtractor={item => item.id.toString()}
 				renderItem={renderPosts}
 				refreshControl={
@@ -197,12 +119,12 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 				ListHeaderComponent={
 					<View>
 						<UserProfileHeader
-							user={userData}
+							user={userProfile}
 							showSearchBar={true}
 							showTabs={true}
 							showFollowButton={false}
-							followersCount={followersCount}
-							followingCount={followingCount}
+							followersCount={userProfile?.followersCount || 0}
+							followingCount={userProfile?.followingCount || 0}
 							onTabPress={handleTabPress}
 							activeTab={activeTab}
 							searchValue={search}
@@ -230,13 +152,13 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 			contentContainerStyle={styles.scrollContentContainer}
 		>
 			<UserProfileHeader
-				user={userData}
+				user={userProfile}
 				showSearchBar={showSearchBar}
 				showTabs={true}
 				showFollowButton={true}
-				isFollowing={isFollowing}
-				followersCount={followersCount}
-				followingCount={followingCount}
+				isFollowing={userProfile?.isFollowing || false}
+				followersCount={userProfile?.followersCount || 0}
+				followingCount={userProfile?.followingCount || 0}
 				onSearchPress={handleSearchPress}
 				onTabPress={handleTabPress}
 				activeTab={activeTab}
@@ -252,7 +174,7 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 			/>
 			{activeTab === 'Posts' && (
 				<FlatList
-					data={filteredDataSource}
+					data={[]}
 					keyExtractor={item => item.id.toString()}
 					renderItem={renderPosts}
 					scrollEnabled={false}

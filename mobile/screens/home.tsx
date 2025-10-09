@@ -9,12 +9,11 @@ import {
 	RefreshControl,
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { FontAwesome } from '@expo/vector-icons'
 import { postsService } from '../services'
 import { showError } from '../store/app.store'
 import { useAuthStore } from '../store/auth.store'
 import type { Post, ScreenNavigationProp } from '../types'
-import { PrimaryButton, ScreenHeader, PostItem } from '../components'
+import { PrimaryButton, ScreenHeader, PostItem, EmptyState, NotLoggedInState } from '../components'
 
 const HomeScreen: React.FC = () => {
 	const navigation = useNavigation<ScreenNavigationProp<'Home'>>()
@@ -58,38 +57,11 @@ const HomeScreen: React.FC = () => {
 		}
 	}, [isLoggedIn])
 
-	// Empty state
-	const renderEmptyState = () => (
-		<View style={styles.emptyContainer}>
-			<FontAwesome name='newspaper-o' size={64} color='#ccc' />
-			<Text style={styles.emptyTitle}>No Posts Yet</Text>
-			<Text style={styles.emptyText}>
-				Follow cliques to see posts in your feed
-			</Text>
-			<PrimaryButton
-				title='Explore Cliques'
-				onPress={() => navigation.navigate('CliquesTab')}
-				style={{ marginHorizontal: 0, width: '100%', marginTop: 24 }}
-			/>
-		</View>
-	)
+
 
 	// Not logged in state
 	if (!isLoggedIn) {
-		return (
-			<View style={styles.notLoggedInContainer}>
-				<FontAwesome name='lock' size={64} color='#ccc' />
-				<Text style={styles.notLoggedInTitle}>Please Sign In</Text>
-				<Text style={styles.notLoggedInText}>
-					Sign in to see your personalized feed
-				</Text>
-				<PrimaryButton
-					title='Sign In'
-					onPress={() => navigation.navigate('SignIn')}
-					style={{ marginHorizontal: 0, width: '100%', marginTop: 24 }}
-				/>
-			</View>
-		)
+		return <NotLoggedInState />
 	}
 
 	// Loading state
@@ -109,7 +81,7 @@ const HomeScreen: React.FC = () => {
 
 			{/* Posts List */}
 			{posts.length === 0 ? (
-				renderEmptyState()
+				<EmptyState message="Follow cliques to see posts in your feed" actionText="Explore Cliques" />
 			) : (
 				<FlatList
 					data={posts}
@@ -166,12 +138,7 @@ const styles = StyleSheet.create({
 		color: '#666',
 		textAlign: 'center',
 	},
-	emptyContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		padding: 32,
-	},
+
 	emptyTitle: {
 		fontSize: 20,
 		fontWeight: '600',

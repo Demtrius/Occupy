@@ -1,24 +1,17 @@
 // import { useNavigation } from "@react-navigation/native";
 import type React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import {
 	ActivityIndicator,
 	Dimensions,
-	FlatList,
-	RefreshControl,
-	ScrollView,
 	StyleSheet,
 	Text,
-	// TouchableOpacity,
 	View,
 } from 'react-native'
-import { Button, Searchbar } from 'react-native-paper'
-import { PostItem } from '../components'
+import { CategoryFilter, PostsList, SearchBar } from '../components'
 import { useDebounce } from '../hooks'
-import { cliquesService } from '../services'
 import { usePostsStore } from '../store/posts.store'
-import { showError } from '../store/app.store'
-import type { Clique, Post } from '../types'
+import { useCliquesStore } from '../store/cliques.store'
 
 const { width, height } = Dimensions.get('window')
 
@@ -31,7 +24,6 @@ const FeedScreen: React.FC = () => {
 		loading,
 		refreshing,
 		loadingMore,
-		hasMore,
 		search,
 		category,
 		setSearch,
@@ -41,20 +33,10 @@ const FeedScreen: React.FC = () => {
 		loadMorePosts,
 	} = usePostsStore()
 
-	const [cliques, setCliques] = useState<Clique[]>([])
+	// Use cliques store
+ 	const { cliques, fetchCliques } = useCliquesStore()
 
 	const debouncedSearch = useDebounce(search, 500)
-
- 	// Fetch cliques
- 	const getCliques = useCallback(async () => {
- 		try {
- 			const data = await cliquesService.getAllCliques()
- 			setCliques(data.results || [])
- 		} catch (error) {
- 			console.error('Error fetching cliques:', error)
- 			showError('Failed to load cliques')
- 		}
- 	}, [])
 
 	// Filter by category
 	const filterByCategory = useCallback(
@@ -68,14 +50,14 @@ const FeedScreen: React.FC = () => {
 
 	// Refresh handler
 	const onRefresh = useCallback(async () => {
-		await Promise.all([getCliques(), refreshPosts()])
-	}, [getCliques, refreshPosts])
+		await Promise.all([fetchCliques(), refreshPosts()])
+	}, [fetchCliques, refreshPosts])
 
 	// Initial load
 	useEffect(() => {
-		getCliques()
+		fetchCliques()
 		fetchPosts('all', 1, false)
-	}, [getCliques, fetchPosts])
+	}, [fetchCliques, fetchPosts])
 
 	// Memoize filtered data to prevent unnecessary re-renders
 	const filteredDataSource = useMemo(() => {
@@ -90,9 +72,7 @@ const FeedScreen: React.FC = () => {
 		}
 
 		// Remove duplicates based on post ID (shouldn't be necessary but keeping for safety)
-		return filtered.filter(
-			(item, index, self) => self.findIndex(p => p.id === item.id) === index
-		)
+		return filtered
 	}, [posts, debouncedSearch])
 
 	// Navigate to messages (commented out)
@@ -152,42 +132,13 @@ const FeedScreen: React.FC = () => {
 
 	return (
 		<View style={styles.container}>
-			<Searchbar
-				style={styles.searchBar}
-				placeholder='Search'
-				value={search}
-				onChangeText={setSearch}
-			/>
+			<SearchBar value={search} onChangeText={setSearch} />
 
-			<View style={styles.categoryContainer}>
-				<ScrollView
-					horizontal={true}
-					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={styles.scrollViewContent}
-				>
-					<Button
-						mode={category === 'all' ? 'contained' : 'outlined'}
-						onPress={() => filterByCategory('all')}
-						color='#6ba32d'
-						contentStyle={styles.buttonContent}
-						style={styles.button}
-					>
-						All
-					</Button>
-					{cliques.map(clique => (
-						<Button
-							key={clique.id}
-							mode={category === clique.id ? 'contained' : 'outlined'}
-							onPress={() => filterByCategory(clique.id)}
-							color='#6ba32d'
-							contentStyle={styles.buttonContent}
-							style={styles.button}
-						>
-							{clique.name}
-						</Button>
-					))}
-				</ScrollView>
-			</View>
+			<CategoryFilter
+				cliques={cliques}
+				category={category}
+				onFilter={filterByCategory}
+			/>
 
 			<Text
 				style={[
@@ -202,31 +153,13 @@ const FeedScreen: React.FC = () => {
 				Posts for you
 			</Text>
 
-			<View style={{ paddingHorizontal: 8 }}>
-				{filteredDataSource.length === 0 ? (
-					<Text style={styles.noPostsText}>No posts available</Text>
-				) : (
-					<FlatList
-						data={filteredDataSource}
-						keyExtractor={item => item.id.toString()}
-						renderItem={({ item }) => <PostItem post={item} />}
-						refreshControl={
-							<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-						}
-						style={{ flexGrow: 0 }}
-						onEndReached={loadMorePosts}
-						onEndReachedThreshold={0.5}
-						ListFooterComponent={
-							loadingMore ? (
-								<View style={styles.loadingFooter}>
-									<ActivityIndicator size='small' color='#6ba32d' />
-									<Text style={styles.loadingText}>Loading more...</Text>
-								</View>
-							) : null
-						}
-					/>
-				)}
-			</View>
+			<PostsList
+				posts={filteredDataSource}
+				refreshing={refreshing}
+				onRefresh={onRefresh}
+				onLoadMore={loadMorePosts}
+				loadingMore={loadingMore}
+			/>
 
 			{/* Near you section commented out */}
 			{/* <View style={styles.nearYouSection}>
@@ -265,44 +198,11 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: 'white',
 	},
-	searchBar: {
-		marginHorizontal: width * 0.04,
-		borderRadius: 20,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
-		elevation: 3,
-	},
-	categoryContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-around',
-		marginVertical: height * 0.01,
-		paddingHorizontal: width * 0.01,
-	},
-	scrollViewContent: {
-		paddingHorizontal: width * 0.04,
-	},
-	button: {
-		borderRadius: 20,
-		paddingHorizontal: 0,
-		marginRight: 10,
-	},
-	buttonContent: {
-		paddingVertical: 0,
-		paddingHorizontal: 0,
-	},
 	sectionTitle: {
 		fontSize: 18,
 		fontWeight: '600',
 		color: '#1F2937',
 		marginBottom: 1,
-	},
-	noPostsText: {
-		textAlign: 'center',
-		fontSize: 16,
-		color: '#888',
-		marginTop: 20,
 	},
 	nearYouSection: {
 		position: 'absolute',
@@ -373,17 +273,6 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		color: '#6ba32d',
 		fontWeight: '600',
-	},
-	loadingFooter: {
-		flexDirection: 'row',
-		justifyContent: 'center',
-		alignItems: 'center',
-		paddingVertical: 16,
-	},
-	loadingText: {
-		marginLeft: 8,
-		fontSize: 14,
-		color: '#6B7280',
 	},
 })
 

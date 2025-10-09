@@ -2,8 +2,8 @@ import { Entypo, FontAwesome } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import type React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import type { Post, ScreenNavigationProp } from '../types'
-import useAuthStore from '../store/auth.store'
+import type { Post, ScreenNavigationProp } from '../../types'
+import useAuthStore from '../../store/auth.store'
 
 type IconName = 'heart' | 'heart-o' | 'comment-o'
 

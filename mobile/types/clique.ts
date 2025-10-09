@@ -22,4 +22,6 @@ export interface CreateCliqueData {
 	name: string
 	description?: string
 	image?: string
+	level?: string
+	occupation?: string
 }

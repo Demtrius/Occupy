@@ -28,5 +28,8 @@ export { useServicesStore, default as servicesStore } from "./services.store";
 // Availability store
 export { useAvailabilityStore, default as availabilityStore } from "./availability.store";
 
+// Users store
+export { useUsersStore, default as usersStore } from "./users.store";
+
 // Re-export store types
 export type { AppNotification } from "../types/store";
