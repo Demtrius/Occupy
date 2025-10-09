@@ -9,6 +9,23 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from django.db import connection
+
+@api_view(['GET'])
+def health_check(request):
+    """
+    Health check endpoint that verifies database connectivity.
+    """
+    try:
+        # Check database connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        return Response({"status": "ok", "database": "connected"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"status": "error", "database": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -40,4 +57,6 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
+    # Health check
+    path("api/health/", health_check, name="health_check"),
 ]
