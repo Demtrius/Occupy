@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { ApiError } from "../types";
 
 interface UsePaginationReturn<T> {
@@ -95,16 +95,19 @@ export function usePagination<T>(
     setIsLoading(false);
   }, []);
 
-  return {
-    data,
-    page,
-    isLoading,
-    hasMore,
-    error,
-    loadMore,
-    refresh,
-    reset,
-  };
+  return useMemo(
+    () => ({
+      data,
+      page,
+      isLoading,
+      hasMore,
+      error,
+      loadMore,
+      refresh,
+      reset,
+    }),
+    [data, page, isLoading, hasMore, error, loadMore, refresh, reset],
+  );
 }
 
 export default usePagination;

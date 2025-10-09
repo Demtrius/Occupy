@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 interface UseFormReturn<T> {
   values: T;
@@ -135,21 +135,38 @@ export function useForm<T extends Record<string, any>>(
     setTouched((prev) => ({ ...prev, [name]: touched }));
   }, []);
 
-  return {
-    values,
-    errors,
-    touched,
-    isSubmitting,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    reset,
-    setValues,
-    setErrors,
-    setFieldValue,
-    setFieldError,
-    setFieldTouched,
-  };
+  return useMemo(
+    () => ({
+      values,
+      errors,
+      touched,
+      isSubmitting,
+      handleChange,
+      handleBlur,
+      handleSubmit,
+      reset,
+      setValues,
+      setErrors,
+      setFieldValue,
+      setFieldError,
+      setFieldTouched,
+    }),
+    [
+      values,
+      errors,
+      touched,
+      isSubmitting,
+      handleChange,
+      handleBlur,
+      handleSubmit,
+      reset,
+      setValues,
+      setErrors,
+      setFieldValue,
+      setFieldError,
+      setFieldTouched,
+    ],
+  );
 }
 
 export default useForm;

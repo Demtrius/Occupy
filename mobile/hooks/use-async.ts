@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { ApiError } from "../types";
 
 interface UseAsyncReturn<T> {
@@ -61,17 +61,20 @@ export function useAsync<T>(
     setError(null);
   }, []);
 
-  return {
-    execute,
-    status,
-    data,
-    error,
-    isLoading: status === "pending",
-    isSuccess: status === "success",
-    isError: status === "error",
-    isIdle: status === "idle",
-    reset,
-  };
+  return useMemo(
+    () => ({
+      execute,
+      status,
+      data,
+      error,
+      isLoading: status === "pending",
+      isSuccess: status === "success",
+      isError: status === "error",
+      isIdle: status === "idle",
+      reset,
+    }),
+    [execute, status, data, error, reset],
+  );
 }
 
 export default useAsync;
