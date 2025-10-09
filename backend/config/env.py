@@ -1,3 +1,4 @@
+import os
 import environ
 from django.core.exceptions import ImproperlyConfigured
 
@@ -5,6 +6,8 @@ env = environ.Env()
 
 BASE_DIR = environ.Path(__file__) - 2
 APPS_DIR = BASE_DIR.path("backend")
+
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 
 def env_to_enum(enum_cls, value):

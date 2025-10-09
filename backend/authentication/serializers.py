@@ -141,15 +141,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         Returns:
             Occupier: The newly created user instance
         """
-        # Extract is_business_page flag if present
+        # Extract fields that are not part of the user model
         is_business_page = validated_data.pop("is_business_page", False)
         occupations_data = validated_data.pop("occupations", "")
+        password = validated_data.pop("password", None)
 
         # Create user with appropriate method
         if is_business_page:
-            user = Occupier.objects.create_business_page(**validated_data, occupations=occupations_data)
+            user = Occupier.objects.create_business_page(
+                occupations=occupations_data, 
+                password=password,
+                **validated_data
+            )
         else:
-            user = Occupier.objects.create_user(**validated_data, occupations=occupations_data)
+            user = Occupier.objects.create_user(
+                occupations=occupations_data,
+                password=password,
+                **validated_data
+            )
 
         return user
 

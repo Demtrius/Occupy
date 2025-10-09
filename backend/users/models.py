@@ -262,7 +262,7 @@ class Occupier(AbstractBaseUser, PermissionsMixin, BaseModel):
 
     # Django authentication settings
     USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email", "occupations", "password"]
+    REQUIRED_FIELDS = ["email", "occupations"]
 
     class Meta(BaseModel.Meta):
         verbose_name = "Occupier"

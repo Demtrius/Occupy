@@ -291,7 +291,7 @@ class UsersService {
 	async getOccupations(): Promise<Occupation[]> {
 		try {
 			const occupations = await apiHelpers.get<Occupation[]>(
-				'/api/users/occupations/'
+				'/api/v1/users/occupations/'
 			)
 			return occupations
 		} catch (error) {
@@ -306,7 +306,7 @@ class UsersService {
 	async searchOccupations(query: string): Promise<Occupation[]> {
 		try {
 			const occupations = await apiHelpers.get<Occupation[]>(
-				`/api/users/search_occupations/?q=${encodeURIComponent(query)}`
+				`/api/v1/users/search_occupations/?q=${encodeURIComponent(query)}`
 			)
 			return occupations
 		} catch (error) {

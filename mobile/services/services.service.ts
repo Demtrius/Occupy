@@ -22,7 +22,7 @@ class ServicesService {
 		isActive?: boolean
 	): Promise<Service[]> {
 		try {
-			let url = '/api/services/'
+			let url = '/api/v1/services/'
 			const params = new URLSearchParams()
 
 			if (cliqueId) params.append('clique_id', cliqueId.toString())

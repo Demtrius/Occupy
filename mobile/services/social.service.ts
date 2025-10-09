@@ -30,7 +30,7 @@ class SocialService {
 			const response = await apiHelpers.post<{
 				likesCount: number
 				isLiked: boolean
-			}>(`/api/posts/${postId}/like/`)
+			}>(`/api/v1/posts/${postId}/like/`)
 			return response
 		} catch (error) {
 			console.error('Like post error:', error)
@@ -48,7 +48,7 @@ class SocialService {
 			const response = await apiHelpers.delete<{
 				likesCount: number
 				isLiked: boolean
-			}>(`/api/posts/${postId}/unlike/`)
+			}>(`/api/v1/posts/${postId}/unlike/`)
 			return response
 		} catch (error) {
 			console.error('Unlike post error:', error)
@@ -61,7 +61,7 @@ class SocialService {
 	 */
 	async getPostLikes(postId: number): Promise<Like[]> {
 		try {
-			const likes = await apiHelpers.get<Like[]>(`/api/posts/${postId}/likes/`)
+			const likes = await apiHelpers.get<Like[]>(`/api/v1/posts/${postId}/likes/`)
 			return likes
 		} catch (error) {
 			console.error('Get post likes error:', error)
@@ -75,7 +75,7 @@ class SocialService {
 	async isPostLiked(postId: number): Promise<boolean> {
 		try {
 			const response = await apiHelpers.get<{ isLiked: boolean }>(
-				`/api/posts/${postId}/is-liked/`
+				`/api/v1/posts/${postId}/is-liked/`
 			)
 			return response.isLiked
 		} catch (error) {
@@ -92,7 +92,7 @@ class SocialService {
 	async getPostComments(postId: number): Promise<Comment[]> {
 		try {
 			const comments = await apiHelpers.get<Comment[]>(
-				`/api/posts/${postId}/comments/`
+				`/api/v1/posts/${postId}/comments/`
 			)
 			return comments
 		} catch (error) {
@@ -111,7 +111,7 @@ class SocialService {
 			const payload = { content: rest.content }
 
 			const comment = await apiHelpers.post<Comment>(
-				`/api/posts/${postId}/add-comment/`,
+				`/api/v1/posts/${postId}/add-comment/`,
 				payload
 			)
 			return comment

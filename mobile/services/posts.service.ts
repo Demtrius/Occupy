@@ -199,7 +199,7 @@ class PostsService {
 	 */
 	async reportPost(postId: number, reason: string): Promise<void> {
 		try {
-			await apiHelpers.post(`/api/posts/${postId}/report/`, { reason })
+			await apiHelpers.post(`/api/v1/posts/${postId}/report/`, { reason })
 		} catch (error) {
 			console.error('Report post error:', error)
 			throw this.handleError(error)

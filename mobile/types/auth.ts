@@ -12,7 +12,8 @@ export interface AuthTokens {
  * Login credentials - can use email or username
  */
 export interface LoginCredentials {
-  email: string;
+  email?: string;
+  username?: string;
   password: string;
 }
 

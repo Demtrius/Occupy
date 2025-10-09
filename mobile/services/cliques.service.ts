@@ -13,7 +13,7 @@ class CliquesService {
    */
   async getAllCliques(page: number = 1, limit: number = 20): Promise<Clique[]> {
     try {
-      const response = await apiHelpers.get<PaginatedResponse<Clique>>("/api/cliques/");
+      const response = await apiHelpers.get<PaginatedResponse<Clique>>("/api/v1/cliques/");
       return response.results || [];
     } catch (error) {
       console.error("Get all cliques error:", error);
@@ -26,7 +26,7 @@ class CliquesService {
    */
   async getCliqueById(cliqueId: number): Promise<Clique> {
     try {
-      const clique = await apiHelpers.get<Clique>(`/api/cliques/${cliqueId}/`);
+      const clique = await apiHelpers.get<Clique>(`/api/v1/cliques/${cliqueId}/`);
       return clique;
     } catch (error) {
       console.error("Get clique by ID error:", error);
@@ -39,7 +39,7 @@ class CliquesService {
    */
   async createClique(data: CreateCliqueData): Promise<Clique> {
     try {
-      const clique = await apiHelpers.post<Clique>("/api/cliques/", data);
+      const clique = await apiHelpers.post<Clique>("/api/v1/cliques/", data);
       return clique;
     } catch (error) {
       console.error("Create clique error:", error);
@@ -56,7 +56,7 @@ class CliquesService {
   ): Promise<Clique> {
     try {
       const clique = await apiHelpers.patch<Clique>(
-        `/api/cliques/${cliqueId}/`,
+        `/api/v1/cliques/${cliqueId}/`,
         data,
       );
       return clique;
@@ -71,7 +71,7 @@ class CliquesService {
    */
   async deleteClique(cliqueId: number): Promise<void> {
     try {
-      await apiHelpers.delete(`/api/cliques/${cliqueId}/`);
+      await apiHelpers.delete(`/api/v1/cliques/${cliqueId}/`);
     } catch (error) {
       console.error("Delete clique error:", error);
       throw this.handleError(error);
@@ -84,7 +84,7 @@ class CliquesService {
   async getCliquePosts(cliqueId: number): Promise<any[]> {
     try {
       const response = await apiHelpers.get<any[]>(
-        `/api/cliques/${cliqueId}/posts/`,
+        `/api/v1/cliques/${cliqueId}/posts/`,
       );
       return response;
     } catch (error) {
@@ -98,7 +98,7 @@ class CliquesService {
    */
   async joinClique(cliqueId: number): Promise<void> {
     try {
-      await apiHelpers.post(`/api/cliques/${cliqueId}/join/`, {});
+      await apiHelpers.post(`/api/v1/cliques/${cliqueId}/join/`, {});
     } catch (error) {
       console.error("Join clique error:", error);
       throw this.handleError(error);
@@ -110,7 +110,7 @@ class CliquesService {
    */
   async leaveClique(cliqueId: number): Promise<void> {
     try {
-      await apiHelpers.post(`/api/cliques/${cliqueId}/leave/`, {});
+      await apiHelpers.post(`/api/v1/cliques/${cliqueId}/leave/`, {});
     } catch (error) {
       console.error("Leave clique error:", error);
       throw this.handleError(error);
@@ -127,7 +127,7 @@ class CliquesService {
   ): Promise<User[]> {
     try {
       const members = await apiHelpers.get<User[]>(
-        `/api/cliques/${cliqueId}/members/?page=${page}&limit=${limit}`,
+        `/api/v1/cliques/${cliqueId}/members/?page=${page}&limit=${limit}`,
       );
       return members;
     } catch (error) {
@@ -142,7 +142,7 @@ class CliquesService {
   async getMyCliques(): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        "/api/cliques/my_cliques/",
+        "/api/v1/cliques/my_cliques/",
       );
       return cliques;
     } catch (error) {
@@ -161,7 +161,7 @@ class CliquesService {
   ): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`,
+        `/api/v1/cliques/?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`,
       );
       return cliques;
     } catch (error) {
@@ -176,7 +176,7 @@ class CliquesService {
   async getPopularCliques(limit: number = 10): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/?ordering=-members_count&limit=${limit}`,
+        `/api/v1/cliques/?ordering=-members_count&limit=${limit}`,
       );
       return cliques;
     } catch (error) {
@@ -191,7 +191,7 @@ class CliquesService {
   async getRecommendedCliques(limit: number = 10): Promise<Clique[]> {
     try {
       const cliques = await apiHelpers.get<Clique[]>(
-        `/api/cliques/?limit=${limit}`,
+        `/api/v1/cliques/?limit=${limit}`,
       );
       return cliques;
     } catch (error) {

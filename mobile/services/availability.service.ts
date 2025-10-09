@@ -23,7 +23,7 @@ class AvailabilityService {
 		endDate?: string
 	): Promise<Availability[]> {
 		try {
-			let url = '/api/availability/'
+			let url = '/api/v1/availability/'
 			const params = new URLSearchParams()
 
 			if (cliqueId) params.append('clique_id', cliqueId.toString())
