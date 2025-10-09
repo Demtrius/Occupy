@@ -3,6 +3,12 @@
 		"version": ">= 3.0.0"
 	},
 	"build": {
+		"simulator": {
+			"distribution": "internal",
+			"ios": {
+				"simulator": true
+			}
+		},
 		"develop": {
 			"developmentClient": false,
 			"distribution": "internal",
@@ -22,19 +28,19 @@
 			},
 			"cache": {
 				"key": "v1.0.1"
+			},
+			"env": {
+				"EXPO_PUBLIC_BACKEND_URL": "https://www.occupy-app.com",
+				"EXPO_PUBLIC_ENV": "production",
+				"EXPO_PUBLIC_DEBUG": "false",
+				"EXPO_PUBLIC_API_TIMEOUT": "15000"
 			}
 		}
 	},
 	"submit": {
 		"production": {
 			"ios": {
-				"appleId": "samihuomaoccupy@gmail.com",
-				"env": {
-					"EXPO_PUBLIC_BACKEND_URL": "https://www.occupy-app.com",
-					"EXPO_PUBLIC_ENV": "development",
-					"EXPO_PUBLIC_DEBUG": true,
-					"EXPO_PUBLIC_API_TIMEOUT": 15000
-				}
+				"appleId": "samihuomaoccupy@gmail.com"
 			}
 		}
 	}

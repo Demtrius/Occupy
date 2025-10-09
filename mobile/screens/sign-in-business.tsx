@@ -135,7 +135,7 @@ const SignInBusinessScreen: React.FC<SignInBusinessProps> = ({
 										setFormErrors({ ...formErrors, email: undefined })
 									}
 								}}
-								placeholder='Email Address'
+								placeholder='Username'
 								placeholderTextColor='#888'
 								style={[styles.input, formErrors.email && styles.inputError]}
 								autoCapitalize='none'

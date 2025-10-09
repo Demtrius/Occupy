@@ -1,5 +1,5 @@
-import { useAuthStore } from "@store/auth.store";
-import type React from "react";
+import { useAuthStore } from '@store/auth.store'
+import type React from 'react'
 import {
 	Keyboard,
 	KeyboardAvoidingView,
@@ -9,15 +9,15 @@ import {
 	Text,
 	TouchableWithoutFeedback,
 	View,
-} from "react-native";
-import { InfoBox, PostForm, PrimaryButton, ScreenHeader } from "../components";
-import { usePostForm } from "../hooks";
-import { Colors, CommonStyles, Spacing, Typography } from "../theme";
+} from 'react-native'
+import { InfoBox, PostForm, PrimaryButton, ScreenHeader } from '../components'
+import { usePostForm } from '../hooks'
+import { Colors, CommonStyles, Spacing, Typography } from '../theme'
 
-type Language = "ALL" | "ENGLISH" | "DUTCH" | "GERMAN";
+type Language = 'ALL' | 'ENGLISH' | 'DUTCH' | 'GERMAN'
 
 const PostCreateScreen: React.FC = () => {
-	const { isLoggedIn } = useAuthStore();
+	const { isLoggedIn } = useAuthStore()
 
 	const {
 		values,
@@ -26,33 +26,35 @@ const PostCreateScreen: React.FC = () => {
 		handleSubmit,
 		isSubmitting,
 		cliqueOptions,
-	} = usePostForm();
+	} = usePostForm()
+
+	console.log(values)
 
 	if (!isLoggedIn) {
 		return (
 			<View style={CommonStyles.container}>
 				<View style={CommonStyles.centered}>
-					<InfoBox variant="warning">
+					<InfoBox variant='warning'>
 						<Text style={styles.notLoggedInText}>
 							Please log in to create a post
 						</Text>
 					</InfoBox>
 				</View>
 			</View>
-		);
+		)
 	}
 
 	return (
 		<KeyboardAvoidingView
 			style={CommonStyles.container}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 		>
-			<ScreenHeader title="Create Post" showBackButton={false} />
+			<ScreenHeader title='Create Post' showBackButton={false} />
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<ScrollView
 					style={styles.scrollView}
 					contentContainerStyle={styles.scrollContent}
-					keyboardShouldPersistTaps="handled"
+					keyboardShouldPersistTaps='handled'
 					showsVerticalScrollIndicator={false}
 				>
 					<View style={styles.content}>
@@ -65,7 +67,7 @@ const PostCreateScreen: React.FC = () => {
 
 						{/* Create Button */}
 						<PrimaryButton
-							title="Create Post"
+							title='Create Post'
 							onPress={handleSubmit}
 							disabled={isSubmitting}
 							loading={isSubmitting}
@@ -75,8 +77,8 @@ const PostCreateScreen: React.FC = () => {
 				</ScrollView>
 			</TouchableWithoutFeedback>
 		</KeyboardAvoidingView>
-	);
-};
+	)
+}
 
 const styles = StyleSheet.create({
 	scrollView: {
@@ -107,9 +109,9 @@ const styles = StyleSheet.create({
 		maxHeight: 200,
 	},
 	loadingContainer: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
 		padding: Spacing.xl,
 	},
 	loadingText: {
@@ -120,13 +122,13 @@ const styles = StyleSheet.create({
 	notLoggedInText: {
 		...Typography.body,
 		color: Colors.textPrimary,
-		textAlign: "center",
+		textAlign: 'center',
 	},
 	errorText: {
 		...Typography.caption,
 		color: Colors.error,
 		marginTop: Spacing.xs,
 	},
-});
+})
 
-export default PostCreateScreen;
+export default PostCreateScreen

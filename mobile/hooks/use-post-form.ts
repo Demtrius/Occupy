@@ -41,7 +41,7 @@ export function usePostForm() {
 				const postData: CreatePostData = {
 					content: values.content.trim() || values.caption.trim(),
 					caption: values.caption.trim(),
-					clique_id: values.selectedCliqueId,
+					cliqueId: values.selectedCliqueId!,
 				}
 				await postsService.createPost(postData)
 				showSuccess('Post created successfully')

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { FormInput } from '../ui/form-input'
@@ -27,11 +27,6 @@ const PostForm: React.FC<PostFormProps> = ({
 	cliqueOptions,
 }) => {
 	const [open, setOpen] = useState<boolean>(false)
-	const [selectedCliqueId, setSelectedCliqueId] = useState(values.selectedCliqueId)
-
-	useEffect(() => {
-		setSelectedCliqueId(values.selectedCliqueId)
-	}, [values.selectedCliqueId])
 
 	const languageOptions: Option[] = [
 		{ value: 'ALL', label: 'All' },
@@ -88,14 +83,12 @@ const PostForm: React.FC<PostFormProps> = ({
 				<FormLabel>Choose a Clique</FormLabel>
 				<DropDownPicker
 					open={open}
-					value={selectedCliqueId}
+					value={values.selectedCliqueId}
 					items={cliqueOptions}
 					setOpen={setOpen}
-					setValue={(value) => {
-						setSelectedCliqueId(value)
-						handleChange('selectedCliqueId', value)
-					}}
-					setItems={() => {}} // Not needed since options come from props
+					setValue={() => {}}
+					setItems={() => {}}
+					onSelectItem={item => handleChange('selectedCliqueId', item.value)}
 					style={styles.dropdown}
 					placeholder='Select a clique to post in'
 					dropDownContainerStyle={styles.dropdownContainer}

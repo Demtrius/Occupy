@@ -135,7 +135,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 
 					{/* Email Input */}
 					<View style={styles.inputGroup}>
-						<FormLabel>Email</FormLabel>
+						<FormLabel>Username</FormLabel>
 						<FormInput
 							value={emailOrUsername}
 							onChangeText={text => {
@@ -144,7 +144,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 									setFormErrors({ ...formErrors, email: undefined })
 								}
 							}}
-							placeholder='Enter your email'
+							placeholder='Enter your username'
 							autoCapitalize='none'
 							keyboardType='email-address'
 							textContentType='emailAddress'
