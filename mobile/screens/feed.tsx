@@ -1,19 +1,19 @@
 // import { useNavigation } from "@react-navigation/native";
-import type React from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import type React from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
 	ActivityIndicator,
 	Dimensions,
 	StyleSheet,
 	Text,
 	View,
-} from 'react-native'
-import { CategoryFilter, PostsList, SearchBar } from '../components'
-import { useDebounce } from '../hooks'
-import { usePostsStore } from '../store/posts.store'
-import { useCliquesStore } from '../store/cliques.store'
+} from "react-native";
+import { CategoryFilter, PostsList, SearchBar } from "../components";
+import { useDebounce } from "../hooks";
+import { usePostsStore } from "../store/posts.store";
+import { useCliquesStore } from "../store/cliques.store";
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get("window");
 
 const FeedScreen: React.FC = () => {
 	// const navigation = useNavigation<ScreenNavigationProp<"Feed">>();
@@ -31,49 +31,49 @@ const FeedScreen: React.FC = () => {
 		fetchPosts,
 		refreshPosts,
 		loadMorePosts,
-	} = usePostsStore()
+	} = usePostsStore();
 
 	// Use cliques store
- 	const { cliques, fetchCliques } = useCliquesStore()
+	const { cliques, fetchCliques } = useCliquesStore();
 
-	const debouncedSearch = useDebounce(search, 500)
+	const debouncedSearch = useDebounce(search, 500);
 
 	// Filter by category
 	const filterByCategory = useCallback(
-		(selectedCategory: number | 'all') => {
-			setCategory(selectedCategory)
+		(selectedCategory: number | "all") => {
+			setCategory(selectedCategory);
 			// Fetch posts for the new category
-			fetchPosts(selectedCategory, 1, false)
+			fetchPosts(selectedCategory, 1, false);
 		},
-		[fetchPosts, setCategory]
-	)
+		[fetchPosts, setCategory],
+	);
 
 	// Refresh handler
 	const onRefresh = useCallback(async () => {
-		await Promise.all([fetchCliques(), refreshPosts()])
-	}, [fetchCliques, refreshPosts])
+		await Promise.all([fetchCliques(), refreshPosts()]);
+	}, [fetchCliques, refreshPosts]);
 
 	// Initial load
 	useEffect(() => {
-		fetchCliques()
-		fetchPosts('all', 1, false)
-	}, [fetchCliques, fetchPosts])
+		fetchCliques();
+		fetchPosts("all", 1, false);
+	}, [fetchCliques, fetchPosts]);
 
 	// Memoize filtered data to prevent unnecessary re-renders
 	const filteredDataSource = useMemo(() => {
-		let filtered = posts
+		let filtered = posts;
 
 		// Apply search filter if active
 		if (debouncedSearch) {
-			filtered = filtered.filter(item => {
-				const itemData = item.caption ? item.caption.toUpperCase() : ''
-				return itemData.includes(debouncedSearch.toUpperCase())
-			})
+			filtered = filtered.filter((item) => {
+				const itemData = item.caption ? item.caption.toUpperCase() : "";
+				return itemData.includes(debouncedSearch.toUpperCase());
+			});
 		}
 
 		// Remove duplicates based on post ID (shouldn't be necessary but keeping for safety)
-		return filtered
-	}, [posts, debouncedSearch])
+		return filtered;
+	}, [posts, debouncedSearch]);
 
 	// Navigate to messages (commented out)
 	// const navigateToMessages = (userId: number) => {
@@ -125,9 +125,9 @@ const FeedScreen: React.FC = () => {
 	if (loading) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size='large' color='#6ba32d' />
+				<ActivityIndicator size="large" color="#6ba32d" />
 			</View>
-		)
+		);
 	}
 
 	return (
@@ -182,33 +182,33 @@ const FeedScreen: React.FC = () => {
         />
       </View> */}
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: 'white',
+		backgroundColor: "white",
 		paddingTop: height * 0.08,
 		paddingBottom: height * 0.16,
 	},
 	loadingContainer: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'white',
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "white",
 	},
 	sectionTitle: {
 		fontSize: 18,
-		fontWeight: '600',
-		color: '#1F2937',
+		fontWeight: "600",
+		color: "#1F2937",
 		marginBottom: 1,
 	},
 	nearYouSection: {
-		position: 'absolute',
+		position: "absolute",
 		bottom: 0,
-		width: '100%',
-		backgroundColor: 'white',
+		width: "100%",
+		backgroundColor: "white",
 		paddingBottom: 20,
 	},
 	nearYouContainer: {
@@ -218,9 +218,9 @@ const styles = StyleSheet.create({
 		maxHeight: 200,
 	},
 	nearYouCard: {
-		backgroundColor: '#FFFFFF',
+		backgroundColor: "#FFFFFF",
 		borderRadius: 12,
-		shadowColor: '#000',
+		shadowColor: "#000",
 		shadowOpacity: 0.1,
 		shadowOffset: { width: 0, height: 2 },
 		shadowRadius: 4,
@@ -230,50 +230,50 @@ const styles = StyleSheet.create({
 		padding: 16,
 	},
 	cardHeader: {
-		position: 'relative',
+		position: "relative",
 	},
 	cardImage: {
-		width: '100%',
+		width: "100%",
 		height: 80,
 		borderRadius: 8,
 		marginBottom: 8,
-		backgroundColor: '#E5E7EB',
+		backgroundColor: "#E5E7EB",
 	},
 	dateBadge: {
-		position: 'absolute',
+		position: "absolute",
 		top: 8,
 		right: 8,
-		backgroundColor: '#6ba32d',
-		color: '#FFFFFF',
+		backgroundColor: "#6ba32d",
+		color: "#FFFFFF",
 		fontSize: 10,
-		fontWeight: '600',
+		fontWeight: "600",
 		paddingVertical: 2,
 		paddingHorizontal: 6,
 		borderRadius: 4,
 	},
 	cardTitle: {
 		fontSize: 14,
-		fontWeight: '600',
-		color: '#1F2937',
+		fontWeight: "600",
+		color: "#1F2937",
 		marginBottom: 4,
 	},
 	cardSubtitle: {
 		fontSize: 12,
-		color: '#6B7280',
+		color: "#6B7280",
 		marginBottom: 12,
 	},
 	contactButton: {
 		borderWidth: 1,
-		borderColor: '#6ba32d',
+		borderColor: "#6ba32d",
 		borderRadius: 8,
 		paddingVertical: 6,
-		alignItems: 'center',
+		alignItems: "center",
 	},
 	contactButtonText: {
 		fontSize: 14,
-		color: '#6ba32d',
-		fontWeight: '600',
+		color: "#6ba32d",
+		fontWeight: "600",
 	},
-})
+});
 
-export default FeedScreen
+export default FeedScreen;

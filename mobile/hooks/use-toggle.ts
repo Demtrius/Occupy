@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 
 interface UseToggleReturn {
-  value: boolean;
-  toggle: () => void;
-  setTrue: () => void;
-  setFalse: () => void;
-  setValue: (value: boolean) => void;
+	value: boolean;
+	toggle: () => void;
+	setTrue: () => void;
+	setFalse: () => void;
+	setValue: (value: boolean) => void;
 }
 
 /**
@@ -31,27 +31,27 @@ interface UseToggleReturn {
  * <Modal visible={modal.value} onClose={modal.setFalse} />
  */
 export function useToggle(initialValue: boolean = false): UseToggleReturn {
-  const [value, setValue] = useState(initialValue);
+	const [value, setValue] = useState(initialValue);
 
-  const toggle = useCallback(() => {
-    setValue((prev) => !prev);
-  }, []);
+	const toggle = useCallback(() => {
+		setValue((prev) => !prev);
+	}, []);
 
-  const setTrue = useCallback(() => {
-    setValue(true);
-  }, []);
+	const setTrue = useCallback(() => {
+		setValue(true);
+	}, []);
 
-  const setFalse = useCallback(() => {
-    setValue(false);
-  }, []);
+	const setFalse = useCallback(() => {
+		setValue(false);
+	}, []);
 
-  return {
-    value,
-    toggle,
-    setTrue,
-    setFalse,
-    setValue,
-  };
+	return {
+		value,
+		toggle,
+		setTrue,
+		setFalse,
+		setValue,
+	};
 }
 
 export default useToggle;

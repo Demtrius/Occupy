@@ -4,7 +4,7 @@
  * Service for managing likes, comments, and reviews
  */
 
-import { apiHelpers } from './api'
+import { apiHelpers } from "./api";
 import {
 	Like,
 	CreateLikeData,
@@ -15,7 +15,7 @@ import {
 	CreateReviewData,
 	UpdateReviewData,
 	ApiError,
-} from '../types'
+} from "../types";
 
 class SocialService {
 	// ==================== LIKES ====================
@@ -24,17 +24,17 @@ class SocialService {
 	 * Like a post
 	 */
 	async likePost(
-		postId: number
+		postId: number,
 	): Promise<{ likesCount: number; isLiked: boolean }> {
 		try {
 			const response = await apiHelpers.post<{
-				likesCount: number
-				isLiked: boolean
-			}>(`/api/v1/posts/${postId}/like/`)
-			return response
+				likesCount: number;
+				isLiked: boolean;
+			}>(`/api/v1/posts/${postId}/like/`);
+			return response;
 		} catch (error) {
-			console.error('Like post error:', error)
-			throw this.handleError(error)
+			console.error("Like post error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -42,17 +42,17 @@ class SocialService {
 	 * Unlike a post
 	 */
 	async unlikePost(
-		postId: number
+		postId: number,
 	): Promise<{ likesCount: number; isLiked: boolean }> {
 		try {
 			const response = await apiHelpers.delete<{
-				likesCount: number
-				isLiked: boolean
-			}>(`/api/v1/posts/${postId}/like/`)
-			return response
+				likesCount: number;
+				isLiked: boolean;
+			}>(`/api/v1/posts/${postId}/like/`);
+			return response;
 		} catch (error) {
-			console.error('Unlike post error:', error)
-			throw this.handleError(error)
+			console.error("Unlike post error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -61,11 +61,13 @@ class SocialService {
 	 */
 	async getPostLikes(postId: number): Promise<Like[]> {
 		try {
-			const likes = await apiHelpers.get<Like[]>(`/api/v1/posts/${postId}/likes/`)
-			return likes
+			const likes = await apiHelpers.get<Like[]>(
+				`/api/v1/posts/${postId}/likes/`,
+			);
+			return likes;
 		} catch (error) {
-			console.error('Get post likes error:', error)
-			throw this.handleError(error)
+			console.error("Get post likes error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -75,12 +77,12 @@ class SocialService {
 	async isPostLiked(postId: number): Promise<boolean> {
 		try {
 			const response = await apiHelpers.get<{ isLiked: boolean }>(
-				`/api/v1/posts/${postId}/is-liked/`
-			)
-			return response.isLiked
+				`/api/v1/posts/${postId}/is-liked/`,
+			);
+			return response.isLiked;
 		} catch (error) {
-			console.error('Check post liked error:', error)
-			return false
+			console.error("Check post liked error:", error);
+			return false;
 		}
 	}
 
@@ -92,12 +94,12 @@ class SocialService {
 	async getPostComments(postId: number): Promise<Comment[]> {
 		try {
 			const comments = await apiHelpers.get<Comment[]>(
-				`/api/v1/posts/${postId}/comments/`
-			)
-			return comments
+				`/api/v1/posts/${postId}/comments/`,
+			);
+			return comments;
 		} catch (error) {
-			console.error('Get post comments error:', error)
-			throw this.handleError(error)
+			console.error("Get post comments error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -106,18 +108,18 @@ class SocialService {
 	 */
 	async createComment(data: CreateCommentData): Promise<Comment> {
 		try {
-			const { postId, ...rest } = data
+			const { postId, ...rest } = data;
 			// The backend now expects 'content' instead of 'body'
-			const payload = { content: rest.content }
+			const payload = { content: rest.content };
 
 			const comment = await apiHelpers.post<Comment>(
 				`/api/v1/posts/${postId}/comments/add/`,
-				payload
-			)
-			return comment
+				payload,
+			);
+			return comment;
 		} catch (error) {
-			console.error('Create comment error:', error)
-			throw this.handleError(error)
+			console.error("Create comment error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -126,17 +128,17 @@ class SocialService {
 	 */
 	async updateComment(
 		commentId: number,
-		data: UpdateCommentData
+		data: UpdateCommentData,
 	): Promise<Comment> {
 		try {
 			const comment = await apiHelpers.patch<Comment>(
 				`/api/v1/comments/${commentId}/update/`,
-				data
-			)
-			return comment
+				data,
+			);
+			return comment;
 		} catch (error) {
-			console.error('Update comment error:', error)
-			throw this.handleError(error)
+			console.error("Update comment error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -145,10 +147,10 @@ class SocialService {
 	 */
 	async deleteComment(commentId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/v1/comments/${commentId}/delete/`)
+			await apiHelpers.delete(`/api/v1/comments/${commentId}/delete/`);
 		} catch (error) {
-			console.error('Delete comment error:', error)
-			throw this.handleError(error)
+			console.error("Delete comment error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -160,12 +162,12 @@ class SocialService {
 	async getCliqueReviews(cliqueId: number): Promise<Review[]> {
 		try {
 			const reviews = await apiHelpers.get<Review[]>(
-				`/api/v1/reviews/?clique_id=${cliqueId}`
-			)
-			return reviews
+				`/api/v1/reviews/?clique_id=${cliqueId}`,
+			);
+			return reviews;
 		} catch (error) {
-			console.error('Get clique reviews error:', error)
-			throw this.handleError(error)
+			console.error("Get clique reviews error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -175,12 +177,12 @@ class SocialService {
 	async getReviewByBooking(bookingId: number): Promise<Review | null> {
 		try {
 			const reviews = await apiHelpers.get<Review[]>(
-				`/api/v1/reviews/?booking_id=${bookingId}`
-			)
-			return reviews.length > 0 ? reviews[0] : null
+				`/api/v1/reviews/?booking_id=${bookingId}`,
+			);
+			return reviews.length > 0 ? reviews[0] : null;
 		} catch (error) {
-			console.error('Get review by booking error:', error)
-			return null
+			console.error("Get review by booking error:", error);
+			return null;
 		}
 	}
 
@@ -189,11 +191,13 @@ class SocialService {
 	 */
 	async getReviewById(reviewId: number): Promise<Review> {
 		try {
-			const review = await apiHelpers.get<Review>(`/api/v1/reviews/${reviewId}/`)
-			return review
+			const review = await apiHelpers.get<Review>(
+				`/api/v1/reviews/${reviewId}/`,
+			);
+			return review;
 		} catch (error) {
-			console.error('Get review by ID error:', error)
-			throw this.handleError(error)
+			console.error("Get review by ID error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -202,12 +206,12 @@ class SocialService {
 	 */
 	async createReview(data: CreateReviewData): Promise<Review> {
 		try {
-			const payload = { booking_id: data.bookingId, ...data }
-			const review = await apiHelpers.post<Review>('/api/v1/reviews/', payload)
-			return review
+			const payload = { booking_id: data.bookingId, ...data };
+			const review = await apiHelpers.post<Review>("/api/v1/reviews/", payload);
+			return review;
 		} catch (error) {
-			console.error('Create review error:', error)
-			throw this.handleError(error)
+			console.error("Create review error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -216,17 +220,17 @@ class SocialService {
 	 */
 	async updateReview(
 		reviewId: number,
-		data: UpdateReviewData
+		data: UpdateReviewData,
 	): Promise<Review> {
 		try {
 			const review = await apiHelpers.patch<Review>(
 				`/api/v1/reviews/${reviewId}/update/`,
-				data
-			)
-			return review
+				data,
+			);
+			return review;
 		} catch (error) {
-			console.error('Update review error:', error)
-			throw this.handleError(error)
+			console.error("Update review error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -235,10 +239,10 @@ class SocialService {
 	 */
 	async deleteReview(reviewId: number): Promise<void> {
 		try {
-			await apiHelpers.delete(`/api/v1/reviews/${reviewId}/delete/`)
+			await apiHelpers.delete(`/api/v1/reviews/${reviewId}/delete/`);
 		} catch (error) {
-			console.error('Delete review error:', error)
-			throw this.handleError(error)
+			console.error("Delete review error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -247,11 +251,13 @@ class SocialService {
 	 */
 	async getUserReviews(): Promise<Review[]> {
 		try {
-			const reviews = await apiHelpers.get<Review[]>('/api/v1/reviews/?user=me')
-			return reviews
+			const reviews = await apiHelpers.get<Review[]>(
+				"/api/v1/reviews/?user=me",
+			);
+			return reviews;
 		} catch (error) {
-			console.error('Get user reviews error:', error)
-			throw this.handleError(error)
+			console.error("Get user reviews error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -262,44 +268,44 @@ class SocialService {
 	 */
 	private handleError(error: any): ApiError {
 		if (error.message && error.status) {
-			return error as ApiError
+			return error as ApiError;
 		}
 
 		if (error.response?.data) {
-			const data = error.response.data
+			const data = error.response.data;
 
 			if (data.detail) {
 				return {
 					message: data.detail,
 					status: error.response.status,
-				}
+				};
 			}
 
-			if (typeof data === 'object') {
+			if (typeof data === "object") {
 				const messages = Object.entries(data)
 					.map(([key, value]) => {
 						if (Array.isArray(value)) {
-							return `${key}: ${value.join(', ')}`
+							return `${key}: ${value.join(", ")}`;
 						}
-						return `${key}: ${value}`
+						return `${key}: ${value}`;
 					})
-					.join('\n')
+					.join("\n");
 
 				return {
-					message: messages || 'Social operation failed',
+					message: messages || "Social operation failed",
 					status: error.response.status,
 					details: data,
-				}
+				};
 			}
 		}
 
 		return {
-			message: error.message || 'An error occurred with social operation',
+			message: error.message || "An error occurred with social operation",
 			status: error.status || 500,
-		}
+		};
 	}
 }
 
 // Export singleton instance
-export const socialService = new SocialService()
-export default socialService
+export const socialService = new SocialService();
+export default socialService;

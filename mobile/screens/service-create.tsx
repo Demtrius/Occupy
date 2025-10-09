@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
-import { servicesService } from '../services'
-import { showError, showSuccess } from '../store/app.store'
-import { ScreenNavigationProp, ScreenRouteProp } from '../types'
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { servicesService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
+import { ScreenNavigationProp, ScreenRouteProp } from "../types";
 import {
 	ScreenHeader,
 	FormSection,
@@ -14,69 +14,69 @@ import {
 	OptionGrid,
 	SwitchRow,
 	Option,
-} from '../components'
+} from "../components";
 import {
 	Colors,
 	Spacing,
 	Typography,
 	BorderRadius,
 	CommonStyles,
-} from '../theme'
+} from "../theme";
 
 interface Props {
-	route: ScreenRouteProp<'ServiceCreate'>
+	route: ScreenRouteProp<"ServiceCreate">;
 }
 
 const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
-	const navigation = useNavigation<ScreenNavigationProp<'ServiceCreate'>>()
-	const { cliqueId } = route.params
+	const navigation = useNavigation<ScreenNavigationProp<"ServiceCreate">>();
+	const { cliqueId } = route.params;
 
-	const [title, setTitle] = useState<string>('')
-	const [description, setDescription] = useState<string>('')
-	const [price, setPrice] = useState<string>('')
-	const [durationMinutes, setDurationMinutes] = useState<string>('30')
-	const [isActive, setIsActive] = useState<boolean>(true)
-	const [submitting, setSubmitting] = useState<boolean>(false)
+	const [title, setTitle] = useState<string>("");
+	const [description, setDescription] = useState<string>("");
+	const [price, setPrice] = useState<string>("");
+	const [durationMinutes, setDurationMinutes] = useState<string>("30");
+	const [isActive, setIsActive] = useState<boolean>(true);
+	const [submitting, setSubmitting] = useState<boolean>(false);
 
 	const validateForm = (): boolean => {
 		if (!title.trim()) {
-			Alert.alert('Validation Error', 'Please enter a service title')
-			return false
+			Alert.alert("Validation Error", "Please enter a service title");
+			return false;
 		}
 
 		if (!description.trim()) {
-			Alert.alert('Validation Error', 'Please enter a service description')
-			return false
+			Alert.alert("Validation Error", "Please enter a service description");
+			return false;
 		}
 
 		if (!durationMinutes || parseInt(durationMinutes) < 1) {
 			Alert.alert(
-				'Validation Error',
-				'Please enter a valid duration (minimum 1 minute)'
-			)
-			return false
+				"Validation Error",
+				"Please enter a valid duration (minimum 1 minute)",
+			);
+			return false;
 		}
 
 		if (price && isNaN(parseFloat(price))) {
-			Alert.alert('Validation Error', 'Please enter a valid price')
-			return false
+			Alert.alert("Validation Error", "Please enter a valid price");
+			return false;
 		}
 
 		if (price && parseFloat(price) < 0) {
-			Alert.alert('Validation Error', 'Price cannot be negative')
-			return false
+			Alert.alert("Validation Error", "Price cannot be negative");
+			return false;
 		}
 
-		return true
-	}
+		return true;
+	};
 
 	const handleCreateService = async () => {
 		if (!validateForm()) {
-			return
+			return;
 		}
 
 		try {
-			setSubmitting(true)
+			setSubmitting(true);
 
 			const serviceData = {
 				cliqueId,
@@ -85,38 +85,38 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 				price: price.trim() || undefined,
 				durationMinutes: parseInt(durationMinutes),
 				isActive,
-			}
+			};
 
-			await servicesService.createService(serviceData)
-			showSuccess('Service created successfully!')
-			navigation.goBack()
+			await servicesService.createService(serviceData);
+			showSuccess("Service created successfully!");
+			navigation.goBack();
 		} catch (error: any) {
-			console.error('Error creating service:', error)
-			showError(error.message || 'Failed to create service')
+			console.error("Error creating service:", error);
+			showError(error.message || "Failed to create service");
 		} finally {
-			setSubmitting(false)
+			setSubmitting(false);
 		}
-	}
+	};
 
 	const durationOptions: Option[] = [
-		{ value: '15', label: '15 min' },
-		{ value: '30', label: '30 min' },
-		{ value: '45', label: '45 min' },
-		{ value: '60', label: '1 hour' },
-		{ value: '90', label: '1.5 hours' },
-		{ value: '120', label: '2 hours' },
-	]
+		{ value: "15", label: "15 min" },
+		{ value: "30", label: "30 min" },
+		{ value: "45", label: "45 min" },
+		{ value: "60", label: "1 hour" },
+		{ value: "90", label: "1.5 hours" },
+		{ value: "120", label: "2 hours" },
+	];
 
 	return (
 		<View style={CommonStyles.container}>
-			<ScreenHeader title='Create Service' onBack={() => navigation.goBack()} />
+			<ScreenHeader title="Create Service" onBack={() => navigation.goBack()} />
 
 			<ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
 				{/* Title */}
 				<FormSection>
 					<FormLabel required>Service Title</FormLabel>
 					<FormInput
-						placeholder='e.g., Haircut, Massage, Consultation'
+						placeholder="e.g., Haircut, Massage, Consultation"
 						value={title}
 						onChangeText={setTitle}
 						maxLength={100}
@@ -127,7 +127,7 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 				<FormSection>
 					<FormLabel required>Description</FormLabel>
 					<FormInput
-						placeholder='Describe what this service includes...'
+						placeholder="Describe what this service includes..."
 						value={description}
 						onChangeText={setDescription}
 						multiline
@@ -142,10 +142,10 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 					<View style={styles.priceInputContainer}>
 						<Text style={styles.currencySymbol}>$</Text>
 						<FormInput
-							placeholder='0.00'
+							placeholder="0.00"
 							value={price}
 							onChangeText={setPrice}
-							keyboardType='decimal-pad'
+							keyboardType="decimal-pad"
 							containerStyle={{ flex: 1 }}
 							style={styles.priceInput}
 						/>
@@ -161,28 +161,28 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 					<OptionGrid
 						options={durationOptions}
 						selectedValue={durationMinutes}
-						onSelect={value => setDurationMinutes(value)}
-						style={{ justifyContent: 'space-between' }}
+						onSelect={(value) => setDurationMinutes(value)}
+						style={{ justifyContent: "space-between" }}
 					/>
 					<FormLabel style={styles.customDurationLabel}>
 						Custom Duration (minutes)
 					</FormLabel>
 					<FormInput
-						placeholder='Enter duration in minutes'
+						placeholder="Enter duration in minutes"
 						value={durationMinutes}
 						onChangeText={setDurationMinutes}
-						keyboardType='number-pad'
+						keyboardType="number-pad"
 					/>
 				</FormSection>
 
 				{/* Active Status */}
 				<FormSection>
 					<SwitchRow
-						label='Active Service'
+						label="Active Service"
 						description={
 							isActive
-								? 'Clients can book this service'
-								: 'Service is hidden from clients'
+								? "Clients can book this service"
+								: "Service is hidden from clients"
 						}
 						value={isActive}
 						onValueChange={setIsActive}
@@ -190,7 +190,7 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 				</FormSection>
 
 				{/* Info Box */}
-				<InfoBox variant='info' style={styles.infoBox}>
+				<InfoBox variant="info" style={styles.infoBox}>
 					<Text style={styles.infoText}>
 						After creating your service, make sure to set up your availability
 						so clients can book appointments.
@@ -199,7 +199,7 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 
 				{/* Create Button */}
 				<PrimaryButton
-					title='Create Service'
+					title="Create Service"
 					onPress={handleCreateService}
 					disabled={submitting}
 					loading={submitting}
@@ -209,8 +209,8 @@ const ServiceCreateScreen: React.FC<Props> = ({ route }) => {
 				<View style={styles.bottomSpacer} />
 			</ScrollView>
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	content: {
@@ -218,8 +218,8 @@ const styles = StyleSheet.create({
 		padding: Spacing.lg,
 	},
 	priceInputContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
+		flexDirection: "row",
+		alignItems: "center",
 		gap: Spacing.sm,
 	},
 	currencySymbol: {
@@ -248,6 +248,6 @@ const styles = StyleSheet.create({
 	bottomSpacer: {
 		height: Spacing.xl,
 	},
-})
+});
 
-export default ServiceCreateScreen
+export default ServiceCreateScreen;

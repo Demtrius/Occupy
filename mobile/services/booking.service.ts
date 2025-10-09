@@ -4,7 +4,7 @@
  * Service for managing bookings for business cliques.
  */
 
-import { apiHelpers } from './api'
+import { apiHelpers } from "./api";
 import {
 	Booking,
 	BookingDetail,
@@ -12,7 +12,7 @@ import {
 	BookingFilter,
 	ApiError,
 	PaginatedResponse,
-} from '../types'
+} from "../types";
 
 class BookingService {
 	// ==================== BOOKINGS ====================
@@ -22,26 +22,26 @@ class BookingService {
 	 */
 	async getBookings(filter?: BookingFilter): Promise<Booking[]> {
 		try {
-			let url = '/api/v1/bookings/'
-			const params = new URLSearchParams()
+			let url = "/api/v1/bookings/";
+			const params = new URLSearchParams();
 
-			if (filter?.role) params.append('role', filter.role)
-			if (filter?.status) params.append('status', filter.status)
+			if (filter?.role) params.append("role", filter.role);
+			if (filter?.status) params.append("status", filter.status);
 			if (filter?.cliqueId)
-				params.append('clique_id', filter.cliqueId.toString())
+				params.append("clique_id", filter.cliqueId.toString());
 			if (filter?.serviceId)
-				params.append('service_id', filter.serviceId.toString())
-			if (filter?.date) params.append('date', filter.date)
+				params.append("service_id", filter.serviceId.toString());
+			if (filter?.date) params.append("date", filter.date);
 
 			if (params.toString()) {
-				url += `?${params.toString()}`
+				url += `?${params.toString()}`;
 			}
 
-			const bookings = await apiHelpers.get<Booking[]>(url)
-			return bookings
+			const bookings = await apiHelpers.get<Booking[]>(url);
+			return bookings;
 		} catch (error) {
-			console.error('Get bookings error:', error)
-			throw this.handleError(error)
+			console.error("Get bookings error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -50,14 +50,14 @@ class BookingService {
 	 */
 	async getMyBookings(status?: string): Promise<Booking[]> {
 		try {
-			let url = '/api/v1/bookings/?role=client'
-			if (status) url += `&status=${status}`
+			let url = "/api/v1/bookings/?role=client";
+			if (status) url += `&status=${status}`;
 
-			const bookings = await apiHelpers.get<Booking[]>(url)
-			return bookings
+			const bookings = await apiHelpers.get<Booking[]>(url);
+			return bookings;
 		} catch (error) {
-			console.error('Get my bookings error:', error)
-			throw this.handleError(error)
+			console.error("Get my bookings error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -66,14 +66,14 @@ class BookingService {
 	 */
 	async getProviderBookings(status?: string): Promise<Booking[]> {
 		try {
-			let url = '/api/v1/bookings/?role=provider'
-			if (status) url += `&status=${status}`
+			let url = "/api/v1/bookings/?role=provider";
+			if (status) url += `&status=${status}`;
 
-			const bookings = await apiHelpers.get<Booking[]>(url)
-			return bookings
+			const bookings = await apiHelpers.get<Booking[]>(url);
+			return bookings;
 		} catch (error) {
-			console.error('Get provider bookings error:', error)
-			throw this.handleError(error)
+			console.error("Get provider bookings error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -82,17 +82,17 @@ class BookingService {
 	 */
 	async getCliqueBookings(
 		cliqueId: number,
-		status?: string
+		status?: string,
 	): Promise<Booking[]> {
 		try {
-			let url = `/api/v1/bookings/?clique_id=${cliqueId}`
-			if (status) url += `&status=${status}`
+			let url = `/api/v1/bookings/?clique_id=${cliqueId}`;
+			if (status) url += `&status=${status}`;
 
-			const response = await apiHelpers.get<PaginatedResponse<Booking>>(url)
-			return response.results
+			const response = await apiHelpers.get<PaginatedResponse<Booking>>(url);
+			return response.results;
 		} catch (error) {
-			console.error('Get clique bookings error:', error)
-			throw this.handleError(error)
+			console.error("Get clique bookings error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -102,12 +102,12 @@ class BookingService {
 	async getBookingById(bookingId: number): Promise<BookingDetail> {
 		try {
 			const booking = await apiHelpers.get<BookingDetail>(
-				`/api/v1/bookings/${bookingId}/`
-			)
-			return booking
+				`/api/v1/bookings/${bookingId}/`,
+			);
+			return booking;
 		} catch (error) {
-			console.error('Get booking by ID error:', error)
-			throw this.handleError(error)
+			console.error("Get booking by ID error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -116,11 +116,11 @@ class BookingService {
 	 */
 	async createBooking(data: CreateBookingData): Promise<Booking> {
 		try {
-			const booking = await apiHelpers.post<Booking>('/api/v1/bookings/', data)
-			return booking
+			const booking = await apiHelpers.post<Booking>("/api/v1/bookings/", data);
+			return booking;
 		} catch (error) {
-			console.error('Create booking error:', error)
-			throw this.handleError(error)
+			console.error("Create booking error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -129,17 +129,17 @@ class BookingService {
 	 */
 	async updateBooking(
 		bookingId: number,
-		data: Partial<CreateBookingData>
+		data: Partial<CreateBookingData>,
 	): Promise<Booking> {
 		try {
 			const booking = await apiHelpers.patch<Booking>(
 				`/api/v1/bookings/${bookingId}/`,
-				data
-			)
-			return booking
+				data,
+			);
+			return booking;
 		} catch (error) {
-			console.error('Update booking error:', error)
-			throw this.handleError(error)
+			console.error("Update booking error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -150,12 +150,12 @@ class BookingService {
 		try {
 			const booking = await apiHelpers.post<BookingDetail>(
 				`/api/v1/bookings/${bookingId}/confirm/`,
-				{}
-			)
-			return booking
+				{},
+			);
+			return booking;
 		} catch (error) {
-			console.error('Confirm booking error:', error)
-			throw this.handleError(error)
+			console.error("Confirm booking error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -164,17 +164,17 @@ class BookingService {
 	 */
 	async cancelBooking(
 		bookingId: number,
-		reason?: string
+		reason?: string,
 	): Promise<BookingDetail> {
 		try {
 			const booking = await apiHelpers.post<BookingDetail>(
 				`/api/v1/bookings/${bookingId}/cancel/`,
-				{ reason }
-			)
-			return booking
+				{ reason },
+			);
+			return booking;
 		} catch (error) {
-			console.error('Cancel booking error:', error)
-			throw this.handleError(error)
+			console.error("Cancel booking error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -185,12 +185,12 @@ class BookingService {
 		try {
 			const booking = await apiHelpers.post<BookingDetail>(
 				`/api/v1/bookings/${bookingId}/complete/`,
-				{}
-			)
-			return booking
+				{},
+			);
+			return booking;
 		} catch (error) {
-			console.error('Complete booking error:', error)
-			throw this.handleError(error)
+			console.error("Complete booking error:", error);
+			throw this.handleError(error);
 		}
 	}
 
@@ -201,44 +201,44 @@ class BookingService {
 	 */
 	private handleError(error: any): ApiError {
 		if (error.message && error.status) {
-			return error as ApiError
+			return error as ApiError;
 		}
 
 		if (error.response?.data) {
-			const data = error.response.data
+			const data = error.response.data;
 
 			if (data.detail) {
 				return {
 					message: data.detail,
 					status: error.response.status,
-				}
+				};
 			}
 
-			if (typeof data === 'object') {
+			if (typeof data === "object") {
 				const messages = Object.entries(data)
 					.map(([key, value]) => {
 						if (Array.isArray(value)) {
-							return `${key}: ${value.join(', ')}`
+							return `${key}: ${value.join(", ")}`;
 						}
-						return `${key}: ${value}`
+						return `${key}: ${value}`;
 					})
-					.join('\n')
+					.join("\n");
 
 				return {
-					message: messages || 'Booking operation failed',
+					message: messages || "Booking operation failed",
 					status: error.response.status,
 					details: data,
-				}
+				};
 			}
 		}
 
 		return {
-			message: error.message || 'An error occurred with booking operation',
+			message: error.message || "An error occurred with booking operation",
 			status: error.status || 500,
-		}
+		};
 	}
 }
 
 // Export singleton instance
-export const bookingService = new BookingService()
-export default bookingService
+export const bookingService = new BookingService();
+export default bookingService;

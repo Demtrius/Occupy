@@ -1,35 +1,35 @@
 {
-  "cli": {
-    "version": ">= 3.0.0"
-  },
-  "build": {
-    "develop": {
-      "developmentClient": false,
-      "distribution": "internal",
-      "ios": {
-        "simulator": false,
-        "buildConfiguration": "Release"
-      }
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {
-      "distribution": "store",
-      "ios": {
-        "simulator": false,
-        "buildConfiguration": "Release"
-      },
-      "cache": {
-        "key": "v1.0.1"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "samihuomaoccupy@gmail.com"
-      }
-    }
-  }
+	"cli": {
+		"version": ">= 3.0.0"
+	},
+	"build": {
+		"develop": {
+			"developmentClient": false,
+			"distribution": "internal",
+			"ios": {
+				"simulator": false,
+				"buildConfiguration": "Release"
+			}
+		},
+		"preview": {
+			"distribution": "internal"
+		},
+		"production": {
+			"distribution": "store",
+			"ios": {
+				"simulator": false,
+				"buildConfiguration": "Release"
+			},
+			"cache": {
+				"key": "v1.0.1"
+			}
+		}
+	},
+	"submit": {
+		"production": {
+			"ios": {
+				"appleId": "samihuomaoccupy@gmail.com"
+			}
+		}
+	}
 }

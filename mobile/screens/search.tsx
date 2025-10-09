@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -8,273 +8,281 @@ import {
 	TouchableOpacity,
 	ActivityIndicator,
 	ScrollView,
-} from 'react-native'
-import { Searchbar as PaperSearchbar, Button } from 'react-native-paper'
-import { useNavigation } from '@react-navigation/native'
-import { cliquesService } from '../services'
-import usersService from '@services/users.service'
-import { showError } from '../store/app.store'
-import { useAuthStore } from '../store/auth.store'
-import type { Clique, User, Occupation, ScreenNavigationProp } from '../types'
+} from "react-native";
+import { Searchbar as PaperSearchbar, Button } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { cliquesService } from "../services";
+import usersService from "@services/users.service";
+import { showError } from "../store/app.store";
+import { useAuthStore } from "../store/auth.store";
+import type { Clique, User, Occupation, ScreenNavigationProp } from "../types";
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get("window");
 
-type SearchCategory = 'all' | 'Occupation' | 'Persons' | 'Cliques'
+type SearchCategory = "all" | "Occupation" | "Persons" | "Cliques";
 
 interface SearchItem {
-	id: number
-	name?: string
-	username?: string
-	type: 'Occupation' | 'User' | 'Clique'
+	id: number;
+	name?: string;
+	username?: string;
+	type: "Occupation" | "User" | "Clique";
 }
 
 const SearchScreen: React.FC = () => {
-	const navigation = useNavigation<ScreenNavigationProp<'Search'>>()
-	const { user: currentUser } = useAuthStore()
+	const navigation = useNavigation<ScreenNavigationProp<"Search">>();
+	const { user: currentUser } = useAuthStore();
 
-	const [search, setSearch] = useState<string>('')
-	const [filteredDataSource, setFilteredDataSource] = useState<SearchItem[]>([])
-	const [masterDataSource, setMasterDataSource] = useState<Occupation[]>([])
-	const [cliques, setCliques] = useState<Clique[]>([])
-	const [userList, setUsersList] = useState<User[]>([])
-	const [loading, setLoading] = useState<boolean>(true)
-	const [category, setCategory] = useState<SearchCategory>('all')
+	const [search, setSearch] = useState<string>("");
+	const [filteredDataSource, setFilteredDataSource] = useState<SearchItem[]>(
+		[],
+	);
+	const [masterDataSource, setMasterDataSource] = useState<Occupation[]>([]);
+	const [cliques, setCliques] = useState<Clique[]>([]);
+	const [userList, setUsersList] = useState<User[]>([]);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [category, setCategory] = useState<SearchCategory>("all");
 
- 	// Fetch cliques
- 	const getCliques = async () => {
- 		try {
- 			const response = await cliquesService.getAllCliques()
- 			setCliques(response.results || [])
- 		} catch (error) {
- 			console.error('Error fetching cliques:', error)
- 			showError('Failed to load cliques')
- 		}
- 	}
+	// Fetch cliques
+	const getCliques = async () => {
+		try {
+			const response = await cliquesService.getAllCliques();
+			setCliques(response.results || []);
+		} catch (error) {
+			console.error("Error fetching cliques:", error);
+			showError("Failed to load cliques");
+		}
+	};
 
 	// Fetch users
 	const getUsers = async () => {
 		try {
-			const users = await usersService.getAllUsers()
-			setUsersList(users)
+			const users = await usersService.getAllUsers();
+			setUsersList(users);
 		} catch (error) {
-			console.error('Error fetching users:', error)
-			showError('Failed to load users')
+			console.error("Error fetching users:", error);
+			showError("Failed to load users");
 		}
-	}
+	};
 
 	// Fetch occupations
 	const getOccupations = async () => {
 		try {
-			const occupations = await usersService.getOccupations()
-			setMasterDataSource(occupations)
+			const occupations = await usersService.getOccupations();
+			setMasterDataSource(occupations);
 		} catch (error) {
-			console.error('Error fetching occupations:', error)
-			showError('Failed to load occupations')
+			console.error("Error fetching occupations:", error);
+			showError("Failed to load occupations");
 		}
-	}
+	};
 
 	// Initial data load
 	useEffect(() => {
 		const loadData = async () => {
-			setLoading(true)
+			setLoading(true);
 			try {
-				await Promise.all([getCliques(), getUsers(), getOccupations()])
+				await Promise.all([getCliques(), getUsers(), getOccupations()]);
 			} catch (error) {
-				console.error('Error loading data:', error)
+				console.error("Error loading data:", error);
 			} finally {
-				setLoading(false)
+				setLoading(false);
 			}
-		}
+		};
 
-		loadData()
-	}, [])
+		loadData();
+	}, []);
 
 	// Update filtered data when category changes or data loads
 	useEffect(() => {
-		if (category === 'all') {
+		if (category === "all") {
 			const allData: SearchItem[] = [
-				...masterDataSource.map(item => ({
+				...masterDataSource.map((item) => ({
 					...item,
-					type: 'Occupation' as const,
+					type: "Occupation" as const,
 				})),
 				...userList
-					.filter(user => currentUser && user.id !== currentUser.id)
-					.map(user => ({
+					.filter((user) => currentUser && user.id !== currentUser.id)
+					.map((user) => ({
 						id: user.id,
 						username: user.username,
-						type: 'User' as const,
+						type: "User" as const,
 					})),
-				...cliques.map(clique => ({
+				...cliques.map((clique) => ({
 					id: clique.id,
 					name: clique.name,
-					type: 'Clique' as const,
+					type: "Clique" as const,
 				})),
-			]
-			setFilteredDataSource(allData)
+			];
+			setFilteredDataSource(allData);
 		}
-	}, [masterDataSource, userList, cliques, category, currentUser])
+	}, [masterDataSource, userList, cliques, category, currentUser]);
 
 	// Search filter function
 	const searchFilterFunction = (text: string) => {
 		if (text) {
-			let newData: SearchItem[] = []
+			let newData: SearchItem[] = [];
 
-			if (category === 'all') {
+			if (category === "all") {
 				newData = [
 					...masterDataSource
-						.filter(item =>
-							item.name.toUpperCase().includes(text.toUpperCase())
+						.filter((item) =>
+							item.name.toUpperCase().includes(text.toUpperCase()),
 						)
-						.map(item => ({ ...item, type: 'Occupation' as const })),
+						.map((item) => ({ ...item, type: "Occupation" as const })),
 					...userList
-						.filter(user =>
-							user.username.toUpperCase().includes(text.toUpperCase()) &&
-							currentUser && user.id !== currentUser.id
+						.filter(
+							(user) =>
+								user.username.toUpperCase().includes(text.toUpperCase()) &&
+								currentUser &&
+								user.id !== currentUser.id,
 						)
-						.map(user => ({
+						.map((user) => ({
 							id: user.id,
 							username: user.username,
-							type: 'User' as const,
+							type: "User" as const,
 						})),
 					...cliques
-						.filter(clique =>
-							clique.name.toUpperCase().includes(text.toUpperCase())
+						.filter((clique) =>
+							clique.name.toUpperCase().includes(text.toUpperCase()),
 						)
-						.map(clique => ({
+						.map((clique) => ({
 							id: clique.id,
 							name: clique.name,
-							type: 'Clique' as const,
+							type: "Clique" as const,
 						})),
-				]
-			} else if (category === 'Occupation') {
+				];
+			} else if (category === "Occupation") {
 				newData = masterDataSource
-					.filter(item => item.name.toUpperCase().includes(text.toUpperCase()))
-					.map(item => ({ ...item, type: 'Occupation' as const }))
-			} else if (category === 'Persons') {
-				newData = userList
-					.filter(user =>
-						user.username.toUpperCase().includes(text.toUpperCase()) &&
-						currentUser && user.id !== currentUser.id
+					.filter((item) =>
+						item.name.toUpperCase().includes(text.toUpperCase()),
 					)
-					.map(user => ({
+					.map((item) => ({ ...item, type: "Occupation" as const }));
+			} else if (category === "Persons") {
+				newData = userList
+					.filter(
+						(user) =>
+							user.username.toUpperCase().includes(text.toUpperCase()) &&
+							currentUser &&
+							user.id !== currentUser.id,
+					)
+					.map((user) => ({
 						id: user.id,
 						username: user.username,
-						type: 'User' as const,
-					}))
-			} else if (category === 'Cliques') {
+						type: "User" as const,
+					}));
+			} else if (category === "Cliques") {
 				newData = cliques
-					.filter(clique =>
-						clique.name.toUpperCase().includes(text.toUpperCase())
+					.filter((clique) =>
+						clique.name.toUpperCase().includes(text.toUpperCase()),
 					)
-					.map(clique => ({
+					.map((clique) => ({
 						id: clique.id,
 						name: clique.name,
-						type: 'Clique' as const,
-					}))
+						type: "Clique" as const,
+					}));
 			}
 
-			setFilteredDataSource(newData)
-			setSearch(text)
+			setFilteredDataSource(newData);
+			setSearch(text);
 		} else {
-			filterByCategory(category)
-			setSearch(text)
+			filterByCategory(category);
+			setSearch(text);
 		}
-	}
+	};
 
 	// Filter by category
 	const filterByCategory = (selectedCategory: SearchCategory) => {
-		setCategory(selectedCategory)
-		if (selectedCategory === 'all') {
+		setCategory(selectedCategory);
+		if (selectedCategory === "all") {
 			const allData: SearchItem[] = [
-				...masterDataSource.map(item => ({
+				...masterDataSource.map((item) => ({
 					...item,
-					type: 'Occupation' as const,
+					type: "Occupation" as const,
 				})),
 				...userList
-					.filter(user => currentUser && user.id !== currentUser.id)
-					.map(user => ({
+					.filter((user) => currentUser && user.id !== currentUser.id)
+					.map((user) => ({
 						id: user.id,
 						username: user.username,
-						type: 'User' as const,
+						type: "User" as const,
 					})),
-				...cliques.map(clique => ({
+				...cliques.map((clique) => ({
 					id: clique.id,
 					name: clique.name,
-					type: 'Clique' as const,
+					type: "Clique" as const,
 				})),
-			]
-			setFilteredDataSource(allData)
-		} else if (selectedCategory === 'Occupation') {
-			const newData = masterDataSource.map(item => ({
+			];
+			setFilteredDataSource(allData);
+		} else if (selectedCategory === "Occupation") {
+			const newData = masterDataSource.map((item) => ({
 				...item,
-				type: 'Occupation' as const,
-			}))
-			setFilteredDataSource(newData)
-		} else if (selectedCategory === 'Persons') {
+				type: "Occupation" as const,
+			}));
+			setFilteredDataSource(newData);
+		} else if (selectedCategory === "Persons") {
 			setFilteredDataSource(
 				userList
-					.filter(user => currentUser && user.id !== currentUser.id)
-					.map(user => ({
+					.filter((user) => currentUser && user.id !== currentUser.id)
+					.map((user) => ({
 						id: user.id,
 						username: user.username,
-						type: 'User' as const,
-					}))
-			)
-		} else if (selectedCategory === 'Cliques') {
+						type: "User" as const,
+					})),
+			);
+		} else if (selectedCategory === "Cliques") {
 			setFilteredDataSource(
-				cliques.map(clique => ({
+				cliques.map((clique) => ({
 					id: clique.id,
 					name: clique.name,
-					type: 'Clique' as const,
-				}))
-			)
+					type: "Clique" as const,
+				})),
+			);
 		}
-	}
+	};
 
 	// Render item
 	const renderItem = ({ item }: { item: SearchItem }) => {
-		const displayName = item.type === 'User' ? item.username : item.name
+		const displayName = item.type === "User" ? item.username : item.name;
 
 		return (
 			<View style={styles.itemContainer}>
 				<TouchableOpacity
 					onPress={() => {
 						switch (item.type) {
-							case 'Occupation':
-								navigation.navigate('CliquesTab')
-								break
-							case 'User':
-								navigation.navigate('ViewUser', { userId: item.id })
-								break
-							case 'Clique':
-								navigation.navigate('CliqueDetail', { id: item.id })
-								break
+							case "Occupation":
+								navigation.navigate("CliquesTab");
+								break;
+							case "User":
+								navigation.navigate("ViewUser", { userId: item.id });
+								break;
+							case "Clique":
+								navigation.navigate("CliqueDetail", { id: item.id });
+								break;
 							default:
-								navigation.navigate('Home')
-								break
+								navigation.navigate("Home");
+								break;
 						}
 					}}
 				>
-					<Text style={styles.itemText}>{displayName || 'Unnamed'}</Text>
+					<Text style={styles.itemText}>{displayName || "Unnamed"}</Text>
 					<Text style={styles.itemType}>{item.type}</Text>
 				</TouchableOpacity>
 			</View>
-		)
-	}
+		);
+	};
 
 	if (loading) {
 		return (
 			<View style={styles.loadingContainer}>
-				<ActivityIndicator size='large' color='#6ba32d' />
+				<ActivityIndicator size="large" color="#6ba32d" />
 			</View>
-		)
+		);
 	}
 
 	return (
 		<View style={styles.container}>
 			<PaperSearchbar
 				style={styles.searchBar}
-				placeholder='Search'
+				placeholder="Search"
 				value={search}
 				onChangeText={searchFilterFunction}
 			/>
@@ -286,36 +294,36 @@ const SearchScreen: React.FC = () => {
 					contentContainerStyle={styles.scrollViewContent}
 				>
 					<Button
-						mode={category === 'all' ? 'contained' : 'outlined'}
-						onPress={() => filterByCategory('all')}
-						color='#6ba32d'
+						mode={category === "all" ? "contained" : "outlined"}
+						onPress={() => filterByCategory("all")}
+						color="#6ba32d"
 						contentStyle={styles.buttonContent}
 						style={styles.button}
 					>
 						All
 					</Button>
 					<Button
-						mode={category === 'Occupation' ? 'contained' : 'outlined'}
-						onPress={() => filterByCategory('Occupation')}
-						color='#6ba32d'
+						mode={category === "Occupation" ? "contained" : "outlined"}
+						onPress={() => filterByCategory("Occupation")}
+						color="#6ba32d"
 						contentStyle={styles.buttonContent}
 						style={styles.button}
 					>
 						Occupation
 					</Button>
 					<Button
-						mode={category === 'Persons' ? 'contained' : 'outlined'}
-						onPress={() => filterByCategory('Persons')}
-						color='#6ba32d'
+						mode={category === "Persons" ? "contained" : "outlined"}
+						onPress={() => filterByCategory("Persons")}
+						color="#6ba32d"
 						contentStyle={styles.buttonContent}
 						style={styles.button}
 					>
 						Users
 					</Button>
 					<Button
-						mode={category === 'Cliques' ? 'contained' : 'outlined'}
-						onPress={() => filterByCategory('Cliques')}
-						color='#6ba32d'
+						mode={category === "Cliques" ? "contained" : "outlined"}
+						onPress={() => filterByCategory("Cliques")}
+						color="#6ba32d"
 						contentStyle={styles.buttonContent}
 						style={styles.button}
 					>
@@ -331,25 +339,25 @@ const SearchScreen: React.FC = () => {
 				contentContainerStyle={styles.listContainer}
 			/>
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: 'white',
+		backgroundColor: "white",
 		paddingTop: height * 0.08,
 	},
 	loadingContainer: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'white',
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "white",
 	},
 	searchBar: {
 		marginHorizontal: width * 0.04,
 		borderRadius: 20,
-		shadowColor: '#000',
+		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.1,
 		shadowRadius: 4,
@@ -360,11 +368,11 @@ const styles = StyleSheet.create({
 		paddingTop: height * 0.01,
 	},
 	itemContainer: {
-		backgroundColor: '#FFFFFF',
+		backgroundColor: "#FFFFFF",
 		borderRadius: 8,
 		padding: width * 0.04,
 		marginBottom: height * 0.01,
-		shadowColor: '#000',
+		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.1,
 		shadowRadius: 4,
@@ -372,12 +380,12 @@ const styles = StyleSheet.create({
 	},
 	itemText: {
 		fontSize: width * 0.04,
-		color: '#333333',
-		fontWeight: '500',
+		color: "#333333",
+		fontWeight: "500",
 		marginBottom: 4,
 	},
 	categoryContainer: {
-		flexDirection: 'row',
+		flexDirection: "row",
 		marginVertical: height * 0.01,
 		paddingHorizontal: width * 0.01,
 	},
@@ -395,8 +403,8 @@ const styles = StyleSheet.create({
 	},
 	itemType: {
 		fontSize: 14,
-		color: 'grey',
+		color: "grey",
 	},
-})
+});
 
-export default SearchScreen
+export default SearchScreen;

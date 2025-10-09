@@ -2,14 +2,14 @@ import { useState, useCallback, useMemo } from "react";
 import { ApiError } from "../types";
 
 interface UsePaginationReturn<T> {
-  data: T[];
-  page: number;
-  isLoading: boolean;
-  hasMore: boolean;
-  error: ApiError | null;
-  loadMore: () => Promise<void>;
-  refresh: () => Promise<void>;
-  reset: () => void;
+	data: T[];
+	page: number;
+	isLoading: boolean;
+	hasMore: boolean;
+	error: ApiError | null;
+	loadMore: () => Promise<void>;
+	refresh: () => Promise<void>;
+	reset: () => void;
 }
 
 /**
@@ -34,80 +34,80 @@ interface UsePaginationReturn<T> {
  * />
  */
 export function usePagination<T>(
-  fetchFunction: (page: number, limit: number) => Promise<T[]>,
-  limit: number = 20,
+	fetchFunction: (page: number, limit: number) => Promise<T[]>,
+	limit: number = 20,
 ): UsePaginationReturn<T> {
-  const [data, setData] = useState<T[]>([]);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
+	const [data, setData] = useState<T[]>([]);
+	const [page, setPage] = useState(1);
+	const [isLoading, setIsLoading] = useState(false);
+	const [hasMore, setHasMore] = useState(true);
+	const [error, setError] = useState<ApiError | null>(null);
 
-  const loadMore = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+	const loadMore = useCallback(async () => {
+		if (isLoading || !hasMore) return;
 
-    setIsLoading(true);
-    setError(null);
+		setIsLoading(true);
+		setError(null);
 
-    try {
-      const newData = await fetchFunction(page, limit);
+		try {
+			const newData = await fetchFunction(page, limit);
 
-      if (newData.length < limit) {
-        setHasMore(false);
-      }
+			if (newData.length < limit) {
+				setHasMore(false);
+			}
 
-      setData((prev) => [...prev, ...newData]);
-      setPage((prev) => prev + 1);
-    } catch (err) {
-      setError(err as ApiError);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetchFunction, page, limit, isLoading, hasMore]);
+			setData((prev) => [...prev, ...newData]);
+			setPage((prev) => prev + 1);
+		} catch (err) {
+			setError(err as ApiError);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [fetchFunction, page, limit, isLoading, hasMore]);
 
-  const refresh = useCallback(async () => {
-    setData([]);
-    setPage(1);
-    setHasMore(true);
-    setError(null);
-    setIsLoading(true);
+	const refresh = useCallback(async () => {
+		setData([]);
+		setPage(1);
+		setHasMore(true);
+		setError(null);
+		setIsLoading(true);
 
-    try {
-      const newData = await fetchFunction(1, limit);
-      setData(newData);
-      setPage(2);
+		try {
+			const newData = await fetchFunction(1, limit);
+			setData(newData);
+			setPage(2);
 
-      if (newData.length < limit) {
-        setHasMore(false);
-      }
-    } catch (err) {
-      setError(err as ApiError);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetchFunction, limit]);
+			if (newData.length < limit) {
+				setHasMore(false);
+			}
+		} catch (err) {
+			setError(err as ApiError);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [fetchFunction, limit]);
 
-  const reset = useCallback(() => {
-    setData([]);
-    setPage(1);
-    setHasMore(true);
-    setError(null);
-    setIsLoading(false);
-  }, []);
+	const reset = useCallback(() => {
+		setData([]);
+		setPage(1);
+		setHasMore(true);
+		setError(null);
+		setIsLoading(false);
+	}, []);
 
-  return useMemo(
-    () => ({
-      data,
-      page,
-      isLoading,
-      hasMore,
-      error,
-      loadMore,
-      refresh,
-      reset,
-    }),
-    [data, page, isLoading, hasMore, error, loadMore, refresh, reset],
-  );
+	return useMemo(
+		() => ({
+			data,
+			page,
+			isLoading,
+			hasMore,
+			error,
+			loadMore,
+			refresh,
+			reset,
+		}),
+		[data, page, isLoading, hasMore, error, loadMore, refresh, reset],
+	);
 }
 
 export default usePagination;

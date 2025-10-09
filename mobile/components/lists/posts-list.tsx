@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
 	ActivityIndicator,
 	Dimensions,
@@ -7,18 +7,18 @@ import {
 	StyleSheet,
 	Text,
 	View,
-} from 'react-native'
-import { PostItem } from './post-item'
-import type { Post } from '../../types'
+} from "react-native";
+import { PostItem } from "./post-item";
+import type { Post } from "../../types";
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get("window");
 
 interface PostsListProps {
-	posts: Post[]
-	refreshing: boolean
-	onRefresh: () => void
-	onLoadMore: () => void
-	loadingMore: boolean
+	posts: Post[];
+	refreshing: boolean;
+	onRefresh: () => void;
+	onLoadMore: () => void;
+	loadingMore: boolean;
 }
 
 const PostsList: React.FC<PostsListProps> = ({
@@ -35,7 +35,7 @@ const PostsList: React.FC<PostsListProps> = ({
 			) : (
 				<FlatList
 					data={posts}
-					keyExtractor={item => item.id.toString()}
+					keyExtractor={(item) => item.id.toString()}
 					renderItem={({ item }) => <PostItem post={item} />}
 					refreshControl={
 						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -46,7 +46,7 @@ const PostsList: React.FC<PostsListProps> = ({
 					ListFooterComponent={
 						loadingMore ? (
 							<View style={styles.loadingFooter}>
-								<ActivityIndicator size='small' color='#6ba32d' />
+								<ActivityIndicator size="small" color="#6ba32d" />
 								<Text style={styles.loadingText}>Loading more...</Text>
 							</View>
 						) : null
@@ -54,27 +54,27 @@ const PostsList: React.FC<PostsListProps> = ({
 				/>
 			)}
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	noPostsText: {
-		textAlign: 'center',
+		textAlign: "center",
 		fontSize: 16,
-		color: '#888',
+		color: "#888",
 		marginTop: 20,
 	},
 	loadingFooter: {
-		flexDirection: 'row',
-		justifyContent: 'center',
-		alignItems: 'center',
+		flexDirection: "row",
+		justifyContent: "center",
+		alignItems: "center",
 		paddingVertical: 16,
 	},
 	loadingText: {
 		marginLeft: 8,
 		fontSize: 14,
-		color: '#6B7280',
+		color: "#6B7280",
 	},
-})
+});
 
-export { PostsList }
+export { PostsList };

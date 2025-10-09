@@ -1,136 +1,133 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {
-  FormInput,
-} from '../ui/form-input';
-import {
-  FormLabel,
-} from '../ui/form-label';
-import {
-  type Option,
-  OptionGrid,
-} from '../ui/option-grid';
-import { Colors, Spacing, Typography } from '../../theme';
+import React, { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+import { FormInput } from "../ui/form-input";
+import { FormLabel } from "../ui/form-label";
+import { type Option, OptionGrid } from "../ui/option-grid";
+import { Colors, Spacing, Typography } from "../../theme";
 
 interface PostFormValues {
-  caption: string;
-  content: string;
-  selectedCliqueId: number | null;
-  selectedLanguage: string;
+	caption: string;
+	content: string;
+	selectedCliqueId: number | null;
+	selectedLanguage: string;
 }
 
 interface PostFormProps {
-  values: PostFormValues;
-  errors: Partial<Record<keyof PostFormValues, string>>;
-  handleChange: (name: keyof PostFormValues, value: any) => void;
-  cliqueOptions: { label: string; value: number }[];
+	values: PostFormValues;
+	errors: Partial<Record<keyof PostFormValues, string>>;
+	handleChange: (name: keyof PostFormValues, value: any) => void;
+	cliqueOptions: { label: string; value: number }[];
 }
 
 const PostForm: React.FC<PostFormProps> = ({
-  values,
-  errors,
-  handleChange,
-  cliqueOptions,
+	values,
+	errors,
+	handleChange,
+	cliqueOptions,
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
+	const [open, setOpen] = useState<boolean>(false);
 
-  const languageOptions: Option[] = [
-    { value: 'ALL', label: 'All' },
-    { value: 'ENGLISH', label: 'English' },
-    { value: 'DUTCH', label: 'Dutch' },
-    { value: 'GERMAN', label: 'German' },
-  ];
+	const languageOptions: Option[] = [
+		{ value: "ALL", label: "All" },
+		{ value: "ENGLISH", label: "English" },
+		{ value: "DUTCH", label: "Dutch" },
+		{ value: "GERMAN", label: "German" },
+	];
 
-  return (
-    <>
-      {/* Post Content */}
-      <View style={styles.inputGroup}>
-        <FormLabel>Post Content</FormLabel>
-        <FormInput
-          value={values.caption}
-          onChangeText={(text) => handleChange('caption', text)}
-          placeholder='Share something with your clique...'
-          multiline
-          numberOfLines={5}
-          style={styles.captionInput}
-          maxLength={500}
-          showCharacterCount
-        />
-        {errors.caption && <Text style={styles.errorText}>{errors.caption}</Text>}
-      </View>
+	return (
+		<>
+			{/* Post Content */}
+			<View style={styles.inputGroup}>
+				<FormLabel>Post Content</FormLabel>
+				<FormInput
+					value={values.caption}
+					onChangeText={(text) => handleChange("caption", text)}
+					placeholder="Share something with your clique..."
+					multiline
+					numberOfLines={5}
+					style={styles.captionInput}
+					maxLength={500}
+					showCharacterCount
+				/>
+				{errors.caption && (
+					<Text style={styles.errorText}>{errors.caption}</Text>
+				)}
+			</View>
 
-      {/* Additional Details */}
-      <View style={styles.inputGroup}>
-        <FormLabel>Additional Details (Optional)</FormLabel>
-        <FormInput
-          value={values.content}
-          onChangeText={(text) => handleChange('content', text)}
-          placeholder='Any additional information...'
-          multiline
-          numberOfLines={3}
-          style={styles.contentInput}
-        />
-      </View>
+			{/* Additional Details */}
+			<View style={styles.inputGroup}>
+				<FormLabel>Additional Details (Optional)</FormLabel>
+				<FormInput
+					value={values.content}
+					onChangeText={(text) => handleChange("content", text)}
+					placeholder="Any additional information..."
+					multiline
+					numberOfLines={3}
+					style={styles.contentInput}
+				/>
+			</View>
 
-      {/* Language Selection */}
-      <View style={styles.inputGroup}>
-        <FormLabel>Language</FormLabel>
-        <OptionGrid
-          options={languageOptions}
-          selectedValue={values.selectedLanguage}
-          onSelect={(value) => handleChange('selectedLanguage', value)}
-        />
-      </View>
+			{/* Language Selection */}
+			<View style={styles.inputGroup}>
+				<FormLabel>Language</FormLabel>
+				<OptionGrid
+					options={languageOptions}
+					selectedValue={values.selectedLanguage}
+					onSelect={(value) => handleChange("selectedLanguage", value)}
+				/>
+			</View>
 
-      {/* Clique Selection */}
-      <View style={styles.inputGroup}>
-        <FormLabel>Choose a Clique</FormLabel>
-        <DropDownPicker
-          open={open}
-          value={values.selectedCliqueId}
-          items={cliqueOptions}
-          setOpen={setOpen}
-          setValue={(value) => handleChange('selectedCliqueId', value)}
-          setItems={() => {}} // Not needed since options come from props
-          style={styles.dropdown}
-          placeholder='Select a clique to post in'
-          dropDownContainerStyle={styles.dropdownContainer}
-          listMode='SCROLLVIEW'
-          scrollViewProps={{
-            nestedScrollEnabled: true,
-          }}
-        />
-        {errors.selectedCliqueId && <Text style={styles.errorText}>{errors.selectedCliqueId}</Text>}
-      </View>
-    </>
-  );
+			{/* Clique Selection */}
+			<View style={styles.inputGroup}>
+				<FormLabel>Choose a Clique</FormLabel>
+				<DropDownPicker
+					open={open}
+					value={values.selectedCliqueId}
+					items={cliqueOptions}
+					setOpen={setOpen}
+					setValue={(value) => handleChange("selectedCliqueId", value)}
+					setItems={() => {}} // Not needed since options come from props
+					style={styles.dropdown}
+					placeholder="Select a clique to post in"
+					dropDownContainerStyle={styles.dropdownContainer}
+					listMode="SCROLLVIEW"
+					scrollViewProps={{
+						nestedScrollEnabled: true,
+					}}
+				/>
+				{errors.selectedCliqueId && (
+					<Text style={styles.errorText}>{errors.selectedCliqueId}</Text>
+				)}
+			</View>
+		</>
+	);
 };
 
 const styles = StyleSheet.create({
-  inputGroup: {
-    marginBottom: Spacing.lg,
-  },
-  captionInput: {
-    minHeight: 120,
-  },
-  contentInput: {
-    minHeight: 80,
-  },
-  dropdown: {
-    borderColor: Colors.border,
-    borderRadius: 8,
-    backgroundColor: Colors.white,
-  },
-  dropdownContainer: {
-    borderColor: Colors.border,
-    maxHeight: 200,
-  },
-  errorText: {
-    ...Typography.caption,
-    color: Colors.error,
-    marginTop: Spacing.xs,
-  },
+	inputGroup: {
+		marginBottom: Spacing.lg,
+	},
+	captionInput: {
+		minHeight: 120,
+	},
+	contentInput: {
+		minHeight: 80,
+	},
+	dropdown: {
+		borderColor: Colors.border,
+		borderRadius: 8,
+		backgroundColor: Colors.white,
+	},
+	dropdownContainer: {
+		borderColor: Colors.border,
+		maxHeight: 200,
+	},
+	errorText: {
+		...Typography.caption,
+		color: Colors.error,
+		marginTop: Spacing.xs,
+	},
 });
 
 export { PostForm };

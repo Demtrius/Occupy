@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
 	View,
 	Text,
@@ -8,17 +8,17 @@ import {
 	Platform,
 	Modal,
 	TouchableWithoutFeedback,
-} from 'react-native'
-import { useNavigation } from '@react-navigation/native'
-import DateTimePicker from '@react-native-community/datetimepicker'
-import { Ionicons } from '@expo/vector-icons'
-import { availabilityService } from '../services'
-import { showError, showSuccess } from '../store/app.store'
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Ionicons } from "@expo/vector-icons";
+import { availabilityService } from "../services";
+import { showError, showSuccess } from "../store/app.store";
 import {
 	RootStackParamList,
 	ScreenNavigationProp,
 	ScreenRouteProp,
-} from '../types'
+} from "../types";
 import {
 	ScreenHeader,
 	FormSection,
@@ -28,116 +28,117 @@ import {
 	OptionGrid,
 	SwitchRow,
 	Option,
-} from '../components'
+} from "../components";
 import {
 	Colors,
 	Spacing,
 	Typography,
 	BorderRadius,
 	CommonStyles,
-} from '../theme'
+} from "../theme";
 
 interface Props {
-	route: ScreenRouteProp<'AvailabilityCreate'>
+	route: ScreenRouteProp<"AvailabilityCreate">;
 }
 
 const DAYS_OF_WEEK: Option[] = [
-	{ value: '0', label: 'Sun' },
-	{ value: '1', label: 'Mon' },
-	{ value: '2', label: 'Tue' },
-	{ value: '3', label: 'Wed' },
-	{ value: '4', label: 'Thu' },
-	{ value: '5', label: 'Fri' },
-	{ value: '6', label: 'Sat' },
-]
+	{ value: "0", label: "Sun" },
+	{ value: "1", label: "Mon" },
+	{ value: "2", label: "Tue" },
+	{ value: "3", label: "Wed" },
+	{ value: "4", label: "Thu" },
+	{ value: "5", label: "Fri" },
+	{ value: "6", label: "Sat" },
+];
 
 const DAY_NAMES = [
-	'Sunday',
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Friday',
-	'Saturday',
-]
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+];
 
-type PickerType = 'date' | 'start' | 'end' | null
+type PickerType = "date" | "start" | "end" | null;
 
 const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
-	const navigation = useNavigation<ScreenNavigationProp<'AvailabilityCreate'>>()
-	const { cliqueId } = route.params
+	const navigation =
+		useNavigation<ScreenNavigationProp<"AvailabilityCreate">>();
+	const { cliqueId } = route.params;
 
-	const [isRecurring, setIsRecurring] = useState<boolean>(false)
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-	const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<string>('1') // Monday by default
-	const [visiblePicker, setVisiblePicker] = useState<PickerType>(null)
-	const [startTime, setStartTime] = useState<Date>(new Date())
-	const [endTime, setEndTime] = useState<Date>(new Date())
-	const [submitting, setSubmitting] = useState<boolean>(false)
+	const [isRecurring, setIsRecurring] = useState<boolean>(false);
+	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+	const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<string>("1"); // Monday by default
+	const [visiblePicker, setVisiblePicker] = useState<PickerType>(null);
+	const [startTime, setStartTime] = useState<Date>(new Date());
+	const [endTime, setEndTime] = useState<Date>(new Date());
+	const [submitting, setSubmitting] = useState<boolean>(false);
 
 	// Initialize times to reasonable defaults
 	React.useEffect(() => {
-		const now = new Date()
-		const start = new Date(now)
-		start.setHours(9, 0, 0, 0)
-		setStartTime(start)
+		const now = new Date();
+		const start = new Date(now);
+		start.setHours(9, 0, 0, 0);
+		setStartTime(start);
 
-		const end = new Date(now)
-		end.setHours(17, 0, 0, 0)
-		setEndTime(end)
-	}, [])
+		const end = new Date(now);
+		end.setHours(17, 0, 0, 0);
+		setEndTime(end);
+	}, []);
 
 	const formatDateForAPI = (date: Date): string => {
-		const year = date.getFullYear()
-		const month = String(date.getMonth() + 1).padStart(2, '0')
-		const day = String(date.getDate()).padStart(2, '0')
-		return `${year}-${month}-${day}`
-	}
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, "0");
+		const day = String(date.getDate()).padStart(2, "0");
+		return `${year}-${month}-${day}`;
+	};
 
 	const formatTimeForAPI = (date: Date): string => {
-		const hours = String(date.getHours()).padStart(2, '0')
-		const minutes = String(date.getMinutes()).padStart(2, '0')
-		return `${hours}:${minutes}:00`
-	}
+		const hours = String(date.getHours()).padStart(2, "0");
+		const minutes = String(date.getMinutes()).padStart(2, "0");
+		return `${hours}:${minutes}:00`;
+	};
 
 	const formatTimeDisplay = (date: Date): string => {
-		return date.toLocaleTimeString('en-US', {
-			hour: 'numeric',
-			minute: '2-digit',
+		return date.toLocaleTimeString("en-US", {
+			hour: "numeric",
+			minute: "2-digit",
 			hour12: true,
-		})
-	}
+		});
+	};
 
 	const validateForm = (): boolean => {
 		// Check if start time is before end time
 		if (startTime >= endTime) {
-			showError('Start time must be before end time')
-			return false
+			showError("Start time must be before end time");
+			return false;
 		}
 
 		// If not recurring, check if the date is in the future
 		if (!isRecurring) {
-			const today = new Date()
-			today.setHours(0, 0, 0, 0)
-			const selected = new Date(selectedDate)
-			selected.setHours(0, 0, 0, 0)
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			const selected = new Date(selectedDate);
+			selected.setHours(0, 0, 0, 0);
 
 			if (selected < today) {
-				showError('Please select a future date')
-				return false
+				showError("Please select a future date");
+				return false;
 			}
 		}
 
-		return true
-	}
+		return true;
+	};
 
 	const handleCreateAvailability = async () => {
 		if (!validateForm()) {
-			return
+			return;
 		}
 
 		try {
-			setSubmitting(true)
+			setSubmitting(true);
 
 			const availabilityData = {
 				cliqueId,
@@ -147,80 +148,80 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 				...(isRecurring
 					? { dayOfWeek: parseInt(selectedDayOfWeek) }
 					: { date: formatDateForAPI(selectedDate) }),
-			}
+			};
 
-			await availabilityService.createAvailability(availabilityData)
-			showSuccess('Availability created successfully!')
-			navigation.goBack()
+			await availabilityService.createAvailability(availabilityData);
+			showSuccess("Availability created successfully!");
+			navigation.goBack();
 		} catch (error: any) {
-			console.error('Error creating availability:', error)
-			showError(error.message || 'Failed to create availability')
+			console.error("Error creating availability:", error);
+			showError(error.message || "Failed to create availability");
 		} finally {
-			setSubmitting(false)
+			setSubmitting(false);
 		}
-	}
+	};
 
 	const onDateChange = (event: any, newDate?: Date) => {
-		const currentDate = newDate || selectedDate
-		if (Platform.OS === 'android') {
-			setVisiblePicker(null)
+		const currentDate = newDate || selectedDate;
+		if (Platform.OS === "android") {
+			setVisiblePicker(null);
 		}
-		setSelectedDate(currentDate)
-	}
+		setSelectedDate(currentDate);
+	};
 
 	const onStartTimeChange = (event: any, newTime?: Date) => {
-		const currentTime = newTime || startTime
-		if (Platform.OS === 'android') {
-			setVisiblePicker(null)
+		const currentTime = newTime || startTime;
+		if (Platform.OS === "android") {
+			setVisiblePicker(null);
 		}
-		setStartTime(currentTime)
-	}
+		setStartTime(currentTime);
+	};
 
 	const onEndTimeChange = (event: any, newTime?: Date) => {
-		const currentTime = newTime || endTime
-		if (Platform.OS === 'android') {
-			setVisiblePicker(null)
+		const currentTime = newTime || endTime;
+		if (Platform.OS === "android") {
+			setVisiblePicker(null);
 		}
-		setEndTime(currentTime)
-	}
+		setEndTime(currentTime);
+	};
 
 	const calculateDuration = () => {
-		const durationMs = endTime.getTime() - startTime.getTime()
-		const hours = Math.floor(durationMs / (1000 * 60 * 60))
-		const minutes = Math.floor((durationMs / (1000 * 60)) % 60)
-		return { hours, minutes }
-	}
+		const durationMs = endTime.getTime() - startTime.getTime();
+		const hours = Math.floor(durationMs / (1000 * 60 * 60));
+		const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
+		return { hours, minutes };
+	};
 
-	const duration = calculateDuration()
+	const duration = calculateDuration();
 
 	const renderPicker = () => {
-		if (visiblePicker === null) return null
+		if (visiblePicker === null) return null;
 
 		const pickerProps: any = {
 			value: selectedDate,
-			mode: 'date',
-			display: Platform.OS === 'ios' ? 'spinner' : 'default',
+			mode: "date",
+			display: Platform.OS === "ios" ? "spinner" : "default",
 			onChange: onDateChange,
 			minimumDate: new Date(),
+		};
+
+		if (visiblePicker === "start") {
+			pickerProps.value = startTime;
+			pickerProps.mode = "time";
+			pickerProps.onChange = onStartTimeChange;
 		}
 
-		if (visiblePicker === 'start') {
-			pickerProps.value = startTime
-			pickerProps.mode = 'time'
-			pickerProps.onChange = onStartTimeChange
+		if (visiblePicker === "end") {
+			pickerProps.value = endTime;
+			pickerProps.mode = "time";
+			pickerProps.onChange = onEndTimeChange;
 		}
 
-		if (visiblePicker === 'end') {
-			pickerProps.value = endTime
-			pickerProps.mode = 'time'
-			pickerProps.onChange = onEndTimeChange
-		}
-
-		if (Platform.OS === 'ios') {
+		if (Platform.OS === "ios") {
 			return (
 				<Modal
 					transparent={true}
-					animationType='fade'
+					animationType="fade"
 					visible={visiblePicker !== null}
 					onRequestClose={() => setVisiblePicker(null)}
 				>
@@ -230,7 +231,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 								<View style={styles.modalContent}>
 									<DateTimePicker {...pickerProps} />
 									<PrimaryButton
-										title='Done'
+										title="Done"
 										onPress={() => setVisiblePicker(null)}
 									/>
 								</View>
@@ -238,16 +239,16 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 						</View>
 					</TouchableWithoutFeedback>
 				</Modal>
-			)
+			);
 		}
 
-		return <DateTimePicker {...pickerProps} />
-	}
+		return <DateTimePicker {...pickerProps} />;
+	};
 
 	return (
 		<View style={CommonStyles.container}>
 			<ScreenHeader
-				title='Create Availability'
+				title="Create Availability"
 				onBack={() => navigation.goBack()}
 			/>
 
@@ -255,11 +256,11 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 				{/* Recurring Toggle */}
 				<FormSection>
 					<SwitchRow
-						label='Recurring Availability'
+						label="Recurring Availability"
 						description={
 							isRecurring
-								? 'Repeats weekly on the selected day'
-								: 'One-time availability for a specific date'
+								? "Repeats weekly on the selected day"
+								: "One-time availability for a specific date"
 						}
 						value={isRecurring}
 						onValueChange={setIsRecurring}
@@ -274,11 +275,11 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 							<OptionGrid
 								options={DAYS_OF_WEEK}
 								selectedValue={selectedDayOfWeek}
-								onSelect={value => setSelectedDayOfWeek(value)}
+								onSelect={(value) => setSelectedDayOfWeek(value)}
 							/>
-							<InfoBox variant='info' style={styles.dayInfoBox}>
+							<InfoBox variant="info" style={styles.dayInfoBox}>
 								<Text style={styles.infoText}>
-									This availability will repeat every{' '}
+									This availability will repeat every{" "}
 									{DAY_NAMES[parseInt(selectedDayOfWeek)]}
 								</Text>
 							</InfoBox>
@@ -288,23 +289,23 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 							<FormLabel required>Select Date</FormLabel>
 							<TouchableOpacity
 								style={styles.dateButton}
-								onPress={() => setVisiblePicker('date')}
+								onPress={() => setVisiblePicker("date")}
 							>
 								<Ionicons
-									name='calendar-outline'
+									name="calendar-outline"
 									size={20}
 									color={Colors.primary}
 								/>
 								<Text style={styles.dateButtonText}>
-									{selectedDate.toLocaleDateString('en-US', {
-										weekday: 'long',
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
+									{selectedDate.toLocaleDateString("en-US", {
+										weekday: "long",
+										year: "numeric",
+										month: "long",
+										day: "numeric",
 									})}
 								</Text>
 								<Ionicons
-									name='chevron-down-outline'
+									name="chevron-down-outline"
 									size={20}
 									color={Colors.textTertiary}
 								/>
@@ -321,7 +322,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 					<View style={styles.timeRow}>
 						<View style={styles.timeLabel}>
 							<Ionicons
-								name='time-outline'
+								name="time-outline"
 								size={18}
 								color={Colors.textSecondary}
 							/>
@@ -329,13 +330,13 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 						</View>
 						<TouchableOpacity
 							style={styles.timeButton}
-							onPress={() => setVisiblePicker('start')}
+							onPress={() => setVisiblePicker("start")}
 						>
 							<Text style={styles.timeButtonText}>
 								{formatTimeDisplay(startTime)}
 							</Text>
 							<Ionicons
-								name='chevron-down-outline'
+								name="chevron-down-outline"
 								size={18}
 								color={Colors.textTertiary}
 							/>
@@ -346,7 +347,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 					<View style={styles.timeRow}>
 						<View style={styles.timeLabel}>
 							<Ionicons
-								name='time-outline'
+								name="time-outline"
 								size={18}
 								color={Colors.textSecondary}
 							/>
@@ -354,13 +355,13 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 						</View>
 						<TouchableOpacity
 							style={styles.timeButton}
-							onPress={() => setVisiblePicker('end')}
+							onPress={() => setVisiblePicker("end")}
 						>
 							<Text style={styles.timeButtonText}>
 								{formatTimeDisplay(endTime)}
 							</Text>
 							<Ionicons
-								name='chevron-down-outline'
+								name="chevron-down-outline"
 								size={18}
 								color={Colors.textTertiary}
 							/>
@@ -370,7 +371,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 					{/* Duration Display */}
 					<View style={styles.durationDisplay}>
 						<Ionicons
-							name='hourglass-outline'
+							name="hourglass-outline"
 							size={16}
 							color={Colors.primary}
 						/>
@@ -381,7 +382,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 				</FormSection>
 
 				{/* Info Box */}
-				<InfoBox variant='warning' style={styles.tipBox}>
+				<InfoBox variant="warning" style={styles.tipBox}>
 					<Text style={styles.infoText}>
 						Tip: Create multiple availability slots to give clients more booking
 						options. You can set different hours for different days.
@@ -390,7 +391,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 
 				{/* Create Button */}
 				<PrimaryButton
-					title='Create Availability'
+					title="Create Availability"
 					onPress={handleCreateAvailability}
 					disabled={submitting}
 					loading={submitting}
@@ -401,8 +402,8 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 			</ScrollView>
 			{renderPicker()}
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	content: {
@@ -410,8 +411,8 @@ const styles = StyleSheet.create({
 		padding: Spacing.lg,
 	},
 	dateButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
+		flexDirection: "row",
+		alignItems: "center",
 		backgroundColor: Colors.white,
 		padding: Spacing.lg,
 		borderRadius: BorderRadius.md,
@@ -428,14 +429,14 @@ const styles = StyleSheet.create({
 		marginTop: Spacing.md,
 	},
 	timeRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
 		marginBottom: Spacing.md,
 	},
 	timeLabel: {
-		flexDirection: 'row',
-		alignItems: 'center',
+		flexDirection: "row",
+		alignItems: "center",
 		gap: Spacing.sm,
 	},
 	timeLabelText: {
@@ -443,8 +444,8 @@ const styles = StyleSheet.create({
 		color: Colors.textPrimary,
 	},
 	timeButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
+		flexDirection: "row",
+		alignItems: "center",
 		backgroundColor: Colors.white,
 		paddingVertical: Spacing.md,
 		paddingHorizontal: Spacing.lg,
@@ -460,8 +461,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	durationDisplay: {
-		flexDirection: 'row',
-		alignItems: 'center',
+		flexDirection: "row",
+		alignItems: "center",
 		backgroundColor: Colors.gray50,
 		padding: Spacing.md,
 		borderRadius: BorderRadius.md,
@@ -485,16 +486,16 @@ const styles = StyleSheet.create({
 	},
 	modalContainer: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'rgba(0,0,0,0.5)',
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "rgba(0,0,0,0.5)",
 	},
 	modalContent: {
-		backgroundColor: 'white',
+		backgroundColor: "white",
 		padding: 20,
 		borderRadius: 20,
-		width: '90%',
+		width: "90%",
 	},
-})
+});
 
-export default AvailabilityCreateScreen
+export default AvailabilityCreateScreen;

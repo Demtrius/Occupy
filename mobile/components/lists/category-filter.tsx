@@ -1,14 +1,14 @@
-import React from 'react'
-import { Dimensions, ScrollView, StyleSheet } from 'react-native'
-import { Button } from 'react-native-paper'
-import type { Clique } from '../../types'
+import React from "react";
+import { Dimensions, ScrollView, StyleSheet } from "react-native";
+import { Button } from "react-native-paper";
+import type { Clique } from "../../types";
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get("window");
 
 interface CategoryFilterProps {
-	cliques: Clique[]
-	category: number | 'all'
-	onFilter: (category: number | 'all') => void
+	cliques: Clique[];
+	category: number | "all";
+	onFilter: (category: number | "all") => void;
 }
 
 const CategoryFilter: React.FC<CategoryFilterProps> = ({
@@ -24,20 +24,20 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 			style={styles.categoryContainer}
 		>
 			<Button
-				mode={category === 'all' ? 'contained' : 'outlined'}
-				onPress={() => onFilter('all')}
-				color='#6ba32d'
+				mode={category === "all" ? "contained" : "outlined"}
+				onPress={() => onFilter("all")}
+				color="#6ba32d"
 				contentStyle={styles.buttonContent}
 				style={styles.button}
 			>
 				All
 			</Button>
-			{cliques.map(clique => (
+			{cliques.map((clique) => (
 				<Button
 					key={clique.id}
-					mode={category === clique.id ? 'contained' : 'outlined'}
+					mode={category === clique.id ? "contained" : "outlined"}
 					onPress={() => onFilter(clique.id)}
-					color='#6ba32d'
+					color="#6ba32d"
 					contentStyle={styles.buttonContent}
 					style={styles.button}
 				>
@@ -45,8 +45,8 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
 				</Button>
 			))}
 		</ScrollView>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	categoryContainer: {
@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
 		maxHeight: 36,
 	},
 	scrollViewContent: {
-		flexDirection: 'row',
-		justifyContent: 'space-around',
+		flexDirection: "row",
+		justifyContent: "space-around",
 		paddingHorizontal: width * 0.04,
 	},
 	button: {
@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
 		paddingVertical: 0,
 		paddingHorizontal: 0,
 	},
-})
+});
 
-export { CategoryFilter }
+export { CategoryFilter };

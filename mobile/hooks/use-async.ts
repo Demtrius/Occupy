@@ -2,15 +2,15 @@ import { useState, useCallback, useMemo } from "react";
 import { ApiError } from "../types";
 
 interface UseAsyncReturn<T> {
-  execute: () => Promise<T | undefined>;
-  status: "idle" | "pending" | "success" | "error";
-  data: T | null;
-  error: ApiError | null;
-  isLoading: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  isIdle: boolean;
-  reset: () => void;
+	execute: () => Promise<T | undefined>;
+	status: "idle" | "pending" | "success" | "error";
+	data: T | null;
+	error: ApiError | null;
+	isLoading: boolean;
+	isSuccess: boolean;
+	isError: boolean;
+	isIdle: boolean;
+	reset: () => void;
 }
 
 /**
@@ -30,51 +30,51 @@ interface UseAsyncReturn<T> {
  * }, []);
  */
 export function useAsync<T>(
-  asyncFunction: () => Promise<T>,
+	asyncFunction: () => Promise<T>,
 ): UseAsyncReturn<T> {
-  const [status, setStatus] = useState<
-    "idle" | "pending" | "success" | "error"
-  >("idle");
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<ApiError | null>(null);
+	const [status, setStatus] = useState<
+		"idle" | "pending" | "success" | "error"
+	>("idle");
+	const [data, setData] = useState<T | null>(null);
+	const [error, setError] = useState<ApiError | null>(null);
 
-  const execute = useCallback(async () => {
-    setStatus("pending");
-    setData(null);
-    setError(null);
+	const execute = useCallback(async () => {
+		setStatus("pending");
+		setData(null);
+		setError(null);
 
-    try {
-      const response = await asyncFunction();
-      setData(response);
-      setStatus("success");
-      return response;
-    } catch (err) {
-      setError(err as ApiError);
-      setStatus("error");
-      throw err;
-    }
-  }, [asyncFunction]);
+		try {
+			const response = await asyncFunction();
+			setData(response);
+			setStatus("success");
+			return response;
+		} catch (err) {
+			setError(err as ApiError);
+			setStatus("error");
+			throw err;
+		}
+	}, [asyncFunction]);
 
-  const reset = useCallback(() => {
-    setStatus("idle");
-    setData(null);
-    setError(null);
-  }, []);
+	const reset = useCallback(() => {
+		setStatus("idle");
+		setData(null);
+		setError(null);
+	}, []);
 
-  return useMemo(
-    () => ({
-      execute,
-      status,
-      data,
-      error,
-      isLoading: status === "pending",
-      isSuccess: status === "success",
-      isError: status === "error",
-      isIdle: status === "idle",
-      reset,
-    }),
-    [execute, status, data, error, reset],
-  );
+	return useMemo(
+		() => ({
+			execute,
+			status,
+			data,
+			error,
+			isLoading: status === "pending",
+			isSuccess: status === "success",
+			isError: status === "error",
+			isIdle: status === "idle",
+			reset,
+		}),
+		[execute, status, data, error, reset],
+	);
 }
 
 export default useAsync;

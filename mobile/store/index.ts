@@ -5,12 +5,12 @@ export { useAuthStore, default as authStore } from "./auth.store";
 
 // App store
 export {
-  useAppStore,
-  default as appStore,
-  showSuccess,
-  showError,
-  showWarning,
-  showInfo,
+	useAppStore,
+	default as appStore,
+	showSuccess,
+	showError,
+	showWarning,
+	showInfo,
 } from "./app.store";
 
 // Posts store
@@ -26,7 +26,10 @@ export { useBookingsStore, default as bookingsStore } from "./bookings.store";
 export { useServicesStore, default as servicesStore } from "./services.store";
 
 // Availability store
-export { useAvailabilityStore, default as availabilityStore } from "./availability.store";
+export {
+	useAvailabilityStore,
+	default as availabilityStore,
+} from "./availability.store";
 
 // Users store
 export { useUsersStore, default as usersStore } from "./users.store";

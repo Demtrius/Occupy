@@ -1,17 +1,17 @@
-import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import { ScreenNavigationProp } from '../../types'
-import type { User } from '../../types'
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { ScreenNavigationProp } from "../../types";
+import type { User } from "../../types";
 
 interface MenuSectionProps {
-	showAccountInfo: boolean
-	toggleAccountInfo: () => void
-	showAppearanceInfo: boolean
-	toggleAppearanceInfo: () => void
-	showLanguageInfo: boolean
-	toggleLanguageInfo: () => void
-	navigation: ScreenNavigationProp<'Profile'>
-	user: User | null
+	showAccountInfo: boolean;
+	toggleAccountInfo: () => void;
+	showAppearanceInfo: boolean;
+	toggleAppearanceInfo: () => void;
+	showLanguageInfo: boolean;
+	toggleLanguageInfo: () => void;
+	navigation: ScreenNavigationProp<"Profile">;
+	user: User | null;
 }
 
 const MenuSection: React.FC<MenuSectionProps> = ({
@@ -28,21 +28,21 @@ const MenuSection: React.FC<MenuSectionProps> = ({
 		<View style={styles.menu}>
 			<TouchableOpacity style={styles.menuItem} onPress={toggleAccountInfo}>
 				<Text style={styles.menuText}>Account info</Text>
-				<Text style={styles.menuIcon}>{showAccountInfo ? '▼' : '▶'}</Text>
+				<Text style={styles.menuIcon}>{showAccountInfo ? "▼" : "▶"}</Text>
 			</TouchableOpacity>
 			{showAccountInfo && (
 				<View style={styles.accountInfo}>
 					<Text style={styles.infoText}>Username: {user?.username}</Text>
 					<Text style={styles.infoText}>Email: {user?.email}</Text>
 					<Text style={styles.infoText}>
-						Occupations: {user?.occupations || 'None'}
+						Occupations: {user?.occupations || "None"}
 					</Text>
 				</View>
 			)}
 
 			<TouchableOpacity
 				style={styles.menuItem}
-				onPress={() => navigation.navigate('NotificationsTab')}
+				onPress={() => navigation.navigate("NotificationsTab")}
 			>
 				<Text style={styles.menuText}>Recent messages</Text>
 				<Text style={styles.menuIcon}>▶</Text>
@@ -55,7 +55,7 @@ const MenuSection: React.FC<MenuSectionProps> = ({
 
 			<TouchableOpacity style={styles.menuItem} onPress={toggleAppearanceInfo}>
 				<Text style={styles.menuText}>Appearance</Text>
-				<Text style={styles.menuIcon}>{showAppearanceInfo ? '▼' : '▶'}</Text>
+				<Text style={styles.menuIcon}>{showAppearanceInfo ? "▼" : "▶"}</Text>
 			</TouchableOpacity>
 			{showAppearanceInfo && (
 				<View style={styles.accountInfo}>
@@ -65,7 +65,7 @@ const MenuSection: React.FC<MenuSectionProps> = ({
 
 			<TouchableOpacity style={styles.menuItem} onPress={toggleLanguageInfo}>
 				<Text style={styles.menuText}>Language</Text>
-				<Text style={styles.menuIcon}>{showLanguageInfo ? '▼' : '▶'}</Text>
+				<Text style={styles.menuIcon}>{showLanguageInfo ? "▼" : "▶"}</Text>
 			</TouchableOpacity>
 			{showLanguageInfo && (
 				<View style={styles.accountInfo}>
@@ -73,8 +73,8 @@ const MenuSection: React.FC<MenuSectionProps> = ({
 				</View>
 			)}
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	menu: {
@@ -82,33 +82,33 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 20,
 	},
 	menuItem: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
 		paddingVertical: 15,
 		borderBottomWidth: 1,
-		borderBottomColor: '#eee',
+		borderBottomColor: "#eee",
 	},
 	menuText: {
 		fontSize: 16,
-		color: '#333',
+		color: "#333",
 	},
 	menuIcon: {
 		fontSize: 12,
-		color: '#999',
+		color: "#999",
 	},
 	accountInfo: {
 		paddingVertical: 10,
 		paddingHorizontal: 15,
-		backgroundColor: '#f9f9f9',
+		backgroundColor: "#f9f9f9",
 		borderRadius: 5,
 		marginBottom: 10,
 	},
 	infoText: {
 		fontSize: 14,
-		color: '#555',
+		color: "#555",
 		marginBottom: 5,
 	},
-})
+});
 
-export { MenuSection }
+export { MenuSection };

@@ -14,8 +14,8 @@ export { useDebounce, default as useDebounceDefault } from "./use-debounce";
 
 // Pagination hook
 export {
-  usePagination,
-  default as usePaginationDefault,
+	usePagination,
+	default as usePaginationDefault,
 } from "./use-pagination";
 
 // Toggle hook
@@ -25,7 +25,10 @@ export { useToggle, default as useToggleDefault } from "./use-toggle";
 export { usePostForm, default as usePostFormDefault } from "./use-post-form";
 
 // Clique form hook
-export { useCliqueForm, default as useCliqueFormDefault } from "./use-clique-form";
+export {
+	useCliqueForm,
+	default as useCliqueFormDefault,
+} from "./use-clique-form";
 
 // Re-export types
 export type { ApiError } from "../types";
