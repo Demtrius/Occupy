@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from 'react'
 import {
 	View,
 	StyleSheet,
@@ -9,104 +9,117 @@ import {
 	ScrollView,
 	Image,
 	Dimensions,
-} from "react-native";
-import { useAuthStore } from "../store/auth.store";
-import { showError, showSuccess } from "../store/app.store";
-import { LoginCredentials, ScreenNavigationProp } from "../types";
+} from 'react-native'
+import { useAuthStore } from '../store/auth.store'
+import { showError, showSuccess } from '../store/app.store'
+import { LoginCredentials, ScreenNavigationProp } from '../types'
 import {
 	FormSection,
 	FormLabel,
 	FormInput,
 	PrimaryButton,
 	InfoBox,
-} from "../components";
-import { Colors, Spacing, Typography, BorderRadius } from "../theme";
+} from '../components'
+import { Colors, Spacing, Typography, BorderRadius } from '../theme'
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window')
 
 interface SignInProps {
-	navigation: ScreenNavigationProp<"SignIn">;
+	navigation: ScreenNavigationProp<'SignIn'>
 }
 
 interface FormErrors {
-	email?: string;
-	password?: string;
+	email?: string
+	password?: string
 }
 
 const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
-	const login = useAuthStore((state) => state.login);
-	const isLoading = useAuthStore((state) => state.isLoading);
-	const error = useAuthStore((state) => state.error);
-	const clearError = useAuthStore((state) => state.clearError);
+	const login = useAuthStore(state => state.login)
+	const isLoading = useAuthStore(state => state.isLoading)
+	const error = useAuthStore(state => state.error)
+	const clearError = useAuthStore(state => state.clearError)
 
-	const [email, setEmail] = useState<string>("");
-	const [password, setPassword] = useState<string>("");
-	const [securePassword, setSecurePassword] = useState<boolean>(true);
-	const [formErrors, setFormErrors] = useState<FormErrors>({});
+	const [emailOrUsername, setEmailOrUsername] = useState<string>('')
+	const isEmail = useRef<boolean>(false)
+	const [password, setPassword] = useState<string>('')
+	const [securePassword, setSecurePassword] = useState<boolean>(true)
+	const [formErrors, setFormErrors] = useState<FormErrors>({})
 
 	// Validate form
 	const validateForm = (): boolean => {
-		const errors: FormErrors = {};
+		const errors: FormErrors = {}
 
 		// Email validation
-		if (!email.trim()) {
-			errors.email = "Email is required";
-		} else if (!/\S+@\S+\.\S+/.test(email)) {
-			errors.email = "Email is invalid";
+		if (!emailOrUsername.trim()) {
+			errors.email = 'Email is required'
+		} else if (!/\S+@\S+\.\S+/.test(emailOrUsername)) {
+			// errors.email = 'Email is invalid'
+			isEmail.current = false
+		} else {
+			isEmail.current = true
 		}
 
 		// Password validation
 		if (!password.trim()) {
-			errors.password = "Password is required";
+			errors.password = 'Password is required'
 		} else if (password.length < 6) {
-			errors.password = "Password must be at least 6 characters";
+			errors.password = 'Password must be at least 6 characters'
 		}
 
-		setFormErrors(errors);
-		return Object.keys(errors).length === 0;
-	};
+		setFormErrors(errors)
+		return Object.keys(errors).length === 0
+	}
 
 	// Handle login
 	const handleLogin = async () => {
 		// Clear previous errors
-		clearError();
-		setFormErrors({});
+		clearError()
+		setFormErrors({})
 
 		// Validate form
 		if (!validateForm()) {
-			return;
+			return
 		}
 
 		try {
-			const credentials: LoginCredentials = {
-				email: email.trim().toLowerCase(),
-				password,
-			};
+			let credentials: LoginCredentials | null = null
 
-			await login(credentials);
-			showSuccess("Login successful!");
+			if (isEmail.current) {
+				credentials = {
+					email: emailOrUsername.trim().toLowerCase(),
+					password,
+				}
+			} else {
+				credentials = {
+					username: emailOrUsername.trim().toLowerCase(),
+					password,
+				}
+			}
+
+			await login(credentials)
+			showSuccess('Login successful!')
 		} catch (err: any) {
-			console.error("Login error:", err);
+			console.error('Login error:', err)
 			const errorMessage =
-				err.message || "Login failed. Please check your credentials.";
-			showError(errorMessage);
+				err.message || 'Login failed. Please check your credentials.'
+			showError(errorMessage)
 		}
-	};
+	}
 
 	return (
 		<KeyboardAvoidingView
 			style={styles.container}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 		>
 			<ScrollView
 				contentContainerStyle={styles.scrollContent}
-				keyboardShouldPersistTaps="handled"
+				keyboardShouldPersistTaps='handled'
 				showsVerticalScrollIndicator={false}
 			>
 				<View style={styles.content}>
 					{/* Logo */}
 					<Image
-						source={require("../assets/occupyLogo.png")}
+						source={require('../assets/occupyLogo.png')}
 						style={styles.logo}
 					/>
 
@@ -115,7 +128,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 
 					{/* Display global error */}
 					{error && (
-						<InfoBox variant="error" style={styles.errorBox}>
+						<InfoBox variant='error' style={styles.errorBox}>
 							{error}
 						</InfoBox>
 					)}
@@ -124,17 +137,17 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 					<View style={styles.inputGroup}>
 						<FormLabel>Email</FormLabel>
 						<FormInput
-							value={email}
-							onChangeText={(text) => {
-								setEmail(text);
+							value={emailOrUsername}
+							onChangeText={text => {
+								setEmailOrUsername(text)
 								if (formErrors.email) {
-									setFormErrors({ ...formErrors, email: undefined });
+									setFormErrors({ ...formErrors, email: undefined })
 								}
 							}}
-							placeholder="Enter your email"
-							autoCapitalize="none"
-							keyboardType="email-address"
-							textContentType="emailAddress"
+							placeholder='Enter your email'
+							autoCapitalize='none'
+							keyboardType='email-address'
+							textContentType='emailAddress'
 							editable={!isLoading}
 						/>
 						{formErrors.email && (
@@ -148,15 +161,15 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 						<View style={styles.passwordContainer}>
 							<FormInput
 								value={password}
-								onChangeText={(text) => {
-									setPassword(text);
+								onChangeText={text => {
+									setPassword(text)
 									if (formErrors.password) {
-										setFormErrors({ ...formErrors, password: undefined });
+										setFormErrors({ ...formErrors, password: undefined })
 									}
 								}}
-								placeholder="Enter your password"
+								placeholder='Enter your password'
 								secureTextEntry={securePassword}
-								textContentType="password"
+								textContentType='password'
 								editable={!isLoading}
 								style={styles.passwordInput}
 							/>
@@ -165,7 +178,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 								style={styles.eyeIcon}
 							>
 								<Text style={styles.eyeIconText}>
-									{securePassword ? "👁️" : "👁️‍🗨️"}
+									{securePassword ? '👁️' : '👁️‍🗨️'}
 								</Text>
 							</TouchableOpacity>
 						</View>
@@ -181,7 +194,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 
 					{/* Login Button */}
 					<PrimaryButton
-						title="Login"
+						title='Login'
 						onPress={handleLogin}
 						disabled={isLoading}
 						loading={isLoading}
@@ -192,7 +205,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 					<View style={styles.footer}>
 						<Text style={styles.footerText}>Not a member? </Text>
 						<TouchableOpacity
-							onPress={() => navigation.navigate("Register")}
+							onPress={() => navigation.navigate('Register')}
 							disabled={isLoading}
 						>
 							<Text style={styles.registerText}>Register now</Text>
@@ -202,7 +215,7 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 					{/* Business Login Link */}
 					<TouchableOpacity
 						style={styles.businessContainer}
-						onPress={() => navigation.navigate("SignInBusiness")}
+						onPress={() => navigation.navigate('SignInBusiness')}
 						disabled={isLoading}
 					>
 						<Text style={styles.businessText}>Log in as business</Text>
@@ -210,8 +223,8 @@ const SignInScreen: React.FC<SignInProps> = ({ navigation }) => {
 				</View>
 			</ScrollView>
 		</KeyboardAvoidingView>
-	);
-};
+	)
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -224,18 +237,18 @@ const styles = StyleSheet.create({
 	content: {
 		flex: 1,
 		padding: Spacing.xl,
-		justifyContent: "center",
+		justifyContent: 'center',
 	},
 	logo: {
 		width: width * 0.6,
 		height: 100,
-		alignSelf: "center",
+		alignSelf: 'center',
 		marginBottom: Spacing.xxxl,
-		resizeMode: "contain",
+		resizeMode: 'contain',
 	},
 	title: {
 		...Typography.h2,
-		textAlign: "center",
+		textAlign: 'center',
 		marginBottom: Spacing.xl,
 		color: Colors.textPrimary,
 	},
@@ -246,13 +259,13 @@ const styles = StyleSheet.create({
 		marginBottom: Spacing.lg,
 	},
 	passwordContainer: {
-		position: "relative",
+		position: 'relative',
 	},
 	passwordInput: {
 		paddingRight: 50,
 	},
 	eyeIcon: {
-		position: "absolute",
+		position: 'absolute',
 		right: Spacing.md,
 		top: Spacing.md,
 		padding: Spacing.xs,
@@ -266,7 +279,7 @@ const styles = StyleSheet.create({
 		marginTop: Spacing.xs,
 	},
 	forgotPassword: {
-		alignSelf: "flex-end",
+		alignSelf: 'flex-end',
 		marginBottom: Spacing.xl,
 	},
 	forgotText: {
@@ -274,8 +287,8 @@ const styles = StyleSheet.create({
 		color: Colors.primary,
 	},
 	footer: {
-		flexDirection: "row",
-		justifyContent: "center",
+		flexDirection: 'row',
+		justifyContent: 'center',
 		marginBottom: Spacing.xl,
 	},
 	footerText: {
@@ -287,13 +300,13 @@ const styles = StyleSheet.create({
 		color: Colors.primary,
 	},
 	businessContainer: {
-		alignItems: "center",
+		alignItems: 'center',
 	},
 	businessText: {
 		...Typography.small,
 		color: Colors.primary,
-		textDecorationLine: "underline",
+		textDecorationLine: 'underline',
 	},
-});
+})
 
-export default SignInScreen;
+export default SignInScreen

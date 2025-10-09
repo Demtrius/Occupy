@@ -331,7 +331,9 @@ class MyTokenRefreshView(APIView):
 
             # Validate refresh token
             try:
-                payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
+                payload = jwt.decode(
+                    refresh_token, settings.SECRET_KEY, algorithms=["HS256"]
+                )
             except jwt.ExpiredSignatureError:
                 return Response(
                     {"detail": "Refresh token has expired"},
@@ -344,7 +346,7 @@ class MyTokenRefreshView(APIView):
                 )
 
             # Check if refresh token
-            if payload.get('token_type') != 'refresh':
+            if payload.get("token_type") != "refresh":
                 return Response(
                     {"detail": "Invalid token type"},
                     status=status.HTTP_401_UNAUTHORIZED,
@@ -352,6 +354,7 @@ class MyTokenRefreshView(APIView):
 
             # Check if blacklisted
             from .models import BlacklistedToken
+
             if BlacklistedToken.is_blacklisted(refresh_token):
                 return Response(
                     {"detail": "Token has been blacklisted"},
@@ -359,9 +362,10 @@ class MyTokenRefreshView(APIView):
                 )
 
             # Get user
-            user_id = payload.get('user_id')
+            user_id = payload.get("user_id")
             try:
                 from users.models import Occupier
+
                 user = Occupier.objects.get(id=user_id)
             except Occupier.DoesNotExist:
                 return Response(
@@ -371,11 +375,15 @@ class MyTokenRefreshView(APIView):
 
             # Generate new access token
             from .utils import create_jwt_pair_for_user
+
             tokens = create_jwt_pair_for_user(user)
 
-            return Response({
-                "access": tokens["access"],
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "access": tokens["access"],
+                },
+                status=status.HTTP_200_OK,
+            )
 
         except Exception as e:
             return Response(
@@ -415,7 +423,7 @@ class MyTokenVerifyView(APIView):
 
             # Validate token
             try:
-                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             except jwt.ExpiredSignatureError:
                 return Response(
                     {"detail": "Token has expired"},
@@ -428,7 +436,7 @@ class MyTokenVerifyView(APIView):
                 )
 
             # Check if it's an access token
-            if payload.get('token_type') != 'access':
+            if payload.get("token_type") != "access":
                 return Response(
                     {"detail": "Invalid token type"},
                     status=status.HTTP_401_UNAUTHORIZED,
@@ -479,6 +487,7 @@ class LogoutView(APIView):
             # Blacklist the refresh token
             from .models import BlacklistedToken
             from datetime import datetime, timedelta
+
             # Calculate expiration (assuming 24 hours from now for refresh tokens)
             expires_at = datetime.utcnow() + timedelta(days=1)
             BlacklistedToken.blacklist_token(refresh_token, expires_at)

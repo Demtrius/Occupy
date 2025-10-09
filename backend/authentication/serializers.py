@@ -225,6 +225,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
         """
         # Get the raw username or email and password from the request data
         username_or_email: Optional[str] = attrs.get("username") or attrs.get("email")
+
         password: Optional[str] = attrs.get("password")
 
         if not username_or_email:
@@ -236,6 +237,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
 
         # Authenticate user
         from django.contrib.auth import authenticate
+
         user = authenticate(username=username_or_email, password=password)
 
         if user is None:
@@ -246,6 +248,7 @@ class MyTokenObtainPairSerializer(serializers.Serializer):
 
         # Generate tokens
         from .utils import create_jwt_pair_for_user
+
         tokens = create_jwt_pair_for_user(user)
 
         # Add user data
