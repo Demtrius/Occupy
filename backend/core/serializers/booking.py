@@ -163,6 +163,15 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             service = Service.objects.get(id=value)
             if not service.is_active:
                 raise serializers.ValidationError("This service is not available.")
+
+            # Validate that the user is not the clique owner
+            request = self.context.get("request")
+            if request and request.user.is_authenticated:
+                if service.clique.occupier == request.user:
+                    raise serializers.ValidationError(
+                        "You cannot book your own service."
+                    )
+
             return value
         except Service.DoesNotExist:
             raise serializers.ValidationError("Service with this ID does not exist.")

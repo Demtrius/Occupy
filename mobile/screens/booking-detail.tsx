@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react'
 import {
 	View,
 	Text,
@@ -6,230 +6,236 @@ import {
 	ScrollView,
 	ActivityIndicator,
 	Alert,
-} from "react-native";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { bookingService } from "../services";
-import { showError, showSuccess } from "../store/app.store";
-import { useAuthStore } from "../store/auth.store";
+} from 'react-native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons'
+import { showError, showSuccess } from '../store/app.store'
+import { useAuthStore } from '../store/auth.store'
+import { useBookingsStore } from '../store/bookings.store'
 import {
 	BookingDetail as BookingDetailType,
 	BookingStatus,
 	ScreenNavigationProp,
 	ScreenRouteProp,
-} from "../types";
+} from '../types'
 import {
 	ScreenHeader,
 	FormLabel,
 	FormSection,
 	PrimaryButton,
 	InfoBox,
-} from "../components";
+} from '../components'
 import {
 	Colors,
 	Spacing,
 	Typography,
 	BorderRadius,
 	CommonStyles,
-} from "../theme";
+} from '../theme'
 
 interface Props {
-	route: ScreenRouteProp<"BookingDetail">;
+	route: ScreenRouteProp<'BookingDetail'>
 }
 
 const BookingDetailScreen: React.FC<Props> = ({ route }) => {
-	const navigation = useNavigation<ScreenNavigationProp<"BookingDetail">>();
-	const user = useAuthStore((state) => state.user);
-	const { id } = route.params;
+	const navigation = useNavigation<ScreenNavigationProp<'BookingDetail'>>()
+	const user = useAuthStore(state => state.user)
+	const { getBookingById, confirmBooking, cancelBooking, completeBooking } =
+		useBookingsStore()
+	const { id } = route.params
 
-	const [booking, setBooking] = useState<BookingDetailType | null>(null);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [actionLoading, setActionLoading] = useState<boolean>(false);
+	const [booking, setBooking] = useState<BookingDetailType | null>(null)
+	const [loading, setLoading] = useState<boolean>(true)
+	const [actionLoading, setActionLoading] = useState<boolean>(false)
 
-	const isProvider = booking && user && booking.provider.id === user.id;
-	const isClient = booking && user && booking.client.id === user.id;
+	const isProvider = React.useMemo(() => {
+		return !!(booking && user && booking.provider.id === user.id)
+	}, [booking, user])
+	const isClient = React.useMemo(() => {
+		return !!(booking && user && booking.client.id === user.id)
+	}, [booking, user])
 
 	useFocusEffect(
 		React.useCallback(() => {
-			loadBookingData();
-		}, [id]),
-	);
+			loadBookingData()
+		}, [id])
+	)
 
 	const loadBookingData = async () => {
 		try {
-			setLoading(true);
-			const bookingData = await bookingService.getBookingById(id);
-			setBooking(bookingData);
+			setLoading(true)
+			const bookingData = await getBookingById(id)
+			setBooking(bookingData)
 		} catch (error: any) {
-			console.error("Error loading booking:", error);
-			showError(error.message || "Failed to load booking");
-			navigation.goBack();
+			console.error('Error loading booking:', error)
+			showError(error.message || 'Failed to load booking')
+			navigation.goBack()
 		} finally {
-			setLoading(false);
+			setLoading(false)
 		}
-	};
+	}
 
 	const handleConfirmBooking = async () => {
-		if (!booking) return;
+		if (!booking) return
 
 		Alert.alert(
-			"Confirm Booking",
-			"Are you sure you want to confirm this booking?",
+			'Confirm Booking',
+			'Are you sure you want to confirm this booking?',
 			[
-				{ text: "Cancel", style: "cancel" },
+				{ text: 'Cancel', style: 'cancel' },
 				{
-					text: "Confirm",
+					text: 'Confirm',
 					onPress: async () => {
 						try {
-							setActionLoading(true);
-							await bookingService.confirmBooking(booking.id);
-							showSuccess("Booking confirmed successfully");
-							await loadBookingData();
+							setActionLoading(true)
+							await confirmBooking(booking.id)
+							showSuccess('Booking confirmed successfully')
+							await loadBookingData()
 						} catch (error: any) {
-							console.error("Error confirming booking:", error);
-							showError(error.message || "Failed to confirm booking");
+							console.error('Error confirming booking:', error)
+							showError(error.message || 'Failed to confirm booking')
 						} finally {
-							setActionLoading(false);
+							setActionLoading(false)
 						}
 					},
 				},
-			],
-		);
-	};
+			]
+		)
+	}
 
 	const handleCancelBooking = async () => {
-		if (!booking) return;
+		if (!booking) return
 
 		Alert.alert(
-			"Cancel Booking",
-			"Are you sure you want to cancel this booking?",
+			'Cancel Booking',
+			'Are you sure you want to cancel this booking?',
 			[
-				{ text: "No", style: "cancel" },
+				{ text: 'No', style: 'cancel' },
 				{
-					text: "Yes, Cancel",
-					style: "destructive",
+					text: 'Yes, Cancel',
+					style: 'destructive',
 					onPress: async () => {
 						try {
-							setActionLoading(true);
-							await bookingService.cancelBooking(booking.id);
-							showSuccess("Booking cancelled successfully");
-							await loadBookingData();
+							setActionLoading(true)
+							await cancelBooking(booking.id)
+							showSuccess('Booking cancelled successfully')
+							await loadBookingData()
 						} catch (error: any) {
-							console.error("Error cancelling booking:", error);
-							showError(error.message || "Failed to cancel booking");
+							console.error('Error cancelling booking:', error)
+							showError(error.message || 'Failed to cancel booking')
 						} finally {
-							setActionLoading(false);
+							setActionLoading(false)
 						}
 					},
 				},
-			],
-		);
-	};
+			]
+		)
+	}
 
 	const handleCompleteBooking = async () => {
-		if (!booking) return;
+		if (!booking) return
 
-		Alert.alert("Complete Booking", "Mark this booking as completed?", [
-			{ text: "Cancel", style: "cancel" },
+		Alert.alert('Complete Booking', 'Mark this booking as completed?', [
+			{ text: 'Cancel', style: 'cancel' },
 			{
-				text: "Complete",
+				text: 'Complete',
 				onPress: async () => {
 					try {
-						setActionLoading(true);
-						await bookingService.completeBooking(booking.id);
-						showSuccess("Booking completed successfully");
-						await loadBookingData();
+						setActionLoading(true)
+						await completeBooking(booking.id)
+						showSuccess('Booking completed successfully')
+						await loadBookingData()
 					} catch (error: any) {
-						console.error("Error completing booking:", error);
-						showError(error.message || "Failed to complete booking");
+						console.error('Error completing booking:', error)
+						showError(error.message || 'Failed to complete booking')
 					} finally {
-						setActionLoading(false);
+						setActionLoading(false)
 					}
 				},
 			},
-		]);
-	};
+		])
+	}
 
 	const handleWriteReview = () => {
-		if (!booking) return;
-		navigation.navigate("ReviewCreate", { bookingId: booking.id });
-	};
+		if (!booking) return
+		navigation.navigate('ReviewCreate', { bookingId: booking.id })
+	}
 
 	const getStatusColor = (status: BookingStatus): string => {
 		switch (status) {
-			case "pending":
-				return Colors.pending;
-			case "confirmed":
-				return Colors.primary;
-			case "cancelled":
-				return Colors.cancelled;
-			case "completed":
-				return Colors.completed;
+			case 'pending':
+				return Colors.pending
+			case 'confirmed':
+				return Colors.primary
+			case 'cancelled':
+				return Colors.cancelled
+			case 'completed':
+				return Colors.completed
 			default:
-				return Colors.textTertiary;
+				return Colors.textTertiary
 		}
-	};
+	}
 
 	const getStatusIcon = (status: BookingStatus): string => {
 		switch (status) {
-			case "pending":
-				return "time-outline";
-			case "confirmed":
-				return "checkmark-circle-outline";
-			case "cancelled":
-				return "close-circle-outline";
-			case "completed":
-				return "checkmark-done-circle-outline";
+			case 'pending':
+				return 'time-outline'
+			case 'confirmed':
+				return 'checkmark-circle-outline'
+			case 'cancelled':
+				return 'close-circle-outline'
+			case 'completed':
+				return 'checkmark-done-circle-outline'
 			default:
-				return "help-circle-outline";
+				return 'help-circle-outline'
 		}
-	};
+	}
 
 	const formatDate = (dateStr: string): string => {
-		const date = new Date(dateStr);
-		return date.toLocaleDateString("en-US", {
-			weekday: "long",
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	};
+		const date = new Date(dateStr)
+		return date.toLocaleDateString('en-US', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		})
+	}
 
 	const formatTime = (time: string): string => {
-		const [hours, minutes] = time.split(":");
-		const hour = parseInt(hours);
-		const ampm = hour >= 12 ? "PM" : "AM";
-		const displayHour = hour % 12 || 12;
-		return `${displayHour}:${minutes} ${ampm}`;
-	};
+		const [hours, minutes] = time.split(':')
+		const hour = parseInt(hours)
+		const ampm = hour >= 12 ? 'PM' : 'AM'
+		const displayHour = hour % 12 || 12
+		return `${displayHour}:${minutes} ${ampm}`
+	}
 
 	if (loading) {
 		return (
 			<View style={CommonStyles.centered}>
-				<ActivityIndicator size="large" color={Colors.primary} />
+				<ActivityIndicator size='large' color={Colors.primary} />
 				<Text style={styles.loadingText}>Loading booking details...</Text>
 			</View>
-		);
+		)
 	}
 
 	if (!booking) {
 		return (
 			<View style={CommonStyles.centered}>
-				<Ionicons name="alert-circle-outline" size={64} color={Colors.error} />
+				<Ionicons name='alert-circle-outline' size={64} color={Colors.error} />
 				<Text style={styles.errorText}>Booking not found</Text>
 				<PrimaryButton
-					title="Go Back"
+					title='Go Back'
 					onPress={() => navigation.goBack()}
 					style={styles.backButton}
 				/>
 			</View>
-		);
+		)
 	}
 
 	return (
 		<View style={CommonStyles.container}>
 			<ScreenHeader
-				title="Booking Details"
+				title='Booking Details'
 				onBack={() => navigation.goBack()}
 			/>
 
@@ -256,7 +262,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 				{/* Service Information */}
 				<FormSection>
 					<FormLabel>SERVICE</FormLabel>
-					<InfoBox variant="info" style={styles.serviceCard}>
+					<InfoBox variant='info' style={styles.serviceCard}>
 						<Text style={styles.serviceName}>{booking.service.title}</Text>
 						<Text style={styles.serviceDescription}>
 							{booking.service.description}
@@ -264,7 +270,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 						{booking.service.price && (
 							<View style={styles.priceRow}>
 								<Ionicons
-									name="cash-outline"
+									name='cash-outline'
 									size={18}
 									color={Colors.primary}
 								/>
@@ -280,14 +286,14 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 					<View style={styles.dateTimeCard}>
 						<View style={styles.infoRow}>
 							<Ionicons
-								name="calendar-outline"
+								name='calendar-outline'
 								size={20}
 								color={Colors.primary}
 							/>
 							<Text style={styles.infoText}>{formatDate(booking.date)}</Text>
 						</View>
 						<View style={styles.infoRow}>
-							<Ionicons name="time-outline" size={20} color={Colors.primary} />
+							<Ionicons name='time-outline' size={20} color={Colors.primary} />
 							<Text style={styles.infoText}>
 								{formatTime(booking.startTime)} - {formatTime(booking.endTime)}
 							</Text>
@@ -297,7 +303,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 
 				{/* Client/Provider Information */}
 				<FormSection>
-					<FormLabel>{isProvider ? "CLIENT" : "SERVICE PROVIDER"}</FormLabel>
+					<FormLabel>{isProvider ? 'CLIENT' : 'SERVICE PROVIDER'}</FormLabel>
 					<View style={styles.userCard}>
 						<View style={styles.userInfo}>
 							<View style={styles.avatarPlaceholder}>
@@ -327,7 +333,7 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 						<FormLabel>BUSINESS</FormLabel>
 						<View style={styles.infoCard}>
 							<Ionicons
-								name="business-outline"
+								name='business-outline'
 								size={20}
 								color={Colors.primary}
 							/>
@@ -340,17 +346,17 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 				{booking.notes && (
 					<FormSection>
 						<FormLabel>NOTES</FormLabel>
-						<InfoBox variant="warning" style={styles.notesCard}>
+						<InfoBox variant='warning' style={styles.notesCard}>
 							<Text style={styles.notesText}>{booking.notes}</Text>
 						</InfoBox>
 					</FormSection>
 				)}
 
 				{/* Cancellation Reason */}
-				{booking.status === "cancelled" && booking.cancellationReason && (
+				{booking.status === 'cancelled' && booking.cancellationReason && (
 					<FormSection>
 						<FormLabel>CANCELLATION REASON</FormLabel>
-						<InfoBox variant="error">
+						<InfoBox variant='error'>
 							<Text style={styles.cancellationText}>
 								{booking.cancellationReason}
 							</Text>
@@ -382,73 +388,73 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 				</FormSection>
 
 				{/* Action Buttons */}
-				{booking.status === "pending" && (
+				{booking.status === 'pending' && (
 					<View style={styles.actionsSection}>
 						{isProvider && (
 							<>
 								<PrimaryButton
-									title="Confirm Booking"
+									title='Confirm Booking'
 									onPress={handleConfirmBooking}
 									disabled={actionLoading}
 									loading={actionLoading}
-									variant="success"
+									variant='success'
 								/>
 								<PrimaryButton
-									title="Decline Booking"
+									title='Decline Booking'
 									onPress={handleCancelBooking}
 									disabled={actionLoading}
-									variant="danger"
+									variant='danger'
 								/>
 							</>
 						)}
 						{isClient && (
 							<PrimaryButton
-								title="Cancel Booking"
+								title='Cancel Booking'
 								onPress={handleCancelBooking}
 								disabled={actionLoading}
-								variant="danger"
+								variant='danger'
 							/>
 						)}
 					</View>
 				)}
 
-				{booking.status === "confirmed" && (
+				{booking.status === 'confirmed' && (
 					<View style={styles.actionsSection}>
 						{isProvider && (
 							<>
 								<PrimaryButton
-									title="Mark as Completed"
+									title='Mark as Completed'
 									onPress={handleCompleteBooking}
 									disabled={actionLoading}
 									loading={actionLoading}
-									variant="success"
+									variant='success'
 								/>
 								<PrimaryButton
-									title="Cancel Booking"
+									title='Cancel Booking'
 									onPress={handleCancelBooking}
 									disabled={actionLoading}
-									variant="danger"
+									variant='danger'
 								/>
 							</>
 						)}
 						{isClient && (
 							<PrimaryButton
-								title="Cancel Booking"
+								title='Cancel Booking'
 								onPress={handleCancelBooking}
 								disabled={actionLoading}
-								variant="danger"
+								variant='danger'
 							/>
 						)}
 					</View>
 				)}
 
-				{booking.status === "completed" && (
+				{booking.status === 'completed' && (
 					<View style={styles.actionsSection}>
 						{isClient && (
 							<PrimaryButton
-								title="Write Review"
+								title='Write Review'
 								onPress={handleWriteReview}
-								variant="secondary"
+								variant='secondary'
 							/>
 						)}
 					</View>
@@ -457,8 +463,8 @@ const BookingDetailScreen: React.FC<Props> = ({ route }) => {
 				<View style={styles.bottomSpacer} />
 			</ScrollView>
 		</View>
-	);
-};
+	)
+}
 
 const styles = StyleSheet.create({
 	content: {
@@ -480,15 +486,15 @@ const styles = StyleSheet.create({
 		marginTop: Spacing.lg,
 	},
 	statusContainer: {
-		alignItems: "center",
+		alignItems: 'center',
 		paddingVertical: Spacing.xl,
 		backgroundColor: Colors.white,
 		marginBottom: Spacing.lg,
 		borderRadius: BorderRadius.md,
 	},
 	statusBadge: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: Spacing.sm,
 		paddingVertical: Spacing.md,
 		paddingHorizontal: Spacing.xl,
@@ -514,8 +520,8 @@ const styles = StyleSheet.create({
 		marginBottom: Spacing.md,
 	},
 	priceRow: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: Spacing.xs,
 	},
 	priceText: {
@@ -531,8 +537,8 @@ const styles = StyleSheet.create({
 		gap: Spacing.md,
 	},
 	infoRow: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: Spacing.md,
 	},
 	infoText: {
@@ -547,8 +553,8 @@ const styles = StyleSheet.create({
 		borderColor: Colors.border,
 	},
 	userInfo: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: Spacing.md,
 	},
 	avatarPlaceholder: {
@@ -556,8 +562,8 @@ const styles = StyleSheet.create({
 		height: 50,
 		borderRadius: 25,
 		backgroundColor: Colors.primary,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	avatarText: {
 		...Typography.h3,
@@ -573,8 +579,8 @@ const styles = StyleSheet.create({
 		marginTop: Spacing.xs,
 	},
 	infoCard: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		gap: Spacing.md,
 		backgroundColor: Colors.white,
 		padding: Spacing.lg,
@@ -604,9 +610,9 @@ const styles = StyleSheet.create({
 		gap: Spacing.md,
 	},
 	metadataRow: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 	},
 	metadataLabel: {
 		...Typography.body,
@@ -623,6 +629,6 @@ const styles = StyleSheet.create({
 	bottomSpacer: {
 		height: Spacing.xl,
 	},
-});
+})
 
-export default BookingDetailScreen;
+export default BookingDetailScreen

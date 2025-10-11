@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { FormInput } from '../ui/form-input'
 import { FormLabel } from '../ui/form-label'
+import { FormActions } from '../ui/form-actions'
 import { type Option, OptionGrid } from '../ui/option-grid'
 import { Colors, Spacing, Typography } from '../../theme'
 
@@ -18,6 +19,8 @@ interface PostFormProps {
 	errors: Partial<Record<keyof PostFormValues, string>>
 	handleChange: (name: keyof PostFormValues, value: any) => void
 	cliqueOptions: { label: string; value: number }[]
+	onSubmit?: () => void
+	isSubmitting?: boolean
 }
 
 const PostForm: React.FC<PostFormProps> = ({
@@ -25,6 +28,8 @@ const PostForm: React.FC<PostFormProps> = ({
 	errors,
 	handleChange,
 	cliqueOptions,
+	onSubmit,
+	isSubmitting = false,
 }) => {
 	const [open, setOpen] = useState<boolean>(false)
 
@@ -41,12 +46,12 @@ const PostForm: React.FC<PostFormProps> = ({
 			<View style={styles.inputGroup}>
 				<FormLabel>Post Content</FormLabel>
 				<FormInput
-					value={values.caption}
-					onChangeText={text => handleChange('caption', text)}
+					value={values.content}
+					onChangeText={text => handleChange('content', text)}
 					placeholder='Share something with your clique...'
 					multiline
 					numberOfLines={5}
-					style={styles.captionInput}
+					style={styles.contentInput}
 					maxLength={500}
 					showCharacterCount
 				/>
@@ -59,12 +64,12 @@ const PostForm: React.FC<PostFormProps> = ({
 			<View style={styles.inputGroup}>
 				<FormLabel>Additional Details (Optional)</FormLabel>
 				<FormInput
-					value={values.content}
-					onChangeText={text => handleChange('content', text)}
+					value={values.caption}
+					onChangeText={text => handleChange('caption', text)}
 					placeholder='Any additional information...'
 					multiline
 					numberOfLines={3}
-					style={styles.contentInput}
+					style={styles.captionInput}
 				/>
 			</View>
 
@@ -101,6 +106,15 @@ const PostForm: React.FC<PostFormProps> = ({
 					<Text style={styles.errorText}>{errors.selectedCliqueId}</Text>
 				)}
 			</View>
+
+			{onSubmit && (
+				<FormActions
+					submitTitle='Create Post'
+					onSubmit={onSubmit}
+					isSubmitting={isSubmitting}
+					showCancel={false}
+				/>
+			)}
 		</>
 	)
 }
@@ -110,10 +124,10 @@ const styles = StyleSheet.create({
 		marginBottom: Spacing.lg,
 	},
 	captionInput: {
-		minHeight: 120,
+		minHeight: 80,
 	},
 	contentInput: {
-		minHeight: 80,
+		minHeight: 120,
 	},
 	dropdown: {
 		borderColor: Colors.border,

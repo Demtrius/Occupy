@@ -6,7 +6,6 @@ import {
 	TouchableWithoutFeedback,
 	Keyboard,
 	ScrollView,
-	TouchableOpacity,
 	KeyboardAvoidingView,
 	Platform,
 } from "react-native";
@@ -14,8 +13,8 @@ import { useNavigation } from "@react-navigation/native";
 import {
 	CliqueForm,
 	InfoBox,
-	PrimaryButton,
 	ScreenHeader,
+	FormActions,
 } from "../components";
 import { useCliqueForm } from "../hooks";
 import {
@@ -25,13 +24,12 @@ import {
 	BorderRadius,
 	CommonStyles,
 } from "../theme";
-import type { ScreenNavigationProp } from "../types";
 
 const CliqueCreate: React.FC = () => {
-	const navigation = useNavigation<ScreenNavigationProp<"CliqueCreate">>();
+	const navigation = useNavigation();
 
 	const { values, errors, handleChange, handleSubmit, isSubmitting } =
-		useCliqueForm();
+		useCliqueForm((newClique) => (navigation as any).navigate('CliqueDetail', { id: newClique.id }));
 
 	return (
 		<KeyboardAvoidingView
@@ -74,42 +72,13 @@ const CliqueCreate: React.FC = () => {
 							</Text>
 						</InfoBox>
 
-						{/* Create Button */}
-						<CliqueForm
-							values={values}
-							errors={errors}
-							handleChange={handleChange}
+						{/* Form Actions */}
+						<FormActions
+							submitTitle="Create Clique"
+							onSubmit={handleSubmit}
+							onCancel={() => (navigation as any).goBack()}
+							isSubmitting={isSubmitting}
 						/>
-
-						{/* Info Box */}
-						<InfoBox
-							variant={values.level === "PUBLIC" ? "info" : "warning"}
-							style={styles.infoBox}
-						>
-							<Text style={styles.infoText}>
-								{values.level === "PUBLIC"
-									? "Public cliques are visible to everyone and anyone can join."
-									: "Private cliques require an invitation to join and are only visible to members."}
-							</Text>
-						</InfoBox>
-
-						{/* Create Button */}
-						<PrimaryButton
-							title="Create Clique"
-							onPress={handleSubmit}
-							disabled={isSubmitting}
-							loading={isSubmitting}
-							style={{ marginBottom: Spacing.md }}
-						/>
-
-						{/* Cancel Button */}
-						<TouchableOpacity
-							style={styles.cancelButton}
-							onPress={() => navigation.goBack()}
-							disabled={isSubmitting}
-						>
-							<Text style={styles.cancelButtonText}>Cancel</Text>
-						</TouchableOpacity>
 					</View>
 				</ScrollView>
 			</TouchableWithoutFeedback>
@@ -160,17 +129,7 @@ const styles = StyleSheet.create({
 		color: Colors.textPrimary,
 		lineHeight: 20,
 	},
-	cancelButton: {
-		paddingVertical: Spacing.md,
-		borderRadius: BorderRadius.md,
-		alignItems: "center",
-		borderWidth: 1,
-		borderColor: Colors.border,
-	},
-	cancelButtonText: {
-		...Typography.bodyBold,
-		color: Colors.textSecondary,
-	},
+
 });
 
 export default CliqueCreate;

@@ -12,10 +12,9 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import { availabilityService } from "../services";
 import { showError, showSuccess } from "../store/app.store";
+import { useAvailabilityStore } from "../store/availability.store";
 import {
-	RootStackParamList,
 	ScreenNavigationProp,
 	ScreenRouteProp,
 } from "../types";
@@ -28,6 +27,7 @@ import {
 	OptionGrid,
 	SwitchRow,
 	Option,
+	FormActions,
 } from "../components";
 import {
 	Colors,
@@ -66,6 +66,7 @@ type PickerType = "date" | "start" | "end" | null;
 const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 	const navigation =
 		useNavigation<ScreenNavigationProp<"AvailabilityCreate">>();
+	const { createAvailability } = useAvailabilityStore();
 	const { cliqueId } = route.params;
 
 	const [isRecurring, setIsRecurring] = useState<boolean>(false);
@@ -150,7 +151,7 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 					: { date: formatDateForAPI(selectedDate) }),
 			};
 
-			await availabilityService.createAvailability(availabilityData);
+			await createAvailability(availabilityData);
 			showSuccess("Availability created successfully!");
 			navigation.goBack();
 		} catch (error: any) {
@@ -390,12 +391,11 @@ const AvailabilityCreateScreen: React.FC<Props> = ({ route }) => {
 				</InfoBox>
 
 				{/* Create Button */}
-				<PrimaryButton
-					title="Create Availability"
-					onPress={handleCreateAvailability}
-					disabled={submitting}
-					loading={submitting}
-					style={{ marginTop: Spacing.lg }}
+				<FormActions
+					submitTitle="Create Availability"
+					onSubmit={handleCreateAvailability}
+					isSubmitting={submitting}
+					showCancel={false}
 				/>
 
 				<View style={styles.bottomSpacer} />

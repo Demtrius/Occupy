@@ -1,4 +1,5 @@
 import { useAuthStore } from '@store/auth.store'
+import { useNavigation } from '@react-navigation/native'
 import type React from 'react'
 import {
 	Keyboard,
@@ -10,13 +11,12 @@ import {
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native'
-import { InfoBox, PostForm, PrimaryButton, ScreenHeader } from '../components'
+import { InfoBox, PostForm, ScreenHeader } from '../components'
 import { usePostForm } from '../hooks'
 import { Colors, CommonStyles, Spacing, Typography } from '../theme'
 
-type Language = 'ALL' | 'ENGLISH' | 'DUTCH' | 'GERMAN'
-
 const PostCreateScreen: React.FC = () => {
+	const navigation = useNavigation()
 	const { isLoggedIn } = useAuthStore()
 
 	const {
@@ -26,9 +26,7 @@ const PostCreateScreen: React.FC = () => {
 		handleSubmit,
 		isSubmitting,
 		cliqueOptions,
-	} = usePostForm()
-
-	console.log(values)
+	} = usePostForm(() => (navigation as any).navigate('Home'))
 
 	if (!isLoggedIn) {
 		return (
@@ -63,15 +61,8 @@ const PostCreateScreen: React.FC = () => {
 							errors={errors}
 							handleChange={handleChange}
 							cliqueOptions={cliqueOptions}
-						/>
-
-						{/* Create Button */}
-						<PrimaryButton
-							title='Create Post'
-							onPress={handleSubmit}
-							disabled={isSubmitting}
-							loading={isSubmitting}
-							style={{ marginTop: Spacing.xl }}
+							onSubmit={handleSubmit}
+							isSubmitting={isSubmitting}
 						/>
 					</View>
 				</ScrollView>

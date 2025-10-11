@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useForm } from "./use-form";
-import { cliquesService } from "../services";
+import { useCliquesStore } from "../store/cliques.store";
 import { showError, showSuccess } from "../store/app.store";
 import type { CreateCliqueData } from "../types";
 
@@ -43,7 +43,8 @@ const validate = (values: CliqueFormValues) => {
 	return errors;
 };
 
-export function useCliqueForm() {
+export function useCliqueForm(onSuccess?: (clique: any) => void) {
+	const { createClique } = useCliquesStore();
 	const form = useForm(initialValues, validate);
 
 	const handleSubmit = useCallback(async () => {
@@ -55,14 +56,15 @@ export function useCliqueForm() {
 					occupation: values.occupation.trim(),
 					description: values.description.trim(),
 				};
-				await cliquesService.createClique(cliqueData);
+				const newClique = await createClique(cliqueData);
 				showSuccess("Clique created successfully!");
 				form.reset();
+				onSuccess?.(newClique);
 			} catch (error: any) {
 				showError(error.message || "Failed to create clique");
 			}
 		});
-	}, [form]);
+	}, [form, createClique, onSuccess]);
 
 	return {
 		...form,

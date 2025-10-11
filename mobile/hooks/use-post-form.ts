@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useForm } from './use-form'
 import { useCliquesStore } from '../store/cliques.store'
-import { postsService } from '../services'
+import { usePostsStore } from '../store/posts.store'
 import { showError, showSuccess } from '../store/app.store'
 import type { CreatePostData } from '../types'
 
@@ -30,8 +30,9 @@ const validate = (values: PostFormValues) => {
 	return errors
 }
 
-export function usePostForm() {
+export function usePostForm(onSuccess?: () => void) {
 	const { cliques, fetchCliques } = useCliquesStore()
+	const { createPost } = usePostsStore()
 
 	const form = useForm(initialValues, validate)
 
@@ -39,18 +40,19 @@ export function usePostForm() {
 		await form.handleSubmit(async values => {
 			try {
 				const postData: CreatePostData = {
-					content: values.content.trim() || values.caption.trim(),
+					content: values.content.trim(),
 					caption: values.caption.trim(),
 					cliqueId: values.selectedCliqueId!,
 				}
-				await postsService.createPost(postData)
+				await createPost(postData)
 				showSuccess('Post created successfully')
 				form.reset()
+				onSuccess?.()
 			} catch (error: any) {
 				showError(error.message || 'Failed to create post')
 			}
 		})
-	}, [form])
+	}, [form, createPost, onSuccess])
 
 	useEffect(() => {
 		fetchCliques()

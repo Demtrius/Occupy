@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { postsService } from "../services/posts.service";
 import { showError } from "./app.store";
-import { Post } from "../types";
+import { Post, Comment, CreateCommentData, CreatePostData } from "../types";
 
 interface PostsState {
 	// State
@@ -29,6 +29,11 @@ interface PostsState {
 	) => Promise<void>;
 	refreshPosts: () => Promise<void>;
 	loadMorePosts: () => Promise<void>;
+	createPost: (data: CreatePostData) => Promise<Post>;
+	likePost: (postId: number) => Promise<{ likesCount: number; isLiked: boolean }>;
+	unlikePost: (postId: number) => Promise<{ likesCount: number; isLiked: boolean }>;
+	getPostComments: (postId: number) => Promise<Comment[]>;
+	createComment: (data: CreateCommentData) => Promise<Comment>;
 	clearCache: () => void;
 	reset: () => void;
 }
@@ -189,6 +194,69 @@ export const usePostsStore = create<PostsState>((set, get) => ({
 			console.error("Error loading more posts:", error);
 		} finally {
 			set({ loadingMore: false });
+		}
+	},
+
+	createPost: async (data) => {
+		try {
+			const newPost = await postsService.createPost(data);
+			set((state) => {
+				const cacheKey = "all";
+				const existingCache = state.postsCache[cacheKey] || [];
+				const updatedCache = [newPost, ...existingCache];
+				return {
+					posts: [newPost, ...state.posts],
+					postsCache: { ...state.postsCache, [cacheKey]: updatedCache },
+				};
+			});
+			return newPost;
+		} catch (error) {
+			console.error("Error creating post:", error);
+			showError("Failed to create post");
+			throw error;
+		}
+	},
+
+	likePost: async (postId: number): Promise<{ likesCount: number; isLiked: boolean }> => {
+		try {
+			const result = await postsService.likePost(postId);
+			return result;
+		} catch (error) {
+			console.error("Error liking post:", error);
+			showError(error.message || "Failed to like post");
+			throw error;
+		}
+	},
+
+	unlikePost: async (postId: number): Promise<{ likesCount: number; isLiked: boolean }> => {
+		try {
+			const result = await postsService.unlikePost(postId);
+			return result;
+		} catch (error) {
+			console.error("Error unliking post:", error);
+			showError(error.message || "Failed to unlike post");
+			throw error;
+		}
+	},
+
+	getPostComments: async (postId: number): Promise<Comment[]> => {
+		try {
+			const comments = await postsService.getPostComments(postId);
+			return comments;
+		} catch (error) {
+			console.error("Error fetching post comments:", error);
+			return [];
+		}
+	},
+
+	createComment: async (data: CreateCommentData): Promise<Comment> => {
+		try {
+			const comment = await postsService.createComment(data);
+			return comment;
+		} catch (error) {
+			console.error("Error creating comment:", error);
+			showError(error.message || "Failed to create comment");
+			throw error;
 		}
 	},
 

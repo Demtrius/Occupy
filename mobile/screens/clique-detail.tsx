@@ -7,12 +7,11 @@ import {
 	ActivityIndicator,
 	TouchableOpacity,
 	Dimensions,
-	Image,
 	ScrollView,
 	RefreshControl,
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
 	cliquesService,
 	postsService,
@@ -22,6 +21,7 @@ import {
 } from "../services";
 import { showError, showSuccess } from "../store/app.store";
 import { useAuthStore } from "../store/auth.store";
+import { useCliquesStore } from "../store";
 import {
 	Clique,
 	Post,
@@ -31,9 +31,9 @@ import {
 	ScreenNavigationProp,
 	ScreenRouteProp,
 } from "../types";
-import { PrimaryButton, PostItem } from "../components";
+import { PrimaryButton, CliqueDetailHeader, CliqueTabs, CliqueAboutTab, CliquePostsTab } from "../components";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 interface Props {
 	route: ScreenRouteProp<"CliqueDetail">;
@@ -135,8 +135,19 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 	// Reload data when screen comes into focus (e.g., after creating service/availability)
 	useFocusEffect(
 		useCallback(() => {
-			loadTabData(activeTab);
-		}, [activeTab, loadTabData]),
+			const reloadData = async () => {
+				// Reload all tab data to ensure newly created items appear
+				const tabsToLoad: TabType[] = ["Services", "Availability", "Posts"];
+				for (const tab of tabsToLoad) {
+					await loadTabData(tab);
+				}
+				// Also reload the active tab in case it wasn't in the list
+				if (!tabsToLoad.includes(activeTab)) {
+					await loadTabData(activeTab);
+				}
+			};
+			reloadData();
+		}, [loadTabData, activeTab]),
 	);
 
 	const onRefresh = async () => {
@@ -156,6 +167,8 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 		await loadTabData(tab);
 	};
 
+	const { joinClique, leaveClique } = useCliquesStore();
+
 	const handleJoinLeave = async () => {
 		if (!isLoggedIn) {
 			showError("Please log in to join this clique");
@@ -165,11 +178,11 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 		try {
 			setJoiningClique(true);
 			if (isMember) {
-				await cliquesService.leaveClique(id);
+				await leaveClique(id);
 				setIsMember(false);
 				showSuccess("Left the clique");
 			} else {
-				await cliquesService.joinClique(id);
+				await joinClique(id);
 				setIsMember(true);
 				showSuccess("Joined the clique");
 			}
@@ -185,6 +198,10 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 	const handleBookService = (service: Service) => {
 		if (!isLoggedIn) {
 			showError("Please log in to book a service");
+			return;
+		}
+		if (isOwner) {
+			showError("You cannot book your own service");
 			return;
 		}
 		// Navigate to booking screen (to be created)
@@ -213,55 +230,7 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 		return baseTabs;
 	};
 
-	// Render About Tab
-	const renderAboutTab = () => (
-		<ScrollView
-			style={styles.tabContent}
-			showsVerticalScrollIndicator={false}
-			refreshControl={
-				<RefreshControl
-					refreshing={refreshing}
-					onRefresh={onRefresh}
-					tintColor="#6ba32d"
-					colors={["#6ba32d"]}
-				/>
-			}
-		>
-			<View style={styles.aboutContainer}>
-				<Text style={styles.sectionTitle}>Description</Text>
-				<Text style={styles.description}>
-					{clique?.description || "No description available"}
-				</Text>
 
-				<View style={styles.statsContainer}>
-					<View style={styles.statItem}>
-						<Ionicons name="people" size={24} color="#6ba32d" />
-						<Text style={styles.statNumber}>{clique?.membersCount || 0}</Text>
-						<Text style={styles.statLabel}>Members</Text>
-					</View>
-					<View style={styles.statItem}>
-						<Ionicons name="document-text" size={24} color="#6ba32d" />
-						<Text style={styles.statNumber}>{clique?.postsCount || 0}</Text>
-						<Text style={styles.statLabel}>Posts</Text>
-					</View>
-					<View style={styles.statItem}>
-						<Ionicons name="calendar" size={24} color="#6ba32d" />
-						<Text style={styles.statNumber}>{services.length}</Text>
-						<Text style={styles.statLabel}>Services</Text>
-					</View>
-				</View>
-
-				{clique?.createdAt && (
-					<View style={styles.infoRow}>
-						<Ionicons name="calendar-outline" size={20} color="#6B7280" />
-						<Text style={styles.infoText}>
-							Created {new Date(clique.createdAt).toLocaleDateString()}
-						</Text>
-					</View>
-				)}
-			</View>
-		</ScrollView>
-	);
 
 	// Render Services Tab
 	const renderServicesTab = () => (
@@ -288,13 +257,15 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 								{item.durationMinutes} min
 							</Text>
 						</View>
-						<PrimaryButton
-							title={item.isActive ? "Book Now" : "Unavailable"}
-							onPress={() => handleBookService(item)}
-							disabled={!item.isActive}
-							style={{ margin: 0, paddingVertical: 8, paddingHorizontal: 16 }}
-							textStyle={{ fontSize: 14 }}
-						/>
+						{!isOwner && (
+							<PrimaryButton
+								title={item.isActive ? "Book Now" : "Unavailable"}
+								onPress={() => handleBookService(item)}
+								disabled={!item.isActive}
+								style={{ margin: 0, paddingVertical: 8, paddingHorizontal: 16 }}
+								textStyle={{ fontSize: 14 }}
+							/>
+						)}
 					</View>
 				</View>
 			)}
@@ -451,31 +422,7 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 		/>
 	);
 
-	// Render Posts Tab
-	const renderPostsTab = () => (
-		<FlatList
-			key="posts-tab"
-			style={styles.tabContent}
-			data={posts}
-			keyExtractor={(item) => item.id.toString()}
-			renderItem={({ item }) => <PostItem post={item} />}
-			ListEmptyComponent={
-				<View style={styles.emptyContainer}>
-					<Ionicons name="document-text-outline" size={64} color="#9CA3AF" />
-					<Text style={styles.emptyText}>No posts yet</Text>
-				</View>
-			}
-			refreshControl={
-				<RefreshControl
-					refreshing={refreshing}
-					onRefresh={onRefresh}
-					tintColor="#6ba32d"
-					colors={["#6ba32d"]}
-				/>
-			}
-			showsVerticalScrollIndicator={false}
-		/>
-	);
+
 
 	// Render Reviews Tab
 	const renderReviewsTab = () => (
@@ -500,7 +447,14 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 	const renderTabContent = () => {
 		switch (activeTab) {
 			case "About":
-				return renderAboutTab();
+				return (
+					<CliqueAboutTab
+						clique={clique}
+						servicesCount={services.length}
+						refreshing={refreshing}
+						onRefresh={onRefresh}
+					/>
+				);
 			case "Services":
 				return renderServicesTab();
 			case "Availability":
@@ -508,11 +462,24 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 			case "Bookings":
 				return renderBookingsTab();
 			case "Posts":
-				return renderPostsTab();
+				return (
+					<CliquePostsTab
+						posts={posts}
+						refreshing={refreshing}
+						onRefresh={onRefresh}
+					/>
+				);
 			case "Reviews":
 				return renderReviewsTab();
 			default:
-				return renderAboutTab();
+				return (
+					<CliqueAboutTab
+						clique={clique}
+						servicesCount={services.length}
+						refreshing={refreshing}
+						onRefresh={onRefresh}
+					/>
+				);
 		}
 	};
 
@@ -538,72 +505,22 @@ const CliqueDetailScreen: React.FC<Props> = ({ route }) => {
 	return (
 		<View style={styles.container}>
 			{/* Header */}
-			<View style={styles.header}>
-				<TouchableOpacity
-					style={styles.backIcon}
-					onPress={() => navigation.goBack()}
-				>
-					<Ionicons name="arrow-back" size={24} color="#1F2937" />
-				</TouchableOpacity>
-				<View style={styles.headerContent}>
-					{clique.image && (
-						<Image source={{ uri: clique.image }} style={styles.cliqueImage} />
-					)}
-					{!clique.image && (
-						<View style={styles.cliqueImagePlaceholder}>
-							<Ionicons name="people" size={32} color="#9CA3AF" />
-						</View>
-					)}
-					<View style={styles.headerText}>
-						<Text style={styles.cliqueName}>{clique.name}</Text>
-						<Text style={styles.cliqueInfo}>
-							{clique.membersCount || 0} members
-						</Text>
-					</View>
-				</View>
-				{!isOwner && isLoggedIn && (
-					<PrimaryButton
-						title={isMember ? "Leave" : "Join"}
-						onPress={handleJoinLeave}
-						disabled={joiningClique}
-						loading={joiningClique}
-						variant={isMember ? "danger" : "success"}
-						style={{
-							paddingVertical: 4,
-							paddingHorizontal: 12,
-							minWidth: 70,
-							margin: 0,
-						}}
-						textStyle={{ fontSize: 14 }}
-					/>
-				)}
-			</View>
+			<CliqueDetailHeader
+				clique={clique}
+				isOwner={isOwner}
+				isLoggedIn={isLoggedIn}
+				isMember={isMember}
+				joiningClique={joiningClique}
+				onBack={() => navigation.goBack()}
+				onJoinLeave={handleJoinLeave}
+			/>
 
 			{/* Tabs */}
-			<View style={styles.tabsContainer}>
-				<ScrollView
-					horizontal
-					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={styles.tabsScrollContent}
-				>
-					{getTabs().map((tab) => (
-						<TouchableOpacity
-							key={tab}
-							style={[styles.tab, activeTab === tab && styles.activeTab]}
-							onPress={() => handleTabChange(tab)}
-						>
-							<Text
-								style={[
-									styles.tabText,
-									activeTab === tab && styles.activeTabText,
-								]}
-							>
-								{tab}
-							</Text>
-						</TouchableOpacity>
-					))}
-				</ScrollView>
-			</View>
+			<CliqueTabs
+				tabs={getTabs()}
+				activeTab={activeTab}
+				onTabChange={handleTabChange}
+			/>
 
 			{/* Tab Content */}
 			<View style={styles.content}>{renderTabContent()}</View>

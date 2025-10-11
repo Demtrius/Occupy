@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react'
 import {
 	View,
 	Text,
@@ -7,114 +7,111 @@ import {
 	Dimensions,
 	RefreshControl,
 	ScrollView,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import usersService from "../services/users.service";
-import { showError } from "@store/app.store";
-import { Post, ScreenNavigationProp, ScreenRouteProp } from "../types";
-import { PostItem } from "../components";
-import { UserProfileHeader } from "../components";
-import { useUsersStore } from "../store";
+} from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons'
+import { showError } from '../store/app.store'
+
+import { Post, ScreenNavigationProp, ScreenRouteProp } from '../types'
+import { PostItem, UserProfileHeader, UserTabs } from '../components'
+import { useUsersStore } from '../store'
 
 interface Props {
-	route: ScreenRouteProp<"ViewUser">;
+	route: ScreenRouteProp<'ViewUser'>
 }
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window')
 
 const ViewUserScreen: React.FC<Props> = ({ route }) => {
-	const [activeTab, setActiveTab] = useState<"Posts" | "Reviews">("Posts");
-	const [search, setSearch] = useState<string>("");
-	const [showSearchBar, setShowSearchBar] = useState<boolean>(false);
+	const [activeTab, setActiveTab] = useState<'Posts' | 'Reviews'>('Posts')
+	const [search, setSearch] = useState<string>('')
+	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
 
-	const searchBarRef = useRef<any>(null);
-	const navigation = useNavigation<ScreenNavigationProp<"ViewUser">>();
+	const searchBarRef = useRef<any>(null)
+	const navigation = useNavigation<ScreenNavigationProp<'ViewUser'>>()
 	const {
 		userProfile,
 		loading,
 		refreshing,
 		fetchUserProfile,
 		refreshUserProfile,
-	} = useUsersStore();
+		followUser,
+		unfollowUser,
+	} = useUsersStore()
 
-	const { userId } = route.params;
+	const { userId } = route.params
 
 	useEffect(() => {
-		fetchUserProfile(userId);
+		fetchUserProfile(userId)
 		// Posts will be fetched separately when needed
-	}, [userId, fetchUserProfile]);
+	}, [userId, fetchUserProfile])
 
 	const handleFollow = async () => {
 		try {
-			await usersService.followUser(userId);
-			// Refresh the user profile to get updated following status and counts
-			await refreshUserProfile();
+			await followUser(userId)
 		} catch (error: any) {
-			console.error("Error following user:", error);
-			showError(error.message || "Failed to follow user");
+			console.error('Error following user:', error)
+			showError(error.message || 'Failed to follow user')
 		}
-	};
+	}
 
 	const handleUnfollow = async () => {
 		try {
-			await usersService.unfollowUser(userId);
-			// Refresh the user profile to get updated following status and counts
-			await refreshUserProfile();
+			await unfollowUser(userId)
 		} catch (error: any) {
-			console.error("Error unfollowing user:", error);
-			showError(error.message || "Failed to unfollow user");
+			console.error('Error unfollowing user:', error)
+			showError(error.message || 'Failed to unfollow user')
 		}
-	};
+	}
 
 	const onRefresh = async () => {
-		await refreshUserProfile();
-	};
+		await refreshUserProfile()
+	}
 
 	const searchFilterFunction = (text: string) => {
 		// TODO: Implement search when posts are fetched
-		setSearch(text);
+		setSearch(text)
 		if (!text) {
-			setShowSearchBar(false);
+			setShowSearchBar(false)
 		}
-	};
+	}
 
 	const handleContactPress = () => {
-		navigation.navigate("NotificationsTab", {
-			screen: "MessageDetail",
+		navigation.navigate('NotificationsTab', {
+			screen: 'MessageDetail',
 			params: { messageId: userId },
-		} as never);
-	};
+		} as never)
+	}
 
 	const renderPosts = ({ item }: { item: Post }) => {
-		return <PostItem post={item} />;
-	};
+		return <PostItem post={item} />
+	}
 
 	const renderReviews = () => {
 		return (
 			<View style={styles.placeholderContainer}>
-				<Ionicons name="star-outline" size={64} color="#9CA3AF" />
+				<Ionicons name='star-outline' size={64} color='#9CA3AF' />
 				<Text style={styles.placeholderText}>Reviews coming soon...</Text>
 			</View>
-		);
-	};
+		)
+	}
 
 	const handleSearchPress = () => {
-		setShowSearchBar(true);
+		setShowSearchBar(true)
 		setTimeout(() => {
-			searchBarRef.current?.focus();
-		}, 100);
-	};
+			searchBarRef.current?.focus()
+		}, 100)
+	}
 
-	const handleTabPress = (tab: string) => {
-		setActiveTab(tab as "Posts" | "Reviews");
-	};
+	const handleTabPress = (tab: 'Posts' | 'Reviews') => {
+		setActiveTab(tab)
+	}
 
 	if (loading && !refreshing) {
 		return (
 			<FlatList
 				data={[]}
-				keyExtractor={(item) => item.id.toString()}
+				keyExtractor={item => item.id.toString()}
 				renderItem={renderPosts}
 				refreshControl={
 					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -125,10 +122,13 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 						<UserProfileHeader
 							user={userProfile}
 							showSearchBar={true}
-							showTabs={true}
-							showFollowButton={false}
+							showTabs={false}
+							showFollowButton={true}
+							isFollowing={userProfile?.isFollowing || false}
 							followersCount={userProfile?.followersCount || 0}
 							followingCount={userProfile?.followingCount || 0}
+							onFollow={handleFollow}
+							onUnfollow={handleUnfollow}
 							onTabPress={handleTabPress}
 							activeTab={activeTab}
 							searchValue={search}
@@ -136,18 +136,19 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 							onContact={handleContactPress}
 							isOwnProfile={false}
 						/>
-						{activeTab === "Reviews" && renderReviews()}
+						<UserTabs activeTab={activeTab} onTabPress={handleTabPress} />
+						{activeTab === 'Reviews' && renderReviews()}
 					</View>
 				}
 				ListEmptyComponent={
-					activeTab === "Posts" ? (
+					activeTab === 'Posts' ? (
 						<View style={styles.emptyContainer}>
 							<Text style={styles.emptyText}>No posts available</Text>
 						</View>
 					) : null
 				}
 			/>
-		);
+		)
 	}
 
 	return (
@@ -156,54 +157,57 @@ const ViewUserScreen: React.FC<Props> = ({ route }) => {
 			contentContainerStyle={styles.scrollContentContainer}
 		>
 			<UserProfileHeader
+				onBack={() => navigation.goBack()}
 				user={userProfile}
 				showSearchBar={showSearchBar}
-				showTabs={true}
+				showTabs={false}
 				showFollowButton={true}
 				isFollowing={userProfile?.isFollowing || false}
 				followersCount={userProfile?.followersCount || 0}
 				followingCount={userProfile?.followingCount || 0}
+				onFollow={handleFollow}
+				onUnfollow={handleUnfollow}
 				onSearchPress={handleSearchPress}
 				onTabPress={handleTabPress}
 				activeTab={activeTab}
 				searchValue={search}
 				onSearchChange={searchFilterFunction}
 				onSearchBlur={() => {
-					if (!search) setShowSearchBar(false);
+					if (!search) setShowSearchBar(false)
 				}}
-				onFollow={handleFollow}
-				onUnfollow={handleUnfollow}
 				onContact={handleContactPress}
 				isOwnProfile={false}
 			/>
-			{activeTab === "Posts" && (
+
+			<UserTabs activeTab={activeTab} onTabPress={handleTabPress} />
+			{activeTab === 'Posts' && (
 				<FlatList
 					data={[]}
-					keyExtractor={(item) => item.id.toString()}
+					keyExtractor={item => item.id.toString()}
 					renderItem={renderPosts}
 					scrollEnabled={false}
 					contentContainerStyle={styles.listContainer}
 					ListEmptyComponent={() => (
 						<View style={styles.emptyContainer}>
 							<Ionicons
-								name="document-text-outline"
+								name='document-text-outline'
 								size={64}
-								color="#9CA3AF"
+								color='#9CA3AF'
 							/>
 							<Text style={styles.emptyText}>No posts yet</Text>
 						</View>
 					)}
 				/>
 			)}
-			{activeTab === "Reviews" && renderReviews()}
+			{activeTab === 'Reviews' && renderReviews()}
 		</ScrollView>
-	);
-};
+	)
+}
 
 const styles = StyleSheet.create({
 	screenContainer: {
 		flex: 1,
-		backgroundColor: "#ffffff",
+		backgroundColor: '#ffffff',
 	},
 	scrollContentContainer: {
 		paddingTop: height * 0.08,
@@ -217,29 +221,29 @@ const styles = StyleSheet.create({
 	},
 	loadingContainer: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		backgroundColor: "#ffffff",
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#ffffff',
 	},
 	loadingText: {
 		marginTop: 12,
 		fontSize: 16,
-		color: "#6B7280",
+		color: '#6B7280',
 	},
 	headerContainer: {
-		flexDirection: "row",
-		justifyContent: "center",
-		alignItems: "center",
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
 		paddingHorizontal: 16,
 		paddingBottom: 12,
-		backgroundColor: "#fff",
+		backgroundColor: '#fff',
 	},
 	headerTitle: {
 		fontSize: 18,
-		fontWeight: "bold",
-		color: "#1F2937",
+		fontWeight: 'bold',
+		color: '#1F2937',
 		flex: 1,
-		textAlign: "center",
+		textAlign: 'center',
 		paddingLeft: 40,
 	},
 	searchIcon: {
@@ -247,7 +251,7 @@ const styles = StyleSheet.create({
 	},
 	searchBar: {
 		borderRadius: 20,
-		shadowColor: "#000",
+		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.1,
 		shadowRadius: 4,
@@ -256,10 +260,10 @@ const styles = StyleSheet.create({
 	},
 	userInfoContainer: {
 		padding: 20,
-		backgroundColor: "#fff",
+		backgroundColor: '#fff',
 		borderBottomWidth: 1,
-		borderBottomColor: "#E5E7EB",
-		alignItems: "center",
+		borderBottomColor: '#E5E7EB',
+		alignItems: 'center',
 	},
 	userAvatarContainer: {
 		marginBottom: 16,
@@ -268,80 +272,80 @@ const styles = StyleSheet.create({
 		width: 100,
 		height: 100,
 		borderRadius: 50,
-		backgroundColor: "#E5E7EB",
+		backgroundColor: '#E5E7EB',
 	},
 	userAvatarPlaceholder: {
 		width: 100,
 		height: 100,
 		borderRadius: 50,
-		backgroundColor: "#E5E7EB",
-		justifyContent: "center",
-		alignItems: "center",
+		backgroundColor: '#E5E7EB',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	userName: {
 		fontSize: 24,
-		fontWeight: "bold",
-		color: "#1F2937",
+		fontWeight: 'bold',
+		color: '#1F2937',
 		marginBottom: 4,
 	},
 	userEmail: {
 		fontSize: 16,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginBottom: 12,
 	},
 	userMetaItem: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		marginVertical: 4,
 	},
 	userMetaText: {
 		fontSize: 14,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginLeft: 8,
 	},
 	statsContainer: {
-		flexDirection: "row",
-		justifyContent: "space-around",
+		flexDirection: 'row',
+		justifyContent: 'space-around',
 		marginVertical: 16,
 	},
 	statItem: {
-		alignItems: "center",
+		alignItems: 'center',
 	},
 	statNumber: {
 		fontSize: 20,
-		fontWeight: "bold",
-		color: "#1F2937",
+		fontWeight: 'bold',
+		color: '#1F2937',
 	},
 	statLabel: {
 		fontSize: 14,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginTop: 4,
 	},
 	contactButton: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "#6ba32d",
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: '#6ba32d',
 		paddingVertical: 12,
 		paddingHorizontal: 24,
 		borderRadius: 8,
 		marginTop: 16,
 	},
 	followingButton: {
-		backgroundColor: "#ef4444",
+		backgroundColor: '#ef4444',
 	},
 	contactButtonText: {
-		color: "#ffffff",
+		color: '#ffffff',
 		fontSize: 16,
-		fontWeight: "600",
+		fontWeight: '600',
 		marginLeft: 8,
 	},
 	tabContainer: {
-		flexDirection: "row",
-		justifyContent: "space-around",
-		backgroundColor: "#fff",
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+		backgroundColor: '#fff',
 		paddingVertical: 8,
 		borderBottomWidth: 1,
-		borderBottomColor: "#E5E7EB",
+		borderBottomColor: '#E5E7EB',
 	},
 	tab: {
 		paddingVertical: 8,
@@ -349,16 +353,16 @@ const styles = StyleSheet.create({
 	},
 	activeTab: {
 		borderBottomWidth: 2,
-		borderBottomColor: "#6ba32d",
+		borderBottomColor: '#6ba32d',
 	},
 	tabText: {
 		fontSize: 16,
-		textAlign: "center",
-		color: "#6B7280",
+		textAlign: 'center',
+		color: '#6B7280',
 	},
 	activeTabText: {
-		color: "#6ba32d",
-		fontWeight: "bold",
+		color: '#6ba32d',
+		fontWeight: 'bold',
 	},
 	listContainer: {
 		paddingTop: 8,
@@ -366,12 +370,12 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 8,
 	},
 	cardContainer: {
-		backgroundColor: "#fff",
+		backgroundColor: '#fff',
 		borderRadius: 12,
 		padding: 16,
 		marginHorizontal: 16,
 		marginTop: 16,
-		shadowColor: "#000",
+		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.1,
 		shadowRadius: 4,
@@ -381,69 +385,69 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 	},
 	cardImage: {
-		width: "100%",
+		width: '100%',
 		height: 150,
 		borderRadius: 8,
-		backgroundColor: "#E5E7EB",
+		backgroundColor: '#E5E7EB',
 	},
 	cardImagePlaceholder: {
-		width: "100%",
+		width: '100%',
 		height: 150,
 		borderRadius: 8,
-		backgroundColor: "#E5E7EB",
-		justifyContent: "center",
-		alignItems: "center",
+		backgroundColor: '#E5E7EB',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	postCaption: {
 		fontSize: 16,
-		fontWeight: "600",
-		color: "#1F2937",
+		fontWeight: '600',
+		color: '#1F2937',
 		marginBottom: 8,
 		lineHeight: 22,
 	},
 	postContent: {
 		fontSize: 14,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginBottom: 12,
 		lineHeight: 20,
 	},
 	postMeta: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		marginTop: 8,
 	},
 	postMetaItem: {
-		flexDirection: "row",
-		alignItems: "center",
+		flexDirection: 'row',
+		alignItems: 'center',
 		marginRight: 16,
 	},
 	postMetaText: {
 		fontSize: 14,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginLeft: 6,
 	},
 	emptyContainer: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 		paddingVertical: 60,
 	},
 	emptyText: {
 		fontSize: 18,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginTop: 16,
 	},
 	placeholderContainer: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 		paddingVertical: 60,
 	},
 	placeholderText: {
 		fontSize: 18,
-		color: "#6B7280",
+		color: '#6B7280',
 		marginTop: 16,
 	},
-});
+})
 
-export default ViewUserScreen;
+export default ViewUserScreen

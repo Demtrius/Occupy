@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
 	View,
 	StyleSheet,
@@ -8,13 +8,9 @@ import {
 	ActivityIndicator,
 	RefreshControl,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { postsService } from "../services";
-import { showError } from "../store/app.store";
 import { useAuthStore } from "../store/auth.store";
-import type { Post, ScreenNavigationProp } from "../types";
+import { usePostsStore } from "../store";
 import {
-	PrimaryButton,
 	ScreenHeader,
 	PostItem,
 	EmptyState,
@@ -22,46 +18,20 @@ import {
 } from "../components";
 
 const HomeScreen: React.FC = () => {
-	const navigation = useNavigation<ScreenNavigationProp<"Home">>();
 	const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-
-	const [posts, setPosts] = useState<Post[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [refreshing, setRefreshing] = useState<boolean>(false);
-
-	// Fetch posts
-	const getPosts = async () => {
-		try {
-			const response = await postsService.getFeedPosts();
-			setPosts(response.results || []);
-		} catch (error) {
-			console.error("Error fetching posts:", error);
-			showError("Failed to load posts. Please try again.");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	// Refresh handler
-	const onRefresh = async () => {
-		setRefreshing(true);
-		try {
-			await getPosts();
-		} catch (error) {
-			console.error("Error refreshing:", error);
-		} finally {
-			setRefreshing(false);
-		}
-	};
+	const { posts, loading, refreshing, fetchPosts, refreshPosts } = usePostsStore();
 
 	// Initial load
 	useEffect(() => {
 		if (isLoggedIn) {
-			getPosts();
-		} else {
-			setLoading(false);
+			fetchPosts();
 		}
-	}, [isLoggedIn]);
+	}, [isLoggedIn, fetchPosts]);
+
+	// Refresh handler
+	const onRefresh = async () => {
+		await refreshPosts();
+	};
 
 	// Not logged in state
 	if (!isLoggedIn) {

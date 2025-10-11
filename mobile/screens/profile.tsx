@@ -11,7 +11,7 @@ import { showSuccess } from "../store/app.store";
 import { ScreenNavigationProp } from "../types";
 import { MenuSection, LogoutModal } from "../components";
 import { UserProfileHeader } from "../components";
-import { usersService } from "../services";
+import { useUsersStore } from "../store/users.store";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,32 +22,17 @@ interface ProfileProps {
 const ProfileScreen: React.FC<ProfileProps> = ({ navigation }) => {
 	const user = useAuthStore((state) => state.user);
 	const logout = useAuthStore((state) => state.logout);
-
-	const [userStats, setUserStats] = useState<{
-		followersCount: number;
-		followingCount: number;
-		postsCount: number;
-		cliquesCount: number;
-	} | null>(null);
+	const { userStats, fetchUserStats } = useUsersStore();
 	const [showAccountInfo, setShowAccountInfo] = useState<boolean>(false);
 	const [showAppearanceInfo, setShowAppearanceInfo] = useState<boolean>(false);
 	const [showLanguageInfo, setShowLanguageInfo] = useState<boolean>(false);
 	const [logoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
 
 	useEffect(() => {
-		const fetchUserStats = async () => {
-			if (user?.id) {
-				try {
-					const stats = await usersService.getUserStats(user.id);
-					setUserStats(stats);
-				} catch (error) {
-					console.error("Failed to fetch user stats:", error);
-				}
-			}
-		};
-
-		fetchUserStats();
-	}, [user?.id]);
+		if (user?.id) {
+			fetchUserStats(user.id);
+		}
+	}, [user?.id, fetchUserStats]);
 
 	const handleLogout = async () => {
 		try {

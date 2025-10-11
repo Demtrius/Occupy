@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { cliquesService } from "../services/cliques.service";
 import { showError } from "./app.store";
-import { Clique } from "../types";
+import { Clique, CreateCliqueData } from "../types";
 
 interface CliquesState {
 	// State
@@ -15,13 +15,11 @@ interface CliquesState {
 	setSearch: (search: string) => void;
 	fetchCliques: () => Promise<void>;
 	refreshCliques: () => Promise<void>;
+	getCliqueById: (cliqueId: number) => Promise<Clique>;
+	getCliquePosts: (cliqueId: number) => Promise<any[]>;
 	joinClique: (cliqueId: number) => Promise<void>;
 	leaveClique: (cliqueId: number) => Promise<void>;
-	createClique: (data: {
-		name: string;
-		description?: string;
-		image?: string;
-	}) => Promise<Clique>;
+	createClique: (data: CreateCliqueData) => Promise<Clique>;
 	updateClique: (
 		cliqueId: number,
 		data: Partial<{ name: string; description?: string; image?: string }>,
@@ -114,6 +112,28 @@ export const useCliquesStore = create<CliquesState>((set, get) => ({
 			console.error("Error refreshing cliques:", error);
 			showError("Failed to refresh cliques");
 			set({ refreshing: false });
+		}
+	},
+
+	getCliqueById: async (cliqueId: number): Promise<Clique> => {
+		try {
+			const clique = await cliquesService.getCliqueById(cliqueId);
+			return clique;
+		} catch (error) {
+			console.error("Error fetching clique by ID:", error);
+			showError(error.message || "Failed to load clique");
+			throw error;
+		}
+	},
+
+	getCliquePosts: async (cliqueId: number): Promise<any[]> => {
+		try {
+			const posts = await cliquesService.getCliquePosts(cliqueId);
+			return posts;
+		} catch (error) {
+			console.error("Error fetching clique posts:", error);
+			showError(error.message || "Failed to load posts");
+			return [];
 		}
 	},
 

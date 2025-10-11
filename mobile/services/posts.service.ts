@@ -1,5 +1,15 @@
 import { apiHelpers } from "./api";
-import { Post, CreatePostData, PaginatedResponse, ApiError } from "../types";
+import {
+	Post,
+	CreatePostData,
+	PaginatedResponse,
+	ApiError,
+	Like,
+	CreateLikeData,
+	Comment,
+	CreateCommentData,
+	UpdateCommentData,
+} from "../types";
 
 class PostsService {
 	/**
@@ -112,6 +122,142 @@ class PostsService {
 			return response;
 		} catch (error) {
 			console.error("Get feed posts error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	// ==================== LIKES ====================
+
+	/**
+	 * Like a post
+	 */
+	async likePost(
+		postId: number,
+	): Promise<{ likesCount: number; isLiked: boolean }> {
+		try {
+			const response = await apiHelpers.post<{
+				likesCount: number;
+				isLiked: boolean;
+			}>(`/api/v1/posts/${postId}/like/`);
+			return response;
+		} catch (error) {
+			console.error("Like post error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Unlike a post
+	 */
+	async unlikePost(
+		postId: number,
+	): Promise<{ likesCount: number; isLiked: boolean }> {
+		try {
+			const response = await apiHelpers.delete<{
+				likesCount: number;
+				isLiked: boolean;
+			}>(`/api/v1/posts/${postId}/like/`);
+			return response;
+		} catch (error) {
+			console.error("Unlike post error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Get likes for a post
+	 */
+	async getPostLikes(postId: number): Promise<Like[]> {
+		try {
+			const likes = await apiHelpers.get<Like[]>(
+				`/api/v1/posts/${postId}/likes/`,
+			);
+			return likes;
+		} catch (error) {
+			console.error("Get post likes error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Check if user liked a post
+	 */
+	async isPostLiked(postId: number): Promise<boolean> {
+		try {
+			const response = await apiHelpers.get<{ isLiked: boolean }>(
+				`/api/v1/posts/${postId}/is-liked/`,
+			);
+			return response.isLiked;
+		} catch (error) {
+			console.error("Check post liked error:", error);
+			return false;
+		}
+	}
+
+	// ==================== COMMENTS ====================
+
+	/**
+	 * Get comments for a post
+	 */
+	async getPostComments(postId: number): Promise<Comment[]> {
+		try {
+			const comments = await apiHelpers.get<Comment[]>(
+				`/api/v1/posts/${postId}/comments/`,
+			);
+			return comments;
+		} catch (error) {
+			console.error("Get post comments error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Create a comment
+	 */
+	async createComment(data: CreateCommentData): Promise<Comment> {
+		try {
+			const { postId, ...rest } = data;
+			// The backend now expects 'content' instead of 'body'
+			const payload = { content: rest.content };
+
+			const comment = await apiHelpers.post<Comment>(
+				`/api/v1/posts/${postId}/comments/add/`,
+				payload,
+			);
+			return comment;
+		} catch (error) {
+			console.error("Create comment error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Update a comment
+	 */
+	async updateComment(
+		commentId: number,
+		data: UpdateCommentData,
+	): Promise<Comment> {
+		try {
+			const comment = await apiHelpers.patch<Comment>(
+				`/api/v1/comments/${commentId}/update/`,
+				data,
+			);
+			return comment;
+		} catch (error) {
+			console.error("Update comment error:", error);
+			throw this.handleError(error);
+		}
+	}
+
+	/**
+	 * Delete a comment
+	 */
+	async deleteComment(commentId: number): Promise<void> {
+		try {
+			await apiHelpers.delete(`/api/v1/comments/${commentId}/delete/`);
+		} catch (error) {
+			console.error("Delete comment error:", error);
 			throw this.handleError(error);
 		}
 	}

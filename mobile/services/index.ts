@@ -11,4 +11,3 @@ export { usersService } from "./users.service";
 export { bookingService } from "./booking.service";
 export { servicesService } from "./services.service";
 export { availabilityService } from "./availability.service";
-export { socialService } from "./social.service";

@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { Searchbar as PaperSearchbar, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import { cliquesService } from "../services";
-import usersService from "@services/users.service";
 import { showError } from "../store/app.store";
 import { useAuthStore } from "../store/auth.store";
+import { useCliquesStore } from "../store/cliques.store";
+import { useUsersStore } from "../store/users.store";
 import type { Clique, User, Occupation, ScreenNavigationProp } from "../types";
 
 const { width, height } = Dimensions.get("window");
@@ -31,32 +31,22 @@ interface SearchItem {
 const SearchScreen: React.FC = () => {
 	const navigation = useNavigation<ScreenNavigationProp<"Search">>();
 	const { user: currentUser } = useAuthStore();
+	const { cliques, fetchCliques } = useCliquesStore();
+	const { getAllUsers, getOccupations, searchUsers } = useUsersStore();
 
 	const [search, setSearch] = useState<string>("");
 	const [filteredDataSource, setFilteredDataSource] = useState<SearchItem[]>(
 		[],
 	);
 	const [masterDataSource, setMasterDataSource] = useState<Occupation[]>([]);
-	const [cliques, setCliques] = useState<Clique[]>([]);
 	const [userList, setUsersList] = useState<User[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [category, setCategory] = useState<SearchCategory>("all");
 
-	// Fetch cliques
-	const getCliques = async () => {
-		try {
-			const response = await cliquesService.getAllCliques();
-			setCliques(response.results || []);
-		} catch (error) {
-			console.error("Error fetching cliques:", error);
-			showError("Failed to load cliques");
-		}
-	};
-
 	// Fetch users
 	const getUsers = async () => {
 		try {
-			const users = await usersService.getAllUsers();
+			const users = await getAllUsers();
 			setUsersList(users);
 		} catch (error) {
 			console.error("Error fetching users:", error);
@@ -65,9 +55,9 @@ const SearchScreen: React.FC = () => {
 	};
 
 	// Fetch occupations
-	const getOccupations = async () => {
+	const loadOccupations = async () => {
 		try {
-			const occupations = await usersService.getOccupations();
+			const occupations = await getOccupations();
 			setMasterDataSource(occupations);
 		} catch (error) {
 			console.error("Error fetching occupations:", error);
@@ -80,7 +70,7 @@ const SearchScreen: React.FC = () => {
 		const loadData = async () => {
 			setLoading(true);
 			try {
-				await Promise.all([getCliques(), getUsers(), getOccupations()]);
+				await Promise.all([fetchCliques(), getUsers(), loadOccupations()]);
 			} catch (error) {
 				console.error("Error loading data:", error);
 			} finally {
@@ -89,7 +79,7 @@ const SearchScreen: React.FC = () => {
 		};
 
 		loadData();
-	}, []);
+	}, [fetchCliques]);
 
 	// Update filtered data when category changes or data loads
 	useEffect(() => {

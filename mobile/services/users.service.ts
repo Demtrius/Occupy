@@ -148,44 +148,56 @@ class UsersService {
 	/**
 	 * Follow a user
 	 */
-	async followUser(userId: number): Promise<{
-		message: string;
-		isFollowing: boolean;
-		followersCount: number;
-	}> {
-		try {
-			const response = await apiHelpers.post<{
-				message: string;
-				isFollowing: boolean;
-				followersCount: number;
-			}>(`/api/v1/users/${userId}/follow/`);
-			return response;
-		} catch (error) {
-			console.error("Follow user error:", error);
-			throw error;
-		}
-	}
+ 	async followUser(userId: number): Promise<{
+ 		message: string;
+ 		isFollowing: boolean;
+ 		followersCount: number;
+ 	}> {
+ 		try {
+ 			const response = await apiHelpers.post<{
+ 				detail: string;
+ 				isFollowing: boolean;
+ 				followersCount: number;
+ 			}>(`/api/v1/users/${userId}/follow/`);
+
+ 			// Backend already returns camelCase, just transform the message field
+ 			return {
+ 				message: response.detail,
+ 				isFollowing: response.isFollowing,
+ 				followersCount: response.followersCount,
+ 			};
+ 		} catch (error) {
+ 			console.error("Follow user error:", error);
+ 			throw error;
+ 		}
+ 	}
 
 	/**
 	 * Unfollow a user
 	 */
-	async unfollowUser(userId: number): Promise<{
-		message: string;
-		isFollowing: boolean;
-		followersCount: number;
-	}> {
-		try {
-			const response = await apiHelpers.delete<{
-				message: string;
-				isFollowing: boolean;
-				followersCount: number;
-			}>(`/api/v1/users/${userId}/unfollow/`);
-			return response;
-		} catch (error) {
-			console.error("Unfollow user error:", error);
-			throw error;
-		}
-	}
+ 	async unfollowUser(userId: number): Promise<{
+ 		message: string;
+ 		isFollowing: boolean;
+ 		followersCount: number;
+ 	}> {
+ 		try {
+ 			const response = await apiHelpers.delete<{
+ 				detail: string;
+ 				isFollowing: boolean;
+ 				followersCount: number;
+ 			}>(`/api/v1/users/${userId}/unfollow/`);
+
+ 			// Backend already returns camelCase, just transform the message field
+ 			return {
+ 				message: response.detail,
+ 				isFollowing: response.isFollowing,
+ 				followersCount: response.followersCount,
+ 			};
+ 		} catch (error) {
+ 			console.error("Unfollow user error:", error);
+ 			throw error;
+ 		}
+ 	}
 
 	/**
 	 * Check if current user is following another user

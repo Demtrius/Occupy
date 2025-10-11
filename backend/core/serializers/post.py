@@ -140,18 +140,9 @@ class PostDetailSerializer(serializers.ModelSerializer):
         """Get the clique's ID."""
         return obj.clique.id
 
-    def get_clique(self, obj: Post) -> Dict[str, Any]:
-        """Get basic clique info."""
-        image_url = ""
-        if obj.clique.image and obj.clique.image.name:
-            image_url = obj.clique.image.url
-
-        return {
-            "id": obj.clique.id,
-            "name": obj.clique.name,
-            "description": obj.clique.description,
-            "image": image_url,
-        }
+    def get_clique(self, obj: Post) -> str:
+        """Get clique name."""
+        return obj.clique.name
 
     def get_created(self, obj: Post) -> str:
         """Get a human-readable time since post was created."""

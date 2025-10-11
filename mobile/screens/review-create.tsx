@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { bookingService, socialService } from "../services";
+import { bookingService } from "../services";
 import { showError, showSuccess } from "../store/app.store";
+import { useBookingsStore } from "../store/bookings.store";
 import { BookingDetail, ScreenNavigationProp, ScreenRouteProp } from "../types";
 import {
 	ScreenHeader,
@@ -34,6 +35,7 @@ interface Props {
 
 const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 	const navigation = useNavigation<ScreenNavigationProp<"ReviewCreate">>();
+	const { createReview } = useBookingsStore();
 	const { bookingId } = route.params;
 
 	const [booking, setBooking] = useState<BookingDetail | null>(null);
@@ -80,7 +82,7 @@ const ReviewCreateScreen: React.FC<Props> = ({ route }) => {
 				comment: comment.trim() || undefined,
 			};
 
-			await socialService.createReview(reviewData);
+			await createReview(reviewData);
 			showSuccess("Review submitted successfully!");
 			navigation.goBack();
 		} catch (error: any) {

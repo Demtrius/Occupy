@@ -7,6 +7,8 @@ import {
 	BookingFilter,
 	CreateBookingData,
 	BookingStatus,
+	Review,
+	CreateReviewData,
 } from "../types";
 
 interface BookingsState {
@@ -28,6 +30,7 @@ interface BookingsState {
 	cancelBooking: (bookingId: number, reason?: string) => Promise<void>;
 	completeBooking: (bookingId: number) => Promise<void>;
 	getBookingById: (bookingId: number) => Promise<BookingDetail>;
+	createReview: (data: CreateReviewData) => Promise<Review>;
 
 	// Utility actions
 	reset: () => void;
@@ -171,6 +174,17 @@ export const useBookingsStore = create<BookingsState>((set, get) => ({
 		} catch (error) {
 			console.error("Error getting booking:", error);
 			showError("Failed to load booking details");
+			throw error;
+		}
+	},
+
+	createReview: async (data) => {
+		try {
+			const review = await bookingService.createReview(data);
+			return review;
+		} catch (error) {
+			console.error("Error creating review:", error);
+			showError(error.message || "Failed to create review");
 			throw error;
 		}
 	},

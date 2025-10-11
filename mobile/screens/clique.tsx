@@ -14,9 +14,9 @@ import {
 import { Searchbar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { cliquesService, postsService, usersService } from "../services";
 import { showError, showSuccess } from "../store/app.store";
 import { useAuthStore } from "../store/auth.store";
+import { useCliquesStore } from "../store/cliques.store";
 import { Clique, Post, ScreenNavigationProp, ScreenRouteProp } from "../types";
 
 const { width, height } = Dimensions.get("window");
@@ -31,6 +31,7 @@ const CliqueScreen: React.FC<Props> = ({ route }) => {
 	const navigation = useNavigation<ScreenNavigationProp<"Cliques">>();
 	const user = useAuthStore((state) => state.user);
 	const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+	const { getCliqueById, getCliquePosts, joinClique, leaveClique } = useCliquesStore();
 
 	const { id } = (route.params as { id: number }) || {};
 
@@ -52,7 +53,7 @@ const CliqueScreen: React.FC<Props> = ({ route }) => {
 	// Fetch clique details
 	const fetchCliqueDetails = async () => {
 		try {
-			const cliqueData = await cliquesService.getCliqueById(id);
+			const cliqueData = await getCliqueById(id);
 			setClique(cliqueData);
 
 			// Use isMember field from API
@@ -66,7 +67,7 @@ const CliqueScreen: React.FC<Props> = ({ route }) => {
 	// Fetch clique posts
 	const fetchCliquePosts = async () => {
 		try {
-			const postsData = await cliquesService.getCliquePosts(id);
+			const postsData = await getCliquePosts(id);
 			setPosts(postsData);
 			setFilteredPosts(postsData);
 		} catch (error) {
@@ -124,11 +125,11 @@ const CliqueScreen: React.FC<Props> = ({ route }) => {
 		setJoiningClique(true);
 		try {
 			if (isMember) {
-				await cliquesService.leaveClique(id);
+				await leaveClique(id);
 				setIsMember(false);
 				showSuccess("Left clique successfully");
 			} else {
-				await cliquesService.joinClique(id);
+				await joinClique(id);
 				setIsMember(true);
 				showSuccess("Joined clique successfully!");
 			}

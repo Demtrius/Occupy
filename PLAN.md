@@ -20,8 +20,8 @@ This plan is divided into phases for easier trackability. Use checkboxes to mark
 ### Frontend Refactoring
 
 - [x] Improve state management: Centralize state using Zustand or similar, reduce prop drilling.
-- [ ] Optimize hooks: Refactor custom hooks for better reusability and performance (e.g., memoization).
-- [ ] Restructure components and screens: Break down large components and screens into smaller, reusable ones following React Native patterns.
+- [x] Optimize hooks: Refactor custom hooks for better reusability and performance (e.g., memoization).
+- [x] Restructure components and screens: Break down large components and screens into smaller, reusable ones following React Native patterns.
 - [ ] Standardize styling: Use consistent theme variables and avoid inline styles.
 - [ ] Clean up navigation: Simplify navigator structure and ensure proper type safety.
 

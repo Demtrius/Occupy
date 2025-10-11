@@ -50,6 +50,16 @@ class AvailabilitySerializer(serializers.ModelSerializer):
             "profile_image": profile_image_url,
         }
 
+    def validate_clique(self, value):
+        """Validate that the user is the owner of the clique."""
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            if value.occupier != request.user:
+                raise serializers.ValidationError(
+                    "You must be the owner of this clique to add availability."
+                )
+        return value
+
     def validate(self, attrs):
         """Validate that end_time is after start_time."""
         if attrs.get("start_time") and attrs.get("end_time"):

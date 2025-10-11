@@ -281,10 +281,14 @@ class UserViewSet(viewsets.ModelViewSet):
         # Create follow relationship
         Follow.objects.create(follower=request.user, followed=user)
 
+        # Get updated follower count
+        followers_count = Follow.objects.filter(followed=user).count()
+
         return Response(
             {
                 "detail": "Successfully followed user",
                 "is_following": True,
+                "followers_count": followers_count,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -316,10 +320,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
         follow_obj.delete()
 
+        # Get updated follower count
+        followers_count = Follow.objects.filter(followed=user).count()
+
         return Response(
             {
                 "detail": "Successfully unfollowed user",
                 "is_following": False,
+                "followers_count": followers_count,
             },
             status=status.HTTP_200_OK,
         )
