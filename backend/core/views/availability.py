@@ -24,7 +24,6 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
     Service providers can set their availability for bookings.
     """
 
-    tags = ['Availability']
     queryset = Availability.objects.select_related("clique", "provider").all()
     serializer_class = AvailabilitySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

@@ -3,14 +3,15 @@ from django.urls import include, path
 
 logger = logging.getLogger("configuration")
 
-def show_toolbar(*args, **kwargs) -> bool:
+
+def show_toolbar(request=None, *args, **kwargs) -> bool:
     """
     The general idea is the following:
 
     1. We show the toolbar if we have it installed & we have it configured to be shown.
-       - This opens up the option to move the dependency as a local one, if one chooses to do so.
+      - This opens up the option to move the dependency as a local one, if one chooses to do so.
     2. This function acts as the single source of truth of that.
-       - No additional checks elsewhere are required.
+      - No additional checks elsewhere are required.
 
     This means we can have the following options possible:
 
@@ -31,7 +32,12 @@ def show_toolbar(*args, **kwargs) -> bool:
         logger.info("No installation found for: django_debug_toolbar")
         return False
 
+    # Exclude schema views from debug toolbar
+    if request and request.path.startswith("/api/schema"):
+        return False
+
     return True
+
 
 class DebugToolbarSetup:
     """

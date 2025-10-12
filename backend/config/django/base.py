@@ -51,8 +51,8 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "django_filters",
-    "drf_spectacular",
     "channels",
+    "drf_yasg",
 ]
 
 INSTALLED_APPS = [
@@ -166,7 +166,6 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "core.exception_handlers.drf_default_with_modifications_exception_handler",
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "config.django.base.DefaultPagination",
@@ -184,22 +183,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-SPECTACULAR_SETTINGS = {
-    "TAGS": [
-        {
-            "name": "Authentication",
-            "description": "User authentication and registration",
-        },
-        {"name": "Users", "description": "User profiles and management"},
-        {"name": "Cliques", "description": "Clique management"},
-        {"name": "Posts", "description": "Posts and comments"},
-        {"name": "Bookings", "description": "Booking management"},
-        {"name": "Services", "description": "Service listings"},
-        {"name": "Availability", "description": "Availability slots"},
-        {"name": "Reviews", "description": "Reviews and ratings"},
-    ],
-    "TAG_EXTRACTOR": lambda path, method, view, **kwargs: getattr(view, "tags", ["v1"]),
-}
+
 
 # Import modular settings
 from config.settings.cors import *  # noqa

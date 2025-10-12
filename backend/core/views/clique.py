@@ -2,6 +2,7 @@
 Views for Clique model.
 """
 
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,6 +17,8 @@ from ..models import Clique
 class CliquePagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = "limit"
+
+
 from ..serializers import (
     CliqueListSerializer,
     CliqueDetailSerializer,
@@ -32,7 +35,6 @@ class CliqueViewSet(viewsets.ModelViewSet):
     Provides CRUD operations for cliques with filtering, search, and ordering.
     """
 
-    tags = ['Cliques']
     queryset = Clique.objects.prefetch_related("members", "posts")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = [CustomJWTAuthentication]
@@ -41,7 +43,6 @@ class CliqueViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description"]
     ordering_fields = ["created", "name"]
     ordering = ["-created"]
-
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
@@ -64,8 +65,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
             queryset = queryset.annotate(
                 is_member=Exists(
                     Clique.members.through.objects.filter(
-                        clique_id=OuterRef('pk'),
-                        occupier_id=self.request.user.id
+                        clique_id=OuterRef("pk"), occupier_id=self.request.user.id
                     )
                 )
             )
@@ -101,9 +101,11 @@ class CliqueViewSet(viewsets.ModelViewSet):
         """Delete a clique (only by the owner or admin)."""
         if instance.occupier != self.request.user and not self.request.user.is_staff:
             from rest_framework.exceptions import PermissionDenied
+
             raise PermissionDenied("You don't have permission to delete this clique.")
         instance.delete()
 
+    @swagger_auto_schema(tags=["Cliques"])
     @action(
         detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
     )
@@ -132,6 +134,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @swagger_auto_schema(tags=["Cliques"])
     @action(
         detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated]
     )
@@ -149,7 +152,9 @@ class CliqueViewSet(viewsets.ModelViewSet):
         # Don't allow owner to leave their own clique
         if clique.occupier == user:
             return Response(
-                {"detail": "Clique owner cannot leave. Transfer ownership or delete the clique."},
+                {
+                    "detail": "Clique owner cannot leave. Transfer ownership or delete the clique."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -159,6 +164,7 @@ class CliqueViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @swagger_auto_schema(tags=["Cliques"])
     @action(detail=True, methods=["get"])
     def members(self, request: Request, pk: int = None) -> Response:
         """Get all members of a clique."""
@@ -189,13 +195,16 @@ class CliqueViewSet(viewsets.ModelViewSet):
         serializer = PostListSerializer(posts, many=True, context={"request": request})
         return Response(serializer.data)
 
+    @swagger_auto_schema(tags=["Cliques"])
     @action(
         detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
     )
     def my_cliques(self, request: Request) -> Response:
         """Get all cliques the current user is a member of."""
         user = request.user
-        cliques = user.cliques.select_related("occupier").prefetch_related("members").all()
+        cliques = (
+            user.cliques.select_related("occupier").prefetch_related("members").all()
+        )
         serializer = CliqueListSerializer(
             cliques, many=True, context={"request": request}
         )

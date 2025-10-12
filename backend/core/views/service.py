@@ -18,6 +18,7 @@ from ..serializers.service import (
     ServiceCreateUpdateSerializer,
 )
 from .post import PostPagination
+from drf_yasg.utils import swagger_auto_schema
 
 
 class ServiceListCreateApi(APIView):
@@ -28,7 +29,6 @@ class ServiceListCreateApi(APIView):
     POST /api/services/
     """
 
-    tags = ["Services"]
     serializer_class = ServiceCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
@@ -38,6 +38,7 @@ class ServiceListCreateApi(APIView):
         provider = serializers.IntegerField(required=False)
         is_active = serializers.BooleanField(required=False)
 
+    @swagger_auto_schema(tags=["Services"])
     def get(self, request: Request) -> Response:
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
@@ -59,6 +60,7 @@ class ServiceListCreateApi(APIView):
         )
         return Response(serializer.data)
 
+    @swagger_auto_schema(tags=["Services"])
     def post(self, request: Request) -> Response:
         serializer = ServiceCreateUpdateSerializer(
             data=request.data, context={"request": request}
@@ -86,11 +88,11 @@ class ServiceRetrieveUpdateDestroyApi(APIView):
     DELETE /api/services/<id>/
     """
 
-    tags = ["Services"]
     serializer_class = ServiceCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
+    @swagger_auto_schema(tags=["Services"])
     def get(self, request: Request, id: int) -> Response:
         service = service_get(id=id, user=request.user)
         if not service:
@@ -101,6 +103,7 @@ class ServiceRetrieveUpdateDestroyApi(APIView):
         serializer = ServiceDetailSerializer(service)
         return Response(serializer.data)
 
+    @swagger_auto_schema(tags=["Services"])
     def patch(self, request: Request, id: int) -> Response:
         service = service_get(id=id, user=request.user)
         if not service or service.provider != request.user:
@@ -118,6 +121,7 @@ class ServiceRetrieveUpdateDestroyApi(APIView):
         output_serializer = ServiceDetailSerializer(updated_service)
         return Response(output_serializer.data)
 
+    @swagger_auto_schema(tags=["Services"])
     def delete(self, request: Request, id: int) -> Response:
         service = service_get(id=id, user=request.user)
         if not service or service.provider != request.user:

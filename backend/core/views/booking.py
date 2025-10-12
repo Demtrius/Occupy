@@ -24,6 +24,7 @@ from ..serializers.booking import (
     BookingCreateSerializer,
 )
 from .post import PostPagination
+from drf_yasg.utils import swagger_auto_schema
 
 
 class BookingListCreateApi(APIView):
@@ -40,6 +41,7 @@ class BookingListCreateApi(APIView):
         status = serializers.CharField(required=False)
         date = serializers.DateField(required=False)
 
+    @swagger_auto_schema(tags=['Bookings'])
     def get(self, request: Request) -> Response:
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
@@ -61,6 +63,7 @@ class BookingListCreateApi(APIView):
         )
         return Response(serializer.data)
 
+    @swagger_auto_schema(tags=['Bookings'])
     def post(self, request: Request) -> Response:
         serializer = BookingCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -87,6 +90,7 @@ class BookingRetrieveUpdateDestroyApi(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
+    @swagger_auto_schema(tags=['Bookings'])
     def get(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
         if not booking:
@@ -97,6 +101,7 @@ class BookingRetrieveUpdateDestroyApi(APIView):
         serializer = BookingDetailSerializer(booking)
         return Response(serializer.data)
 
+    @swagger_auto_schema(tags=['Bookings'])
     def patch(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
         if not booking:
@@ -120,6 +125,7 @@ class BookingConfirmApi(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
+    @swagger_auto_schema(tags=['Bookings'])
     def post(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
         if not booking:
@@ -143,6 +149,7 @@ class BookingCancelApi(APIView):
     class InputSerializer(serializers.Serializer):
         reason = serializers.CharField(required=False, allow_blank=True)
 
+    @swagger_auto_schema(tags=['Bookings'])
     def post(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
         if not booking:
@@ -169,6 +176,7 @@ class BookingCompleteApi(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
 
+    @swagger_auto_schema(tags=['Bookings'])
     def post(self, request: Request, id: int) -> Response:
         booking = booking_get(id=id, user=request.user)
         if not booking:

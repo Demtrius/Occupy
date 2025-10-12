@@ -31,6 +31,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -45,6 +46,7 @@ class RegisterView(APIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Handle user registration.
@@ -99,6 +101,7 @@ class OccupierLoginView(APIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Handle user login with email or username.
@@ -170,8 +173,8 @@ class CurrentUserView(APIView):
     tags = ["Authentication"]
     permission_classes = [IsAuthenticated]
     authentication_classes = [CustomJWTAuthentication]
-    serializer_class = UserSerializer
 
+    @swagger_auto_schema(tags=['Authentication'])
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Get current authenticated user's data.
@@ -182,15 +185,10 @@ class CurrentUserView(APIView):
         Returns:
             Response with user data
         """
-        try:
-            serializer = self.serializer_class(request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {"detail": str(e), "message": "Failed to retrieve user data"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        serializer = self.serializer_class(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(tags=['Authentication'])
     def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Partially update current user's profile.
@@ -218,6 +216,7 @@ class CurrentUserView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    @swagger_auto_schema(tags=['Authentication'])
     def put(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Fully update current user's profile.
@@ -256,6 +255,7 @@ class MyTokenObtainPairView(APIView):
     serializer_class = MyTokenObtainPairSerializer
     permission_classes = [AllowAny]
 
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Authenticate user and return JWT tokens with user data.
@@ -460,9 +460,10 @@ class LogoutView(APIView):
     """
 
     tags = ["Authentication"]
-    serializer_class = LogoutSerializer
-    permission_classes = [IsAuthenticated]
 
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(tags=['Authentication'])
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Logout user by blacklisting their refresh token.
