@@ -15,7 +15,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base import Base, TimestampMixin
 from .enums import ContentFormat, PostStatus
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Post(Base):
+class Post(TimestampMixin, Base):
     __tablename__ = "posts"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -44,12 +44,6 @@ class Post(Base):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     deleted_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
     # Relationships
     clique: Mapped["Clique"] = relationship("Clique", back_populates="posts")
@@ -106,7 +100,7 @@ class PostLike(Base):
     __table_args__ = (Index("ix_post_likes_user_id", "user_id"),)
 
 
-class Comment(Base):
+class Comment(TimestampMixin, Base):
     __tablename__ = "comments"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -123,12 +117,6 @@ class Comment(Base):
     )
     body: Mapped[str] = mapped_column(Text, nullable=False)
     deleted_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
     # Relationships
     post: Mapped["Post"] = relationship("Post", back_populates="comments")

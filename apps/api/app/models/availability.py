@@ -5,23 +5,21 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     Date,
-    DateTime,
     ForeignKey,
     SmallInteger,
     String,
     Time,
-    func,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
     from .clique import Clique
 
 
-class Availability(Base):
+class Availability(TimestampMixin, Base):
     __tablename__ = "availabilities"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -38,12 +36,6 @@ class Availability(Base):
     valid_from: Mapped[Optional[Date]] = mapped_column(Date)
     valid_until: Mapped[Optional[Date]] = mapped_column(Date)
     timezone: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
     # Relationships
     clique: Mapped["Clique"] = relationship("Clique", back_populates="availabilities")

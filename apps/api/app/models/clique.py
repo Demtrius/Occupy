@@ -5,7 +5,7 @@ from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base import Base, TimestampMixin
 from .enums import MembershipStatus, Privacy, Role
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from .user import Occupation, User
 
 
-class Clique(Base):
+class Clique(TimestampMixin, Base):
     __tablename__ = "cliques"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -31,12 +31,6 @@ class Clique(Base):
     privacy: Mapped[Privacy] = mapped_column(Enum(Privacy), default=Privacy.PUBLIC)
     timezone: Mapped[str] = mapped_column(String, nullable=False)
     cancellation_cutoff_hours: Mapped[int] = mapped_column(Integer, default=24)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
     # Relationships
     owner: Mapped["User"] = relationship("User", back_populates="owned_cliques")
@@ -66,7 +60,7 @@ class CliqueMember(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True
     )
-    role: Mapped[Role] = mapped_column(Enum("Role"), default=Role.MEMBER)
+    role: Mapped[Role] = mapped_column(Enum(Role), default=Role.MEMBER)
     status: Mapped[MembershipStatus] = mapped_column(
         Enum(MembershipStatus), default=MembershipStatus.JOINED
     )

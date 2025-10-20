@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -9,7 +9,7 @@ from ..models.enums import NotificationType
 
 class NotificationBase(BaseModel):
     type: NotificationType
-    payload: dict
+    payload: Dict[str, Any]
     is_read: bool = False
     read_at: Optional[datetime] = None
 

@@ -1,11 +1,11 @@
 import uuid
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, Index, Text, func
+from sqlalchemy import CheckConstraint, DateTime, Enum, ForeignKey, Index, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base import Base, TimestampMixin
 from .enums import BookingStatus, CancelledBy
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Booking(Base):
+class Booking(TimestampMixin, Base):
     __tablename__ = "bookings"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -38,12 +38,6 @@ class Booking(Base):
     cancelled_by: Mapped[Optional[CancelledBy]] = mapped_column(Enum(CancelledBy))
     cancellation_reason: Mapped[Optional[str]] = mapped_column(Text)
     note: Mapped[Optional[str]] = mapped_column(Text)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
     # Relationships
     clique: Mapped["Clique"] = relationship("Clique", back_populates="bookings")

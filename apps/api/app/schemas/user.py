@@ -4,8 +4,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from ..models.enums import FollowStatus
-
 
 class UserBase(BaseModel):
     email: EmailStr

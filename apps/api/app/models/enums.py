@@ -1,5 +1,5 @@
 # Enums
-from sqlalchemy import Enum
+from enum import Enum
 
 
 class ContentFormat(str, Enum):
