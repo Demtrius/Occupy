@@ -18,6 +18,7 @@
     "react-native": ">=0.73"
   },
   "dependencies": {
+    "@occupy/config": "workspace:*",
     "react-native-paper": "^5.12.5"
   },
   "scripts": {

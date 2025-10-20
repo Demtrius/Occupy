@@ -87,10 +87,17 @@ importers:
 
   packages/config: {}
 
-  packages/types: {}
+  packages/types:
+    dependencies:
+      '@occupy/config':
+        specifier: workspace:*
+        version: link:../config
 
   packages/ui:
     dependencies:
+      '@occupy/config':
+        specifier: workspace:*
+        version: link:../config
       react:
         specifier: '>=18'
         version: 19.1.0

@@ -9,6 +9,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "dependencies": {
+    "@occupy/config": "workspace:*"
+  },
   "scripts": {
     "generate": "echo \"TODO: generate OpenAPI client\"",
     "lint": "biome lint .",
