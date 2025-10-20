@@ -1,157 +1,133 @@
-# Root level gitignore for Occupy project
-# Covers both mobile (Expo/React Native) and backend (Django) components
+# ----------------------------
+# OS junk
+# ----------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+._*
 
-# Dependencies
-node_modules/
-.venv/
-.env/
-venv/
-ENV/
-env/
-
-# Python
-*.pyc
-*.pyo
-*.pyd
-__pycache__/
-*.so
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
-staticfiles/
-/static/
-.coverage
-htmlcov/
-.tox/
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-
-# Expo & React Native
-.expo/
-dist/
-web-build/
-expo-env.d.ts
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-.metro-health-check*
-
-# Build outputs
-build/
-ios/
-android/
-*.ipa
-*.apk
-*.aab
-
-# Debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-.nyc_output
-
-# Environment variables
-.env
-.env*.local
-.environment
-
-# IDE & Editor
-.vscode/settings.json
-.vscode/launch.json
+# ----------------------------
+# Editors / IDE
+# ----------------------------
+.vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-logs/
-*.log
+# ----------------------------
+# Node / pnpm / Turborepo
+# ----------------------------
+node_modules/
+.pnpm-debug.log*
+pnpm-debug.log*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.turbo/
+.parcel-cache/
+.webpack/
+.cache/
 
-# Runtime data
-pids
+# ----------------------------
+# Expo / React Native
+# ----------------------------
+.expo/
+.expo-shared/
+dist/
+web-build/
+# Metro bundler cache
+.metro-cache/
+# EAS build artifacts (if you export them locally)
+*.apk
+*.aab
+*.ipa
+*.app
+# Android (if you eject)
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/local.properties
+android/*/captures/
+*.keystore
+# iOS (if you eject)
+ios/Pods/
+ios/build/
+ios/DerivedData/
+*.xcuserdatad/
+*.xcworkspace
+*.xcuserstate
+
+# ----------------------------
+# TypeScript outputs (if any local builds)
+# ----------------------------
+*.tsbuildinfo
+build/
+out/
+dist/
+
+# ----------------------------
+# Python / Poetry
+# ----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.venv/
+venv/
+# Keep poetry.lock committed, do NOT ignore it
+
+# ----------------------------
+# Alembic / DB
+# ----------------------------
+# Keep migrations tracked!
+# alembic/versions/*.py  <-- DO NOT IGNORE (commit your migrations)
+
+# ----------------------------
+# Environment / secrets
+# ----------------------------
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.production.example
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.mobileprovision
+
+# ----------------------------
+# Logs / runtime
+# ----------------------------
+logs/
+*.log
 *.pid
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# TypeScript
-*.tsbuildinfo
-
-# Temporary folders
-tmp/
-temp/
-
+# ----------------------------
 # Docker
-docker-compose.override.yml
+# ----------------------------
+# No local bind-mount data dirs expected here; volumes live outside repo
+# Ignore any accidental data dirs
+data/
+tmp/
+run/
 
-# Backup files
-*.bak
-*.backup
-
-# Certificate files
-*.pem
-*.crt
-*.cer
-*.der
-
-# Test files
-test-results/
-playwright-report/
-test-results.xml
-
-# Database
-*.sqlite
-*.db
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+# ----------------------------
+# Misc
+# ----------------------------
+coverage/
+junit.xml
+*.iml

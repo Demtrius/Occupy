@@ -1,0 +1,13 @@
+{
+  "name": "@occupy/config",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "files": [
+    "tsconfig"
+  ],
+  "exports": {
+    "./tsconfig/react-native": "./tsconfig/react-native.json",
+    "./tsconfig/base": "./tsconfig/base.json"
+  }
+}

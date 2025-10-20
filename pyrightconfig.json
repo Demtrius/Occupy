@@ -1,9 +1,0 @@
-{
-  "include": ["backend"],
-  "exclude": ["**/node_modules", "**/__pycache__"],
-  "venvPath": "./backend",
-  "venv": ".venv",
-  "allowedUntypedLibraries": ["environ"],
-
-  "reportConstantRedefinition": "hint"
-}

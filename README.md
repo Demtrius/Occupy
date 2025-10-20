@@ -1,183 +1,83 @@
 # Occupy
 
-## Project Structure
+**Mobile:** Expo (React Native + TypeScript, pnpm, Turborepo)
+**Backend:** FastAPI (Python), PostgreSQL, Redis, MinIO, Docker, **Poetry**
+**Dev Tooling:** **Biome** (TS lint & format), **Ruff** (py lint), **mypy** (py type-check)
+
+**Goal:** Help small business owners list services & availability, get bookings, post updates, and chat with clients. Users can follow businesses, like/comment on posts, book time slots, and leave reviews.
+
+---
+
+## Features
+
+- **Accounts & Auth**
+  - Email/password + social (Apple/Google via `expo-auth-session`)
+  - Two roles: **Business** and **User**
+- **Business pages**
+  - Services (title, duration, price, buffer)
+  - Availability (recurring rules + exceptions)
+  - Bookings (create/cancel/reschedule)
+  - Posts (text + images), Likes, Comments
+  - Reviews (only after completed booking)
+- **Social**
+  - Follow businesses; see a simple feed (reverse-chrono of followed businesses)
+- **Chat**
+  - 1:1 Business ↔ User, typing/presence, read receipts (WebSockets)
+- **Files**
+  - Image uploads via **pre-signed URLs** to **MinIO** (S3-compatible)
+
+---
+
+## Tech Stack
+
+### Mobile (Expo)
+- React Native (Expo, managed workflow), TypeScript, `expo-router`
+- Styling: `nativewind` (Tailwind for RN)
+- Components: `react-native-paper`
+- Data: **TanStack Query** for server cache + **Zustand** for local state
+- Forms: `react-hook-form` + `zod`
+- Dates: `dayjs`, booking calendar with `react-native-calendars`
+- Media: `expo-image`, `expo-image-picker`, pre-signed upload flow
+- Notifications: `expo-notifications`
+- Testing (later): **Maestro** for e2e
+
+### Backend (FastAPI)
+- FastAPI, Starlette
+- DB: PostgreSQL (`asyncpg`), **SQLAlchemy 2.x (async)**, **Alembic**
+- Cache & Realtime: Redis (pub/sub, presence, rate-limiting buckets)
+- Jobs/Workers: **Dramatiq** (Redis broker)
+- Auth: JWT (access+refresh via `python-jose`), Argon2 password hashing
+- Validation: **Pydantic v2**
+- Search/Geo: Postgres FTS + `pg_trgm`, **PostGIS** (optional for MVP)
+- File storage: **MinIO** (S3 API) via `boto3` pre-signed URLs
+- Observability: `sentry-sdk`, OpenTelemetry (optional initially)
+- Email: `fastapi-mail` (any SMTP/Postmark/SendGrid)
+
+### Tooling & Repo
+- **pnpm** + **Turborepo** monorepo
+- **Biome** for TS lint/format (no ESLint/Prettier)
+- **Ruff** for Python lint, **mypy** for static typing
+- **Poetry** for Python dep & env management
+- Docker Compose for local: `api`, `db`, `redis`, `minio`, `worker`, `nginx`
+- CI: GitHub Actions (lint, typecheck, tests, build, migrations)
+
+---
+
+## Monorepo Layout
 
 ```
-Occupy/
-├── mobile/          # Expo/React Native mobile application
-├── backend/         # Django backend API
-└── README.md        # This file
+├─ apps/
+│ ├─ mobile/ # Expo app
+│ └─ api/ # FastAPI app
+├─ packages/
+│ ├─ ui/ # Shared RN components (buttons, cards)
+│ ├─ config/ # Shared tsconfig/eslint/prettier
+│ └─ types/ # OpenAPI TS client (generated)
+├─ infra/
+│ ├─ docker/ # Dockerfiles & compose
+│ └─ db/ # migrations, seed, sql snippets
+├─ turbo.json
+├─ package.json
+├─ pnpm-workspace.yaml
+└─ README.md
 ```
-
-## API Endpoints
-
-### Authentication
-
-- `POST /api/auth/jwt/create/` - Login a user and get JWT tokens.
-- `POST /api/auth/jwt/refresh/` - Refresh an access token.
-- `POST /api/auth/jwt/verify/` - Verify a token.
-- `POST /api/auth/users/` - Register a new user.
-- `GET /api/auth/users/me/` - Get details of the current user.
-- `POST /api/auth/logout/` - Logout a user.
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v18 or later)
-- Python (v3.8 or later)
-- Expo CLI (`npm install -g @expo/cli`)
-- iOS Simulator (for iOS development)
-- Android Studio/Android SDK (for Android development)
-
-### Mobile App Setup
-
-1. Navigate to the mobile directory:
-
-   ```bash
-   cd mobile
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   make setup-mobile
-   ```
-
-3. Start the Expo development server:
-   ```bash
-   make dev-mobile
-   ```
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-
-   ```bash
-   cd backend
-   ```
-
-2. Create and activate a virtual environment (if not already created):
-
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. Install Python dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run Django migrations:
-
-   ```bash
-   python manage.py migrate
-   ```
-
-5. Start the Django development server:
-   ```bash
-   python manage.py runserver
-   ```
-
-## Mobile Development
-
-### Key Technologies
-
-- **Expo SDK 52** (Latest version with New Architecture support)
-- **React Native 0.76**
-- **React Navigation 7**
-- **UI Kitten** for UI components
-- **Expo Router** for navigation
-
-### Available Commands
-
-Use `make help` to see all available commands. Key commands include:
-
-- `make dev` - Start both mobile and backend servers
-- `make dev-mobile` - Start Expo development server only
-- `make dev-backend` - Start Django development server only
-- `make build-android` - Build for Android device
-- `make build-ios` - Build for iOS device
-- `make setup` - Install all dependencies
-
-## Backend Development
-
-### Key Technologies
-
-- **Django** - Web framework
-- **Django REST Framework** - API development
-- **PostgreSQL/SQLite** - Database
-
-### Available Commands
-
-- `make dev-backend` - Start development server
-- `make migrate` - Apply database migrations
-- `make makemigrations` - Create new migrations
-- `make superuser` - Create admin user
-- `make shell` - Django interactive shell
-
-## Development Workflow
-
-### Full Stack Development
-
-1. **Start both servers simultaneously:**
-
-   ```bash
-   make dev
-   ```
-
-2. **Or start them individually:**
-
-   ```bash
-   # Terminal 1 - Backend
-   make dev-backend
-
-   # Terminal 2 - Mobile
-   make dev-mobile
-   ```
-
-## Deployment
-
-### Mobile App Deployment
-
-The project is configured for Expo Application Services (EAS):
-
-1. **Build for production:**
-
-   ```bash
-   make build-mobile
-   # or for specific platforms
-   make build-android
-   make build-ios
-   ```
-
-2. **Deploy updates:**
-   ```bash
-   make update-mobile
-   ```
-
-### Backend Deployment
-
-The backend includes Docker configuration:
-
-1. **Using Docker:**
-   ```bash
-   make docker
-   ```
-
-## Configuration Files
-
-### Mobile Configuration
-
-- `mobile/app.json` - Expo configuration
-- `mobile/eas.json` - EAS Build configuration
-- `mobile/babel.config.mjs` - Babel configuration
-- `mobile/metro.config.mjs` - Metro bundler configuration
-
-### Backend Configuration
-
-- `backend/settings.py` - Django settings
-- `backend/requirements.txt` - Python dependencies
-- `backend/Dockerfile` - Docker configuration

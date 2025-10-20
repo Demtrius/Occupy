@@ -1,0 +1,42 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "dev": "expo start -c",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@occupy/types": "workspace:^",
+    "@occupy/ui": "workspace:^",
+    "@tanstack/react-query": "^5.90.5",
+    "dayjs": "^1.11.18",
+    "expo": "~54.0.13",
+    "expo-image": "^3.0.9",
+    "expo-image-picker": "^17.0.8",
+    "expo-notifications": "^0.32.12",
+    "expo-status-bar": "~3.0.8",
+    "nativewind": "^4.2.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-hook-form": "^7.65.0",
+    "react-native": "0.81.4",
+    "react-native-calendars": "^1.1313.0",
+    "react-native-paper": "^5.14.5",
+    "react-native-web": "^0.21.0",
+    "zod": "^4.1.12",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.17",
+    "typescript": "~5.9.3"
+  },
+  "private": true
+}
