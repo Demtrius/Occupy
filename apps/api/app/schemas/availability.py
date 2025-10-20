@@ -36,3 +36,10 @@ class Availability(AvailabilityBase):
     clique_id: UUID
     created_at: datetime
     updated_at: datetime
+
+
+class Slot(BaseModel):
+    start_time: TimeType
+    end_time: TimeType
+    service_id: UUID
+    service_title: str

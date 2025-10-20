@@ -6,7 +6,7 @@ authors = ["0Empty0 <viktor.harhatt@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.13"
+python = ">=3.13,<4.0"
 fastapi = ">=0.119.0,<0.120.0"
 uvicorn = {extras = ["standard"], version = ">=0.38.0,<0.39.0"}
 sqlalchemy = ">=2.0.44,<3.0.0"
@@ -18,6 +18,7 @@ dramatiq = ">=1.18.0,<2.0.0"
 python-jose = ">=3.5.0,<4.0.0"
 argon2-cffi = ">=25.1.0,<26.0.0"
 boto3 = ">=1.40.55,<2.0.0"
+slowapi = ">=0.1.9,<1.0.0"
 structlog = ">=25.4.0,<26.0.0"
 
 

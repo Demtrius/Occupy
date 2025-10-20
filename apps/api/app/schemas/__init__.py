@@ -3,6 +3,7 @@ from .availability import (
     AvailabilityBase,
     AvailabilityCreate,
     AvailabilityUpdate,
+    Slot,
 )
 from .booking import (
     Booking,
@@ -42,6 +43,7 @@ from .review import (
     ReviewCreate,
     ReviewUpdate,
 )
+from .search import SearchResult
 from .service import (
     Service,
     ServiceBase,
@@ -60,6 +62,7 @@ __all__ = [
     "AvailabilityBase",
     "AvailabilityCreate",
     "AvailabilityUpdate",
+    "Slot",
     "Booking",
     "BookingBase",
     "BookingCreate",
@@ -86,6 +89,7 @@ __all__ = [
     "ReviewBase",
     "ReviewCreate",
     "ReviewUpdate",
+    "SearchResult",
     "Service",
     "ServiceBase",
     "ServiceCreate",

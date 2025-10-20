@@ -18,7 +18,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
 
 class UserUpdate(BaseModel):
@@ -34,3 +34,18 @@ class User(UserBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
+
+
+class LoginRequest(BaseModel):
+    email_or_username: str
+    password: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class TokenRead(BaseModel):
+    access_token: str
+    refresh_token: str
+    user: User

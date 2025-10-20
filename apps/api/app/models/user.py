@@ -48,6 +48,7 @@ class User(TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_private_account: Mapped[bool] = mapped_column(Boolean, default=False)
     is_business_page: Mapped[bool] = mapped_column(Boolean, default=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
 
     # Relationships
     occupations: Mapped[list["Occupation"]] = relationship(
