@@ -18,13 +18,13 @@ This plan is designed to ship a usable MVP quickly while keeping room for growth
 - `expo start` runs app; mobile can hit API health endpoint
 
 **Tasks**
-- [ ] Init repo (`pnpm`, `turbo`, workspace config)
-- [ ] Add linting/formatting (ESLint, Prettier, Ruff)
-- [ ] Compose files + Dockerfile for API
-- [ ] MinIO bucket creation job
-- [ ] API health route & OpenAPI docs
-- [ ] Expo starter with env wiring
-- [ ] CI: lint + typecheck pipelines
+- [-] Init repo (`pnpm`, `turbo`, workspace config)
+- [-] Add linting/formatting (Biome, Ruff)
+- [-] Compose files + Dockerfile for API
+- [-] MinIO bucket creation job
+- [-] API health route & OpenAPI docs
+- [-] Expo starter with env wiring
+- [-] CI: lint + typecheck pipelines
 
 ---
 

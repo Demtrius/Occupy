@@ -26,6 +26,7 @@ services:
     depends_on: [minio]
     entrypoint: >
       /bin/sh -c "
+      sleep 1 &&
       mc alias set local http://minio:9000 clique clique-secret &&
       mc mb -p local/clique-media || true &&
       mc anonymous set download local/clique-media
