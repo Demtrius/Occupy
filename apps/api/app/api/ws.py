@@ -1,13 +1,16 @@
 from typing import Dict, List
 
 from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..api.deps import get_db
 from ..core.auth import decode_token
 from ..models.chat import Chat
+from ..models.clique import Clique
 
 router = APIRouter()
+
 
 class ConnectionManager:
     def __init__(self):
@@ -30,6 +33,7 @@ class ConnectionManager:
             for connection in self.active_connections[room_id]:
                 await connection.send_json(message)
 
+
 manager = ConnectionManager()
 
 
@@ -51,10 +55,14 @@ async def chat_websocket(
 
         # Check if user has access to chat
         from sqlalchemy import select
+
         stmt = select(Chat).where(Chat.id == chat_id)
         result = await db.execute(stmt)
         chat = result.scalar_one_or_none()
-        if not chat or user_id not in [str(chat.user1_id), str(chat.user2_id)]:
+        if not chat or user_id not in {
+            str(chat.business_user_id),
+            str(chat.client_user_id),
+        }:
             await websocket.close(code=1008)
             return
 
@@ -64,12 +72,15 @@ async def chat_websocket(
             while True:
                 data = await websocket.receive_json()
                 # Broadcast message to all in chat
-                await manager.broadcast(chat_id, {
-                    "type": "message",
-                    "user_id": user_id,
-                    "content": data.get("content"),
-                    "timestamp": data.get("timestamp"),
-                })
+                await manager.broadcast(
+                    chat_id,
+                    {
+                        "type": "message",
+                        "user_id": user_id,
+                        "content": data.get("content"),
+                        "timestamp": data.get("timestamp"),
+                    },
+                )
         except WebSocketDisconnect:
             manager.disconnect(chat_id, websocket)
     except Exception:
@@ -92,15 +103,22 @@ async def booking_websocket(
             await websocket.close(code=1008)
             return
 
-        # Check if user is member of clique (simplified)
-        # In real implementation, check clique membership
-        await manager.connect(f"booking_{clique_id}", websocket)
+        # Allow only clique owners to subscribe for now.
+        stmt = select(Clique).where(Clique.id == clique_id)
+        result = await db.execute(stmt)
+        clique = result.scalar_one_or_none()
+        if not clique or str(clique.owner_user_id) != user_id:
+            await websocket.close(code=1008)
+            return
+
+        room_id = f"booking_{clique_id}"
+        await manager.connect(room_id, websocket)
 
         try:
             while True:
                 # This endpoint is for broadcasting only, clients don't send data
                 await websocket.receive_json()
         except WebSocketDisconnect:
-            manager.disconnect(f"booking_{clique_id}", websocket)
+            manager.disconnect(room_id, websocket)
     except Exception:
         await websocket.close(code=1011)

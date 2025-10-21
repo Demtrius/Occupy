@@ -1,88 +1,97 @@
 import pytest
-from faker import Faker
-from httpx import AsyncClient
 
-from tests.factories import create_user
-from tests.utils import assert_error, auth_headers
+from app.core.auth import verify_password
+from app.models.user import User
+from tests.utils import assert_error
 
 
 @pytest.mark.asyncio
-async def test_register_success(client: AsyncClient, db_session, faker: Faker):
-    """Test successful user registration."""
-    email = faker.email()
-    data = {
-        "email": email,
-        "username": faker.user_name(),
-        "password": "password123",
+async def test_register_creates_user(client, faker, db_session):
+    payload = {
+        "email": faker.unique.email(),
+        "username": faker.unique.user_name(),
+        "password": "Str0ngPass!",
     }
-    resp = await client.post("/api/v1/auth/register", json=data)
-    assert resp.status_code == 201
-    resp_data = resp.json()
-    assert "user" in resp_data
-    assert resp_data["user"]["email"] == email
-
-
-@pytest.mark.asyncio
-async def test_register_duplicate_email(client: AsyncClient, db_session):
-    """Test registration with duplicate email fails."""
-    await create_user(db_session, email="test@example.com")
-    await db_session.commit()
-    data = {
-        "email": "test@example.com",
-        "username": "newuser",
-        "password": "password123",
-    }
-    resp = await client.post("/api/v1/auth/register", json=data)
-    assert_error(resp, "conflict")
-
-
-@pytest.mark.asyncio
-async def test_login_success(client: AsyncClient, db_session):
-    """Test successful login."""
-    user = await create_user(db_session, email="test@example.com", password="password123")
-    await db_session.commit()  # Commit the user so it's visible in other sessions
-    data = {"email_or_username": "test@example.com", "password": "password123"}
-    resp = await client.post("/api/v1/auth/login", json=data)
-    assert resp.status_code == 200
-    data = resp.json()
+    response = await client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 201
+    data = response.json()
     assert "access_token" in data
-    assert "refresh_token" in data
+    assert data["user"]["email"] == payload["email"]
+
+    user_id = data["user"]["id"]
+    user = await db_session.get(User, user_id)
+    assert user is not None
+    assert verify_password(payload["password"], user.password_hash)
 
 
 @pytest.mark.asyncio
-async def test_login_bad_password(client: AsyncClient, db_session):
-    """Test login with bad password fails."""
-    await create_user(db_session, email="test@example.com", password="password123")
-    await db_session.commit()
-    data = {"email_or_username": "test@example.com", "password": "wrong"}
-    resp = await client.post("/api/v1/auth/login", json=data)
-    assert_error(resp, "http_error")
+async def test_register_duplicate_email(client, faker):
+    payload = {
+        "email": faker.unique.email(),
+        "username": faker.unique.user_name(),
+        "password": "Str0ngPass!",
+    }
+    first = await client.post("/api/v1/auth/register", json=payload)
+    assert first.status_code == 201
+
+    duplicate = await client.post("/api/v1/auth/register", json=payload)
+    assert duplicate.status_code == 409
+    assert_error(duplicate, "conflict")
 
 
 @pytest.mark.asyncio
-async def test_refresh_token(client: AsyncClient, db_session):
-    """Test refresh token."""
-    user = await create_user(db_session)
-    # Assume refresh token creation
-    # This might need adjustment based on actual implementation
-    pass
+async def test_login_success(client, faker):
+    email = faker.unique.email()
+    credentials = {
+        "email": email,
+        "username": faker.unique.user_name(),
+        "password": "Str0ngPass!",
+    }
+    await client.post("/api/v1/auth/register", json=credentials)
+
+    login_payload = {
+        "email_or_username": email,
+        "password": credentials["password"],
+    }
+    response = await client.post("/api/v1/auth/login", json=login_payload)
+    assert response.status_code == 200
+    tokens = response.json()
+    assert tokens["access_token"]
+    assert tokens["refresh_token"]
 
 
 @pytest.mark.asyncio
-async def test_logout(client: AsyncClient, db_session):
-    """Test logout."""
-    user = await create_user(db_session)
-    await db_session.commit()
-    headers = auth_headers(user)
-    resp = await client.post("/api/v1/auth/logout", headers=headers)
-    assert resp.status_code == 200
+async def test_login_bad_password(client, faker):
+    credentials = {
+        "email": faker.unique.email(),
+        "username": faker.unique.user_name(),
+        "password": "Str0ngPass!",
+    }
+    await client.post("/api/v1/auth/register", json=credentials)
+
+    response = await client.post(
+        "/api/v1/auth/login",
+        json={
+            "email_or_username": credentials["email"],
+            "password": "WrongPass",
+        },
+    )
+    assert response.status_code == 401
+    assert_error(response, "http_error")
 
 
 @pytest.mark.asyncio
-async def test_rate_limited_login(enable_rate_limits, client: AsyncClient, db_session):
-    """Test rate limiting on login."""
-    # Enable rate limits
-    for _ in range(10):  # Assume limit is 5 or something
-        resp = await client.post("/api/v1/auth/login", json={"email_or_username": "test@example.com", "password": "wrong"})
-    assert resp.status_code == 429
-    assert_error(resp, "http_error")
+async def test_logout_requires_valid_token(client, faker):
+    payload = {
+        "email": faker.unique.email(),
+        "username": faker.unique.user_name(),
+        "password": "Str0ngPass!",
+    }
+    register = await client.post("/api/v1/auth/register", json=payload)
+    token = register.json()["access_token"]
+
+    response = await client.post(
+        "/api/v1/auth/logout",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200

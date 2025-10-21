@@ -1,4 +1,5 @@
 import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.middleware import SlowAPIMiddleware
@@ -75,8 +76,6 @@ app.add_middleware(SlowAPIMiddleware)
 
 # Routers
 app.include_router(auth_router, prefix="/api/v1")
-
-
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(follows_router, prefix="/api/v1")
 app.include_router(cliques_router, prefix="/api/v1")
@@ -93,7 +92,6 @@ app.include_router(business_services_router, prefix="/api/v1")
 app.include_router(availability_router, prefix="/api/v1")
 
 # WebSocket routes
-
 app.include_router(ws_router, prefix="/ws")
 
 
