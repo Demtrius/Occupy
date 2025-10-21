@@ -32,9 +32,9 @@ async def register_uploaded(
     media = await register_media(
         db,
         str(current_user.id),
-        data.file_name,
-        data.mime_type,
+        data.url,
+        data.mime,
         data.size_bytes,
-        data.purpose,
+        data.meta,
     )
     return {"media_id": media.id}

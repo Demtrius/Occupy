@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import datetime
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.enums import PostStatus
@@ -13,7 +15,7 @@ async def create_post(
     status: PostStatus,
 ) -> Post:
     post = Post(
-        author_id=author_id,
+        author_user_id=author_id,
         clique_id=clique_id,
         content=content,
         status=status,
@@ -28,16 +30,25 @@ async def get_post_by_id(db: AsyncSession, post_id: str) -> Post | None:
     return await db.get(Post, post_id)
 
 
-async def get_clique_posts(db: AsyncSession, clique_id: str, cursor: str | None, limit: int):
-    stmt = select(Post).where(Post.clique_id == clique_id, Post.status == PostStatus.POSTED)
+async def get_clique_posts(
+    db: AsyncSession, clique_id: str, cursor: str | None, limit: int
+):
+    stmt = select(Post).where(
+        Post.clique_id == clique_id,
+        Post.status == PostStatus.POSTED,
+        Post.deleted_at.is_(None),
+    )
     if cursor:
-        stmt = stmt.where(Post.id > cursor)
+        parsed_cursor = _parse_cursor(cursor)
+        stmt = stmt.where(Post.created_at < parsed_cursor)
     stmt = stmt.order_by(Post.created_at.desc()).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()
 
 
-async def update_post(db: AsyncSession, post_id: str, content: str | None, status: PostStatus | None) -> Post | None:
+async def update_post(
+    db: AsyncSession, post_id: str, content: str | None, status: PostStatus | None
+) -> Post | None:
     post = await db.get(Post, post_id)
     if post:
         if content is not None:
@@ -52,12 +63,15 @@ async def update_post(db: AsyncSession, post_id: str, content: str | None, statu
 async def delete_post(db: AsyncSession, post_id: str) -> None:
     post = await db.get(Post, post_id)
     if post:
-        post.status = PostStatus.DELETED
+        post.deleted_at = func.now()
+        post.status = PostStatus.ARCHIVED
         await db.commit()
 
 
 async def like_post(db: AsyncSession, user_id: str, post_id: str) -> None:
-    existing = await db.scalar(select(PostLike).where(PostLike.user_id == user_id, PostLike.post_id == post_id))
+    existing = await db.scalar(
+        select(PostLike).where(PostLike.user_id == user_id, PostLike.post_id == post_id)
+    )
     if not existing:
         like = PostLike(user_id=user_id, post_id=post_id)
         db.add(like)
@@ -65,7 +79,20 @@ async def like_post(db: AsyncSession, user_id: str, post_id: str) -> None:
 
 
 async def unlike_post(db: AsyncSession, user_id: str, post_id: str) -> None:
-    like = await db.scalar(select(PostLike).where(PostLike.user_id == user_id, PostLike.post_id == post_id))
+    like = await db.scalar(
+        select(PostLike).where(PostLike.user_id == user_id, PostLike.post_id == post_id)
+    )
     if like:
         await db.delete(like)
         await db.commit()
+
+
+def _parse_cursor(cursor: str) -> datetime:
+    """Parse ISO 8601 cursor into timezone-aware datetime."""
+    try:
+        parsed = datetime.fromisoformat(cursor)
+    except ValueError as exc:
+        raise ValueError("Invalid cursor") from exc
+    if parsed.tzinfo is None:
+        raise ValueError("Cursor must include timezone info")
+    return parsed

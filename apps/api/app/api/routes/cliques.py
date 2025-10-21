@@ -4,7 +4,12 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...api.deps import get_db, parse_limit_cursor, require_active_user, require_clique_owner
+from ...api.deps import (
+    get_db,
+    parse_limit_cursor,
+    require_active_user,
+    require_clique_owner,
+)
 from ...models.enums import Privacy
 from ...models.user import User
 from ...schemas.clique import CliqueCreate, CliqueUpdate
@@ -30,10 +35,7 @@ async def create(
     clique = await create_clique(
         db,
         str(current_user.id),
-        data.name,
-        data.description,
-        data.privacy,
-        data.occupations,
+        data,
     )
     return {"id": clique.id}
 

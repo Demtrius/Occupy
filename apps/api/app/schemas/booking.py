@@ -7,18 +7,11 @@ from pydantic import BaseModel, ConfigDict
 from ..models.enums import BookingStatus, CancelledBy
 
 
-class BookingBase(BaseModel):
+class BookingCreate(BaseModel):
     service_id: UUID
     start_ts: datetime
-    end_ts: datetime
-    status: BookingStatus = BookingStatus.PENDING
-    cancelled_by: Optional[CancelledBy] = None
-    cancellation_reason: Optional[str] = None
     note: Optional[str] = None
-
-
-class BookingCreate(BookingBase):
-    pass
+    idempotency_key: Optional[str] = None
 
 
 class BookingUpdate(BaseModel):
@@ -28,11 +21,18 @@ class BookingUpdate(BaseModel):
     note: Optional[str] = None
 
 
-class Booking(BookingBase):
+class Booking(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    service_id: UUID
     clique_id: UUID
     user_id: UUID
+    start_ts: datetime
+    end_ts: datetime
+    status: BookingStatus
+    cancelled_by: Optional[CancelledBy] = None
+    cancellation_reason: Optional[str] = None
+    note: Optional[str] = None
     created_at: datetime
     updated_at: datetime

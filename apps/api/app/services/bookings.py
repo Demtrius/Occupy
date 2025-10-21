@@ -1,9 +1,12 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.booking import Booking
-from ..models.enums import BookingStatus
+from ..models.clique import Clique
+from ..models.enums import BookingStatus, CancelledBy
 from ..models.service import Service
 
 
@@ -11,7 +14,7 @@ async def create_booking(
     db: AsyncSession,
     user_id: str,
     service_id: str,
-    start_ts: str,
+    start_ts: datetime,
     note: str | None,
     idempotency_key: str | None,
 ) -> Booking:
@@ -20,15 +23,17 @@ async def create_booking(
     if not service:
         raise ValueError("Service not found")
 
-    start_dt = datetime.fromisoformat(start_ts)
+    if start_ts.tzinfo is None:
+        raise ValueError("start_ts must be timezone-aware")
+    start_dt = start_ts
     end_dt = start_dt + timedelta(minutes=service.duration_minutes)
 
     # Check availability (simplified, check if any booking overlaps)
     overlap_stmt = select(Booking).where(
         Booking.service_id == service_id,
         Booking.status.in_([BookingStatus.PENDING, BookingStatus.CONFIRMED]),
-        Booking.start_ts < end_dt.isoformat(),
-        (Booking.start_ts + timedelta(minutes=service.duration_minutes)) > start_dt
+        Booking.start_ts < end_dt,
+        Booking.end_ts > start_dt,
     )
     overlap = await db.scalar(overlap_stmt)
     if overlap:
@@ -37,50 +42,95 @@ async def create_booking(
     booking = Booking(
         user_id=user_id,
         service_id=service_id,
-        start_ts=start_ts,
-        end_ts=end_dt.isoformat(),
+        clique_id=service.clique_id,
+        start_ts=start_dt,
+        end_ts=end_dt,
         note=note,
         status=BookingStatus.PENDING,
     )
     db.add(booking)
+    try:
+        await db.commit()
+    except IntegrityError as exc:
+        await db.rollback()
+        raise ValueError("Could not create booking") from exc
+    else:
+        await db.refresh(booking)
+        return booking
+
+
+async def get_user_bookings(
+    db: AsyncSession, user_id: str, status: str | None, cursor: str | None, limit: int
+):
+    stmt = select(Booking).where(Booking.user_id == user_id)
+    if status:
+        stmt = stmt.where(Booking.status == BookingStatus(status))
+    if cursor:
+        parsed_cursor = datetime.fromisoformat(cursor)
+        stmt = stmt.where(Booking.created_at < parsed_cursor)
+    stmt = stmt.order_by(Booking.created_at.desc()).limit(limit)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
+async def get_clique_bookings(
+    db: AsyncSession, clique_id: str, status: str | None, cursor: str | None, limit: int
+):
+    stmt = select(Booking).where(Booking.clique_id == clique_id)
+    if status:
+        stmt = stmt.where(Booking.status == BookingStatus(status))
+    if cursor:
+        parsed_cursor = datetime.fromisoformat(cursor)
+        stmt = stmt.where(Booking.created_at < parsed_cursor)
+    stmt = stmt.order_by(Booking.created_at.desc()).limit(limit)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
+async def confirm_booking(db: AsyncSession, booking_id: str) -> Booking | None:
+    booking = await db.get(Booking, booking_id)
+    if not booking:
+        return None
+    booking.status = BookingStatus.CONFIRMED
     await db.commit()
     await db.refresh(booking)
     return booking
 
 
-async def get_user_bookings(db: AsyncSession, user_id: str, status: str | None, cursor: str | None, limit: int):
-    stmt = select(Booking).where(Booking.user_id == user_id)
-    if status:
-        stmt = stmt.where(Booking.status == status)
-    if cursor:
-        stmt = stmt.where(Booking.id > cursor)
-    stmt = stmt.order_by(Booking.created_at.desc()).limit(limit)
-    result = await db.execute(stmt)
-    return result.scalars().all()
-
-
-async def get_clique_bookings(db: AsyncSession, clique_id: str, status: str | None, cursor: str | None, limit: int):
-    stmt = select(Booking).where(Booking.clique_id == clique_id)
-    if status:
-        stmt = stmt.where(Booking.status == status)
-    if cursor:
-        stmt = stmt.where(Booking.id > cursor)
-    stmt = stmt.order_by(Booking.created_at.desc()).limit(limit)
-    result = await db.execute(stmt)
-    return result.scalars().all()
-
-
-async def confirm_booking(db: AsyncSession, booking_id: str) -> None:
+async def cancel_booking(
+    db: AsyncSession,
+    booking_id: str,
+    actor_user_id: str,
+    reason: str | None,
+) -> Booking | None:
     booking = await db.get(Booking, booking_id)
-    if booking:
-        booking.status = BookingStatus.CONFIRMED
-        await db.commit()
+    if not booking:
+        return None
 
+    if booking.status == BookingStatus.CANCELLED:
+        return booking
 
-async def cancel_booking(db: AsyncSession, booking_id: str, cancelled_by: str, reason: str | None) -> None:
-    booking = await db.get(Booking, booking_id)
-    if booking:
-        booking.status = BookingStatus.CANCELLED
-        booking.cancelled_by = cancelled_by
-        booking.cancellation_reason = reason
-        await db.commit()
+    clique = await db.get(Clique, booking.clique_id)
+    if not clique:
+        raise ValueError("Booking is in an inconsistent state")
+
+    # Determine who is cancelling
+    if str(booking.user_id) == actor_user_id:
+        actor = CancelledBy.CLIENT
+        cutoff = booking.start_ts - timedelta(hours=clique.cancellation_cutoff_hours)
+        now = datetime.now(timezone.utc)
+        if now > cutoff:
+            raise ValueError("Cancellation cutoff has passed")
+    elif str(clique.owner_user_id) == actor_user_id:
+        actor = CancelledBy.OWNER
+        if not reason:
+            raise ValueError("Owner cancellation requires a reason")
+    else:
+        raise ValueError("Not authorized to cancel this booking")
+
+    booking.status = BookingStatus.CANCELLED
+    booking.cancelled_by = actor
+    booking.cancellation_reason = reason
+    await db.commit()
+    await db.refresh(booking)
+    return booking

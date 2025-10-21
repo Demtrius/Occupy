@@ -27,7 +27,7 @@ async def create(
         db,
         str(current_user.id),
         str(data.service_id),
-        data.start_ts.isoformat(),
+        data.start_ts,
         data.note,
         data.idempotency_key,
     )
@@ -67,7 +67,8 @@ async def confirm(
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Check ownership
-    await confirm_booking(db, str(booking_id))
+    booking = await confirm_booking(db, str(booking_id))
+    return {"id": booking.id, "status": booking.status} if booking else {"ok": False}
 
 
 @router.post("/{booking_id}/cancel")
@@ -77,4 +78,5 @@ async def cancel(
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    await cancel_booking(db, str(booking_id), str(current_user.id), reason)
+    booking = await cancel_booking(db, str(booking_id), str(current_user.id), reason)
+    return {"id": booking.id, "status": booking.status} if booking else {"ok": False}

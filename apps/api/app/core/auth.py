@@ -12,8 +12,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from ..models.user import User
 
+
 # Settings
-def get_jwt_secret(): return os.getenv("get_jwt_secret()", "default-secret-change-in-prod")
+def get_jwt_secret() -> str:
+    """Return the JWT secret from environment in a single place."""
+    return os.getenv("JWT_SECRET", "change-me-in-prod")
+
+
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
