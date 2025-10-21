@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from ..models.enums import FollowStatus
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -49,3 +51,13 @@ class TokenRead(BaseModel):
     access_token: str
     refresh_token: str
     user: User
+
+
+class Follow(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    follower_user_id: UUID
+    followee_user_id: UUID
+    status: FollowStatus
+    created_at: datetime

@@ -7,8 +7,10 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     String,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -131,11 +133,14 @@ class CliqueOccupation(Base):
 class Follow(Base):
     __tablename__ = "follows"
 
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     follower_user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     followee_user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     status: Mapped[FollowStatus] = mapped_column(
         Enum(FollowStatus, name="follow_status"), default=FollowStatus.ACCEPTED
@@ -156,4 +161,11 @@ class Follow(Base):
         CheckConstraint(
             "follower_user_id <> followee_user_id", name="ck_follows_no_self_follow"
         ),
+        UniqueConstraint(
+            "follower_user_id",
+            "followee_user_id",
+            name="uq_follows_pair",
+        ),
+        Index("ix_follows_followee_user_id", "followee_user_id"),
+        Index("ix_follows_follower_user_id", "follower_user_id"),
     )

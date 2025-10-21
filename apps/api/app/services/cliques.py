@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import datetime
 from typing import Sequence
 from uuid import UUID
 
@@ -9,9 +8,10 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.clique import Clique, CliqueMember
 from ..models.enums import MembershipStatus, Privacy, Role
-from ..schemas.clique import CliqueCreate
+from ..schemas.clique import CliqueCreate, CliqueUpdate
 
 
 async def _load_occupations(
@@ -102,36 +102,80 @@ async def leave_clique(db: AsyncSession, user_id: str, clique_id: str) -> None:
 
 async def get_clique_members(
     db: AsyncSession, clique_id: str, cursor: str | None, limit: int
-):
+) -> tuple[list[CliqueMember], str | None]:
     stmt = select(CliqueMember).where(
         CliqueMember.clique_id == clique_id,
         CliqueMember.status == MembershipStatus.JOINED,
     )
-    if cursor:
-        parsed_cursor = datetime.fromisoformat(cursor)
-        stmt = stmt.where(CliqueMember.created_at < parsed_cursor)
-    stmt = stmt.order_by(CliqueMember.created_at.desc()).limit(limit)
+    stmt = apply_datetime_cursor(stmt, CliqueMember, cursor, limit)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    rows = result.scalars().all()
+    return slice_results(rows, limit)
 
 
 async def get_feed_posts(
     db: AsyncSession, user_id: str, cursor: str | None, limit: int
-):
+) -> tuple[list["Post"], str | None]:
     from ..models.post import Post
+    from ..models.enums import PostStatus
 
     followed_cliques_stmt = select(CliqueMember.clique_id).where(
         CliqueMember.user_id == user_id,
         CliqueMember.status == MembershipStatus.JOINED,
     )
-    followed_clique_ids = await db.scalars(followed_cliques_stmt)
-    followed_clique_ids = [cid for cid in followed_clique_ids]
+    followed_clique_ids = list(await db.scalars(followed_cliques_stmt))
 
-    # Get posts from those cliques
-    stmt = select(Post).where(Post.clique_id.in_(followed_clique_ids))
-    if cursor:
-        parsed_cursor = datetime.fromisoformat(cursor)
-        stmt = stmt.where(Post.created_at < parsed_cursor)
-    stmt = stmt.order_by(Post.created_at.desc()).limit(limit)
+    if not followed_clique_ids:
+        return [], None
+
+    stmt = select(Post).where(
+        Post.clique_id.in_(followed_clique_ids),
+        Post.status == PostStatus.POSTED,
+        Post.deleted_at.is_(None),
+    )
+    stmt = apply_datetime_cursor(stmt, Post, cursor, limit)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    rows = result.scalars().all()
+    return slice_results(rows, limit)
+
+
+async def is_member_of_clique(db: AsyncSession, clique_id: str, user_id: str) -> bool:
+    stmt = select(CliqueMember).where(
+        CliqueMember.clique_id == clique_id,
+        CliqueMember.user_id == user_id,
+        CliqueMember.status == MembershipStatus.JOINED,
+    )
+    member = await db.scalar(stmt)
+    return member is not None
+
+
+async def update_clique_details(
+    db: AsyncSession,
+    clique_id: str,
+    data: CliqueUpdate,
+) -> Clique:
+    clique = await db.get(Clique, clique_id)
+    if not clique:
+        raise ValueError("Clique not found")
+
+    payload = data.model_dump(exclude_unset=True)
+    occupation_ids = payload.pop("occupation_ids", None)
+
+    for key, value in payload.items():
+        setattr(clique, key, value)
+
+    if occupation_ids is not None:
+        occupations = await _load_occupations(db, occupation_ids)
+        clique.occupations = list(occupations)
+
+    await db.commit()
+    await db.refresh(clique)
+    return clique
+
+
+async def delete_clique(db: AsyncSession, clique_id: str) -> None:
+    clique = await db.get(Clique, clique_id)
+    if not clique:
+        raise ValueError("Clique not found")
+    await db.delete(clique)
+    await db.commit()

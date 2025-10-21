@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..models.enums import Privacy
+from ..models.enums import MembershipStatus, Privacy, Role
 
 
 class CliqueBase(BaseModel):
@@ -29,6 +29,17 @@ class CliqueUpdate(BaseModel):
     timezone: Optional[str] = None
     cancellation_cutoff_hours: Optional[int] = None
     occupation_ids: Optional[List[UUID]] = None
+
+
+class CliqueMember(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    clique_id: UUID
+    user_id: UUID
+    role: Role
+    status: MembershipStatus
+    created_at: datetime
 
 
 class Clique(CliqueBase):

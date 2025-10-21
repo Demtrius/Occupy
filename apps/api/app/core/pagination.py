@@ -1,48 +1,63 @@
+from __future__ import annotations
+
 import base64
 from datetime import datetime
-from typing import Any
+from typing import Protocol, Sequence, TypeVar
 from uuid import UUID
 
-from sqlalchemy import Select, desc
+from sqlalchemy import Select, and_, or_
+
+T = TypeVar("T", bound="CursorEntity")
 
 
-def encode_cursor(sort_value: datetime | int | str, id: UUID) -> str:
-    cursor_data = f"{int(sort_value.timestamp()) if isinstance(sort_value, datetime) else sort_value}:{id}"
-    return base64.b64encode(cursor_data.encode()).decode()
+class CursorEntity(Protocol):
+    id: UUID
+    created_at: datetime
 
 
-def decode_cursor(cursor: str) -> tuple[Any, UUID]:
+def encode_datetime_cursor(created_at: datetime, entity_id: UUID) -> str:
+    payload = f"{created_at.isoformat()}|{entity_id}"
+    return base64.urlsafe_b64encode(payload.encode()).decode()
+
+
+def decode_datetime_cursor(cursor: str) -> tuple[datetime, UUID]:
     try:
-        decoded = base64.b64decode(cursor).decode()
-        sort_str, id_str = decoded.split(":", 1)
-        sort_value = sort_str  # keep as str, or parse based on type
-        return sort_value, UUID(id_str)
-    except Exception:
-        raise ValueError("Invalid cursor")
+        decoded = base64.urlsafe_b64decode(cursor).decode()
+        created_str, id_str = decoded.split("|", 1)
+        created_at = datetime.fromisoformat(created_str)
+        entity_id = UUID(id_str)
+        return created_at, entity_id
+    except Exception as exc:  # noqa: BLE001
+        raise ValueError("Invalid cursor") from exc
 
 
-async def apply_cursor(
-    query: Select,
+def apply_datetime_cursor(
+    stmt: Select,
+    model,
     cursor: str | None,
     limit: int,
-    sort_columns: tuple[str, str] = ("created_at", "id"),
-    direction: str = "desc"
 ) -> Select:
+    stmt = stmt.order_by(model.created_at.desc(), model.id.desc())
     if cursor:
-        sort_value, id_value = decode_cursor(cursor)
-        sort_col, id_col = sort_columns
-        if direction == "desc":
-            query = query.where(
-                (getattr(query, sort_col) < sort_value) |
-                ((getattr(query, sort_col) == sort_value) & (getattr(query, id_col) < id_value))
+        created_at, entity_id = decode_datetime_cursor(cursor)
+        stmt = stmt.where(
+            or_(
+                model.created_at < created_at,
+                and_(
+                    model.created_at == created_at,
+                    model.id < entity_id,
+                ),
             )
-        else:
-            query = query.where(
-                (getattr(query, sort_col) > sort_value) |
-                ((getattr(query, sort_col) == sort_value) & (getattr(query, id_col) > id_value))
-            )
-    if direction == "desc":
-        query = query.order_by(desc(getattr(query, sort_columns[0])), desc(getattr(query, sort_columns[1])))
-    else:
-        query = query.order_by(getattr(query, sort_columns[0]), getattr(query, sort_columns[1]))
-    return query.limit(limit + 1)  # +1 to check if there's next
+        )
+    return stmt.limit(limit + 1)
+
+
+def slice_results(rows: Sequence[T], limit: int) -> tuple[list[T], str | None]:
+    if not rows:
+        return [], None
+    has_more = len(rows) > limit
+    items = list(rows[:limit])
+    if not has_more:
+        return items, None
+    last = items[-1]
+    return items, encode_datetime_cursor(last.created_at, last.id)

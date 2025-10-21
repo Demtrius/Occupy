@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.booking import Booking
 from ..models.clique import Clique
 from ..models.enums import BookingStatus, CancelledBy
@@ -28,6 +29,16 @@ async def create_booking(
     start_dt = start_ts
     end_dt = start_dt + timedelta(minutes=service.duration_minutes)
 
+    if idempotency_key:
+        existing = await db.scalar(
+            select(Booking).where(
+                Booking.user_id == user_id,
+                Booking.idempotency_key == idempotency_key,
+            )
+        )
+        if existing:
+            return existing
+
     # Check availability (simplified, check if any booking overlaps)
     overlap_stmt = select(Booking).where(
         Booking.service_id == service_id,
@@ -47,6 +58,7 @@ async def create_booking(
         end_ts=end_dt,
         note=note,
         status=BookingStatus.PENDING,
+        idempotency_key=idempotency_key,
     )
     db.add(booking)
     try:
@@ -61,36 +73,53 @@ async def create_booking(
 
 async def get_user_bookings(
     db: AsyncSession, user_id: str, status: str | None, cursor: str | None, limit: int
-):
+) -> tuple[list[Booking], str | None]:
     stmt = select(Booking).where(Booking.user_id == user_id)
     if status:
-        stmt = stmt.where(Booking.status == BookingStatus(status))
-    if cursor:
-        parsed_cursor = datetime.fromisoformat(cursor)
-        stmt = stmt.where(Booking.created_at < parsed_cursor)
-    stmt = stmt.order_by(Booking.created_at.desc()).limit(limit)
+        try:
+            status_enum = BookingStatus(status)
+        except ValueError as exc:
+            raise ValueError("Invalid booking status") from exc
+        stmt = stmt.where(Booking.status == status_enum)
+    stmt = apply_datetime_cursor(stmt, Booking, cursor, limit)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    rows = result.scalars().all()
+    return slice_results(rows, limit)
 
 
 async def get_clique_bookings(
     db: AsyncSession, clique_id: str, status: str | None, cursor: str | None, limit: int
-):
+) -> tuple[list[Booking], str | None]:
     stmt = select(Booking).where(Booking.clique_id == clique_id)
     if status:
-        stmt = stmt.where(Booking.status == BookingStatus(status))
-    if cursor:
-        parsed_cursor = datetime.fromisoformat(cursor)
-        stmt = stmt.where(Booking.created_at < parsed_cursor)
-    stmt = stmt.order_by(Booking.created_at.desc()).limit(limit)
+        try:
+            status_enum = BookingStatus(status)
+        except ValueError as exc:
+            raise ValueError("Invalid booking status") from exc
+        stmt = stmt.where(Booking.status == status_enum)
+    stmt = apply_datetime_cursor(stmt, Booking, cursor, limit)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    rows = result.scalars().all()
+    return slice_results(rows, limit)
 
 
-async def confirm_booking(db: AsyncSession, booking_id: str) -> Booking | None:
+async def confirm_booking(
+    db: AsyncSession, booking_id: str, actor_user_id: str
+) -> Booking | None:
     booking = await db.get(Booking, booking_id)
     if not booking:
         return None
+
+    clique = await db.get(Clique, booking.clique_id)
+    if not clique:
+        raise ValueError("Booking is in an inconsistent state")
+
+    if str(clique.owner_user_id) != actor_user_id:
+        raise ValueError("Not authorized to confirm this booking")
+
+    if booking.status == BookingStatus.CANCELLED:
+        raise ValueError("Cannot confirm a cancelled booking")
+
     booking.status = BookingStatus.CONFIRMED
     await db.commit()
     await db.refresh(booking)

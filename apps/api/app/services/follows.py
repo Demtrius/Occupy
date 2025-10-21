@@ -1,8 +1,7 @@
-from datetime import datetime
-
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.enums import FollowStatus
 from ..models.user import Follow
 
@@ -11,8 +10,15 @@ async def follow_user(db: AsyncSession, follower_id: str, followee_id: str) -> F
     # Check if already following or blocked
     existing = await db.scalar(
         select(Follow).where(
-            ((Follow.follower_user_id == follower_id) & (Follow.followee_user_id == followee_id)) |
-            ((Follow.follower_user_id == followee_id) & (Follow.followee_user_id == follower_id) & (Follow.status == FollowStatus.BLOCKED))
+            (
+                (Follow.follower_user_id == follower_id)
+                & (Follow.followee_user_id == followee_id)
+            )
+            | (
+                (Follow.follower_user_id == followee_id)
+                & (Follow.followee_user_id == follower_id)
+                & (Follow.status == FollowStatus.BLOCKED)
+            )
         )
     )
     if existing:
@@ -23,11 +29,14 @@ async def follow_user(db: AsyncSession, follower_id: str, followee_id: str) -> F
 
     # Check followee's privacy (assuming User model has is_private)
     from ..models.user import User
+
     followee = await db.get(User, followee_id)
     if not followee:
         raise ValueError("User not found")
 
-    status = FollowStatus.PENDING if followee.is_private_account else FollowStatus.ACCEPTED
+    status = (
+        FollowStatus.PENDING if followee.is_private_account else FollowStatus.ACCEPTED
+    )
 
     follow = Follow(
         follower_user_id=follower_id,
@@ -78,8 +87,14 @@ async def reject_follow(db: AsyncSession, followee_id: str, follower_id: str) ->
 async def block_user(db: AsyncSession, blocker_id: str, blocked_id: str) -> None:
     # Remove existing follows in both directions
     delete_stmt = delete(Follow).where(
-        ((Follow.follower_user_id == blocker_id) & (Follow.followee_user_id == blocked_id)) |
-        ((Follow.follower_user_id == blocked_id) & (Follow.followee_user_id == blocker_id))
+        (
+            (Follow.follower_user_id == blocker_id)
+            & (Follow.followee_user_id == blocked_id)
+        )
+        | (
+            (Follow.follower_user_id == blocked_id)
+            & (Follow.followee_user_id == blocker_id)
+        )
     )
     await db.execute(delete_stmt)
 
@@ -104,25 +119,27 @@ async def unblock_user(db: AsyncSession, blocker_id: str, blocked_id: str) -> No
         await db.commit()
 
 
-async def get_followers(db: AsyncSession, user_id: str, cursor: str | None, limit: int):
+async def get_followers(
+    db: AsyncSession, user_id: str, cursor: str | None, limit: int
+) -> tuple[list[Follow], str | None]:
     stmt = select(Follow).where(
         Follow.followee_user_id == user_id,
         Follow.status == FollowStatus.ACCEPTED,
     )
-    if cursor:
-        stmt = stmt.where(Follow.created_at > datetime.fromisoformat(cursor))
-    stmt = stmt.order_by(Follow.created_at.desc()).limit(limit)
+    stmt = apply_datetime_cursor(stmt, Follow, cursor, limit)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    rows = result.scalars().all()
+    return slice_results(rows, limit)
 
 
-async def get_following(db: AsyncSession, user_id: str, cursor: str | None, limit: int):
+async def get_following(
+    db: AsyncSession, user_id: str, cursor: str | None, limit: int
+) -> tuple[list[Follow], str | None]:
     stmt = select(Follow).where(
         Follow.follower_user_id == user_id,
         Follow.status == FollowStatus.ACCEPTED,
     )
-    if cursor:
-        stmt = stmt.where(Follow.created_at > datetime.fromisoformat(cursor))
-    stmt = stmt.order_by(Follow.created_at.desc()).limit(limit)
+    stmt = apply_datetime_cursor(stmt, Follow, cursor, limit)
     result = await db.execute(stmt)
-    return result.scalars().all()
+    rows = result.scalars().all()
+    return slice_results(rows, limit)

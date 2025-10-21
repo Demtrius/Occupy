@@ -1,7 +1,16 @@
 import uuid
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,7 +37,9 @@ class Clique(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
     image_url: Mapped[Optional[str]] = mapped_column(String)
-    privacy: Mapped[Privacy] = mapped_column(Enum(Privacy, name="privacy"), default=Privacy.PUBLIC)
+    privacy: Mapped[Privacy] = mapped_column(
+        Enum(Privacy, name="privacy"), default=Privacy.PUBLIC
+    )
     timezone: Mapped[str] = mapped_column(String, nullable=False)
     cancellation_cutoff_hours: Mapped[int] = mapped_column(Integer, default=24)
 
@@ -54,15 +65,19 @@ class Clique(TimestampMixin, Base):
 class CliqueMember(Base):
     __tablename__ = "clique_members"
 
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     clique_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("cliques.id"), primary_key=True
+        UUID(as_uuid=True), ForeignKey("cliques.id"), nullable=False
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     role: Mapped[Role] = mapped_column(Enum(Role, name="role"), default=Role.MEMBER)
     status: Mapped[MembershipStatus] = mapped_column(
-        Enum(MembershipStatus, name="membership_status"), default=MembershipStatus.JOINED
+        Enum(MembershipStatus, name="membership_status"),
+        default=MembershipStatus.JOINED,
     )
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -71,6 +86,10 @@ class CliqueMember(Base):
     # Relationships
     clique: Mapped["Clique"] = relationship("Clique", back_populates="members")
     user: Mapped["User"] = relationship("User", back_populates="clique_memberships")
+
+    __table_args__ = (
+        UniqueConstraint("clique_id", "user_id", name="uq_clique_members_unique"),
+    )
 
 
 class CliqueInvite(Base):

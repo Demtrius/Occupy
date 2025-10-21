@@ -4,10 +4,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...api.deps import get_db, parse_limit_cursor, require_active_user
-from ...core.pagination import apply_cursor
+from ...api.deps import get_db, require_active_user
+from ...core.errors import Forbidden
 from ...models.user import User
-from ...schemas.user import User as UserSchema
+from ...schemas import CursorPage, Follow as FollowSchema
 from ...services.follows import (
     approve_follow,
     block_user,
@@ -66,11 +66,12 @@ async def remove_follower(
     current_user: Annotated[User, Depends(require_active_user)],
     db: AsyncSession = Depends(get_db),
 ):
-    # TODO: Check ownership
+    if current_user.id != user_id:
+        raise Forbidden()
     await unfollow_user(db, str(follower_id), str(user_id))
 
 
-@router.get("/followers", response_model=dict)
+@router.get("/followers", response_model=CursorPage[FollowSchema])
 async def list_followers(
     user_id: UUID,
     current_user: Annotated[User, Depends(require_active_user)],
@@ -78,13 +79,13 @@ async def list_followers(
     limit: int = Query(20),
     db: AsyncSession = Depends(get_db),
 ):
-    limit = min(limit, 50)
-    followers = await get_followers(db, str(user_id), cursor, limit)
-    # TODO: Format with cursor
-    return {"items": followers, "nextCursor": None}
+    limit = min(max(limit, 1), 100)
+    followers, next_cursor = await get_followers(db, str(user_id), cursor, limit)
+    items = [FollowSchema.model_validate(follow) for follow in followers]
+    return CursorPage[FollowSchema](items=items, next_cursor=next_cursor)
 
 
-@router.get("/following", response_model=dict)
+@router.get("/following", response_model=CursorPage[FollowSchema])
 async def list_following(
     user_id: UUID,
     current_user: Annotated[User, Depends(require_active_user)],
@@ -92,10 +93,10 @@ async def list_following(
     limit: int = Query(20),
     db: AsyncSession = Depends(get_db),
 ):
-    limit = min(limit, 50)
-    following = await get_following(db, str(user_id), cursor, limit)
-    # TODO: Format with cursor
-    return {"items": following, "nextCursor": None}
+    limit = min(max(limit, 1), 100)
+    following, next_cursor = await get_following(db, str(user_id), cursor, limit)
+    items = [FollowSchema.model_validate(follow) for follow in following]
+    return CursorPage[FollowSchema](items=items, next_cursor=next_cursor)
 
 
 @router.post("/block")
