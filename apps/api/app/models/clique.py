@@ -28,7 +28,7 @@ class Clique(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
     image_url: Mapped[Optional[str]] = mapped_column(String)
-    privacy: Mapped[Privacy] = mapped_column(Enum(Privacy), default=Privacy.PUBLIC)
+    privacy: Mapped[Privacy] = mapped_column(Enum(Privacy, name="privacy"), default=Privacy.PUBLIC)
     timezone: Mapped[str] = mapped_column(String, nullable=False)
     cancellation_cutoff_hours: Mapped[int] = mapped_column(Integer, default=24)
 
@@ -60,9 +60,9 @@ class CliqueMember(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True
     )
-    role: Mapped[Role] = mapped_column(Enum(Role), default=Role.MEMBER)
+    role: Mapped[Role] = mapped_column(Enum(Role, name="role"), default=Role.MEMBER)
     status: Mapped[MembershipStatus] = mapped_column(
-        Enum(MembershipStatus), default=MembershipStatus.JOINED
+        Enum(MembershipStatus, name="membership_status"), default=MembershipStatus.JOINED
     )
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

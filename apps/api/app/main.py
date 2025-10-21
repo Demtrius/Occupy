@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.middleware import SlowAPIMiddleware
+from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from .api.routes.auth import router as auth_router
@@ -28,13 +31,16 @@ from .core.errors import (
     forbidden_handler,
     http_exception_handler,
     not_found_handler,
+    operational_error_handler,
+    programming_error_handler,
     rate_limited_handler,
     validation_handler,
 )
 from .core.limiter import limiter
 
-# Database setup (placeholder)
-DATABASE_URL = "postgresql+asyncpg://user:password@localhost/db"
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/clique"
+)
 engine = create_async_engine(DATABASE_URL)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -59,10 +65,13 @@ app.add_exception_handler(Forbidden, forbidden_handler)
 app.add_exception_handler(Validation, validation_handler)
 app.add_exception_handler(Conflict, conflict_handler)
 app.add_exception_handler(RateLimited, rate_limited_handler)
-app.add_exception_handler(500, http_exception_handler)
+app.add_exception_handler(OperationalError, operational_error_handler)
+app.add_exception_handler(ProgrammingError, programming_error_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
 
 # Limiter
-limiter.init_app(app)
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 
 # Routers
 app.include_router(auth_router, prefix="/api/v1")

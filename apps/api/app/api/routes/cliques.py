@@ -23,7 +23,7 @@ router = APIRouter(prefix="/cliques", tags=["Cliques"])
 @router.post("", response_model=dict)
 async def create(
     data: CliqueCreate,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Check is_business_page
@@ -41,7 +41,7 @@ async def create(
 @router.get("/{clique_id}", response_model=dict)
 async def get_clique(
     clique_id: UUID,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     clique = await get_clique_by_id(db, str(clique_id))
@@ -53,7 +53,7 @@ async def get_clique(
 async def update_clique(
     clique_id: UUID,
     data: CliqueUpdate,
-    current_user: Annotated[User, Depends(require_clique_owner(clique_id))],
+    current_user: Annotated[User, Depends(require_clique_owner)],
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Update
@@ -63,7 +63,7 @@ async def update_clique(
 @router.delete("/{clique_id}")
 async def delete_clique(
     clique_id: UUID,
-    current_user: Annotated[User, Depends(require_clique_owner(clique_id))],
+    current_user: Annotated[User, Depends(require_clique_owner)],
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Soft delete
@@ -73,7 +73,7 @@ async def delete_clique(
 @router.post("/{clique_id}/join")
 async def join(
     clique_id: UUID,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     await join_clique(db, str(current_user.id), str(clique_id))
@@ -82,7 +82,7 @@ async def join(
 @router.delete("/{clique_id}/members/me")
 async def leave(
     clique_id: UUID,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     await leave_clique(db, str(current_user.id), str(clique_id))
@@ -93,7 +93,7 @@ async def list_members(
     clique_id: UUID,
     cursor: str | None = Query(None),
     limit: int = Query(20),
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     members = await get_clique_members(db, str(clique_id), cursor, limit)
@@ -104,7 +104,7 @@ async def list_members(
 async def feed(
     cursor: str | None = Query(None),
     limit: int = Query(20),
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     posts = await get_feed_posts(db, str(current_user.id), cursor, limit)

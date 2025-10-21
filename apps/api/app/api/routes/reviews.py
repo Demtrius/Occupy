@@ -33,9 +33,9 @@ async def create(
 @router.get("/cliques/{clique_id}", response_model=dict)
 async def list_clique_reviews(
     clique_id: UUID,
+    current_user: Annotated[User, Depends(require_active_user)],
     cursor: str | None = Query(None),
     limit: int = Query(20),
-    current_user: Annotated[User, Depends(require_active_user)],
     db: AsyncSession = Depends(get_db),
 ):
     reviews = await get_clique_reviews(db, str(clique_id), cursor, limit)

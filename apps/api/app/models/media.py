@@ -1,8 +1,8 @@
 import uuid
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, String, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import BigInteger, DateTime, ForeignKey, JSON, String, func
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base
@@ -23,7 +23,7 @@ class Media(Base):
     url: Mapped[str] = mapped_column(String, nullable=False)
     mime: Mapped[Optional[str]] = mapped_column(String)
     size_bytes: Mapped[Optional[int]] = mapped_column(BigInteger)
-    meta: Mapped[Optional[JSONB]] = mapped_column(JSONB)
+    meta: Mapped[Optional[JSON]] = mapped_column(JSON)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

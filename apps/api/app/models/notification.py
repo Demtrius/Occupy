@@ -1,8 +1,8 @@
 import uuid
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, JSON, func
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base
@@ -22,9 +22,9 @@ class Notification(Base):
         UUID(as_uuid=True), ForeignKey("users.id")
     )
     type: Mapped[NotificationType] = mapped_column(
-        Enum(NotificationType), nullable=False
+        Enum(NotificationType, name="notification_type"), nullable=False
     )
-    payload: Mapped[JSONB] = mapped_column(JSONB, nullable=False)
+    payload: Mapped[JSON] = mapped_column(JSON, nullable=False)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
     read_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[DateTime] = mapped_column(

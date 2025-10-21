@@ -33,9 +33,9 @@ class Booking(TimestampMixin, Base):
     start_ts: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     end_ts: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     status: Mapped[BookingStatus] = mapped_column(
-        Enum(BookingStatus), default=BookingStatus.PENDING
+        Enum(BookingStatus, name="booking_status"), default=BookingStatus.PENDING
     )
-    cancelled_by: Mapped[Optional[CancelledBy]] = mapped_column(Enum(CancelledBy))
+    cancelled_by: Mapped[Optional[CancelledBy]] = mapped_column(Enum(CancelledBy, name="cancelled_by"))
     cancellation_reason: Mapped[Optional[str]] = mapped_column(Text)
     note: Mapped[Optional[str]] = mapped_column(Text)
 

@@ -1,0 +1,880 @@
+......FFFFFFFFFF                                                         [100%]
+=================================== FAILURES ===================================
+___________________________ test_rate_limited_login ____________________________
+
+enable_rate_limits = None, client = <httpx.AsyncClient object at 0x10e2958c0>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e41b3e0>
+
+    @pytest.mark.asyncio
+    async def test_rate_limited_login(enable_rate_limits, client: AsyncClient, db_session):
+        """Test rate limiting on login."""
+        # Enable rate limits
+        for _ in range(10):  # Assume limit is 5 or something
+            resp = await client.post("/api/v1/auth/login", json={"email_or_username": "test@example.com", "password": "wrong"})
+>       assert resp.status_code == 429
+E       assert 401 == 429
+E        +  where 401 = <Response [401 Unauthorized]>.status_code
+
+tests/test_auth.py:87: AssertionError
+___________________ TestUserProfile.test_get_public_profile ____________________
+
+self = <tests.test_users_follows_blocks.TestUserProfile object at 0x10d77fd90>
+client = <httpx.AsyncClient object at 0x10e5c1150>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e5abf50>
+
+    @pytest.mark.asyncio
+    @pytest.mark.asyncio
+    async def test_get_public_profile(self, client: AsyncClient, db_session):
+        """Test getting public user profile."""
+        user = await create_user(db_session, is_private_account=False)
+        viewer = await create_user(db_session)
+        await db_session.commit()  # Commit users so they are visible to API requests
+        resp = await client.get(
+            f"/api/v1/users/{user.id}", headers=auth_headers(viewer)
+        )
+        result = assert_success(resp)
+>       assert result["id"] == str(user.id)
+               ^^^^^^^^^^^^
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests/test_users_follows_blocks.py:20: TypeError
+____________ TestUserProfile.test_get_private_profile_unauthorized _____________
+
+self = <tests.test_users_follows_blocks.TestUserProfile object at 0x10d77fed0>
+client = <httpx.AsyncClient object at 0x10e5c6550>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e4ce3c0>
+
+    @pytest.mark.asyncio
+    async def test_get_private_profile_unauthorized(
+        self, client: AsyncClient, db_session
+    ):
+        """Test getting private profile without auth fails."""
+        user = await create_user(db_session, is_private_account=True)
+        await db_session.commit()
+        resp = await client.get(f"/api/v1/users/{user.id}")
+>       assert_error(resp, "forbidden")
+
+tests/test_users_follows_blocks.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+resp = <Response [403 Forbidden]>, code = 'forbidden'
+
+    def assert_error(resp: httpx.Response, code: str) -> None:
+        """Assert that response is an error with the given code."""
+        assert resp.status_code in (400, 401, 403, 404, 409, 422, 429, 500)
+        data = resp.json()
+        assert "error" in data
+>       assert data["error"]["code"] == code
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError
+
+tests/utils.py:20: AssertionError
+_____________________ TestFollows.test_follow_public_user ______________________
+
+self = <tests.test_users_follows_blocks.TestFollows object at 0x10d898050>
+client = <httpx.AsyncClient object at 0x10e5c5c50>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e4ce040>
+
+    @pytest.mark.asyncio
+    async def test_follow_public_user(self, client: AsyncClient, db_session):
+        """Test following a public user."""
+        await db_session.commit()
+>       follower = await create_user(db_session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_users_follows_blocks.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/factories.py:39: in create_user
+    db.add(user)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1143: in add
+    return self._proxied.add(instance, _warn=_warn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3467: in add
+    self._save_or_update_state(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3491: in _save_or_update_state
+    self._save_or_update_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4179: in _save_or_update_impl
+    self._save_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4130: in _save_impl
+    to_attach = self._before_attach(state, obj)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4249: in _before_attach
+    self._autobegin_t()
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:1879: in _autobegin_t
+    trans = SessionTransaction(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:929: in __init__
+    TransactionalContext._trans_ctx_check(session)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'sqlalchemy.engine.util.TransactionalContext'>
+subject = <sqlalchemy.orm.session.Session object at 0x10e688750>
+
+    @classmethod
+    def _trans_ctx_check(cls, subject: _TConsSubject) -> None:
+        trans_context = subject._trans_context_manager
+        if trans_context:
+            if not trans_context._transaction_is_active():
+>               raise exc.InvalidRequestError(
+                    "Can't operate on closed transaction inside context "
+                    "manager.  Please complete the context manager "
+                    "before emitting further commands."
+                )
+E               sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/engine/util.py:111: InvalidRequestError
+_____________________ TestFollows.test_follow_private_user _____________________
+
+self = <tests.test_users_follows_blocks.TestFollows object at 0x10d898190>
+client = <httpx.AsyncClient object at 0x10e507890>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e66b0b0>
+
+    @pytest.mark.asyncio
+    async def test_follow_private_user(self, client: AsyncClient, db_session):
+        """Test following a private user creates pending request."""
+        follower = await create_user(db_session)
+        await db_session.commit()
+>       followee = await create_user(db_session, is_private_account=True)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_users_follows_blocks.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/factories.py:39: in create_user
+    db.add(user)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1143: in add
+    return self._proxied.add(instance, _warn=_warn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3467: in add
+    self._save_or_update_state(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3491: in _save_or_update_state
+    self._save_or_update_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4179: in _save_or_update_impl
+    self._save_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4130: in _save_impl
+    to_attach = self._before_attach(state, obj)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4249: in _before_attach
+    self._autobegin_t()
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:1879: in _autobegin_t
+    trans = SessionTransaction(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:929: in __init__
+    TransactionalContext._trans_ctx_check(session)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'sqlalchemy.engine.util.TransactionalContext'>
+subject = <sqlalchemy.orm.session.Session object at 0x10e688d50>
+
+    @classmethod
+    def _trans_ctx_check(cls, subject: _TConsSubject) -> None:
+        trans_context = subject._trans_context_manager
+        if trans_context:
+            if not trans_context._transaction_is_active():
+>               raise exc.InvalidRequestError(
+                    "Can't operate on closed transaction inside context "
+                    "manager.  Please complete the context manager "
+                    "before emitting further commands."
+                )
+E               sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/engine/util.py:111: InvalidRequestError
+___________________ TestFollows.test_approve_follow_request ____________________
+
+self = <tests.test_users_follows_blocks.TestFollows object at 0x10d874640>
+client = <httpx.AsyncClient object at 0x10e60c7d0>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10f276cf0>
+
+    @pytest.mark.asyncio
+    async def test_approve_follow_request(self, client: AsyncClient, db_session):
+        """Test approving a follow request."""
+        await db_session.commit()
+>       follower = await create_user(db_session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_users_follows_blocks.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/factories.py:39: in create_user
+    db.add(user)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1143: in add
+    return self._proxied.add(instance, _warn=_warn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3467: in add
+    self._save_or_update_state(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3491: in _save_or_update_state
+    self._save_or_update_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4179: in _save_or_update_impl
+    self._save_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4130: in _save_impl
+    to_attach = self._before_attach(state, obj)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4249: in _before_attach
+    self._autobegin_t()
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:1879: in _autobegin_t
+    trans = SessionTransaction(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:929: in __init__
+    TransactionalContext._trans_ctx_check(session)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'sqlalchemy.engine.util.TransactionalContext'>
+subject = <sqlalchemy.orm.session.Session object at 0x10e68a150>
+
+    @classmethod
+    def _trans_ctx_check(cls, subject: _TConsSubject) -> None:
+        trans_context = subject._trans_context_manager
+        if trans_context:
+            if not trans_context._transaction_is_active():
+>               raise exc.InvalidRequestError(
+                    "Can't operate on closed transaction inside context "
+                    "manager.  Please complete the context manager "
+                    "before emitting further commands."
+                )
+E               sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/engine/util.py:111: InvalidRequestError
+________________________ TestFollows.test_unfollow_user ________________________
+
+self = <tests.test_users_follows_blocks.TestFollows object at 0x10d874770>
+client = <httpx.AsyncClient object at 0x10e4eef90>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e6d58b0>
+
+    @pytest.mark.asyncio
+    async def test_unfollow_user(self, client: AsyncClient, db_session):
+        await db_session.commit()
+        """Test unfollowing a user."""
+>       follower = await create_user(db_session)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_users_follows_blocks.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/factories.py:39: in create_user
+    db.add(user)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1143: in add
+    return self._proxied.add(instance, _warn=_warn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3467: in add
+    self._save_or_update_state(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:3491: in _save_or_update_state
+    self._save_or_update_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4179: in _save_or_update_impl
+    self._save_impl(state)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4130: in _save_impl
+    to_attach = self._before_attach(state, obj)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:4249: in _before_attach
+    self._autobegin_t()
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:1879: in _autobegin_t
+    trans = SessionTransaction(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:929: in __init__
+    TransactionalContext._trans_ctx_check(session)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'sqlalchemy.engine.util.TransactionalContext'>
+subject = <sqlalchemy.orm.session.Session object at 0x10e5c4f50>
+
+    @classmethod
+    def _trans_ctx_check(cls, subject: _TConsSubject) -> None:
+        trans_context = subject._trans_context_manager
+        if trans_context:
+            if not trans_context._transaction_is_active():
+>               raise exc.InvalidRequestError(
+                    "Can't operate on closed transaction inside context "
+                    "manager.  Please complete the context manager "
+                    "before emitting further commands."
+                )
+E               sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/engine/util.py:111: InvalidRequestError
+__________________________ TestBlocks.test_block_user __________________________
+
+self = <tests.test_users_follows_blocks.TestBlocks object at 0x10d8982d0>
+client = <httpx.AsyncClient object at 0x10e67a5f0>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e6d6150>
+
+    @pytest.mark.asyncio
+    async def test_block_user(self, client: AsyncClient, db_session):
+        """Test blocking a user."""
+        blocker = await create_user(db_session)
+        blocked = await create_user(db_session)
+        await db_session.commit()
+        resp = await client.post(
+            f"/api/v1/users/{blocked.id}/follow/block", headers=auth_headers(blocker)
+        )
+        assert_success(resp)
+>       await db_session.commit()
+
+tests/test_users_follows_blocks.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1000: in commit
+    await greenlet_spawn(self.sync_session.commit)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.switch(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:2028: in commit
+    trans = self._autobegin_t()
+            ^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:1879: in _autobegin_t
+    trans = SessionTransaction(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/orm/session.py:929: in __init__
+    TransactionalContext._trans_ctx_check(session)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'sqlalchemy.engine.util.TransactionalContext'>
+subject = <sqlalchemy.orm.session.Session object at 0x10e688750>
+
+    @classmethod
+    def _trans_ctx_check(cls, subject: _TConsSubject) -> None:
+        trans_context = subject._trans_context_manager
+        if trans_context:
+            if not trans_context._transaction_is_active():
+>               raise exc.InvalidRequestError(
+                    "Can't operate on closed transaction inside context "
+                    "manager.  Please complete the context manager "
+                    "before emitting further commands."
+                )
+E               sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/sqlalchemy/engine/util.py:111: InvalidRequestError
+_________________________ TestBlocks.test_unblock_user _________________________
+
+self = <tests.test_users_follows_blocks.TestBlocks object at 0x10d898410>
+client = <httpx.AsyncClient object at 0x10f377450>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e4fec90>
+
+    @pytest.mark.asyncio
+    async def test_unblock_user(self, client: AsyncClient, db_session):
+        """Test unblocking a user."""
+        blocker = await create_user(db_session)
+        blocked = await create_user(db_session)
+        # Block first
+        await client.post(
+            f"/api/v1/users/{blocked.id}/follow/block", headers=auth_headers(blocker)
+        )
+        # Unblock
+        resp = await client.delete(
+            f"/api/v1/users/{blocked.id}/follow/block", headers=auth_headers(blocker)
+        )
+>       assert_success(resp)
+
+tests/test_users_follows_blocks.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+resp = <Response [401 Unauthorized]>
+
+    def assert_success(resp: httpx.Response) -> None:
+        """Assert that response is successful (200)."""
+>       assert resp.status_code == 200
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError
+
+tests/utils.py:25: AssertionError
+_________________ TestPagination.test_get_followers_paginated __________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_utils.py", line 79, in collapse_excgroups
+  |     yield
+  |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 183, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 781, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/runner.py", line 344, in from_call
+    |     result: TResult | None = func()
+    |                              ~~~~^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/runner.py", line 246, in <lambda>
+    |     lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+    |             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/logging.py", line 850, in pytest_runtest_call
+    |     yield
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ~~~~~~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ~~~~~~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/skipping.py", line 263, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/runner.py", line 178, in pytest_runtest_call
+    |     item.runtest()
+    |     ~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pytest_asyncio/plugin.py", line 474, in runtest
+    |     super().runtest()
+    |     ~~~~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/python.py", line 1671, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 53, in run_old_style_hookwrapper
+    |     return result.get_result()
+    |            ~~~~~~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_result.py", line 103, in get_result
+    |     raise exc.with_traceback(tb)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 38, in run_old_style_hookwrapper
+    |     res = yield
+    |           ^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/_pytest/python.py", line 157, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/pytest_asyncio/plugin.py", line 721, in inner
+    |     runner.run(coro, context=context)
+    |     ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/.pyenv/versions/3.13.2/lib/python3.13/asyncio/runners.py", line 118, in run
+    |     return self._loop.run_until_complete(task)
+    |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+    |   File "/Users/viktorharhat/.pyenv/versions/3.13.2/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    |     return future.result()
+    |            ~~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/Documents/rogram/workon/Occupy/apps/api/tests/test_users_follows_blocks.py", line 131, in test_get_followers_paginated
+    |     await client.post(
+    |         f"/api/v1/users/{user.id}/follow", headers=auth_headers(follower)
+    |     )
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1859, in post
+    |     return await self.request(
+    |            ^^^^^^^^^^^^^^^^^^^
+    |     ...<13 lines>...
+    |     )
+    |     ^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1540, in request
+    |     return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1629, in send
+    |     response = await self._send_handling_auth(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     ...<4 lines>...
+    |     )
+    |     ^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    |     response = await self._send_handling_redirects(
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     ...<3 lines>...
+    |     )
+    |     ^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    |     response = await self._send_single_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    |     response = await transport.handle_async_request(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_transports/asgi.py", line 170, in handle_async_request
+    |     await self.app(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/applications.py", line 1133, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    |     raise exc
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 182, in __call__
+    |     with recv_stream, send_stream, collapse_excgroups():
+    |                                    ~~~~~~~~~~~~~~~~~~^^
+    |   File "/Users/viktorharhat/.pyenv/versions/3.13.2/lib/python3.13/contextlib.py", line 162, in __exit__
+    |     self.gen.throw(value)
+    |     ~~~~~~~~~~~~~~^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    |     raise exc
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 184, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/slowapi/middleware.py", line 136, in dispatch
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 159, in call_next
+    |     raise app_exc
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py", line 716, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py", line 736, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py", line 290, in handle
+    |     await self.app(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 123, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 109, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 389, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     ...<3 lines>...
+    |     )
+    |     ^
+    |   File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/viktorharhat/Documents/rogram/workon/Occupy/apps/api/app/api/routes/follows.py", line 31, in follow
+    |     await follow_user(db, str(current_user.id), str(user_id))
+    |   File "/Users/viktorharhat/Documents/rogram/workon/Occupy/apps/api/app/services/follows.py", line 28, in follow_user
+    |     status = FollowStatus.PENDING if followee.is_private else FollowStatus.ACCEPTED
+    |                                      ^^^^^^^^^^^^^^^^^^^
+    | AttributeError: 'User' object has no attribute 'is_private'
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/viktorharhat/Documents/rogram/workon/Occupy/apps/api/tests/test_users_follows_blocks.py", line 131, in test_get_followers_paginated
+    await client.post(
+        f"/api/v1/users/{user.id}/follow", headers=auth_headers(follower)
+    )
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1859, in post
+    return await self.request(
+           ^^^^^^^^^^^^^^^^^^^
+    ...<13 lines>...
+    )
+    ^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_transports/asgi.py", line 170, in handle_async_request
+    await self.app(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 182, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/Users/viktorharhat/.pyenv/versions/3.13.2/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 184, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/slowapi/middleware.py", line 136, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 159, in call_next
+    raise app_exc
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 389, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/viktorharhat/Documents/rogram/workon/Occupy/apps/api/app/api/routes/follows.py", line 31, in follow
+    await follow_user(db, str(current_user.id), str(user_id))
+  File "/Users/viktorharhat/Documents/rogram/workon/Occupy/apps/api/app/services/follows.py", line 28, in follow_user
+    status = FollowStatus.PENDING if followee.is_private else FollowStatus.ACCEPTED
+                                     ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'is_private'
+
+During handling of the above exception, another exception occurred:
+
+self = <tests.test_users_follows_blocks.TestPagination object at 0x10d898550>
+client = <httpx.AsyncClient object at 0x10f2c0950>
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10e5794f0>
+
+    @pytest.mark.asyncio
+    async def test_get_followers_paginated(self, client: AsyncClient, db_session):
+        """Test getting followers with cursor pagination."""
+        user = await create_user(db_session)
+        for _ in range(5):
+            follower = await create_user(db_session)
+            await db_session.commit()
+>           await client.post(
+                f"/api/v1/users/{user.id}/follow", headers=auth_headers(follower)
+            )
+
+tests/test_users_follows_blocks.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py:1859: in post
+    return await self.request(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/applications.py:1133: in __call__
+    await super().__call__(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/errors.py:186: in __call__
+    raise exc
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py:182: in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+../../../../../../.pyenv/versions/3.13.2/lib/python3.13/contextlib.py:162: in __exit__
+    self.gen.throw(value)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_utils.py:85: in collapse_excgroups
+    raise exc
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py:184: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/slowapi/middleware.py:136: in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py:159: in call_next
+    raise app_exc
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/cors.py:85: in __call__
+    await self.app(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/middleware/exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py:736: in app
+    await route.handle(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/routing.py:290: in handle
+    await self.app(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py:123: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py:109: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py:389: in app
+    raw_response = await run_endpoint_function(
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/fastapi/routing.py:288: in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app/api/routes/follows.py:31: in follow
+    await follow_user(db, str(current_user.id), str(user_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+db = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x10f2b0050>
+follower_id = '31f52e61-f2b3-4280-8e1a-21d080a1b338'
+followee_id = 'dcde9179-15ea-4413-83d1-41da6697d8f9'
+
+    async def follow_user(db: AsyncSession, follower_id: str, followee_id: str) -> Follow:
+        # Check if already following or blocked
+        existing = await db.scalar(
+            select(Follow).where(
+                ((Follow.follower_user_id == follower_id) & (Follow.followee_user_id == followee_id)) |
+                ((Follow.follower_user_id == followee_id) & (Follow.followee_user_id == follower_id) & (Follow.status == FollowStatus.BLOCKED))
+            )
+        )
+        if existing:
+            if existing.status == FollowStatus.BLOCKED:
+                raise ValueError("Cannot follow blocked user")
+            elif existing.status in [FollowStatus.ACCEPTED, FollowStatus.PENDING]:
+                raise ValueError("Already following")
+    
+        # Check followee's privacy (assuming User model has is_private)
+        from ..models.user import User
+        followee = await db.get(User, followee_id)
+        if not followee:
+            raise ValueError("User not found")
+    
+>       status = FollowStatus.PENDING if followee.is_private else FollowStatus.ACCEPTED
+                                         ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'User' object has no attribute 'is_private'
+
+app/services/follows.py:28: AttributeError
+=============================== warnings summary ===============================
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/core/waiting_utils.py:215
+  /Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/core/waiting_utils.py:215: DeprecationWarning: The @wait_container_is_ready decorator is deprecated and will be removed in a future version. Use structured wait strategies instead: container.waiting_for(HttpWaitStrategy(8080).for_status_code(200)) or container.waiting_for(LogMessageWaitStrategy('ready'))
+    @wait_container_is_ready()
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/minio/__init__.py:101
+  /Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/minio/__init__.py:101: DeprecationWarning: The @wait_container_is_ready decorator is deprecated and will be removed in a future version. Use structured wait strategies instead: container.waiting_for(HttpWaitStrategy(8080).for_status_code(200)) or container.waiting_for(LogMessageWaitStrategy('ready'))
+    @wait_container_is_ready(ConnectionError)
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/postgres/__init__.py:90
+  /Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/postgres/__init__.py:90: DeprecationWarning: The @wait_container_is_ready decorator is deprecated and will be removed in a future version. Use structured wait strategies instead: container.waiting_for(HttpWaitStrategy(8080).for_status_code(200)) or container.waiting_for(LogMessageWaitStrategy('ready'))
+    @wait_container_is_ready()
+
+../../../../../../Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/redis/__init__.py:46
+  /Users/viktorharhat/Library/Caches/pypoetry/virtualenvs/api-5at2tNdo-py3.13/lib/python3.13/site-packages/testcontainers/redis/__init__.py:46: DeprecationWarning: The @wait_container_is_ready decorator is deprecated and will be removed in a future version. Use structured wait strategies instead: container.waiting_for(HttpWaitStrategy(8080).for_status_code(200)) or container.waiting_for(LogMessageWaitStrategy('ready'))
+    @wait_container_is_ready(redis.exceptions.ConnectionError)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform darwin, python 3.13.2-final-0 ----------
+Name                                  Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------
+app/api/deps.py                          37     20    46%   18, 27-29, 37-44, 53-60, 64-69, 73-74
+app/api/routes/auth.py                   32     12    62%   27-44, 53-57, 63
+app/api/routes/availability.py           30     10    67%   31, 42, 54-57, 68-71
+app/api/routes/bookings.py               26      8    69%   26-34, 45-46, 59-60, 70, 80
+app/api/routes/business_services.py      29     10    66%   30, 42, 54-57, 68-71
+app/api/routes/chats.py                  11      1    91%   20
+app/api/routes/cliques.py                38     12    68%   30-38, 47-49, 60, 70, 79, 88, 99-100, 110-111
+app/api/routes/follows.py                42     12    71%   32, 41, 50, 59, 70, 81-84, 95-98, 116
+app/api/routes/media.py                  15      3    80%   23, 32-40
+app/api/routes/messages.py               30     12    60%   28-31, 43-46, 56-59
+app/api/routes/notifications.py          23      7    70%   28, 38-41, 50-51
+app/api/routes/occupations.py            23      6    74%   26, 36, 46-47, 58-59
+app/api/routes/posts.py                  34     10    71%   31-38, 49-50, 59-60, 71, 81, 90, 99
+app/api/routes/reviews.py                18      5    72%   23-30, 41-43
+app/api/routes/search.py                  9      1    89%   18
+app/api/routes/users.py                  22      4    82%   23, 28, 38, 52
+app/api/ws.py                            65     47    28%   17-20, 23-26, 29-31, 44-76, 87-106
+app/core/auth.py                         71     13    82%   29, 49, 71-72, 89, 92, 94-96, 103, 110-112
+app/core/errors.py                       33      7    79%   21, 33, 40, 47, 61, 68, 75
+app/core/pagination.py                   27     19    30%   10-11, 15-21, 31-48
+app/main.py                              60      1    98%   101
+app/services/availability.py             38     27    29%   16-20, 27-30, 37-46, 51-58
+app/services/bookings.py                 51     40    22%   19-48, 52-59, 63-70, 74-77, 81-86
+app/services/business_services.py        40     29    28%   16-20, 27-32, 39-48, 53-60
+app/services/chats.py                    22     12    45%   14-18, 23-28, 33-35
+app/services/cliques.py                  53     43    19%   16-32, 36, 40-52, 56-63, 67-75, 79-103
+app/services/follows.py                  65     50    23%   16-38, 42-49, 53-61, 65-73, 84-90, 94-102, 106-114, 118-126
+app/services/media.py                    18     12    33%   15-25, 29, 33-38
+app/services/messages.py                 27     17    37%   16-24, 31-40, 47-56
+app/services/notifications.py            26     17    35%   15-24, 31-41, 46-53
+app/services/occupations.py              26     16    38%   13-16, 23-30, 38-44, 52-58
+app/services/posts.py                    45     34    24%   15-24, 28, 32-37, 41-49, 53-56, 60-64, 68-71
+app/services/reviews.py                  21     14    33%   15-24, 28-33, 37-39
+app/services/search.py                   23     13    43%   15-26, 33-39, 46-57, 64-68
+app/services/users.py                    14      2    86%   34-35
+-------------------------------------------------------------------
+TOTAL                                  1781    546    69%
+
+29 files skipped due to complete coverage.
+
+FAIL Required test coverage of 85% not reached. Total coverage: 69.34%
+=========================== short test summary info ============================
+FAILED tests/test_auth.py::test_rate_limited_login - assert 401 == 429
+FAILED tests/test_users_follows_blocks.py::TestUserProfile::test_get_public_profile
+FAILED tests/test_users_follows_blocks.py::TestUserProfile::test_get_private_profile_unauthorized
+FAILED tests/test_users_follows_blocks.py::TestFollows::test_follow_public_user
+FAILED tests/test_users_follows_blocks.py::TestFollows::test_follow_private_user
+FAILED tests/test_users_follows_blocks.py::TestFollows::test_approve_follow_request
+FAILED tests/test_users_follows_blocks.py::TestFollows::test_unfollow_user - ...
+FAILED tests/test_users_follows_blocks.py::TestBlocks::test_block_user - sqla...
+FAILED tests/test_users_follows_blocks.py::TestBlocks::test_unblock_user - As...
+FAILED tests/test_users_follows_blocks.py::TestPagination::test_get_followers_paginated
+10 failed, 6 passed, 4 warnings in 9.86s

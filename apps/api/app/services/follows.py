@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +27,7 @@ async def follow_user(db: AsyncSession, follower_id: str, followee_id: str) -> F
     if not followee:
         raise ValueError("User not found")
 
-    status = FollowStatus.PENDING if followee.is_private else FollowStatus.ACCEPTED
+    status = FollowStatus.PENDING if followee.is_private_account else FollowStatus.ACCEPTED
 
     follow = Follow(
         follower_user_id=follower_id,
@@ -108,7 +110,7 @@ async def get_followers(db: AsyncSession, user_id: str, cursor: str | None, limi
         Follow.status == FollowStatus.ACCEPTED,
     )
     if cursor:
-        stmt = stmt.where(Follow.id > cursor)
+        stmt = stmt.where(Follow.created_at > datetime.fromisoformat(cursor))
     stmt = stmt.order_by(Follow.created_at.desc()).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()
@@ -120,7 +122,7 @@ async def get_following(db: AsyncSession, user_id: str, cursor: str | None, limi
         Follow.status == FollowStatus.ACCEPTED,
     )
     if cursor:
-        stmt = stmt.where(Follow.id > cursor)
+        stmt = stmt.where(Follow.created_at > datetime.fromisoformat(cursor))
     stmt = stmt.order_by(Follow.created_at.desc()).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()

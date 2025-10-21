@@ -18,8 +18,8 @@ from ...services.users import create_user, get_user_by_email_or_username
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/register", response_model=TokenRead)
-@limiter.limit("5/minute")
+@router.post("/register", response_model=TokenRead, status_code=201)
+# @limiter.limit("5/minute")
 async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     existing = await get_user_by_email_or_username(
         db, user_data.email, user_data.username
@@ -45,7 +45,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenRead)
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")
 async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = await get_user_by_email_or_username(
         db, credentials.email_or_username, credentials.email_or_username

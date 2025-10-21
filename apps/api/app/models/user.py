@@ -138,7 +138,7 @@ class Follow(Base):
         UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True
     )
     status: Mapped[FollowStatus] = mapped_column(
-        Enum(FollowStatus), default=FollowStatus.ACCEPTED
+        Enum(FollowStatus, name="follow_status"), default=FollowStatus.ACCEPTED
     )
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

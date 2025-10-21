@@ -11,6 +11,14 @@ from ..models.enums import MembershipStatus
 from ..models.user import Follow, User
 
 
+async def require_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+) -> User:
+    if not current_user.is_active:
+        raise HTTPException(status_code=403, detail="User is not active")
+    return current_user
+
+
 async def require_clique_owner(
     clique_id: UUID,
     current_user: Annotated[User, Depends(get_current_user)],

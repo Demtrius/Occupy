@@ -1,4 +1,3 @@
-from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -21,7 +20,7 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 @router.post("", response_model=dict)
 async def create(
     data: BookingCreate,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     booking = await create_booking(
@@ -37,7 +36,7 @@ async def create(
 
 @router.get("/me", response_model=dict)
 async def list_my_bookings(
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     status: str | None = Query(None),
     cursor: str | None = Query(None),
     limit: int = Query(20),
@@ -53,7 +52,7 @@ async def list_clique_bookings(
     status: str | None = Query(None),
     cursor: str | None = Query(None),
     limit: int = Query(20),
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Check ownership
@@ -64,7 +63,7 @@ async def list_clique_bookings(
 @router.post("/{booking_id}/confirm")
 async def confirm(
     booking_id: UUID,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Check ownership
@@ -75,7 +74,7 @@ async def confirm(
 async def cancel(
     booking_id: UUID,
     reason: str | None = Query(None),
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     await cancel_booking(db, str(booking_id), str(current_user.id), reason)

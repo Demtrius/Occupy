@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -28,8 +28,8 @@ async def follow(
     current_user: Annotated[User, Depends(require_active_user)],
     db: AsyncSession = Depends(get_db),
 ):
-    await follow_user(db, str(current_user.id), str(user_id))
-    return {"status": "pending" if False else "accepted"}  # TODO: check privacy
+    follow = await follow_user(db, str(current_user.id), str(user_id))
+    return {"status": follow.status.value}
 
 
 @router.post("/approve")
@@ -73,9 +73,9 @@ async def remove_follower(
 @router.get("/followers", response_model=dict)
 async def list_followers(
     user_id: UUID,
-    cursor: str | None = Query(None),
-    limit: int = Query(20),
     current_user: Annotated[User, Depends(require_active_user)],
+    cursor: Optional[str] = Query(None),
+    limit: int = Query(20),
     db: AsyncSession = Depends(get_db),
 ):
     limit = min(limit, 50)
@@ -87,9 +87,9 @@ async def list_followers(
 @router.get("/following", response_model=dict)
 async def list_following(
     user_id: UUID,
-    cursor: str | None = Query(None),
-    limit: int = Query(20),
     current_user: Annotated[User, Depends(require_active_user)],
+    cursor: Optional[str] = Query(None),
+    limit: int = Query(20),
     db: AsyncSession = Depends(get_db),
 ):
     limit = min(limit, 50)

@@ -40,12 +40,12 @@ async def update_me(
 
 @router.get("", response_model=dict)
 async def search_users(
+    current_user: Annotated[User, Depends(require_active_user)],
     q: str = Query(""),
     occupation_id: UUID | None = Query(None),
     cursor: str | None = Query(None),
     limit: int = Query(20),
     sort: str = Query("created_at:desc"),
-    current_user: Annotated[User, Depends(require_active_user)],
     db: AsyncSession = Depends(get_db),
 ):
     # TODO: Implement search

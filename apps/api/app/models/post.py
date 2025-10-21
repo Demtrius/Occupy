@@ -37,10 +37,10 @@ class Post(TimestampMixin, Base):
         UUID(as_uuid=True), ForeignKey("users.id")
     )
     status: Mapped[PostStatus] = mapped_column(
-        Enum(PostStatus), default=PostStatus.DRAFT
+        Enum(PostStatus, name="post_status"), default=PostStatus.DRAFT
     )
     content_format: Mapped[ContentFormat] = mapped_column(
-        Enum(ContentFormat), default=ContentFormat.MARKDOWN
+        Enum(ContentFormat, name="content_format"), default=ContentFormat.MARKDOWN
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     deleted_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True))
@@ -126,9 +126,5 @@ class Comment(TimestampMixin, Base):
     )
 
     __table_args__ = (
-        CheckConstraint(
-            "parent_comment_id IS NULL OR (SELECT c.post_id FROM comments c WHERE c.id = parent_comment_id) = post_id",
-            name="ck_comments_parent_same_post",
-        ),
         Index("ix_comments_post_id_created_at", "post_id", "created_at"),
     )

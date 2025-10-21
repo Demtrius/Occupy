@@ -1,6 +1,7 @@
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlalchemy.exc import OperationalError, ProgrammingError
 
 
 class ErrorResponse(BaseModel):
@@ -60,6 +61,20 @@ def rate_limited_handler(request: Request, exc: RateLimited) -> JSONResponse:
     return JSONResponse(
         status_code=429,
         content=ErrorResponse(error={"code": "rate_limited", "message": "Too many requests"}).model_dump(),
+    )
+
+
+def operational_error_handler(request: Request, exc: OperationalError) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content=ErrorResponse(error={"code": "database_error", "message": "Database operation failed"}).model_dump(),
+    )
+
+
+def programming_error_handler(request: Request, exc: ProgrammingError) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content=ErrorResponse(error={"code": "database_error", "message": "Database programming error"}).model_dump(),
     )
 
 

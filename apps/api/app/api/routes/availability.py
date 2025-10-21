@@ -4,7 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...api.deps import get_db, require_active_user, require_clique_owner
+from ...api.deps import get_db, require_clique_owner
+from ...core.auth import require_active_user
 from ...core.errors import NotFound
 from ...models.user import User
 from ...schemas.availability import Availability as AvailabilitySchema
