@@ -131,3 +131,5 @@ run/
 coverage/
 junit.xml
 *.iml
+
+.hypothesis
