@@ -1,9 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ...api.openapi_helpers import error_responses, secured
 from ...core.auth import (
     create_access_token,
     create_refresh_token,
@@ -22,12 +23,65 @@ from ...models.user import User
 from ...schemas.user import LoginRequest, RefreshRequest, TokenRead, UserCreate
 from ...services.users import create_user, get_user_by_email_or_username
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
 
-@router.post("/register", response_model=TokenRead, status_code=201)
+@router.post(
+    "/register",
+    summary="Register new user",
+    description="Create a user account and return signed access and refresh tokens.",
+    response_model=TokenRead,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        201: {
+            "description": "Registration successful",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "user": {
+                            "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
+                            "email": "founder@example.com",
+                            "username": "clique_founder",
+                            "full_name": "Clique Founder",
+                            "bio": "Owner of Clique Salon",
+                            "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
+                            "is_admin": False,
+                            "is_active": True,
+                            "is_private_account": False,
+                            "is_business_page": True,
+                            "created_at": "2024-03-01T09:00:00Z",
+                            "updated_at": "2024-03-01T09:00:00Z",
+                        },
+                    }
+                }
+            },
+        },
+        **error_responses(400, 409, 422, 503),
+    },
+)
 # @limiter.limit("5/minute")
-async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(
+    user_data: UserCreate = Body(
+        ...,
+        examples={
+            "business": {
+                "summary": "Business profile",
+                "value": {
+                    "email": "founder@example.com",
+                    "username": "clique_founder",
+                    "password": "Sup3rSecure!",
+                    "full_name": "Clique Founder",
+                    "bio": "Specialist in curated beauty services.",
+                    "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
+                    "is_business_page": True,
+                },
+            }
+        },
+    ),
+    db: AsyncSession = Depends(get_db),
+):
     existing = await get_user_by_email_or_username(
         db, user_data.email, user_data.username
     )
@@ -67,9 +121,57 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     return TokenRead(access_token=access_token, refresh_token=refresh_token, user=user)
 
 
-@router.post("/login", response_model=TokenRead)
 # @limiter.limit("10/minute")
-async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
+@router.post(
+    "/login",
+    summary="Login with email or username",
+    description="Validate credentials and issue new access and refresh tokens.",
+    response_model=TokenRead,
+    responses={
+        200: {
+            "description": "Authenticated",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "user": {
+                            "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
+                            "email": "founder@example.com",
+                            "username": "clique_founder",
+                            "full_name": "Clique Founder",
+                            "bio": "Owner of Clique Salon",
+                            "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
+                            "is_admin": False,
+                            "is_active": True,
+                            "is_private_account": False,
+                            "is_business_page": True,
+                            "created_at": "2024-03-01T09:00:00Z",
+                            "updated_at": "2024-03-01T09:00:00Z",
+                        },
+                    }
+                }
+            },
+        },
+        **error_responses(401, 422, 503),
+    },
+)
+# @limiter.limit("10/minute")
+async def login(
+    credentials: LoginRequest = Body(
+        ...,
+        examples={
+            "by_email": {
+                "summary": "Email login",
+                "value": {
+                    "email_or_username": "founder@example.com",
+                    "password": "Sup3rSecure!",
+                },
+            }
+        },
+    ),
+    db: AsyncSession = Depends(get_db),
+):
     user = await get_user_by_email_or_username(
         db, credentials.email_or_username, credentials.email_or_username
     )
@@ -89,8 +191,28 @@ async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
     return TokenRead(access_token=access_token, refresh_token=refresh_token, user=user)
 
 
-@router.post("/refresh", response_model=TokenRead)
-async def refresh(refresh_data: RefreshRequest, db: AsyncSession = Depends(get_db)):
+@router.post(
+    "/refresh",
+    summary="Refresh access token",
+    description="Exchange a valid refresh token for a new access + refresh pair.",
+    response_model=TokenRead,
+    responses={
+        200: {"description": "Tokens refreshed"},
+        **error_responses(401, 422, 503),
+    },
+)
+async def refresh(
+    refresh_data: RefreshRequest = Body(
+        ...,
+        examples={
+            "standard": {
+                "summary": "Refresh token",
+                "value": {"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."},
+            }
+        },
+    ),
+    db: AsyncSession = Depends(get_db),
+):
     payload = decode_token(refresh_data.refresh_token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
@@ -134,7 +256,21 @@ async def refresh(refresh_data: RefreshRequest, db: AsyncSession = Depends(get_d
     )
 
 
-@router.post("/logout", status_code=status.HTTP_200_OK)
+@router.post(
+    "/logout",
+    summary="Revoke refresh token",
+    description="Invalidate an issued refresh token for the current user.",
+    status_code=status.HTTP_200_OK,
+    response_model=dict[str, str],
+    responses={
+        200: {
+            "description": "Refresh token revoked",
+            "content": {"application/json": {"example": {"message": "Logged out"}}},
+        },
+        **error_responses(401, 422, 503),
+    },
+    openapi_extra=secured(),
+)
 async def logout(
     logout_data: RefreshRequest, current_user: User = Depends(require_active_user)
 ):

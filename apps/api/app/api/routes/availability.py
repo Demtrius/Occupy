@@ -1,10 +1,11 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user, require_clique_owner
+from ...api.openapi_helpers import error_responses, secured
 from ...core.errors import Forbidden, NotFound, Validation
 from ...models.availability import Availability
 from ...models.enums import Privacy
@@ -22,13 +23,38 @@ from ...services.availability import (
 )
 from ...services.cliques import get_clique_by_id, is_member_of_clique
 
-router = APIRouter(prefix="/availability", tags=["availability"])
+router = APIRouter(prefix="/api/v1/availability", tags=["Availability"])
 
 
-@router.post("/", response_model=AvailabilitySchema)
+@router.post(
+    "",
+    summary="Create availability window",
+    description="Clique owners define recurring or single-day availability windows.",
+    response_model=AvailabilitySchema,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        201: {"description": "Availability created"},
+        **error_responses(400, 401, 403, 404, 422),
+    },
+    openapi_extra=secured(),
+)
 async def create_availability_endpoint(
-    clique_id: UUID,
-    availability: AvailabilityCreate,
+    clique_id: UUID = Query(..., description="Clique owning the availability"),
+    availability: AvailabilityCreate = Body(
+        ...,
+        examples={
+            "weekday": {
+                "summary": "Weekly recurring hours",
+                "value": {
+                    "is_recurring": True,
+                    "day_of_week": 4,
+                    "start_time": "09:00:00",
+                    "end_time": "17:00:00",
+                    "timezone": "UTC",
+                },
+            }
+        },
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
@@ -39,7 +65,17 @@ async def create_availability_endpoint(
         raise Validation(str(exc))
 
 
-@router.get("/{clique_id}", response_model=List[AvailabilitySchema])
+@router.get(
+    "/{clique_id}",
+    summary="List clique availability",
+    description="Return available booking windows visible to the current user.",
+    response_model=List[AvailabilitySchema],
+    responses={
+        200: {"description": "Availability windows"},
+        **error_responses(401, 403, 404),
+    },
+    openapi_extra=secured(),
+)
 async def list_clique_availability(
     clique_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -55,10 +91,28 @@ async def list_clique_availability(
     return await get_clique_availability(db, clique_id)
 
 
-@router.put("/{availability_id}", response_model=AvailabilitySchema)
+@router.put(
+    "/{availability_id}",
+    summary="Update availability window",
+    description="Modify the timing or cadence of an availability window.",
+    response_model=AvailabilitySchema,
+    responses={
+        200: {"description": "Availability updated"},
+        **error_responses(400, 401, 403, 404, 422),
+    },
+    openapi_extra=secured(),
+)
 async def update_availability_endpoint(
     availability_id: UUID,
-    availability_update: AvailabilityUpdate,
+    availability_update: AvailabilityUpdate = Body(
+        ...,
+        examples={
+            "shorter_window": {
+                "summary": "Adjust time range",
+                "value": {"start_time": "10:00:00", "end_time": "15:00:00"},
+            }
+        },
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
@@ -75,7 +129,22 @@ async def update_availability_endpoint(
     return updated
 
 
-@router.delete("/{availability_id}")
+@router.delete(
+    "/{availability_id}",
+    summary="Delete availability window",
+    description="Remove an availability window owned by the clique.",
+    response_model=dict[str, str],
+    responses={
+        200: {
+            "description": "Availability deleted",
+            "content": {
+                "application/json": {"example": {"message": "Availability deleted"}}
+            },
+        },
+        **error_responses(401, 403, 404),
+    },
+    openapi_extra=secured(),
+)
 async def delete_availability_endpoint(
     availability_id: UUID,
     db: AsyncSession = Depends(get_db),

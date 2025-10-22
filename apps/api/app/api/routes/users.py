@@ -1,15 +1,20 @@
-from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Body, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import check_blocking, get_db, parse_limit_cursor, require_active_user
+from ...api.openapi_helpers import (
+    combine_openapi_extra,
+    error_responses,
+    pagination_parameters,
+    secured,
+)
 from ...core.errors import NotFound
 from ...models.enums import FollowStatus
 from ...models.user import Follow, User
-from ...schemas import CursorPage
+from ...schemas import CursorPageUsers
 from ...schemas.user import User as UserSchema, UserUpdate
 from ...services.users import (
     get_user_by_id,
@@ -17,18 +22,50 @@ from ...services.users import (
     update_user_profile,
 )
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
 
-@router.get("/me", response_model=UserSchema)
-async def get_me(current_user: Annotated[User, Depends(require_active_user)]):
+@router.get(
+    "/me",
+    summary="Get current user",
+    description="Return the profile for the authenticated user.",
+    response_model=UserSchema,
+    responses={
+        200: {"description": "Current user profile"},
+        **error_responses(401),
+    },
+    openapi_extra=secured(),
+)
+async def get_me(current_user: User = Depends(require_active_user)):
     return UserSchema.model_validate(current_user)
 
 
-@router.patch("/me", response_model=UserSchema)
+@router.patch(
+    "/me",
+    summary="Update current user",
+    description="Patch the profile fields for the authenticated user.",
+    response_model=UserSchema,
+    responses={
+        200: {"description": "Updated profile"},
+        **error_responses(401, 422),
+    },
+    openapi_extra=secured(),
+)
 async def update_me(
-    data: UserUpdate,
-    current_user: Annotated[User, Depends(require_active_user)],
+    data: UserUpdate = Body(
+        ...,
+        examples={
+            "profile": {
+                "summary": "Update bio and image",
+                "value": {
+                    "full_name": "Clique Founder",
+                    "bio": "Curating experiences for boutique brands.",
+                    "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
+                },
+            }
+        },
+    ),
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     updates = data.model_dump(exclude_unset=True)
@@ -38,14 +75,40 @@ async def update_me(
     return UserSchema.model_validate(updated)
 
 
-@router.get("", response_model=CursorPage[UserSchema])
+@router.get(
+    "",
+    summary="Search users",
+    description="Paginated user search supporting text query, occupation filter, and sort.",
+    response_model=CursorPageUsers,
+    responses={
+        200: {"description": "Users page"},
+        **error_responses(401, 422),
+    },
+    openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
+)
 async def search_users(
-    current_user: Annotated[User, Depends(require_active_user)],
-    q: str = Query(""),
-    occupation_id: UUID | None = Query(None),
-    cursor: str | None = Query(None),
-    limit: int = Query(20),
-    sort: str = Query("created_at:desc"),
+    current_user: User = Depends(require_active_user),
+    q: str = Query(
+        "",
+        description="Free-text search across usernames and bios.",
+    ),
+    occupation_id: UUID | None = Query(
+        None, description="Filter to users tagged with a specific occupation."
+    ),
+    cursor: str | None = Query(
+        None, include_in_schema=False, description="Opaque pagination cursor"
+    ),
+    limit: int = Query(
+        20,
+        ge=1,
+        le=50,
+        include_in_schema=False,
+        description="Page size (default 20, max 50)",
+    ),
+    sort: str = Query(
+        "created_at:desc",
+        description="Sort expression in the form `field:direction`.",
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     limit, cursor = parse_limit_cursor(limit, cursor)
@@ -61,13 +124,23 @@ async def search_users(
         descending=descending,
     )
     items = [UserSchema.model_validate(user) for user in users]
-    return CursorPage[UserSchema](items=items, next_cursor=next_cursor)
+    return CursorPageUsers(items=items, next_cursor=next_cursor)
 
 
-@router.get("/{user_id}", response_model=UserSchema)
+@router.get(
+    "/{user_id}",
+    summary="Get user by id",
+    description="Retrieve another user's profile respecting blocking and privacy.",
+    response_model=UserSchema,
+    responses={
+        200: {"description": "User profile"},
+        **error_responses(401, 404),
+    },
+    openapi_extra=secured(),
+)
 async def get_user(
     user_id: UUID,
-    current_user: Annotated[User, Depends(require_active_user)],
+    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     if current_user.id == user_id:
@@ -90,5 +163,3 @@ async def get_user(
             raise NotFound()
 
     return UserSchema.model_validate(user)
-
-

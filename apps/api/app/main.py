@@ -1,7 +1,8 @@
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from slowapi.middleware import SlowAPIMiddleware
 from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -43,7 +44,60 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 auth_sessionmaker = async_session
 deps_sessionmaker = async_session
 
-app = FastAPI(title="Occupy API")
+APP_TITLE = "Clique API"
+APP_DESC = """
+API for a social + bookings platform for small businesses.
+
+- **Auth**: JWT Bearer (`Authorization: Bearer <token>`)
+- **Pagination**: Cursor-based via `cursor` and `limit` query params; responses include `items[]` and `nextCursor`.
+- **Errors**: Standardized envelope `{ "error": { "code", "message", "details" } }`.
+
+See **/redoc** for a compact reference.
+"""
+APP_VERSION = "0.1.0"
+
+app = FastAPI(
+    title=APP_TITLE,
+    description=APP_DESC,
+    version=APP_VERSION,
+    contact={
+        "name": "Clique Devs",
+        "url": "https://example.com",
+        "email": "dev@example.com",
+    },
+    license_info={"name": "MIT"},
+    terms_of_service="https://example.com/terms",
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+app.openapi_tags = [
+    {"name": "Auth", "description": "Login, register, refresh, logout."},
+    {"name": "Users", "description": "Profiles, follows, blocks."},
+    {"name": "Occupations", "description": "Taxonomy and assignments."},
+    {"name": "Cliques", "description": "Business hubs, membership, invites, feed."},
+    {"name": "Posts", "description": "Posts, media attachments, likes, comments."},
+    {"name": "Media", "description": "Presigned uploads and media registration."},
+    {"name": "Services", "description": "Business services CRUD."},
+    {
+        "name": "Availability",
+        "description": "One-off and recurring availability windows.",
+    },
+    {"name": "Slots", "description": "Computed bookable time slots."},
+    {
+        "name": "Bookings",
+        "description": "Booking lifecycle: create, confirm, cancel, reschedule.",
+    },
+    {"name": "Reviews", "description": "Booking reviews and averages."},
+    {"name": "Notifications", "description": "In-app notifications."},
+    {
+        "name": "Search",
+        "description": "Global search across users, occupations, cliques.",
+    },
+    {"name": "Messaging", "description": "Chats and messages."},
+    {"name": "Health", "description": "Health checks."},
+]
 
 # CORS
 app.add_middleware(
@@ -65,28 +119,111 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    schema.setdefault("components", {}).setdefault("securitySchemes", {})[
+        "BearerAuth"
+    ] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+    }
+    comps = schema["components"].setdefault("schemas", {})
+    comps["ErrorEnvelope"] = {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+            "error": {
+                "type": "object",
+                "required": ["code", "message", "details"],
+                "properties": {
+                    "code": {"type": "string", "example": "validation_error"},
+                    "message": {"type": "string", "example": "Invalid parent comment"},
+                    "details": {
+                        "type": "object",
+                        "additionalProperties": True,
+                        "example": {},
+                    },
+                },
+            }
+        },
+    }
+    params = schema["components"].setdefault("parameters", {})
+    params["CursorParam"] = {
+        "name": "cursor",
+        "in": "query",
+        "required": False,
+        "schema": {"type": "string"},
+        "description": "Opaque pagination cursor from previous response `nextCursor`.",
+    }
+    params["LimitParam"] = {
+        "name": "limit",
+        "in": "query",
+        "required": False,
+        "schema": {"type": "integer", "default": 20, "maximum": 100, "minimum": 1},
+        "description": "Max items to return (default 20, max 100).",
+    }
+    headers = schema["components"].setdefault("headers", {})
+    headers["X-RateLimit-Limit"] = {
+        "schema": {"type": "integer"},
+        "description": "Request limit for the window.",
+    }
+    headers["X-RateLimit-Remaining"] = {
+        "schema": {"type": "integer"},
+        "description": "Requests left in the window.",
+    }
+    headers["X-RateLimit-Reset"] = {
+        "schema": {"type": "integer"},
+        "description": "Seconds until reset.",
+    }
+
+    app.openapi_schema = schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
+
 # Routers
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(users_router, prefix="/api/v1")
-app.include_router(follows_router, prefix="/api/v1")
-app.include_router(cliques_router, prefix="/api/v1")
-app.include_router(posts_router, prefix="/api/v1")
-app.include_router(media_router, prefix="/api/v1")
-app.include_router(bookings_router, prefix="/api/v1")
-app.include_router(reviews_router, prefix="/api/v1")
-app.include_router(notifications_router, prefix="/api/v1")
-app.include_router(search_router, prefix="/api/v1")
-app.include_router(chats_router, prefix="/api/v1")
-app.include_router(messages_router, prefix="/api/v1")
-app.include_router(occupations_router, prefix="/api/v1")
-app.include_router(business_services_router, prefix="/api/v1")
-app.include_router(availability_router, prefix="/api/v1")
-app.include_router(slots_router, prefix="/api/v1")
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(follows_router)
+app.include_router(cliques_router)
+app.include_router(posts_router)
+app.include_router(media_router)
+app.include_router(bookings_router)
+app.include_router(reviews_router)
+app.include_router(notifications_router)
+app.include_router(search_router)
+app.include_router(chats_router)
+app.include_router(messages_router)
+app.include_router(occupations_router)
+app.include_router(business_services_router)
+app.include_router(availability_router)
+app.include_router(slots_router)
 
 # WebSocket routes
 app.include_router(ws_router, prefix="/ws")
 
 
-@app.get("/health")
-async def health():
+health_router = APIRouter(prefix="/api/v1", tags=["Health"])
+
+
+@health_router.get(
+    "/health",
+    summary="Health check",
+    description="Simple liveness probe.",
+    response_model=dict[str, str],
+)
+async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+app.include_router(health_router)

@@ -111,6 +111,7 @@ def _build_error_payload(exc: AppError) -> dict[str, Any]:
 
 
 def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+    """Render an ErrorEnvelope-compatible payload for application errors."""
     headers: dict[str, str] | None = None
     if getattr(exc, "status_code", 400) == 401:
         headers = {"WWW-Authenticate": "Bearer"}
@@ -186,6 +187,7 @@ def programming_error_handler(request: Request, exc: ProgrammingError) -> JSONRe
 
 
 def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Normalize raw HTTPExceptions into the standard error envelope."""
     payload = ErrorResponse(
         error={"code": "http_error", "message": exc.detail, "details": {}}
     ).model_dump()

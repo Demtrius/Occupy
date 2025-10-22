@@ -5,7 +5,7 @@ MOBILE_DIR := apps/mobile
 COMPOSE_DEV := infra/docker/compose.dev.yml
 COMPOSE_PROD := infra/docker/compose.prod.yml
 
-# Optional filters (use like: make lint PNPM_FILTER=@clique/ui)
+# Optional filters (use like: make lint PNPM_FILTER=@occupy/ui)
 PNPM_FILTER ?=
 ifdef PNPM_FILTER
 	PNPMF := -F $(PNPM_FILTER)
@@ -17,7 +17,7 @@ endif
 .PHONY: help
 help:
 	@echo ""
-	@echo "Clique — Monorepo shortcuts"
+	@echo "Occupy — Monorepo shortcuts"
 	@echo "Usage: make <target>"
 	@echo ""
 	@echo "Bootstrap:"
@@ -47,7 +47,7 @@ help:
 	@echo "  test             Jest/placeholder (TS) + pytest (py)"
 	@echo ""
 	@echo "Types:"
-	@echo "  gen-types        Generate OpenAPI TS client (@clique/types)"
+	@echo "  gen-types        Generate OpenAPI TS client (@occupy/types)"
 	@echo ""
 	@echo "Prod (Docker):"
 	@echo "  up-prod          Start prod stack behind Nginx"
@@ -145,7 +145,7 @@ test:
 # -------- Types (OpenAPI) --------
 .PHONY: gen-types
 gen-types:
-	pnpm -F @clique/types run generate
+	pnpm -F @occupy/types run generate
 
 # -------- Prod Stack --------
 .PHONY: up-prod down-prod migrate-prod logs-prod

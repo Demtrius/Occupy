@@ -30,6 +30,14 @@ from .notification import (
     NotificationUpdate,
 )
 from .pagination import CursorPage
+from .pagination_openapi import (
+    CursorPageBookings,
+    CursorPageCliqueMembers,
+    CursorPageFollows,
+    CursorPagePosts,
+    CursorPageReviews,
+    CursorPageUsers,
+)
 from .post import (
     Comment,
     CommentCreate,
@@ -87,6 +95,12 @@ __all__ = [
     "NotificationCreate",
     "NotificationUpdate",
     "CursorPage",
+    "CursorPageBookings",
+    "CursorPageCliqueMembers",
+    "CursorPageFollows",
+    "CursorPagePosts",
+    "CursorPageReviews",
+    "CursorPageUsers",
     "Comment",
     "CommentCreate",
     "Post",

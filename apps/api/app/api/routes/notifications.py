@@ -1,10 +1,11 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
+from ...api.openapi_helpers import error_responses, secured
 from ...core.errors import NotFound
 from ...models.user import User
 from ...schemas.notification import Notification as NotificationSchema
@@ -14,38 +15,72 @@ from ...services.notifications import (
     mark_notification_as_read,
 )
 
-router = APIRouter(prefix="/notifications", tags=["notifications"])
+router = APIRouter(prefix="/api/v1/notifications", tags=["Notifications"])
 
 
-@router.get("/", response_model=List[NotificationSchema])
+@router.get(
+    "",
+    summary="List notifications",
+    description="Return notifications for the current user ordered by recency.",
+    response_model=List[NotificationSchema],
+    responses={
+        200: {"description": "Notifications list"},
+        **error_responses(401),
+    },
+    openapi_extra=secured(),
+)
 async def list_notifications(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
-    """List notifications for the current user."""
     return await get_user_notifications(db, current_user.id, limit, offset)
 
 
-@router.put("/{notification_id}/read", response_model=NotificationSchema)
+@router.put(
+    "/{notification_id}/read",
+    summary="Mark notification read",
+    description="Mark a single notification as read and return the updated record.",
+    response_model=NotificationSchema,
+    responses={
+        200: {"description": "Notification updated"},
+        **error_responses(401, 404),
+    },
+    openapi_extra=secured(),
+)
 async def mark_notification_read(
     notification_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
-    """Mark a specific notification as read."""
     notification = await mark_notification_as_read(db, notification_id, current_user.id)
     if not notification:
         raise NotFound("Notification not found")
     return notification
 
 
-@router.put("/read-all")
+@router.put(
+    "/read-all",
+    summary="Mark all notifications read",
+    description="Mark every unread notification for the current user as read.",
+    response_model=dict[str, str],
+    responses={
+        200: {
+            "description": "All notifications marked read",
+            "content": {
+                "application/json": {
+                    "example": {"message": "Marked 12 notifications as read"}
+                }
+            },
+        },
+        **error_responses(401),
+    },
+    openapi_extra=secured(),
+)
 async def mark_all_read(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
-    """Mark all notifications as read."""
     count = await mark_all_notifications_as_read(db, current_user.id)
     return {"message": f"Marked {count} notifications as read"}

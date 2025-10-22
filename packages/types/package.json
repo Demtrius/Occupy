@@ -13,7 +13,7 @@
     "@occupy/config": "workspace:*"
   },
   "scripts": {
-    "generate": "echo \"TODO: generate OpenAPI client\"",
+    "generate": "pnpm exec orval --config orval.config.ts  && pnpm exec biome format --write ./src",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "typecheck": "tsc --project tsconfig.json --noEmit"

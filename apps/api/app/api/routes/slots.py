@@ -5,11 +5,12 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
+from ...api.openapi_helpers import error_responses, secured
 from ...core.errors import Validation
 from ...models.user import User
 from ...services.slots import compute_slots
 
-router = APIRouter(prefix="/cliques", tags=["availability"])
+router = APIRouter(prefix="/api/v1/cliques", tags=["Slots"])
 
 
 def _parse_iso_dt(value: str, label: str) -> datetime:
@@ -23,12 +24,46 @@ def _parse_iso_dt(value: str, label: str) -> datetime:
     return parsed
 
 
-@router.get("/{clique_id}/slots")
+@router.get(
+    "/{clique_id}/slots",
+    summary="List available slots",
+    description="Return available start/end timestamps for a service within the requested window.",
+    response_model=dict[str, list[dict[str, str]]],
+    responses={
+        200: {
+            "description": "Computed availability slots",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "slots": [
+                            {
+                                "start_ts": "2024-04-02T14:00:00+00:00",
+                                "end_ts": "2024-04-02T15:00:00+00:00",
+                            }
+                        ]
+                    }
+                }
+            },
+        },
+        **error_responses(400, 401, 422),
+    },
+    openapi_extra=secured(),
+)
 async def list_slots(
     clique_id: UUID,
-    service_id: UUID = Query(..., alias="serviceId"),
-    window_start: str = Query(..., alias="from"),
-    window_end: str = Query(..., alias="to"),
+    service_id: UUID = Query(
+        ..., alias="serviceId", description="Service identifier to compute slots for."
+    ),
+    window_start: str = Query(
+        ...,
+        alias="from",
+        description="Inclusive ISO 8601 start datetime (timezone-aware).",
+    ),
+    window_end: str = Query(
+        ...,
+        alias="to",
+        description="Exclusive ISO 8601 end datetime (timezone-aware).",
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
