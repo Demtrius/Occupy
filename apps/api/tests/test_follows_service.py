@@ -24,7 +24,9 @@ async def test_follow_and_unfollow_flow(db_session):
     relation = await follow_user(db_session, str(follower.id), str(followee.id))
     assert relation.status == FollowStatus.PENDING
 
-    await approve_follow(db_session, str(followee.id), str(follower.id))
+    approved = await approve_follow(db_session, str(followee.id), str(follower.id))
+    assert approved is not None
+    assert approved.status == FollowStatus.ACCEPTED
     followers, _ = await get_followers(db_session, str(followee.id), None, 10)
     assert any(f.follower_user_id == follower.id for f in followers)
 
@@ -39,10 +41,12 @@ async def test_block_and_unblock(db_session):
     blocked = await create_user(db_session)
     await db_session.commit()
 
-    await block_user(db_session, str(blocker.id), str(blocked.id))
+    blocked_relation = await block_user(db_session, str(blocker.id), str(blocked.id))
+    assert blocked_relation.status == FollowStatus.BLOCKED
     followers, _ = await get_followers(db_session, str(blocked.id), None, 10)
     assert not followers
 
-    await unblock_user(db_session, str(blocker.id), str(blocked.id))
+    unblocked = await unblock_user(db_session, str(blocker.id), str(blocked.id))
+    assert unblocked is True
     following, _ = await get_following(db_session, str(blocker.id), None, 10)
     assert not following

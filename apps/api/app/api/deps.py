@@ -1,13 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.auth import get_current_user, get_db
+from ..core.errors import Forbidden, NotFound
 from ..models.clique import Clique, CliqueMember
-from ..models.enums import MembershipStatus
+from ..models.enums import FollowStatus, MembershipStatus
 from ..models.user import Follow, User
 
 
@@ -15,7 +16,7 @@ async def require_active_user(
     current_user: Annotated[User, Depends(get_current_user)]
 ) -> User:
     if not current_user.is_active:
-        raise HTTPException(status_code=403, detail="User is not active")
+        raise Forbidden(message="User is not active")
     return current_user
 
 
@@ -23,17 +24,18 @@ async def require_clique_owner(
     clique_id: UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
-) -> None:
+) -> Clique:
     clique = await db.get(Clique, clique_id)
-    if not clique or clique.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not clique owner")
+    if not clique or clique.owner_user_id != current_user.id:
+        raise Forbidden(message="Not clique owner")
+    return clique
 
 
 async def require_clique_member(
     clique_id: UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
-) -> None:
+) -> CliqueMember:
     stmt = select(CliqueMember).where(
         CliqueMember.clique_id == clique_id,
         CliqueMember.user_id == current_user.id,
@@ -41,7 +43,8 @@ async def require_clique_member(
     )
     member = await db.scalar(stmt)
     if not member:
-        raise HTTPException(status_code=403, detail="Not clique member")
+        raise Forbidden(message="Not clique member")
+    return member
 
 
 async def check_blocking(
@@ -51,13 +54,19 @@ async def check_blocking(
 ) -> None:
     # Check if actor blocked target or target blocked actor
     stmt = select(Follow).where(
-        ((Follow.follower_user_id == actor_id) & (Follow.followee_user_id == target_user_id)) |
-        ((Follow.follower_user_id == target_user_id) & (Follow.followee_user_id == actor_id)),
-        Follow.status == "blocked"
+        (
+            (Follow.follower_user_id == actor_id)
+            & (Follow.followee_user_id == target_user_id)
+        )
+        | (
+            (Follow.follower_user_id == target_user_id)
+            & (Follow.followee_user_id == actor_id)
+        ),
+        Follow.status == FollowStatus.BLOCKED,
     )
     block = await db.scalar(stmt)
     if block:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFound("User not found")
 
 
 def parse_sort(sort: str | None) -> tuple[str, str]:

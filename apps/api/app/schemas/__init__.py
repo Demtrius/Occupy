@@ -18,6 +18,8 @@ from .clique import (
     Clique,
     CliqueBase,
     CliqueCreate,
+    CliqueInvite,
+    CliqueInviteCreate,
     CliqueMember,
     CliqueUpdate,
 )
@@ -29,6 +31,8 @@ from .notification import (
 )
 from .pagination import CursorPage
 from .post import (
+    Comment,
+    CommentCreate,
     Post,
     PostBase,
     PostCreate,
@@ -70,6 +74,8 @@ __all__ = [
     "Clique",
     "CliqueBase",
     "CliqueCreate",
+    "CliqueInvite",
+    "CliqueInviteCreate",
     "CliqueMember",
     "CliqueUpdate",
     "Message",
@@ -80,6 +86,8 @@ __all__ = [
     "NotificationCreate",
     "NotificationUpdate",
     "CursorPage",
+    "Comment",
+    "CommentCreate",
     "Post",
     "PostBase",
     "PostCreate",

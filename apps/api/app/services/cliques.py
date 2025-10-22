@@ -1,23 +1,28 @@
 from __future__ import annotations
 
+import secrets
 from collections.abc import Iterable
+from datetime import datetime, timezone
 from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.pagination import apply_datetime_cursor, slice_results
-from ..models.clique import Clique, CliqueMember
+from ..models.clique import Clique, CliqueInvite, CliqueMember
 from ..models.enums import MembershipStatus, Privacy, Role
-from ..schemas.clique import CliqueCreate, CliqueUpdate
+from ..models.service import Service
+from ..models.availability import Availability
+from ..models.booking import Booking
+from ..models.post import Post
+from ..schemas.clique import CliqueCreate, CliqueInviteCreate, CliqueUpdate
 
 
 async def _load_occupations(
     db: AsyncSession, occupation_ids: Iterable[UUID | str]
 ) -> Sequence["Occupation"]:
-    """Fetch occupation rows matching provided ids."""
     from ..models.user import Occupation
 
     if not occupation_ids:
@@ -25,6 +30,10 @@ async def _load_occupations(
     stmt = select(Occupation).where(Occupation.id.in_(list(occupation_ids)))
     result = await db.execute(stmt)
     return result.scalars().all()
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 async def create_clique(
@@ -65,14 +74,45 @@ async def get_clique_by_id(db: AsyncSession, clique_id: str) -> Clique | None:
     return await db.get(Clique, clique_id)
 
 
-async def join_clique(db: AsyncSession, user_id: str, clique_id: str) -> None:
+async def join_clique(
+    db: AsyncSession, user_id: str, clique_id: str, invite_token: str | None = None
+) -> CliqueMember:
     clique = await get_clique_by_id(db, clique_id)
     if not clique:
         raise ValueError("Clique not found")
 
+    invite: CliqueInvite | None = None
+    if invite_token:
+        invite = await db.scalar(
+            select(CliqueInvite).where(
+                CliqueInvite.clique_id == clique_id,
+                CliqueInvite.token == invite_token,
+            )
+        )
+        if not invite:
+            raise ValueError("Invite token invalid")
+        if invite.expires_at and invite.expires_at < _now():
+            raise ValueError("Invite token expired")
+        if invite.max_uses is not None and invite.uses >= invite.max_uses:
+            raise ValueError("Invite token exhausted")
+
+    existing = await db.scalar(
+        select(CliqueMember).where(
+            CliqueMember.clique_id == clique_id,
+            CliqueMember.user_id == user_id,
+        )
+    )
+    if existing:
+        if invite and existing.status == MembershipStatus.PENDING:
+            existing.status = MembershipStatus.JOINED
+            invite.uses += 1
+            await db.commit()
+            await db.refresh(existing)
+        return existing
+
     status = (
         MembershipStatus.PENDING
-        if clique.privacy == Privacy.PRIVATE
+        if clique.privacy == Privacy.PRIVATE and not invite
         else MembershipStatus.JOINED
     )
     member = CliqueMember(
@@ -82,22 +122,29 @@ async def join_clique(db: AsyncSession, user_id: str, clique_id: str) -> None:
         status=status,
     )
     db.add(member)
+    if invite:
+        invite.uses += 1
     try:
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        # Already a member; treat as no-op.
+        raise ValueError("Membership already exists") from None
+    await db.refresh(member)
+    return member
 
 
-async def leave_clique(db: AsyncSession, user_id: str, clique_id: str) -> None:
+async def leave_clique(db: AsyncSession, user_id: str, clique_id: str) -> bool:
     stmt = select(CliqueMember).where(
         CliqueMember.user_id == user_id,
         CliqueMember.clique_id == clique_id,
+        CliqueMember.role != Role.OWNER,
     )
     member = await db.scalar(stmt)
-    if member:
-        await db.delete(member)
-        await db.commit()
+    if not member:
+        return False
+    await db.delete(member)
+    await db.commit()
+    return True
 
 
 async def get_clique_members(
@@ -113,10 +160,22 @@ async def get_clique_members(
     return slice_results(rows, limit)
 
 
+async def get_pending_members(
+    db: AsyncSession, clique_id: str, cursor: str | None, limit: int
+) -> tuple[list[CliqueMember], str | None]:
+    stmt = select(CliqueMember).where(
+        CliqueMember.clique_id == clique_id,
+        CliqueMember.status == MembershipStatus.PENDING,
+    )
+    stmt = apply_datetime_cursor(stmt, CliqueMember, cursor, limit)
+    result = await db.execute(stmt)
+    rows = result.scalars().all()
+    return slice_results(rows, limit)
+
+
 async def get_feed_posts(
     db: AsyncSession, user_id: str, cursor: str | None, limit: int
-) -> tuple[list["Post"], str | None]:
-    from ..models.post import Post
+) -> tuple[list[Post], str | None]:
     from ..models.enums import PostStatus
 
     followed_cliques_stmt = select(CliqueMember.clique_id).where(
@@ -161,7 +220,10 @@ async def update_clique_details(
     payload = data.model_dump(exclude_unset=True)
     occupation_ids = payload.pop("occupation_ids", None)
 
+    non_nullable_fields = {"name", "timezone"}
     for key, value in payload.items():
+        if key in non_nullable_fields and value is None:
+            raise ValueError(f"{key} cannot be empty")
         setattr(clique, key, value)
 
     if occupation_ids is not None:
@@ -177,5 +239,67 @@ async def delete_clique(db: AsyncSession, clique_id: str) -> None:
     clique = await db.get(Clique, clique_id)
     if not clique:
         raise ValueError("Clique not found")
+
+    await db.execute(delete(CliqueMember).where(CliqueMember.clique_id == clique_id))
+    await db.execute(delete(CliqueInvite).where(CliqueInvite.clique_id == clique_id))
+    await db.execute(delete(Service).where(Service.clique_id == clique_id))
+    await db.execute(delete(Availability).where(Availability.clique_id == clique_id))
+    await db.execute(delete(Booking).where(Booking.clique_id == clique_id))
+    await db.execute(delete(Post).where(Post.clique_id == clique_id))
+
     await db.delete(clique)
     await db.commit()
+
+
+async def approve_member(
+    db: AsyncSession, clique_id: str, member_id: str
+) -> CliqueMember:
+    membership = await db.scalar(
+        select(CliqueMember).where(
+            CliqueMember.id == member_id,
+            CliqueMember.clique_id == clique_id,
+        )
+    )
+    if not membership:
+        raise ValueError("Membership not found")
+    if membership.status == MembershipStatus.JOINED:
+        return membership
+    if membership.status != MembershipStatus.PENDING:
+        raise ValueError("Membership cannot be approved")
+    membership.status = MembershipStatus.JOINED
+    await db.commit()
+    await db.refresh(membership)
+    return membership
+
+
+async def reject_member(db: AsyncSession, clique_id: str, member_id: str) -> None:
+    membership = await db.scalar(
+        select(CliqueMember).where(
+            CliqueMember.id == member_id,
+            CliqueMember.clique_id == clique_id,
+        )
+    )
+    if not membership:
+        return
+    if membership.role == Role.OWNER:
+        raise ValueError("Cannot remove clique owner")
+    await db.delete(membership)
+    await db.commit()
+
+
+async def create_invite(
+    db: AsyncSession,
+    clique_id: str,
+    data: CliqueInviteCreate,
+) -> CliqueInvite:
+    token = secrets.token_urlsafe(16)
+    invite = CliqueInvite(
+        clique_id=clique_id,
+        token=token,
+        expires_at=data.expires_at,
+        max_uses=data.max_uses,
+    )
+    db.add(invite)
+    await db.commit()
+    await db.refresh(invite)
+    return invite

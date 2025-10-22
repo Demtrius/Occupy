@@ -27,6 +27,7 @@ def _map_booking_error(exc: ValueError) -> Exception:
         "Time slot not available",
         "Could not create booking",
         "Cannot confirm a cancelled booking",
+        "Idempotency key reused with different payload",
     }:
         return Conflict()
     if message in {

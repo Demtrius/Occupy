@@ -42,6 +42,23 @@ class CliqueMember(BaseModel):
     created_at: datetime
 
 
+class CliqueInviteCreate(BaseModel):
+    expires_at: Optional[datetime] = None
+    max_uses: Optional[int] = Field(default=None, ge=1)
+
+
+class CliqueInvite(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    clique_id: UUID
+    token: str
+    expires_at: Optional[datetime] = None
+    max_uses: Optional[int] = None
+    uses: int
+    created_at: datetime
+
+
 class Clique(CliqueBase):
     model_config = ConfigDict(from_attributes=True)
 

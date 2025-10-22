@@ -130,7 +130,7 @@ async def test_booking_validation_and_errors(db_session):
     service = await create_service(db_session, clique=clique, duration_minutes=45)
     await db_session.commit()
 
-    naive_start = datetime.utcnow().replace(microsecond=0)
+    naive_start = datetime.now(timezone.utc).replace(microsecond=0).replace(tzinfo=None)
     with pytest.raises(ValueError, match="timezone-aware"):
         await create_booking(
             db_session,

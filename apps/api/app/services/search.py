@@ -5,12 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.clique import Clique
 from ..models.user import Occupation, User
+from ..schemas import clique as clique_schema
+from ..schemas import occupation as occupation_schema
+from ..schemas import user as user_schema
 from ..schemas.search import SearchResult
 
 
-async def search_users(
-    db: AsyncSession, query: str, limit: int = 20
-) -> List[User]:
+async def search_users(db: AsyncSession, query: str, limit: int = 20) -> List[User]:
     """Search users by username or full name."""
     stmt = (
         select(User)
@@ -30,18 +31,12 @@ async def search_occupations(
     db: AsyncSession, query: str, limit: int = 20
 ) -> List[Occupation]:
     """Search occupations by name."""
-    stmt = (
-        select(Occupation)
-        .where(Occupation.name.ilike(f"%{query}%"))
-        .limit(limit)
-    )
+    stmt = select(Occupation).where(Occupation.name.ilike(f"%{query}%")).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()
 
 
-async def search_cliques(
-    db: AsyncSession, query: str, limit: int = 20
-) -> List[Clique]:
+async def search_cliques(db: AsyncSession, query: str, limit: int = 20) -> List[Clique]:
     """Search cliques by name or description."""
     stmt = (
         select(Clique)
@@ -57,16 +52,16 @@ async def search_cliques(
     return result.scalars().all()
 
 
-async def unified_search(
-    db: AsyncSession, query: str, limit: int = 20
-) -> SearchResult:
+async def unified_search(db: AsyncSession, query: str, limit: int = 20) -> SearchResult:
     """Perform unified search across users, occupations, and cliques."""
     users = await search_users(db, query, limit // 3)
     occupations = await search_occupations(db, query, limit // 3)
     cliques = await search_cliques(db, query, limit // 3)
 
     return SearchResult(
-        users=users,
-        occupations=occupations,
-        cliques=cliques,
+        users=[user_schema.User.model_validate(u) for u in users],
+        occupations=[
+            occupation_schema.Occupation.model_validate(o) for o in occupations
+        ],
+        cliques=[clique_schema.Clique.model_validate(c) for c in cliques],
     )

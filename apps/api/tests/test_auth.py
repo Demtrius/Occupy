@@ -88,10 +88,76 @@ async def test_logout_requires_valid_token(client, faker):
         "password": "Str0ngPass!",
     }
     register = await client.post("/api/v1/auth/register", json=payload)
-    token = register.json()["access_token"]
+    data = register.json()
+    token = data["access_token"]
+    refresh_token = data["refresh_token"]
 
     response = await client.post(
         "/api/v1/auth/logout",
         headers={"Authorization": f"Bearer {token}"},
+        json={"refresh_token": refresh_token},
     )
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_refresh_rotates_tokens(client, faker):
+    payload = {
+        "email": faker.unique.email(),
+        "username": faker.unique.user_name(),
+        "password": "Str0ngPass!",
+    }
+    register = await client.post("/api/v1/auth/register", json=payload)
+    original = register.json()["refresh_token"]
+
+    refresh = await client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": original},
+    )
+    assert refresh.status_code == 200
+    rotated = refresh.json()["refresh_token"]
+    assert rotated != original
+
+    reuse = await client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": original},
+    )
+    assert reuse.status_code == 401
+    assert_error(reuse, "http_error")
+
+
+@pytest.mark.asyncio
+async def test_refresh_requires_valid_token(client):
+    response = await client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": "invalid"},
+    )
+    assert response.status_code == 401
+    assert_error(response, "http_error")
+
+
+@pytest.mark.asyncio
+async def test_logout_rejects_mismatched_user(client, faker):
+    owner = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": faker.unique.email(),
+            "username": faker.unique.user_name(),
+            "password": "Str0ngPass!",
+        },
+    )
+    other = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": faker.unique.email(),
+            "username": faker.unique.user_name(),
+            "password": "Str0ngPass!",
+        },
+    )
+
+    logout = await client.post(
+        "/api/v1/auth/logout",
+        json={"refresh_token": owner.json()["refresh_token"]},
+        headers={"Authorization": f"Bearer {other.json()['access_token']}"},
+    )
+    assert logout.status_code == 401

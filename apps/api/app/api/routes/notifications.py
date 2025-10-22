@@ -28,17 +28,17 @@ async def list_notifications(
     return await get_user_notifications(db, current_user.id, limit, offset)
 
 
-@router.put("/{notification_id}/read")
+@router.put("/{notification_id}/read", response_model=NotificationSchema)
 async def mark_notification_read(
     notification_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
     """Mark a specific notification as read."""
-    success = await mark_notification_as_read(db, notification_id, current_user.id)
-    if not success:
+    notification = await mark_notification_as_read(db, notification_id, current_user.id)
+    if not notification:
         raise NotFound("Notification not found")
-    return {"message": "Notification marked as read"}
+    return notification
 
 
 @router.put("/read-all")

@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
+import json
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.idempotency import ensure_idempotency
 from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.booking import Booking
 from ..models.clique import Clique
@@ -30,6 +33,22 @@ async def create_booking(
     end_dt = start_dt + timedelta(minutes=service.duration_minutes)
 
     if idempotency_key:
+        payload = {
+            "user_id": user_id,
+            "service_id": service_id,
+            "start_ts": start_ts.isoformat(),
+            "note": note or "",
+        }
+        payload_hash = hashlib.sha256(
+            json.dumps(payload, sort_keys=True).encode()
+        ).hexdigest()
+        existing_hash = await ensure_idempotency(
+            idempotency_key,
+            "booking",
+            payload_hash,
+        )
+        if existing_hash and existing_hash != payload_hash:
+            raise ValueError("Idempotency key reused with different payload")
         existing = await db.scalar(
             select(Booking).where(
                 Booking.user_id == user_id,

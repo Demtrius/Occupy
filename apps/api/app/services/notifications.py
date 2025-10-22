@@ -1,7 +1,9 @@
 from typing import List
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from datetime import datetime, timezone
+
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.notification import Notification
@@ -26,7 +28,7 @@ async def get_user_notifications(
 
 async def mark_notification_as_read(
     db: AsyncSession, notification_id: UUID, user_id: UUID
-) -> bool:
+) -> NotificationSchema | None:
     """Mark a specific notification as read for the user."""
     stmt = select(Notification).where(
         Notification.id == notification_id, Notification.user_id == user_id
@@ -34,11 +36,14 @@ async def mark_notification_as_read(
     result = await db.execute(stmt)
     notification = result.scalar_one_or_none()
     if not notification:
-        return False
+        return None
+    if notification.is_read:
+        return NotificationSchema.model_validate(notification)
     notification.is_read = True
-    notification.read_at = func.now()  # Assuming func is imported
+    notification.read_at = datetime.now(timezone.utc)
     await db.commit()
-    return True
+    await db.refresh(notification)
+    return NotificationSchema.model_validate(notification)
 
 
 async def mark_all_notifications_as_read(db: AsyncSession, user_id: UUID) -> int:
@@ -46,8 +51,8 @@ async def mark_all_notifications_as_read(db: AsyncSession, user_id: UUID) -> int
     stmt = (
         update(Notification)
         .where(Notification.user_id == user_id, Notification.is_read == False)
-        .values(is_read=True, read_at=func.now())
+        .values(is_read=True, read_at=datetime.now(timezone.utc))
     )
     result = await db.execute(stmt)
     await db.commit()
-    return result.rowcount
+    return int(result.rowcount or 0)

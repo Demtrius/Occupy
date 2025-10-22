@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import date as DateType, datetime, time as TimeType, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -8,6 +8,7 @@ from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import hash_password
+from app.models.availability import Availability
 from app.models.booking import Booking
 from app.models.chat import Chat, Message
 from app.models.clique import Clique, CliqueMember
@@ -19,7 +20,7 @@ from app.models.enums import (
     Role,
 )
 from app.models.media import Media
-from app.models.post import Post
+from app.models.post import Comment, Post
 from app.models.service import Service
 from app.models.user import Follow, User
 
@@ -109,6 +110,60 @@ async def create_service(
     return service
 
 
+async def create_availability(
+    db: AsyncSession,
+    *,
+    clique: Clique,
+    is_recurring: bool = False,
+    date: Optional[DateType] = None,
+    day_of_week: Optional[int] = None,
+    start_time: Optional[TimeType] = None,
+    end_time: Optional[TimeType] = None,
+    valid_from: Optional[DateType] = None,
+    valid_until: Optional[DateType] = None,
+    timezone_str: str = "UTC",
+) -> Availability:
+    start = start_time or TimeType(hour=9, minute=0)
+    if end_time is not None:
+        end = end_time
+    else:
+        end_dt = datetime.combine(DateType.today(), start) + timedelta(hours=1)
+        end = end_dt.time()
+    if end <= start:
+        raise ValueError("end_time must be after start_time")
+
+    if is_recurring:
+        if day_of_week is None:
+            day_of_week = 0
+        availability = Availability(
+            clique_id=clique.id,
+            is_recurring=True,
+            day_of_week=day_of_week,
+            date=None,
+            start_time=start,
+            end_time=end,
+            valid_from=valid_from,
+            valid_until=valid_until,
+            timezone=timezone_str,
+        )
+    else:
+        availability = Availability(
+            clique_id=clique.id,
+            is_recurring=False,
+            date=date or DateType.today(),
+            day_of_week=None,
+            start_time=start,
+            end_time=end,
+            valid_from=valid_from,
+            valid_until=valid_until,
+            timezone=timezone_str,
+        )
+
+    db.add(availability)
+    await db.flush()
+    return availability
+
+
 async def create_post(
     db: AsyncSession,
     *,
@@ -125,6 +180,28 @@ async def create_post(
     db.add(post)
     await db.flush()
     return post
+
+
+async def create_comment(
+    db: AsyncSession,
+    *,
+    post: Post,
+    author: User,
+    body: Optional[str] = None,
+    parent_comment_id: Optional[UUID] = None,
+    deleted: bool = False,
+) -> Comment:
+    comment = Comment(
+        post_id=post.id,
+        user_id=author.id,
+        parent_comment_id=parent_comment_id,
+        body=body or fake.sentence(),
+    )
+    if deleted:
+        comment.deleted_at = datetime.now(timezone.utc)
+    db.add(comment)
+    await db.flush()
+    return comment
 
 
 async def create_media(

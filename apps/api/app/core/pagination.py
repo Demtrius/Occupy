@@ -36,19 +36,35 @@ def apply_datetime_cursor(
     model,
     cursor: str | None,
     limit: int,
+    *,
+    descending: bool = True,
 ) -> Select:
-    stmt = stmt.order_by(model.created_at.desc(), model.id.desc())
+    if descending:
+        stmt = stmt.order_by(model.created_at.desc(), model.id.desc())
+    else:
+        stmt = stmt.order_by(model.created_at.asc(), model.id.asc())
     if cursor:
         created_at, entity_id = decode_datetime_cursor(cursor)
-        stmt = stmt.where(
-            or_(
-                model.created_at < created_at,
-                and_(
-                    model.created_at == created_at,
-                    model.id < entity_id,
-                ),
+        if descending:
+            stmt = stmt.where(
+                or_(
+                    model.created_at < created_at,
+                    and_(
+                        model.created_at == created_at,
+                        model.id < entity_id,
+                    ),
+                )
             )
-        )
+        else:
+            stmt = stmt.where(
+                or_(
+                    model.created_at > created_at,
+                    and_(
+                        model.created_at == created_at,
+                        model.id > entity_id,
+                    ),
+                )
+            )
     return stmt.limit(limit + 1)
 
 

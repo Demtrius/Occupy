@@ -30,6 +30,7 @@ async def test_notifications_flow(client, db_session, make_token):
         headers=headers,
     )
     assert mark_resp.status_code == 200
+    assert mark_resp.json()["is_read"] is True
 
     mark_all_resp = await client.put("/api/v1/notifications/read-all", headers=headers)
     assert mark_all_resp.status_code == 200

@@ -23,10 +23,14 @@ class AvailabilityCreate(AvailabilityBase):
 
 
 class AvailabilityUpdate(BaseModel):
+    is_recurring: Optional[bool] = None
+    date: Optional[DateType] = None
+    day_of_week: Optional[int] = Field(None, ge=0, le=6)
     start_time: Optional[TimeType] = None
     end_time: Optional[TimeType] = None
     valid_from: Optional[DateType] = None
     valid_until: Optional[DateType] = None
+    timezone: Optional[str] = None
 
 
 class Availability(AvailabilityBase):

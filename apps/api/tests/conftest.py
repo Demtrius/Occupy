@@ -14,6 +14,8 @@ from faker import Faker
 from freezegun import freeze_time
 from httpx import ASGITransport, AsyncClient
 from minio import Minio
+from redis.asyncio import Redis
+from redis.exceptions import ConnectionError as RedisConnectionError
 from sqlalchemy import make_url, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
@@ -22,9 +24,11 @@ from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
 from alembic import command
+from app.core import idempotency as idempotency_core
 from app.core.auth import create_access_token
 from app.core.limiter import limiter
 from app.db.base import Base
+
 
 TABLE_NAMES = [
     table.name
@@ -41,8 +45,10 @@ MIGRATIONS_DIR = BASE_DIR / "alembic"
 def event_loop() -> AsyncGenerator[asyncio.AbstractEventLoop, None]:
     loop = asyncio.new_event_loop()
     try:
+        asyncio.set_event_loop(loop)
         yield loop
     finally:
+        asyncio.set_event_loop(None)
         loop.close()
 
 
@@ -92,6 +98,36 @@ def run_migrations(postgres_container: PostgresContainer) -> None:
 def redis_container() -> AsyncGenerator[RedisContainer, None]:
     with RedisContainer("redis:7") as container:
         yield container
+
+
+def _redis_connection_url(redis_container: RedisContainer) -> str:
+    host = redis_container.get_container_host_ip()
+    port = redis_container.get_exposed_port(6379)
+    return f"redis://{host}:{port}/0"
+
+
+async def _wait_for_redis(client: Redis, retries: int = 10, delay: float = 0.5) -> None:
+    for attempt in range(retries):
+        try:
+            await client.ping()
+            return
+        except (RedisConnectionError, OSError):
+            if attempt == retries - 1:
+                raise
+            await asyncio.sleep(delay)
+
+
+@pytest_asyncio.fixture
+async def redis_client(
+    redis_container: RedisContainer,
+) -> AsyncGenerator[Redis, None]:
+    redis_url = _redis_connection_url(redis_container)
+    client = Redis.from_url(redis_url, encoding="utf-8", decode_responses=True)
+    await _wait_for_redis(client)
+    try:
+        yield client
+    finally:
+        await client.aclose()
 
 
 @dataclass
@@ -198,10 +234,7 @@ def _configure_environment(
     redis_container: RedisContainer,
     minio_settings: MinioSettings,
 ) -> None:
-    redis_url = (
-        f"redis://{redis_container.get_container_host_ip()}:"
-        f"{redis_container.get_exposed_port(6379)}/0"
-    )
+    redis_url = _redis_connection_url(redis_container)
     os.environ["DATABASE_URL"] = database_url
     os.environ["REDIS_URL"] = redis_url
     os.environ["MINIO_ENDPOINT"] = minio_settings.endpoint
@@ -241,6 +274,20 @@ async def client(app_fixture) -> AsyncGenerator[AsyncClient, None]:
             base_url="http://test",
         ) as http_client:
             yield http_client
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def reset_redis_store(redis_client: Redis):
+    idempotency_core.use_redis_client(redis_client)
+    await redis_client.flushdb()
+    try:
+        yield
+    finally:
+        try:
+            await redis_client.flushdb()
+        except (RedisConnectionError, RuntimeError):
+            # Best-effort cleanup; ignore if Redis is already unavailable or loop closed.
+            pass
 
 
 @pytest.fixture(autouse=True)

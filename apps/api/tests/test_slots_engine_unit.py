@@ -18,7 +18,8 @@ from app.core.pagination import (
 @given(
     st.datetimes(
         timezones=st.just(timezone.utc),
-        min_value=datetime(2020, 1, 1, tzinfo=timezone.utc),
+        min_value=datetime(2020, 1, 1),
+        max_value=datetime(2030, 1, 1),
     ),
     st.uuids(),
 )

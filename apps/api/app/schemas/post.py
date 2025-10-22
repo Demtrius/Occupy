@@ -31,3 +31,24 @@ class Post(PostBase):
     deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    likes_count: int = 0
+    comments_count: int = 0
+    liked_by_me: bool = False
+
+
+class Comment(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    post_id: UUID
+    user_id: UUID
+    body: str
+    parent_comment_id: Optional[UUID] = None
+    deleted_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class CommentCreate(BaseModel):
+    body: str
+    parent_comment_id: Optional[UUID] = None
