@@ -3,7 +3,7 @@ from __future__ import annotations
 import secrets
 from collections.abc import Iterable
 from datetime import datetime, timezone
-from typing import Sequence
+from typing import Any, Sequence
 from uuid import UUID
 
 from sqlalchemy import delete, select
@@ -17,6 +17,7 @@ from ..models.service import Service
 from ..models.availability import Availability
 from ..models.booking import Booking
 from ..models.post import Post
+from ..schemas.clique import Clique as CliqueSchema
 from ..schemas.clique import CliqueCreate, CliqueInviteCreate, CliqueUpdate
 
 
@@ -72,6 +73,42 @@ async def create_clique(
 
 async def get_clique_by_id(db: AsyncSession, clique_id: str) -> Clique | None:
     return await db.get(Clique, clique_id)
+
+
+async def get_clique_public(
+    db: AsyncSession, clique_id: str, requester_id: str | None
+) -> dict[str, Any] | None:
+    clique = await db.get(Clique, clique_id)
+    if not clique:
+        return None
+
+    is_owner_or_member = False
+    if requester_id:
+        if str(clique.owner_user_id) == requester_id:
+            is_owner_or_member = True
+        else:
+            membership = await db.scalar(
+                select(CliqueMember).where(
+                    CliqueMember.clique_id == clique_id,
+                    CliqueMember.user_id == requester_id,
+                    CliqueMember.status == MembershipStatus.JOINED,
+                )
+            )
+            if membership:
+                is_owner_or_member = True
+
+    if clique.privacy == Privacy.PRIVATE and not is_owner_or_member:
+        return {
+            "id": str(clique.id),
+            "name": clique.name,
+            "description": clique.description,
+            "privacy": clique.privacy.value,
+            "image_url": clique.image_url,
+            "timezone": clique.timezone,
+        }
+
+    full_view = CliqueSchema.model_validate(clique)
+    return full_view.model_dump(mode="json")
 
 
 async def join_clique(

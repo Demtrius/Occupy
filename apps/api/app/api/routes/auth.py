@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.auth import (
@@ -32,19 +33,26 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     )
     if existing:
         raise Conflict()
-    user = await create_user(
-        db,
-        user_data.email,
-        user_data.username,
-        hash_password(user_data.password),
-        user_data.full_name,
-        user_data.bio,
-        user_data.profile_image_url,
-        user_data.is_admin,
-        user_data.is_active,
-        user_data.is_private_account,
-        user_data.is_business_page,
-    )
+    try:
+        user = await create_user(
+            db,
+            user_data.email,
+            user_data.username,
+            hash_password(user_data.password),
+            user_data.full_name,
+            user_data.bio,
+            user_data.profile_image_url,
+            user_data.is_admin,
+            user_data.is_active,
+            user_data.is_private_account,
+            user_data.is_business_page,
+        )
+    except IntegrityError as exc:
+        await db.rollback()
+        message = str(getattr(exc, "orig", exc)).lower()
+        if "uq_users_username_ci" in message:
+            raise Conflict(message="Username already taken") from exc
+        raise Conflict() from exc
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token, refresh_jti, refresh_exp = create_refresh_token(
         {"sub": str(user.id)}

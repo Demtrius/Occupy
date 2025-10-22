@@ -5,7 +5,7 @@ from .availability import (
     AvailabilityUpdate,
     Slot,
 )
-from .booking import Booking, BookingCreate, BookingUpdate
+from .booking import Booking, BookingCreate, BookingReschedule, BookingUpdate
 from .chat import (
     Chat,
     ChatBase,
@@ -67,6 +67,7 @@ __all__ = [
     "Slot",
     "Booking",
     "BookingCreate",
+    "BookingReschedule",
     "BookingUpdate",
     "Chat",
     "ChatBase",

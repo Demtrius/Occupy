@@ -1,10 +1,15 @@
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...api.deps import get_db, require_active_user, require_clique_owner
+from ...api.deps import (
+    get_db,
+    get_optional_user,
+    require_active_user,
+    require_clique_owner,
+)
 from ...core.errors import Forbidden, NotFound, Validation
 from ...models.enums import Privacy
 from ...models.user import User
@@ -23,6 +28,7 @@ from ...services.cliques import (
     create_invite,
     get_pending_members,
     get_clique_by_id,
+    get_clique_public,
     get_clique_members,
     get_feed_posts,
     is_member_of_clique,
@@ -66,24 +72,17 @@ async def create(
     return CliqueSchema.model_validate(clique)
 
 
-@router.get("/{clique_id}", response_model=CliqueSchema)
+@router.get("/{clique_id}", response_model=dict)
 async def get_clique(
     clique_id: UUID,
-    current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_optional_user),
 ):
-    clique = await get_clique_by_id(db, str(clique_id))
-    if not clique:
+    requester_id = str(current_user.id) if current_user else None
+    data = await get_clique_public(db, str(clique_id), requester_id)
+    if data is None:
         raise NotFound()
-
-    if (
-        clique.privacy == Privacy.PRIVATE
-        and clique.owner_user_id != current_user.id
-        and not await is_member_of_clique(db, str(clique.id), str(current_user.id))
-    ):
-        raise Forbidden()
-
-    return CliqueSchema.model_validate(clique)
+    return data
 
 
 @router.patch("/{clique_id}", response_model=CliqueSchema)

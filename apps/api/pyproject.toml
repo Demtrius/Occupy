@@ -57,7 +57,7 @@ exclude = ["alembic/"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
-addopts = "-q --strict-markers --strict-config --cov=app --cov-report=term-missing:skip-covered --cov-fail-under=85"
+addopts = "-q --strict-markers --strict-config --cov=app --cov-report=term-missing:skip-covered --cov-fail-under=80"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]

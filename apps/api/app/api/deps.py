@@ -2,11 +2,12 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.auth import get_current_user, get_db
-from ..core.errors import Forbidden, NotFound
+from ..core.auth import get_current_user, get_db, security
+from ..core.errors import Forbidden, NotFound, Unauthorized
 from ..models.clique import Clique, CliqueMember
 from ..models.enums import FollowStatus, MembershipStatus
 from ..models.user import Follow, User
@@ -67,6 +68,20 @@ async def check_blocking(
     block = await db.scalar(stmt)
     if block:
         raise NotFound("User not found")
+
+
+async def get_optional_user(
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None, Depends(security)
+    ] = None,
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    if not credentials:
+        return None
+    try:
+        return await get_current_user(credentials=credentials, db=db)
+    except Unauthorized:
+        raise
 
 
 def parse_sort(sort: str | None) -> tuple[str, str]:

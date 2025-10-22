@@ -10,8 +10,9 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ExcludeConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base, TimestampMixin
@@ -66,5 +67,12 @@ class Booking(TimestampMixin, Base):
         Index("ix_bookings_service_id_start_ts", "service_id", "start_ts"),
         UniqueConstraint(
             "user_id", "idempotency_key", name="uq_bookings_user_idempotency"
+        ),
+        ExcludeConstraint(
+            ("clique_id", "="),
+            (text("tstzrange(start_ts, end_ts, '[]')"), "&&"),
+            where=text("status IN ('PENDING','CONFIRMED')"),
+            name="bookings_no_overlap",
+            using="gist",
         ),
     )

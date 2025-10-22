@@ -130,7 +130,11 @@ async def test_private_clique_requires_membership(client, db_session, make_token
         f"/api/v1/cliques/{clique.id}",
         headers=auth_headers(make_token(outsider)),
     )
-    assert response.status_code == 403
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["privacy"] == Privacy.PRIVATE.value
+    assert set(payload.keys()).issuperset({"id", "name", "description"})
+    assert "owner_user_id" not in payload
 
 
 @pytest.mark.asyncio

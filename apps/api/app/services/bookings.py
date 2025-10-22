@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta, timezone
 import hashlib
 import json
+from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -23,7 +24,8 @@ async def create_booking(
     idempotency_key: str | None,
 ) -> Booking:
     # Get service to calculate end_ts
-    service = await db.get(Service, service_id)
+    service_uuid = UUID(service_id)
+    service = await db.get(Service, service_uuid)
     if not service:
         raise ValueError("Service not found")
 
@@ -60,7 +62,7 @@ async def create_booking(
 
     # Check availability (simplified, check if any booking overlaps)
     overlap_stmt = select(Booking).where(
-        Booking.service_id == service_id,
+        Booking.clique_id == service.clique_id,
         Booking.status.in_([BookingStatus.PENDING, BookingStatus.CONFIRMED]),
         Booking.start_ts < end_dt,
         Booking.end_ts > start_dt,
@@ -71,7 +73,7 @@ async def create_booking(
 
     booking = Booking(
         user_id=user_id,
-        service_id=service_id,
+        service_id=service_uuid,
         clique_id=service.clique_id,
         start_ts=start_dt,
         end_ts=end_dt,
@@ -125,7 +127,8 @@ async def get_clique_bookings(
 async def confirm_booking(
     db: AsyncSession, booking_id: str, actor_user_id: str
 ) -> Booking | None:
-    booking = await db.get(Booking, booking_id)
+    booking_uuid = UUID(booking_id)
+    booking = await db.get(Booking, booking_uuid)
     if not booking:
         return None
 
@@ -145,13 +148,61 @@ async def confirm_booking(
     return booking
 
 
+async def reschedule_booking(
+    db: AsyncSession,
+    booking_id: str,
+    actor_user_id: str,
+    new_start_ts: datetime,
+) -> Booking | None:
+    booking_uuid = UUID(booking_id)
+    booking = await db.get(Booking, booking_uuid)
+    if not booking:
+        return None
+    if booking.status == BookingStatus.CANCELLED:
+        raise ValueError("Cannot reschedule a cancelled booking")
+    service = await db.get(Service, booking.service_id)
+    if not service:
+        raise ValueError("Service not found")
+    clique = await db.get(Clique, booking.clique_id)
+    if not clique:
+        raise ValueError("Booking is in an inconsistent state")
+
+    actor_is_booker = str(booking.user_id) == actor_user_id
+    actor_is_owner = str(clique.owner_user_id) == actor_user_id
+    if not (actor_is_booker or actor_is_owner):
+        raise ValueError("Not authorized to reschedule this booking")
+
+    if new_start_ts.tzinfo is None:
+        raise ValueError("start_ts must be timezone-aware")
+
+    new_end_ts = new_start_ts + timedelta(minutes=service.duration_minutes)
+
+    overlap_stmt = select(Booking).where(
+        Booking.clique_id == booking.clique_id,
+        Booking.id != booking.id,
+        Booking.status.in_([BookingStatus.PENDING, BookingStatus.CONFIRMED]),
+        Booking.start_ts < new_end_ts,
+        Booking.end_ts > new_start_ts,
+    )
+    overlap = await db.scalar(overlap_stmt)
+    if overlap:
+        raise ValueError("Time slot not available")
+
+    booking.start_ts = new_start_ts
+    booking.end_ts = new_end_ts
+    await db.commit()
+    await db.refresh(booking)
+    return booking
+
+
 async def cancel_booking(
     db: AsyncSession,
     booking_id: str,
     actor_user_id: str,
     reason: str | None,
 ) -> Booking | None:
-    booking = await db.get(Booking, booking_id)
+    booking_uuid = UUID(booking_id)
+    booking = await db.get(Booking, booking_uuid)
     if not booking:
         return None
 

@@ -5,13 +5,13 @@ from uuid import UUID, uuid4
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from redis.exceptions import RedisError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from .errors import Forbidden
+from .errors import Forbidden, Unauthorized
 from .redis import get_redis_client
 from ..models.user import User
 
@@ -126,27 +126,36 @@ async def revoke_refresh_token(jti: str) -> None:
         raise
 
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    token: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None, Depends(security)
+    ] = None,
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    payload = decode_token(token.credentials)
+    token: str | None = None
+    if credentials:
+        raw_credentials = getattr(credentials, "credentials", None)
+        scheme = getattr(credentials, "scheme", "Bearer")
+        if (
+            raw_credentials
+            and isinstance(raw_credentials, str)
+            and scheme.lower() == "bearer"
+        ):
+            token = raw_credentials.strip()
+    if not token:
+        raise Unauthorized(message="Missing or invalid token")
+    payload = decode_token(token)
     if payload is None:
-        raise credentials_exception
+        raise Unauthorized(message="Invalid token")
     user_id: str = payload.get("sub")
     if user_id is None:
-        raise credentials_exception
+        raise Unauthorized(message="Invalid token")
     user = await db.get(User, UUID(user_id))
-    if user is None or not user.is_active:
-        raise credentials_exception
+    if user is None:
+        raise Unauthorized(message="Invalid token")
     return user
 
 

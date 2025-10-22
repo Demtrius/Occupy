@@ -14,6 +14,10 @@ class BookingCreate(BaseModel):
     idempotency_key: Optional[str] = None
 
 
+class BookingReschedule(BaseModel):
+    start_ts: datetime
+
+
 class BookingUpdate(BaseModel):
     status: Optional[BookingStatus] = None
     cancelled_by: Optional[CancelledBy] = None

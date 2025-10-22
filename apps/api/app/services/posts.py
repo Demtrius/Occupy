@@ -7,6 +7,7 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.errors import Validation
 from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.clique import Clique
 from ..models.enums import PostStatus
@@ -117,21 +118,35 @@ async def create_comment(
     data: CommentCreate,
 ) -> CommentSchema:
     if not data.body.strip():
-        raise ValueError("Comment body cannot be empty")
-    post = await db.get(Post, post_id)
-    if not post or post.deleted_at is not None:
-        raise ValueError("Post not found")
+        raise Validation("Comment body cannot be empty")
+    try:
+        post_uuid = UUID(post_id)
+        user_uuid = UUID(user_id)
+    except (TypeError, ValueError) as exc:
+        raise Validation("Post not found") from exc
 
+    post = await db.get(Post, post_uuid)
+    if not post or post.deleted_at is not None:
+        raise Validation("Post not found")
+
+    parent_comment_id = None
     if data.parent_comment_id:
-        parent = await db.get(Comment, data.parent_comment_id)
-        if not parent or parent.post_id != post_id or parent.deleted_at is not None:
-            raise ValueError("Invalid parent comment")
+        try:
+            parent_uuid = UUID(str(data.parent_comment_id))
+        except (TypeError, ValueError) as exc:
+            raise Validation("Invalid parent comment") from exc
+        parent = await db.get(Comment, parent_uuid)
+        if not parent or parent.post_id != post_uuid or parent.deleted_at is not None:
+            raise Validation("Invalid parent comment")
+        if parent.parent_comment_id is not None:
+            raise Validation("Only one-level replies allowed")
+        parent_comment_id = parent_uuid
 
     comment = Comment(
-        post_id=post_id,
-        user_id=user_id,
+        post_id=post_uuid,
+        user_id=user_uuid,
         body=data.body,
-        parent_comment_id=data.parent_comment_id,
+        parent_comment_id=parent_comment_id,
     )
     db.add(comment)
     await db.commit()

@@ -6,13 +6,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...api.deps import get_db, require_active_user
 from ...core.errors import Conflict, Forbidden, NotFound, Validation
 from ...models.user import User
-from ...schemas import Booking as BookingSchema, BookingCreate, CursorPage
+from ...schemas import (
+    Booking as BookingSchema,
+    BookingCreate,
+    BookingReschedule,
+    CursorPage,
+)
 from ...services.bookings import (
     cancel_booking,
     confirm_booking,
     create_booking,
     get_clique_bookings,
     get_user_bookings,
+    reschedule_booking,
 )
 from ...services.cliques import get_clique_by_id
 
@@ -23,25 +29,27 @@ def _map_booking_error(exc: ValueError) -> Exception:
     message = str(exc)
     if message == "Service not found":
         return NotFound()
+    if message == "Booking is in an inconsistent state":
+        return Conflict()
+    if message in {
+        "Not authorized to confirm this booking",
+        "Not authorized to cancel this booking",
+        "Not authorized to reschedule this booking",
+    }:
+        return Forbidden()
+    if message in {
+        "start_ts must be timezone-aware",
+        "Cancellation cutoff has passed",
+        "Owner cancellation requires a reason",
+        "Cannot reschedule a cancelled booking",
+    }:
+        return Validation(message)
     if message in {
         "Time slot not available",
         "Could not create booking",
         "Cannot confirm a cancelled booking",
         "Idempotency key reused with different payload",
     }:
-        return Conflict()
-    if message in {
-        "start_ts must be timezone-aware",
-        "Cancellation cutoff has passed",
-        "Owner cancellation requires a reason",
-    }:
-        return Validation(message)
-    if message in {
-        "Not authorized to confirm this booking",
-        "Not authorized to cancel this booking",
-    }:
-        return Forbidden()
-    if message == "Booking is in an inconsistent state":
         return Conflict()
     return Validation(message)
 
@@ -63,6 +71,27 @@ async def create(
         )
     except ValueError as exc:
         raise _map_booking_error(exc)
+    return BookingSchema.model_validate(booking)
+
+
+@router.patch("/{booking_id}/reschedule", response_model=BookingSchema)
+async def reschedule_booking_route(
+    booking_id: UUID,
+    payload: BookingReschedule,
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        booking = await reschedule_booking(
+            db,
+            str(booking_id),
+            str(current_user.id),
+            payload.start_ts,
+        )
+    except ValueError as exc:
+        raise _map_booking_error(exc)
+    if booking is None:
+        raise NotFound()
     return BookingSchema.model_validate(booking)
 
 

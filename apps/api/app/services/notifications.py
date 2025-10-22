@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..models.enums import NotificationType
 from ..models.notification import Notification
 from ..schemas.notification import Notification as NotificationSchema
 
@@ -56,3 +57,15 @@ async def mark_all_notifications_as_read(db: AsyncSession, user_id: UUID) -> int
     result = await db.execute(stmt)
     await db.commit()
     return int(result.rowcount or 0)
+
+
+async def notify_follow(
+    db: AsyncSession, user_id: str, follower_id: str, status: str
+) -> None:
+    notification = Notification(
+        user_id=user_id,
+        type=NotificationType.FOLLOW,
+        payload={"follower_id": follower_id, "status": status},
+    )
+    db.add(notification)
+    await db.commit()

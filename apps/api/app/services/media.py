@@ -10,11 +10,19 @@ from minio import Minio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.errors import Validation
 from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.media import Media
 
-ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
+MAX_SIZE = 10_000_000
+
+
+def _validate_media(mime: str | None, size_bytes: int | None) -> None:
+    if not mime or mime not in ALLOWED_MIME:
+        raise Validation("Unsupported mime or size")
+    if size_bytes is None or size_bytes <= 0 or size_bytes > MAX_SIZE:
+        raise Validation("Unsupported mime or size")
 
 
 async def register_media(
@@ -25,6 +33,8 @@ async def register_media(
     size_bytes: int | None,
     meta: dict | None,
 ) -> Media:
+    _validate_media(mime, size_bytes)
+
     media = Media(
         owner_user_id=owner_user_id,
         url=url,
@@ -55,10 +65,7 @@ async def get_user_media(
 def generate_presigned_upload(
     purpose: str, mime: str, size_bytes: int
 ) -> dict[str, Any]:
-    if mime not in ALLOWED_MIME_TYPES:
-        raise ValueError("Unsupported media type")
-    if size_bytes > MAX_UPLOAD_BYTES:
-        raise ValueError("File exceeds maximum size")
+    _validate_media(mime, size_bytes)
 
     sanitized_purpose = _sanitize_purpose(purpose)
     client, bucket, base_path = _get_minio_client()

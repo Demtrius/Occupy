@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, parse_limit_cursor, require_active_user
@@ -111,6 +111,7 @@ async def delete_post_route(
     post = await _require_post(db, post_id)
     await _ensure_post_owner_or_clique_owner(db, post, current_user)
     await delete_post(db, str(post_id))
+    return Response(status_code=204)
 
 
 @router.post("/{post_id}/like", response_model=PostSchema)
@@ -170,6 +171,7 @@ async def delete_comment_route(
         if isinstance(exc, PermissionError):
             raise Forbidden()
         raise NotFound()
+    return Response(status_code=204)
 
 
 async def _require_post(db: AsyncSession, post_id: UUID) -> Post:

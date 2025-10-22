@@ -5,6 +5,7 @@ from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.enums import FollowStatus
 from ..models.user import Follow
 from ..schemas.user import Follow as FollowSchema
+from ..services.notifications import notify_follow
 
 
 def _to_schema(follow: Follow) -> FollowSchema:
@@ -61,6 +62,7 @@ async def follow_user(
     db.add(follow)
     await db.commit()
     await db.refresh(follow)
+    await notify_follow(db, followee_id, follower_id, follow.status.value)
     return _to_schema(follow)
 
 
@@ -94,6 +96,7 @@ async def approve_follow(
     follow.status = FollowStatus.ACCEPTED
     await db.commit()
     await db.refresh(follow)
+    await notify_follow(db, followee_id, follower_id, follow.status.value)
     return _to_schema(follow)
 
 

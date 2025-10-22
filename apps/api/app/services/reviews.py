@@ -1,6 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.errors import Validation
 from ..models.booking import Booking
 from ..models.review import Review
 
@@ -12,6 +13,10 @@ async def create_review(
     rating: int,
     comment: str | None,
 ) -> Review:
+    existing = await db.scalar(select(Review).where(Review.booking_id == booking_id))
+    if existing:
+        raise Validation("Review already exists")
+
     review = Review(
         booking_id=booking_id,
         rater_user_id=rater_user_id,

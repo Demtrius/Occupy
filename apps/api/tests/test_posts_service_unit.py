@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
+from app.core.errors import Validation
 from app.services.posts import (
     _aggregate_counts,
     _liked_post_ids,
@@ -92,7 +93,7 @@ async def test_create_comment_validation(db_session):
     await db_session.commit()
 
     empty_payload = CommentCreate(body="   ", parent_comment_id=None)
-    with pytest.raises(ValueError):
+    with pytest.raises(Validation):
         await create_comment(
             db_session, str(post.id), str(owner.id), data=empty_payload
         )

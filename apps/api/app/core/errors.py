@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 
 
 class ErrorResponse(BaseModel):
@@ -11,6 +11,8 @@ class ErrorResponse(BaseModel):
 
 
 class AppError(Exception):
+    status_code = 400
+
     """Base error that carries code/message/details for the response envelope."""
 
     def __init__(
@@ -27,6 +29,8 @@ class AppError(Exception):
 
 
 class NotFound(AppError):
+    status_code = 404
+
     def __init__(
         self,
         message: str = "Resource not found",
@@ -38,6 +42,8 @@ class NotFound(AppError):
 
 
 class Forbidden(AppError):
+    status_code = 403
+
     def __init__(
         self,
         message: str = "Access forbidden",
@@ -49,6 +55,8 @@ class Forbidden(AppError):
 
 
 class Validation(AppError):
+    status_code = 400
+
     def __init__(
         self,
         message: str,
@@ -60,6 +68,8 @@ class Validation(AppError):
 
 
 class Conflict(AppError):
+    status_code = 409
+
     def __init__(
         self,
         message: str = "Resource conflict",
@@ -71,6 +81,8 @@ class Conflict(AppError):
 
 
 class RateLimited(AppError):
+    status_code = 429
+
     def __init__(
         self,
         message: str = "Too many requests",
@@ -81,43 +93,74 @@ class RateLimited(AppError):
         super().__init__(message, code=code, details=details)
 
 
+class Unauthorized(AppError):
+    status_code = 401
+
+    def __init__(
+        self,
+        message: str = "Unauthorized",
+        *,
+        code: str = "unauthorized",
+        details: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message, code=code, details=details)
+
+
 def _build_error_payload(exc: AppError) -> dict[str, Any]:
     return {"code": exc.code, "message": exc.message, "details": exc.details}
 
 
-def not_found_handler(request: Request, exc: NotFound) -> JSONResponse:
+def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+    headers: dict[str, str] | None = None
+    if getattr(exc, "status_code", 400) == 401:
+        headers = {"WWW-Authenticate": "Bearer"}
     return JSONResponse(
-        status_code=404,
+        status_code=getattr(exc, "status_code", 400),
         content=ErrorResponse(error=_build_error_payload(exc)).model_dump(),
+        headers=headers,
     )
+
+
+def not_found_handler(request: Request, exc: NotFound) -> JSONResponse:
+    return app_error_handler(request, exc)
 
 
 def forbidden_handler(request: Request, exc: Forbidden) -> JSONResponse:
-    return JSONResponse(
-        status_code=403,
-        content=ErrorResponse(error=_build_error_payload(exc)).model_dump(),
-    )
+    return app_error_handler(request, exc)
 
 
 def validation_handler(request: Request, exc: Validation) -> JSONResponse:
-    return JSONResponse(
-        status_code=400,
-        content=ErrorResponse(error=_build_error_payload(exc)).model_dump(),
-    )
+    return app_error_handler(request, exc)
 
 
 def conflict_handler(request: Request, exc: Conflict) -> JSONResponse:
-    return JSONResponse(
-        status_code=409,
-        content=ErrorResponse(error=_build_error_payload(exc)).model_dump(),
-    )
+    return app_error_handler(request, exc)
 
 
 def rate_limited_handler(request: Request, exc: RateLimited) -> JSONResponse:
-    return JSONResponse(
-        status_code=429,
-        content=ErrorResponse(error=_build_error_payload(exc)).model_dump(),
-    )
+    return app_error_handler(request, exc)
+
+
+def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
+    message = str(getattr(exc, "orig", exc))
+    message_lower = message.lower()
+    if "uq_reviews_booking_id" in message_lower:
+        payload = ErrorResponse(
+            error={
+                "code": "validation_error",
+                "message": "Review already exists",
+                "details": {},
+            }
+        ).model_dump()
+        return JSONResponse(status_code=400, content=payload)
+    payload = ErrorResponse(
+        error={
+            "code": "validation_error",
+            "message": "Integrity constraint violated",
+            "details": {},
+        }
+    ).model_dump()
+    return JSONResponse(status_code=400, content=payload)
 
 
 def operational_error_handler(request: Request, exc: OperationalError) -> JSONResponse:

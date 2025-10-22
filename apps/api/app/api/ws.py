@@ -37,52 +37,87 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+async def _handle_chat_websocket(
+    websocket: WebSocket,
+    chat_id: str,
+    token: str,
+    db: AsyncSession,
+) -> None:
+    payload = decode_token(token)
+    user_id = payload.get("sub") if payload else None
+    if not user_id:
+        await websocket.close(code=1008)
+        return
+
+    stmt = select(Chat).where(Chat.id == chat_id)
+    result = await db.execute(stmt)
+    chat = result.scalar_one_or_none()
+    if not chat or user_id not in {
+        str(chat.business_user_id),
+        str(chat.client_user_id),
+    }:
+        await websocket.close(code=1008)
+        return
+
+    await manager.connect(chat_id, websocket)
+
+    try:
+        while True:
+            data = await websocket.receive_json()
+            message_type = data.get("type") or "message"
+            if message_type == "typing":
+                await manager.broadcast(chat_id, {"type": "typing", "user_id": user_id})
+                continue
+            if message_type == "message.delete":
+                await manager.broadcast(
+                    chat_id,
+                    {
+                        "type": "message.deleted",
+                        "user_id": user_id,
+                        "message_id": data.get("message_id"),
+                    },
+                )
+                continue
+            await manager.broadcast(
+                chat_id,
+                {
+                    "type": "message.created",
+                    "user_id": user_id,
+                    "content": data.get("content"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
+    except WebSocketDisconnect:
+        manager.disconnect(chat_id, websocket)
+    except Exception:
+        manager.disconnect(chat_id, websocket)
+        raise
+
+
 @router.websocket("/chat/{chat_id}")
 async def chat_websocket(
     websocket: WebSocket,
     chat_id: str,
     token: str = Query(...),
     db: AsyncSession = Depends(get_db),
-):
+) -> None:
     """WebSocket for real-time chat messaging."""
     try:
-        # Authenticate user
-        payload = decode_token(token)
-        user_id = payload.get("sub")
-        if not user_id:
-            await websocket.close(code=1008)
-            return
+        await _handle_chat_websocket(websocket, chat_id, token, db)
+    except Exception:
+        await websocket.close(code=1011)
 
-        # Check if user has access to chat
-        from sqlalchemy import select
 
-        stmt = select(Chat).where(Chat.id == chat_id)
-        result = await db.execute(stmt)
-        chat = result.scalar_one_or_none()
-        if not chat or user_id not in {
-            str(chat.business_user_id),
-            str(chat.client_user_id),
-        }:
-            await websocket.close(code=1008)
-            return
-
-        await manager.connect(chat_id, websocket)
-
-        try:
-            while True:
-                data = await websocket.receive_json()
-                # Broadcast message to all in chat
-                await manager.broadcast(
-                    chat_id,
-                    {
-                        "type": "message",
-                        "user_id": user_id,
-                        "content": data.get("content"),
-                        "timestamp": data.get("timestamp"),
-                    },
-                )
-        except WebSocketDisconnect:
-            manager.disconnect(chat_id, websocket)
+@router.websocket("/chat")
+async def chat_websocket_query(
+    websocket: WebSocket,
+    chat_id: str = Query(...),
+    token: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """WebSocket endpoint that accepts chat_id via query parameter."""
+    try:
+        await _handle_chat_websocket(websocket, chat_id, token, db)
     except Exception:
         await websocket.close(code=1011)
 

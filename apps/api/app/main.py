@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.middleware import SlowAPIMiddleware
-from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from .api.routes.auth import router as auth_router
@@ -20,22 +20,16 @@ from .api.routes.occupations import router as occupations_router
 from .api.routes.posts import router as posts_router
 from .api.routes.reviews import router as reviews_router
 from .api.routes.search import router as search_router
+from .api.routes.slots import router as slots_router
 from .api.routes.users import router as users_router
 from .api.ws import router as ws_router
 from .core.errors import (
-    Conflict,
-    Forbidden,
-    NotFound,
-    RateLimited,
-    Validation,
-    conflict_handler,
-    forbidden_handler,
+    AppError,
+    app_error_handler,
     http_exception_handler,
-    not_found_handler,
+    integrity_error_handler,
     operational_error_handler,
     programming_error_handler,
-    rate_limited_handler,
-    validation_handler,
 )
 from .core.limiter import limiter
 
@@ -61,11 +55,8 @@ app.add_middleware(
 )
 
 # Exception handlers
-app.add_exception_handler(NotFound, not_found_handler)
-app.add_exception_handler(Forbidden, forbidden_handler)
-app.add_exception_handler(Validation, validation_handler)
-app.add_exception_handler(Conflict, conflict_handler)
-app.add_exception_handler(RateLimited, rate_limited_handler)
+app.add_exception_handler(AppError, app_error_handler)
+app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(OperationalError, operational_error_handler)
 app.add_exception_handler(ProgrammingError, programming_error_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
@@ -90,6 +81,7 @@ app.include_router(messages_router, prefix="/api/v1")
 app.include_router(occupations_router, prefix="/api/v1")
 app.include_router(business_services_router, prefix="/api/v1")
 app.include_router(availability_router, prefix="/api/v1")
+app.include_router(slots_router, prefix="/api/v1")
 
 # WebSocket routes
 app.include_router(ws_router, prefix="/ws")
