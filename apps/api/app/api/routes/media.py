@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Query, status, Body
+from pydantic import AliasChoices
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -40,9 +41,10 @@ router = APIRouter(prefix="/api/v1/media", tags=["Media"])
     openapi_extra=secured(),
 )
 async def presign_upload(
-    mime: str = Query(..., description="MIME type of the file to be uploaded."),
+    mime: str = Query(..., validation_alias=AliasChoices("mimeType", "mime"), serialization_alias="mimeType", description="MIME type of the file to be uploaded."),
     size_bytes: int = Query(
         ...,
+        alias="sizeBytes",
         description="Planned upload size in bytes.",
         ge=1,
     ),
@@ -69,7 +71,7 @@ async def presign_upload(
             "description": "Media registered",
             "content": {
                 "application/json": {
-                    "example": {"media_id": "28c77070-40a9-4478-b6a6-319d1490d0dd"}
+                     "example": {"mediaId": "28c77070-40a9-4478-b6a6-319d1490d0dd"}
                 }
             },
         },
@@ -103,4 +105,4 @@ async def register_uploaded(
         data.size_bytes,
         data.meta,
     )
-    return {"media_id": media.id}
+    return {"mediaId": str(media.id)}

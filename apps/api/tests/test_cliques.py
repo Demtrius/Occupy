@@ -88,7 +88,7 @@ async def test_join_and_list_members(client, db_session, make_token):
     assert members_response.status_code == 200
     payload = members_response.json()
     assert_cursor_page(payload)
-    member_ids = {member["user_id"] for member in payload["items"]}
+    member_ids = {member["userId"] for member in payload["items"]}
     assert str(joiner.id) in member_ids
 
 
@@ -149,12 +149,12 @@ async def test_private_clique_invite_and_approval(client, db_session, make_token
         json={},
         headers=auth_headers(make_token(owner)),
     )
-    assert invite_resp.status_code == 200
+    assert invite_resp.status_code == 201
     token = invite_resp.json()["token"]
 
     join_resp = await client.post(
         f"/api/v1/cliques/{clique.id}/join",
-        params={"invite_token": token},
+        params={"inviteToken": token},
         headers=auth_headers(make_token(invitee)),
     )
     assert join_resp.status_code == 200

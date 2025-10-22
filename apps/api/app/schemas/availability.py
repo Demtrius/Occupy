@@ -4,10 +4,12 @@ from datetime import time as TimeType
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from app.schemas.base import BaseSchema
 
 
-class AvailabilityBase(BaseModel):
+class AvailabilityBase(BaseSchema):
     is_recurring: bool
     date: Optional[DateType] = None
     day_of_week: Optional[int] = Field(None, ge=0, le=6)
@@ -22,7 +24,7 @@ class AvailabilityCreate(AvailabilityBase):
     pass
 
 
-class AvailabilityUpdate(BaseModel):
+class AvailabilityUpdate(BaseSchema):
     is_recurring: Optional[bool] = None
     date: Optional[DateType] = None
     day_of_week: Optional[int] = Field(None, ge=0, le=6)
@@ -34,15 +36,13 @@ class AvailabilityUpdate(BaseModel):
 
 
 class Availability(AvailabilityBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     clique_id: UUID
     created_at: datetime
     updated_at: datetime
 
 
-class Slot(BaseModel):
+class Slot(BaseSchema):
     start_time: TimeType
     end_time: TimeType
     service_id: UUID

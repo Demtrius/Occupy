@@ -38,21 +38,21 @@ router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
             "content": {
                 "application/json": {
                     "example": {
-                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "user": {
                             "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
                             "email": "founder@example.com",
                             "username": "clique_founder",
-                            "full_name": "Clique Founder",
+                            "fullName": "Clique Founder",
                             "bio": "Owner of Clique Salon",
-                            "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
-                            "is_admin": False,
-                            "is_active": True,
-                            "is_private_account": False,
-                            "is_business_page": True,
-                            "created_at": "2024-03-01T09:00:00Z",
-                            "updated_at": "2024-03-01T09:00:00Z",
+                            "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+                            "isAdmin": False,
+                            "isActive": True,
+                            "isPrivateAccount": False,
+                            "isBusinessPage": True,
+                            "createdAt": "2024-03-01T09:00:00Z",
+                            "updatedAt": "2024-03-01T09:00:00Z",
                         },
                     }
                 }
@@ -72,10 +72,10 @@ async def register(
                     "email": "founder@example.com",
                     "username": "clique_founder",
                     "password": "Sup3rSecure!",
-                    "full_name": "Clique Founder",
+                    "fullName": "Clique Founder",
                     "bio": "Specialist in curated beauty services.",
-                    "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
-                    "is_business_page": True,
+                    "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+                    "isBusinessPage": True,
                 },
             }
         },
@@ -133,21 +133,21 @@ async def register(
             "content": {
                 "application/json": {
                     "example": {
-                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "user": {
                             "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
                             "email": "founder@example.com",
                             "username": "clique_founder",
-                            "full_name": "Clique Founder",
+                            "fullName": "Clique Founder",
                             "bio": "Owner of Clique Salon",
-                            "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
-                            "is_admin": False,
-                            "is_active": True,
-                            "is_private_account": False,
-                            "is_business_page": True,
-                            "created_at": "2024-03-01T09:00:00Z",
-                            "updated_at": "2024-03-01T09:00:00Z",
+                            "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+                            "isAdmin": False,
+                            "isActive": True,
+                            "isPrivateAccount": False,
+                            "isBusinessPage": True,
+                            "createdAt": "2024-03-01T09:00:00Z",
+                            "updatedAt": "2024-03-01T09:00:00Z",
                         },
                     }
                 }
@@ -164,7 +164,7 @@ async def login(
             "by_email": {
                 "summary": "Email login",
                 "value": {
-                    "email_or_username": "founder@example.com",
+                    "emailOrUsername": "founder@example.com",
                     "password": "Sup3rSecure!",
                 },
             }
@@ -207,7 +207,7 @@ async def refresh(
         examples={
             "standard": {
                 "summary": "Refresh token",
-                "value": {"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."},
+                "value": {"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."},
             }
         },
     ),

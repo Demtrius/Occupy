@@ -103,12 +103,12 @@ async def get_clique_public(
             "name": clique.name,
             "description": clique.description,
             "privacy": clique.privacy.value,
-            "image_url": clique.image_url,
+            "imageUrl": clique.image_url,
             "timezone": clique.timezone,
         }
 
     full_view = CliqueSchema.model_validate(clique)
-    return full_view.model_dump(mode="json")
+    return full_view.model_dump(mode="json", by_alias=True)
 
 
 async def join_clique(

@@ -2,12 +2,14 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import EmailStr, Field
+
+from app.schemas.base import BaseSchema
 
 from ..models.enums import FollowStatus
 
 
-class UserBase(BaseModel):
+class UserBase(BaseSchema):
     email: EmailStr
     username: str = Field(min_length=3, max_length=32)
     full_name: Optional[str] = None
@@ -23,7 +25,7 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(BaseSchema):
     full_name: Optional[str] = None
     bio: Optional[str] = None
     profile_image_url: Optional[str] = None
@@ -31,31 +33,27 @@ class UserUpdate(BaseModel):
 
 
 class User(UserBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     created_at: datetime
     updated_at: datetime
 
 
-class LoginRequest(BaseModel):
+class LoginRequest(BaseSchema):
     email_or_username: str
     password: str
 
 
-class RefreshRequest(BaseModel):
+class RefreshRequest(BaseSchema):
     refresh_token: str
 
 
-class TokenRead(BaseModel):
+class TokenRead(BaseSchema):
     access_token: str
     refresh_token: str
     user: User
 
 
-class Follow(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class Follow(BaseSchema):
     id: UUID
     follower_user_id: UUID
     followee_user_id: UUID

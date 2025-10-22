@@ -120,7 +120,7 @@ async def test_list_reviews_returns_average(client, db_session, make_token):
     assert response.status_code == 200
     payload = response.json()
     assert "items" in payload and len(payload["items"]) == 2
-    returned_ids = {item["booking_id"] for item in payload["items"]}
+    returned_ids = {item["bookingId"] for item in payload["items"]}
     assert returned_ids == {str(booking_one.id), str(booking_two.id)}
     assert payload["meta"]["average_rating"] == pytest.approx(4.0)
 

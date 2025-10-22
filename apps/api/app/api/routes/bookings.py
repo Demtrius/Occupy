@@ -1,6 +1,8 @@
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Path, status
+from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -18,6 +20,7 @@ from ...schemas import (
     BookingReschedule,
     CursorPageBookings,
 )
+from ...schemas.base import BaseSchema
 from ...services.bookings import (
     cancel_booking,
     confirm_booking,
@@ -29,6 +32,29 @@ from ...services.bookings import (
 from ...services.cliques import get_clique_by_id
 
 router = APIRouter(prefix="/api/v1/bookings", tags=["Bookings"])
+
+
+class BookingListParams(BaseSchema):
+    status: str | None = Field(
+        default=None,
+        description="Filter by booking status (pending, confirmed, completed)",
+    )
+    cursor: str | None = Field(
+        default=None, description="Opaque pagination cursor from `nextCursor`."
+    )
+    limit: int = Field(
+        default=20,
+        ge=1,
+        le=100,
+        description="Page size (default 20, max 100)",
+    )
+
+
+class BookingCancelParams(BaseSchema):
+    reason: str | None = Field(
+        default=None,
+        description="Reason for cancellation when performed by the clique owner",
+    )
 
 
 def _map_booking_error(exc: ValueError) -> Exception:
@@ -73,18 +99,18 @@ def _map_booking_error(exc: ValueError) -> Exception:
                 "application/json": {
                     "example": {
                         "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
-                        "service_id": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
-                        "clique_id": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
-                        "user_id": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                        "start_ts": "2024-04-02T14:00:00Z",
-                        "end_ts": "2024-04-02T15:00:00Z",
+                        "serviceId": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
+                        "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+                        "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+                        "startTs": "2024-04-02T14:00:00Z",
+                        "endTs": "2024-04-02T15:00:00Z",
                         "status": "pending",
-                        "cancelled_by": None,
-                        "cancellation_reason": None,
+                        "cancelledBy": None,
+                        "cancellationReason": None,
                         "note": "Please prepare the studio for a product shoot.",
-                        "idempotency_key": "booking-20240402",
-                        "created_at": "2024-04-01T10:00:00Z",
-                        "updated_at": "2024-04-01T10:00:00Z",
+                        "idempotencyKey": "booking-20240402",
+                        "createdAt": "2024-04-01T10:00:00Z",
+                        "updatedAt": "2024-04-01T10:00:00Z",
                     }
                 }
             },
@@ -100,10 +126,10 @@ async def create(
             "standard": {
                 "summary": "Book a service",
                 "value": {
-                    "service_id": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
-                    "start_ts": "2024-04-02T14:00:00Z",
+                    "serviceId": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
+                    "startTs": "2024-04-02T14:00:00Z",
                     "note": "Please prepare the studio for a product shoot.",
-                    "idempotency_key": "booking-20240402",
+                    "idempotencyKey": "booking-20240402",
                 },
             }
         },
@@ -126,7 +152,7 @@ async def create(
 
 
 @router.patch(
-    "/{booking_id}/reschedule",
+    "/{bookingId}/reschedule",
     summary="Reschedule booking",
     description="Move a pending booking to a new start time.",
     response_model=BookingSchema,
@@ -137,8 +163,8 @@ async def create(
                 "application/json": {
                     "example": {
                         "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
-                        "start_ts": "2024-04-03T16:00:00Z",
-                        "end_ts": "2024-04-03T17:00:00Z",
+                        "startTs": "2024-04-03T16:00:00Z",
+                        "endTs": "2024-04-03T17:00:00Z",
                         "status": "pending",
                     }
                 }
@@ -149,13 +175,13 @@ async def create(
     openapi_extra=secured(),
 )
 async def reschedule_booking_route(
-    booking_id: UUID,
+    booking_id: Annotated[UUID, Path(alias="bookingId")],
     payload: BookingReschedule = Body(
         ...,
         examples={
             "new_time": {
                 "summary": "Reschedule to a later slot",
-                "value": {"start_ts": "2024-04-03T16:00:00Z"},
+                "value": {"startTs": "2024-04-03T16:00:00Z"},
             }
         },
     ),
@@ -188,26 +214,16 @@ async def reschedule_booking_route(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_my_bookings(
+    params: BookingListParams = Depends(),
     current_user: User = Depends(require_active_user),
-    status: str | None = Query(
-        None, description="Filter by booking status (pending, confirmed, completed)"
-    ),
-    cursor: str | None = Query(
-        None, include_in_schema=False, description="Opaque pagination cursor"
-    ),
-    limit: int = Query(
-        20,
-        ge=1,
-        le=100,
-        include_in_schema=False,
-        description="Page size (default 20, max 100)",
-    ),
     db: AsyncSession = Depends(get_db),
 ):
-    limit = min(max(limit, 1), 100)
+    status_filter = params.status
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
     try:
         bookings, next_cursor = await get_user_bookings(
-            db, str(current_user.id), status, cursor, limit
+            db, str(current_user.id), status_filter, cursor, limit
         )
     except ValueError as exc:
         raise _map_booking_error(exc)
@@ -216,7 +232,7 @@ async def list_my_bookings(
 
 
 @router.get(
-    "/cliques/{clique_id}",
+    "/cliques/{cliqueId}",
     summary="List clique bookings",
     description="Paginated bookings for a clique. Only the owner can access.",
     response_model=CursorPageBookings,
@@ -227,20 +243,8 @@ async def list_my_bookings(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_clique_bookings(
-    clique_id: UUID,
-    status: str | None = Query(
-        None, description="Filter by booking status (pending, confirmed, completed)"
-    ),
-    cursor: str | None = Query(
-        None, include_in_schema=False, description="Opaque pagination cursor"
-    ),
-    limit: int = Query(
-        20,
-        ge=1,
-        le=100,
-        include_in_schema=False,
-        description="Page size (default 20, max 100)",
-    ),
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    params: BookingListParams = Depends(),
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -250,10 +254,12 @@ async def list_clique_bookings(
     if clique.owner_user_id != current_user.id:
         raise Forbidden()
 
-    limit = min(max(limit, 1), 100)
+    status_filter = params.status
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
     try:
         bookings, next_cursor = await get_clique_bookings(
-            db, str(clique_id), status, cursor, limit
+            db, str(clique_id), status_filter, cursor, limit
         )
     except ValueError as exc:
         raise _map_booking_error(exc)
@@ -262,7 +268,7 @@ async def list_clique_bookings(
 
 
 @router.post(
-    "/{booking_id}/confirm",
+    "/{bookingId}/confirm",
     summary="Confirm booking",
     description="Clique owner confirms a pending booking.",
     response_model=BookingSchema,
@@ -273,7 +279,7 @@ async def list_clique_bookings(
     openapi_extra=secured(),
 )
 async def confirm(
-    booking_id: UUID,
+    booking_id: Annotated[UUID, Path(alias="bookingId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -287,7 +293,7 @@ async def confirm(
 
 
 @router.post(
-    "/{booking_id}/cancel",
+    "/{bookingId}/cancel",
     summary="Cancel booking",
     description="Cancel a booking as the owner or the customer. Optional reason required for owners.",
     response_model=BookingSchema,
@@ -299,7 +305,7 @@ async def confirm(
                     "example": {
                         "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
                         "status": "cancelled",
-                        "cancellation_reason": "Client unavailable",
+                        "cancellationReason": "Client unavailable",
                     }
                 }
             },
@@ -309,17 +315,14 @@ async def confirm(
     openapi_extra=secured(),
 )
 async def cancel(
-    booking_id: UUID,
-    reason: str | None = Query(
-        None,
-        description="Reason for cancellation when performed by the clique owner",
-    ),
+    booking_id: Annotated[UUID, Path(alias="bookingId")],
+    params: BookingCancelParams = Depends(),
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     try:
         booking = await cancel_booking(
-            db, str(booking_id), str(current_user.id), reason
+            db, str(booking_id), str(current_user.id), params.reason
         )
     except ValueError as exc:
         raise _map_booking_error(exc)

@@ -27,7 +27,7 @@ async def test_auth_register_login_refresh_logout_flow(client):
     register = await client.post("/api/v1/auth/register", json=register_payload)
     assert register.status_code == 201
     tokens = register.json()
-    assert "access_token" in tokens
+    assert "accessToken" in tokens
 
     duplicate = await client.post("/api/v1/auth/register", json=register_payload)
     assert duplicate.status_code == 409
@@ -45,21 +45,21 @@ async def test_auth_register_login_refresh_logout_flow(client):
 
     refresh = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": login_tokens["refresh_token"]},
+        json={"refreshToken": login_tokens["refreshToken"]},
     )
     assert refresh.status_code == 200
     refreshed = refresh.json()
 
     logout = await client.post(
         "/api/v1/auth/logout",
-        json={"refresh_token": login_tokens["refresh_token"]},
-        headers=auth_headers(tokens["access_token"]),
+        json={"refreshToken": login_tokens["refreshToken"]},
+        headers=auth_headers(tokens["accessToken"]),
     )
     assert logout.status_code == 200
 
     reuse_refresh = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": login_tokens["refresh_token"]},
+        json={"refreshToken": login_tokens["refreshToken"]},
     )
     assert reuse_refresh.status_code == 401
     assert_error(reuse_refresh, "http_error")
@@ -143,7 +143,7 @@ async def test_refresh_revoked_token(client, monkeypatch):
 
     response = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": tokens["refresh_token"]},
+        json={"refreshToken": tokens["refreshToken"]},
     )
     assert response.status_code == 401
     assert_error(response, "http_error")
@@ -171,7 +171,7 @@ async def test_refresh_store_failure_after_revoke(client, monkeypatch):
 
     response = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": tokens["refresh_token"]},
+        json={"refreshToken": tokens["refreshToken"]},
     )
     assert response.status_code == 503
     assert_error(response, "http_error")
@@ -187,8 +187,8 @@ async def test_logout_invalid_refresh_token(client):
 
     response = await client.post(
         "/api/v1/auth/logout",
-        json={"refresh_token": "junk"},
-        headers=auth_headers(tokens["access_token"]),
+        json={"refreshToken": "junk"},
+        headers=auth_headers(tokens["accessToken"]),
     )
     assert response.status_code == 401
     assert_error(response, "http_error")
@@ -213,8 +213,8 @@ async def test_logout_revoke_failure(client, monkeypatch):
 
     response = await client.post(
         "/api/v1/auth/logout",
-        json={"refresh_token": tokens["refresh_token"]},
-        headers=auth_headers(tokens["access_token"]),
+        json={"refreshToken": tokens["refreshToken"]},
+        headers=auth_headers(tokens["accessToken"]),
     )
     assert response.status_code == 503
     assert_error(response, "http_error")

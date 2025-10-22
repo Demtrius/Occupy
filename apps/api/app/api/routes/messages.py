@@ -1,7 +1,7 @@
-from typing import List
+from typing import Annotated, List
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Path, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api/v1/messages", tags=["Messaging"])
 
 
 @router.get(
-    "/{chat_id}",
+    "/{chatId}",
     summary="List chat messages",
     description="Return the latest messages in a chat the user participates in.",
     response_model=List[MessageSchema],
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/api/v1/messages", tags=["Messaging"])
     openapi_extra=secured(),
 )
 async def list_messages(
-    chat_id: UUID,
+    chatId: Annotated[UUID, Path(alias="chatId")],
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
@@ -36,17 +36,17 @@ async def list_messages(
 ):
     """List messages in a chat."""
     # Check if user has access to chat
-    chat = await get_chat_by_id(db, chat_id)
+    chat = await get_chat_by_id(db, chatId)
     if not chat or (
         chat.business_user_id != current_user.id
         and chat.client_user_id != current_user.id
     ):
         raise NotFound("Chat not found")
-    return await get_chat_messages(db, chat_id, limit, offset)
+    return await get_chat_messages(db, chatId, limit, offset)
 
 
 @router.post(
-    "/{chat_id}",
+    "/{chatId}",
     summary="Send message",
     description="Send a message in a chat between a client and a business.",
     response_model=MessageSchema,
@@ -58,7 +58,7 @@ async def list_messages(
     openapi_extra=secured(),
 )
 async def create_message(
-    chat_id: UUID,
+    chatId: Annotated[UUID, Path(alias="chatId")],
     message: MessageCreate = Body(
         ...,
         examples={
@@ -73,17 +73,17 @@ async def create_message(
 ):
     """Send a message in a chat."""
     # Check if user has access to chat
-    chat = await get_chat_by_id(db, chat_id)
+    chat = await get_chat_by_id(db, chatId)
     if not chat or (
         chat.business_user_id != current_user.id
         and chat.client_user_id != current_user.id
     ):
         raise NotFound("Chat not found")
-    return await send_message(db, chat_id, current_user.id, message)
+    return await send_message(db, chatId, current_user.id, message)
 
 
 @router.delete(
-    "/{message_id}",
+    "/{messageId}",
     summary="Delete message",
     description="Delete a message sent by the current user.",
     response_model=dict[str, str],
@@ -99,12 +99,12 @@ async def create_message(
     openapi_extra=secured(),
 )
 async def remove_message(
-    message_id: UUID,
+    messageId: Annotated[UUID, Path(alias="messageId")],
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
     """Delete a message (only by sender)."""
-    success = await delete_message(db, message_id, current_user.id)
+    success = await delete_message(db, messageId, current_user.id)
     if not success:
         raise NotFound("Message not found or not authorized")
     return {"message": "Message deleted"}

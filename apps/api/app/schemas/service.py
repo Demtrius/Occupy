@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class ServiceBase(BaseModel):
+class ServiceBase(BaseSchema):
     title: str
     description: Optional[str] = None
     price_minor: Optional[int] = None
@@ -19,7 +19,7 @@ class ServiceCreate(ServiceBase):
     pass
 
 
-class ServiceUpdate(BaseModel):
+class ServiceUpdate(BaseSchema):
     title: Optional[str] = None
     description: Optional[str] = None
     price_minor: Optional[int] = None
@@ -29,8 +29,6 @@ class ServiceUpdate(BaseModel):
 
 
 class Service(ServiceBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     clique_id: UUID
     created_at: datetime

@@ -1,7 +1,8 @@
-from typing import List
+from typing import Annotated, List
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Path, status
+from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user, require_clique_owner
@@ -22,8 +23,13 @@ from ...services.availability import (
     update_availability,
 )
 from ...services.cliques import get_clique_by_id, is_member_of_clique
+from ...schemas.base import BaseSchema
 
 router = APIRouter(prefix="/api/v1/availability", tags=["Availability"])
+
+
+class AvailabilityCreateParams(BaseSchema):
+    clique_id: UUID = Field(..., description="Clique owning the availability")
 
 
 @router.post(
@@ -39,17 +45,17 @@ router = APIRouter(prefix="/api/v1/availability", tags=["Availability"])
     openapi_extra=secured(),
 )
 async def create_availability_endpoint(
-    clique_id: UUID = Query(..., description="Clique owning the availability"),
+    params: AvailabilityCreateParams = Depends(),
     availability: AvailabilityCreate = Body(
         ...,
         examples={
             "weekday": {
                 "summary": "Weekly recurring hours",
                 "value": {
-                    "is_recurring": True,
-                    "day_of_week": 4,
-                    "start_time": "09:00:00",
-                    "end_time": "17:00:00",
+                    "isRecurring": True,
+                    "dayOfWeek": 4,
+                    "startTime": "09:00:00",
+                    "endTime": "17:00:00",
                     "timezone": "UTC",
                 },
             }
@@ -58,6 +64,7 @@ async def create_availability_endpoint(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
+    clique_id = params.clique_id
     await require_clique_owner(clique_id, current_user, db)
     try:
         return await create_availability(db, clique_id, availability)
@@ -66,7 +73,7 @@ async def create_availability_endpoint(
 
 
 @router.get(
-    "/{clique_id}",
+    "/{cliqueId}",
     summary="List clique availability",
     description="Return available booking windows visible to the current user.",
     response_model=List[AvailabilitySchema],
@@ -77,7 +84,7 @@ async def create_availability_endpoint(
     openapi_extra=secured(),
 )
 async def list_clique_availability(
-    clique_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
@@ -92,7 +99,7 @@ async def list_clique_availability(
 
 
 @router.put(
-    "/{availability_id}",
+    "/{availabilityId}",
     summary="Update availability window",
     description="Modify the timing or cadence of an availability window.",
     response_model=AvailabilitySchema,
@@ -103,13 +110,13 @@ async def list_clique_availability(
     openapi_extra=secured(),
 )
 async def update_availability_endpoint(
-    availability_id: UUID,
+    availability_id: Annotated[UUID, Path(alias="availabilityId")],
     availability_update: AvailabilityUpdate = Body(
         ...,
         examples={
             "shorter_window": {
                 "summary": "Adjust time range",
-                "value": {"start_time": "10:00:00", "end_time": "15:00:00"},
+                "value": {"startTime": "10:00:00", "endTime": "15:00:00"},
             }
         },
     ),
@@ -130,7 +137,7 @@ async def update_availability_endpoint(
 
 
 @router.delete(
-    "/{availability_id}",
+    "/{availabilityId}",
     summary="Delete availability window",
     description="Remove an availability window owned by the clique.",
     response_model=dict[str, str],
@@ -146,7 +153,7 @@ async def update_availability_endpoint(
     openapi_extra=secured(),
 )
 async def delete_availability_endpoint(
-    availability_id: UUID,
+    availability_id: Annotated[UUID, Path(alias="availabilityId")],
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):

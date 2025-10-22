@@ -2,10 +2,12 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from app.schemas.base import BaseSchema
 
 
-class ReviewBase(BaseModel):
+class ReviewBase(BaseSchema):
     rating: int = Field(ge=1, le=5)
     comment: Optional[str] = None
 
@@ -14,14 +16,12 @@ class ReviewCreate(ReviewBase):
     pass
 
 
-class ReviewUpdate(BaseModel):
+class ReviewUpdate(BaseSchema):
     rating: Optional[int] = Field(None, ge=1, le=5)
     comment: Optional[str] = None
 
 
 class Review(ReviewBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     booking_id: UUID
     rater_user_id: UUID

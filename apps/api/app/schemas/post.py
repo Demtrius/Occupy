@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 from ..models.enums import ContentFormat, PostStatus
 
 
-class PostBase(BaseModel):
+class PostBase(BaseSchema):
     content_format: ContentFormat = ContentFormat.MARKDOWN
     content: str
     status: PostStatus = PostStatus.DRAFT
@@ -17,14 +17,12 @@ class PostCreate(PostBase):
     pass
 
 
-class PostUpdate(BaseModel):
+class PostUpdate(BaseSchema):
     content: Optional[str] = None
     status: Optional[PostStatus] = None
 
 
 class Post(PostBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     clique_id: UUID
     author_user_id: UUID
@@ -36,9 +34,7 @@ class Post(PostBase):
     liked_by_me: bool = False
 
 
-class Comment(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class Comment(BaseSchema):
     id: UUID
     post_id: UUID
     user_id: UUID
@@ -49,6 +45,6 @@ class Comment(BaseModel):
     updated_at: datetime
 
 
-class CommentCreate(BaseModel):
+class CommentCreate(BaseSchema):
     body: str
     parent_comment_id: Optional[UUID] = None

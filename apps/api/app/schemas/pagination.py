@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 
-class CursorPage[T](BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
+class CursorPage[T](BaseSchema):
     items: list[T]
-    next_cursor: str | None = Field(default=None, alias="nextCursor")
+    next_cursor: str | None = None
     meta: dict[str, Any] | None = None

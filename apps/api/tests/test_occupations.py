@@ -17,7 +17,7 @@ async def test_list_and_search_occupations(client, db_session):
     db_session.add_all(occupations)
     await db_session.commit()
 
-    list_resp = await client.get("/api/v1/occupations/")
+    list_resp = await client.get("/api/v1/occupations")
     assert list_resp.status_code == 200
     names = {item["name"] for item in list_resp.json()}
     assert {"Barber", "Stylist"}.issubset(names)

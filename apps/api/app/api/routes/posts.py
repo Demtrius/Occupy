@@ -1,6 +1,7 @@
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, Response, status
+from fastapi import APIRouter, Body, Depends, Path, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, parse_limit_cursor, require_active_user
@@ -34,7 +35,7 @@ router = APIRouter(prefix="/api/v1/posts", tags=["Posts"])
 
 
 @router.post(
-    "/cliques/{clique_id}/posts",
+    "/cliques/{cliqueId}/posts",
     summary="Create post in clique",
     description="Clique owners create posts to share updates with members.",
     response_model=PostSchema,
@@ -44,17 +45,18 @@ router = APIRouter(prefix="/api/v1/posts", tags=["Posts"])
             "description": "Post created",
             "content": {
                 "application/json": {
-                    "example": {
-                        "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                        "clique_id": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
-                        "author_user_id": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                        "content": "✨ Spring product launch this Friday at 5pm!",
-                        "status": "posted",
-                        "like_count": 0,
-                        "comment_count": 0,
-                        "created_at": "2024-04-01T12:00:00Z",
-                        "updated_at": "2024-04-01T12:00:00Z",
-                    }
+                     "example": {
+                         "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                         "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+                         "authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+                         "content": "✨ Spring product launch this Friday at 5pm!",
+                         "status": "posted",
+                         "likesCount": 0,
+                         "commentsCount": 0,
+                         "likedByMe": False,
+                         "createdAt": "2024-04-01T12:00:00Z",
+                         "updatedAt": "2024-04-01T12:00:00Z",
+                     }
                 }
             },
         },
@@ -63,7 +65,7 @@ router = APIRouter(prefix="/api/v1/posts", tags=["Posts"])
     openapi_extra=secured(),
 )
 async def create_post_route(
-    clique_id: UUID,
+    cliqueId: Annotated[UUID, Path(alias="cliqueId")],
     data: PostCreate = Body(
         ...,
         examples={
@@ -79,7 +81,7 @@ async def create_post_route(
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    clique = await get_clique_by_id(db, str(clique_id))
+    clique = await get_clique_by_id(db, str(cliqueId))
     if not clique:
         raise NotFound()
     if clique.owner_user_id != current_user.id:
@@ -87,7 +89,7 @@ async def create_post_route(
     post = await create_post(
         db,
         str(current_user.id),
-        str(clique_id),
+        str(cliqueId),
         data.content,
         data.status or PostStatus.DRAFT,
     )
@@ -95,7 +97,7 @@ async def create_post_route(
 
 
 @router.get(
-    "/cliques/{clique_id}/posts",
+    "/cliques/{cliqueId}/posts",
     summary="List clique posts",
     description="Paginated posts visible to the current user, including engagement metadata.",
     response_model=CursorPagePosts,
@@ -106,7 +108,7 @@ async def create_post_route(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_clique_posts_route(
-    clique_id: UUID,
+    cliqueId: Annotated[UUID, Path(alias="cliqueId")],
     current_user: User = Depends(require_active_user),
     cursor: str | None = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -121,21 +123,21 @@ async def list_clique_posts_route(
     db: AsyncSession = Depends(get_db),
 ):
     limit, cursor = parse_limit_cursor(limit, cursor)
-    clique = await get_clique_by_id(db, str(clique_id))
+    clique = await get_clique_by_id(db, str(cliqueId))
     if not clique:
         raise NotFound()
     if clique.privacy == Privacy.PRIVATE and clique.owner_user_id != current_user.id:
-        is_member = await is_member_of_clique(db, str(clique_id), str(current_user.id))
+        is_member = await is_member_of_clique(db, str(cliqueId), str(current_user.id))
         if not is_member:
             raise Forbidden()
     posts, next_cursor = await get_clique_posts(
-        db, str(clique_id), str(current_user.id), cursor, limit
+        db, str(cliqueId), str(current_user.id), cursor, limit
     )
     return CursorPagePosts(items=posts, next_cursor=next_cursor)
 
 
 @router.get(
-    "/{post_id}",
+    "/{postId}",
     summary="Get post",
     description="Retrieve a post with reactions and visibility checks applied.",
     response_model=PostSchema,
@@ -146,20 +148,20 @@ async def list_clique_posts_route(
     openapi_extra=secured(),
 )
 async def get_post_route(
-    post_id: UUID,
+    postId: Annotated[UUID, Path(alias="postId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post_record = await _require_post(db, post_id)
+    post_record = await _require_post(db, postId)
     await _ensure_post_visibility(db, post_record, current_user)
-    post = await get_post_by_id(db, str(post_id), str(current_user.id))
+    post = await get_post_by_id(db, str(postId), str(current_user.id))
     if not post:
         raise NotFound()
     return post
 
 
 @router.patch(
-    "/{post_id}",
+    "/{postId}",
     summary="Update post",
     description="Post authors or clique owners can edit content or status.",
     response_model=PostSchema,
@@ -170,7 +172,7 @@ async def get_post_route(
     openapi_extra=secured(),
 )
 async def update_post_route(
-    post_id: UUID,
+    postId: Annotated[UUID, Path(alias="postId")],
     data: PostUpdate = Body(
         ...,
         examples={
@@ -183,17 +185,17 @@ async def update_post_route(
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post = await _require_post(db, post_id)
+    post = await _require_post(db, postId)
     await _ensure_post_owner_or_clique_owner(db, post, current_user)
-    updated = await update_post(db, str(post_id), data.content, data.status)
+    updated = await update_post(db, str(postId), data.content, data.status)
     if not updated:
         raise NotFound()
-    refreshed = await get_post_by_id(db, str(post_id), str(current_user.id))
+    refreshed = await get_post_by_id(db, str(postId), str(current_user.id))
     return refreshed
 
 
 @router.delete(
-    "/{post_id}",
+    "/{postId}",
     summary="Delete post",
     description="Delete a post as the author or clique owner.",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -204,18 +206,18 @@ async def update_post_route(
     openapi_extra=secured(),
 )
 async def delete_post_route(
-    post_id: UUID,
+    postId: Annotated[UUID, Path(alias="postId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post = await _require_post(db, post_id)
+    post = await _require_post(db, postId)
     await _ensure_post_owner_or_clique_owner(db, post, current_user)
-    await delete_post(db, str(post_id))
+    await delete_post(db, str(postId))
     return Response(status_code=204)
 
 
 @router.post(
-    "/{post_id}/like",
+    "/{postId}/like",
     summary="Like post",
     description="Toggle the current user's like on the specified post.",
     response_model=PostSchema,
@@ -224,12 +226,12 @@ async def delete_post_route(
             "description": "Post with updated reactions",
             "content": {
                 "application/json": {
-                    "example": {
-                        "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                        "like_count": 12,
-                        "comment_count": 3,
-                        "viewer_has_liked": True,
-                    }
+                     "example": {
+                         "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                         "likesCount": 12,
+                         "commentsCount": 3,
+                         "likedByMe": True,
+                     }
                 }
             },
         },
@@ -238,18 +240,18 @@ async def delete_post_route(
     openapi_extra=secured(),
 )
 async def like_route(
-    post_id: UUID,
+    postId: Annotated[UUID, Path(alias="postId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post = await _require_post(db, post_id)
+    post = await _require_post(db, postId)
     await _ensure_post_visibility(db, post, current_user)
-    result = await like_post(db, str(current_user.id), str(post_id))
-    return result or await get_post_by_id(db, str(post_id), str(current_user.id))
+    result = await like_post(db, str(current_user.id), str(postId))
+    return result or await get_post_by_id(db, str(postId), str(current_user.id))
 
 
 @router.delete(
-    "/{post_id}/like",
+    "/{postId}/like",
     summary="Unlike post",
     description="Remove the user's like from the post.",
     response_model=PostSchema,
@@ -258,12 +260,12 @@ async def like_route(
             "description": "Post with updated reactions",
             "content": {
                 "application/json": {
-                    "example": {
-                        "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                        "like_count": 11,
-                        "comment_count": 3,
-                        "viewer_has_liked": False,
-                    }
+                     "example": {
+                         "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                         "likesCount": 11,
+                         "commentsCount": 3,
+                         "likedByMe": False,
+                     }
                 }
             },
         },
@@ -272,18 +274,18 @@ async def like_route(
     openapi_extra=secured(),
 )
 async def unlike_route(
-    post_id: UUID,
+    postId: Annotated[UUID, Path(alias="postId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post = await _require_post(db, post_id)
+    post = await _require_post(db, postId)
     await _ensure_post_visibility(db, post, current_user)
-    result = await unlike_post(db, str(current_user.id), str(post_id))
-    return result or await get_post_by_id(db, str(post_id), str(current_user.id))
+    result = await unlike_post(db, str(current_user.id), str(postId))
+    return result or await get_post_by_id(db, str(postId), str(current_user.id))
 
 
 @router.post(
-    "/{post_id}/comments",
+    "/{postId}/comments",
     summary="Create comment",
     description="Add a comment to a visible post.",
     response_model=CommentSchema,
@@ -293,13 +295,13 @@ async def unlike_route(
             "description": "Comment created",
             "content": {
                 "application/json": {
-                    "example": {
-                        "id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
-                        "post_id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                        "user_id": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                        "content": "Can't wait to see the new collection!",
-                        "created_at": "2024-04-01T13:00:00Z",
-                    }
+                     "example": {
+                         "id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
+                         "postId": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                         "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+                         "content": "Can't wait to see the new collection!",
+                         "createdAt": "2024-04-01T13:00:00Z",
+                     }
                 }
             },
         },
@@ -308,7 +310,7 @@ async def unlike_route(
     openapi_extra=secured(),
 )
 async def create_comment_route(
-    post_id: UUID,
+    postId: Annotated[UUID, Path(alias="postId")],
     data: CommentCreate = Body(
         ...,
         examples={
@@ -321,16 +323,16 @@ async def create_comment_route(
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    post = await _require_post(db, post_id)
+    post = await _require_post(db, postId)
     await _ensure_post_visibility(db, post, current_user)
     try:
-        return await create_comment(db, str(post_id), str(current_user.id), data)
+        return await create_comment(db, str(postId), str(current_user.id), data)
     except ValueError as exc:
         raise Validation(str(exc))
 
 
 @router.delete(
-    "/comments/{comment_id}",
+    "/comments/{commentId}",
     summary="Delete comment",
     description="Delete a comment authored by the user or managed by the clique owner.",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -341,18 +343,18 @@ async def create_comment_route(
     openapi_extra=secured(),
 )
 async def delete_comment_route(
-    comment_id: UUID,
+    commentId: Annotated[UUID, Path(alias="commentId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    comment = await db.get(Comment, comment_id)
+    comment = await db.get(Comment, commentId)
     if not comment or comment.deleted_at is not None:
         raise NotFound()
     post = await _require_post(db, comment.post_id)
     if str(comment.user_id) != str(current_user.id):
         await _ensure_post_owner_or_clique_owner(db, post, current_user)
     try:
-        await delete_comment(db, str(comment_id), str(current_user.id))
+        await delete_comment(db, str(commentId), str(current_user.id))
     except (ValueError, PermissionError) as exc:
         if isinstance(exc, PermissionError):
             raise Forbidden()
@@ -360,8 +362,8 @@ async def delete_comment_route(
     return Response(status_code=204)
 
 
-async def _require_post(db: AsyncSession, post_id: UUID) -> Post:
-    post = await db.get(Post, post_id)
+async def _require_post(db: AsyncSession, postId: UUID) -> Post:
+    post = await db.get(Post, postId)
     if not post or post.deleted_at is not None:
         raise NotFound()
     return post

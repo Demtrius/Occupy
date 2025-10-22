@@ -1,7 +1,8 @@
-from typing import Optional
+from typing import Annotated, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Path, Query, status
+from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -14,6 +15,7 @@ from ...api.openapi_helpers import (
 from ...core.errors import Forbidden, NotFound, Validation
 from ...models.user import User
 from ...schemas import CursorPageFollows, Follow as FollowSchema
+from ...schemas.base import BaseSchema
 from ...services.follows import (
     approve_follow,
     block_user,
@@ -25,7 +27,16 @@ from ...services.follows import (
     unfollow_user,
 )
 
-router = APIRouter(prefix="/api/v1/users/{user_id}/follow", tags=["Users"])
+router = APIRouter(prefix="/api/v1/users/{userId}/follow", tags=["Users"])
+
+
+class FollowPaginationParams(BaseSchema):
+    cursor: Optional[str] = Field(
+        default=None, description="Opaque pagination cursor from `nextCursor`."
+    )
+    limit: int = Field(
+        default=20, ge=1, le=100, description="Page size (default 20, max 100)"
+    )
 
 
 def _translate_error(exc: ValueError) -> Exception:
@@ -52,7 +63,7 @@ def _translate_error(exc: ValueError) -> Exception:
     openapi_extra=secured(),
 )
 async def follow(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -75,7 +86,7 @@ async def follow(
     openapi_extra=secured(),
 )
 async def approve(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -103,7 +114,7 @@ async def approve(
     openapi_extra=secured(),
 )
 async def reject(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -126,7 +137,7 @@ async def reject(
     openapi_extra=secured(),
 )
 async def unfollow(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -135,7 +146,7 @@ async def unfollow(
 
 
 @router.delete(
-    "/followers/{follower_id}",
+    "/followers/{followerId}",
     summary="Remove follower",
     description="Remove a follower from your audience.",
     response_model=dict[str, str],
@@ -149,14 +160,14 @@ async def unfollow(
     openapi_extra=secured(),
 )
 async def remove_follower(
-    user_id: UUID,
-    follower_id: UUID,
+    userId: Annotated[UUID, Path(alias="userId")],
+    followerId: Annotated[UUID, Path(alias="followerId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.id != user_id:
+    if current_user.id != userId:
         raise Forbidden()
-    await unfollow_user(db, str(follower_id), str(user_id))
+    await unfollow_user(db, str(followerId), str(userId))
     return {"status": "removed"}
 
 
@@ -172,7 +183,7 @@ async def remove_follower(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_followers(
-    user_id: UUID,
+    userId: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     cursor: Optional[str] = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -187,7 +198,7 @@ async def list_followers(
     db: AsyncSession = Depends(get_db),
 ):
     limit = min(max(limit, 1), 100)
-    followers, next_cursor = await get_followers(db, str(user_id), cursor, limit)
+    followers, next_cursor = await get_followers(db, str(userId), cursor, limit)
     return CursorPageFollows(items=followers, next_cursor=next_cursor)
 
 
@@ -203,7 +214,7 @@ async def list_followers(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_following(
-    user_id: UUID,
+    userId: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     cursor: Optional[str] = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -218,7 +229,7 @@ async def list_following(
     db: AsyncSession = Depends(get_db),
 ):
     limit = min(max(limit, 1), 100)
-    following, next_cursor = await get_following(db, str(user_id), cursor, limit)
+    following, next_cursor = await get_following(db, str(userId), cursor, limit)
     return CursorPageFollows(items=following, next_cursor=next_cursor)
 
 
@@ -234,7 +245,7 @@ async def list_following(
     openapi_extra=secured(),
 )
 async def block(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -260,7 +271,7 @@ async def block(
     openapi_extra=secured(),
 )
 async def unblock(
-    user_id: UUID,
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):

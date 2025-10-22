@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.base import BaseSchema
 
 from .booking import Booking
 from .clique import CliqueMember
@@ -11,10 +11,8 @@ from .user import Follow, User
 from .review import Review
 
 
-class CursorPageBase(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    next_cursor: str | None = Field(default=None, alias="nextCursor")
+class CursorPageBase(BaseSchema):
+    next_cursor: str | None = None
     meta: dict[str, Any] | None = None
 
 

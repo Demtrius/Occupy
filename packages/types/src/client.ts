@@ -23,18 +23,18 @@ export type AvailabilityValidFrom = string | null;
 export type AvailabilityValidUntil = string | null;
 
 export interface Availability {
-	is_recurring: boolean;
+	isRecurring: boolean;
 	date?: AvailabilityDate;
-	day_of_week?: AvailabilityDayOfWeek;
-	start_time: string;
-	end_time: string;
-	valid_from?: AvailabilityValidFrom;
-	valid_until?: AvailabilityValidUntil;
+	dayOfWeek?: AvailabilityDayOfWeek;
+	startTime: string;
+	endTime: string;
+	validFrom?: AvailabilityValidFrom;
+	validUntil?: AvailabilityValidUntil;
 	timezone: string;
 	id: string;
-	clique_id: string;
-	created_at: string;
-	updated_at: string;
+	cliqueId: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type AvailabilityCreateDate = string | null;
@@ -46,13 +46,13 @@ export type AvailabilityCreateValidFrom = string | null;
 export type AvailabilityCreateValidUntil = string | null;
 
 export interface AvailabilityCreate {
-	is_recurring: boolean;
+	isRecurring: boolean;
 	date?: AvailabilityCreateDate;
-	day_of_week?: AvailabilityCreateDayOfWeek;
-	start_time: string;
-	end_time: string;
-	valid_from?: AvailabilityCreateValidFrom;
-	valid_until?: AvailabilityCreateValidUntil;
+	dayOfWeek?: AvailabilityCreateDayOfWeek;
+	startTime: string;
+	endTime: string;
+	validFrom?: AvailabilityCreateValidFrom;
+	validUntil?: AvailabilityCreateValidUntil;
 	timezone: string;
 }
 
@@ -73,13 +73,13 @@ export type AvailabilityUpdateValidUntil = string | null;
 export type AvailabilityUpdateTimezone = string | null;
 
 export interface AvailabilityUpdate {
-	is_recurring?: AvailabilityUpdateIsRecurring;
+	isRecurring?: AvailabilityUpdateIsRecurring;
 	date?: AvailabilityUpdateDate;
-	day_of_week?: AvailabilityUpdateDayOfWeek;
-	start_time?: AvailabilityUpdateStartTime;
-	end_time?: AvailabilityUpdateEndTime;
-	valid_from?: AvailabilityUpdateValidFrom;
-	valid_until?: AvailabilityUpdateValidUntil;
+	dayOfWeek?: AvailabilityUpdateDayOfWeek;
+	startTime?: AvailabilityUpdateStartTime;
+	endTime?: AvailabilityUpdateEndTime;
+	validFrom?: AvailabilityUpdateValidFrom;
+	validUntil?: AvailabilityUpdateValidUntil;
 	timezone?: AvailabilityUpdateTimezone;
 }
 
@@ -93,18 +93,18 @@ export type BookingIdempotencyKey = string | null;
 
 export interface Booking {
 	id: string;
-	service_id: string;
-	clique_id: string;
-	user_id: string;
-	start_ts: string;
-	end_ts: string;
+	serviceId: string;
+	cliqueId: string;
+	userId: string;
+	startTs: string;
+	endTs: string;
 	status: BookingStatus;
-	cancelled_by?: BookingCancelledBy;
-	cancellation_reason?: BookingCancellationReason;
+	cancelledBy?: BookingCancelledBy;
+	cancellationReason?: BookingCancellationReason;
 	note?: BookingNote;
-	idempotency_key?: BookingIdempotencyKey;
-	created_at: string;
-	updated_at: string;
+	idempotencyKey?: BookingIdempotencyKey;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type BookingCreateNote = string | null;
@@ -112,14 +112,14 @@ export type BookingCreateNote = string | null;
 export type BookingCreateIdempotencyKey = string | null;
 
 export interface BookingCreate {
-	service_id: string;
-	start_ts: string;
+	serviceId: string;
+	startTs: string;
 	note?: BookingCreateNote;
-	idempotency_key?: BookingCreateIdempotencyKey;
+	idempotencyKey?: BookingCreateIdempotencyKey;
 }
 
 export interface BookingReschedule {
-	start_ts: string;
+	startTs: string;
 }
 
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
@@ -141,10 +141,10 @@ export const CancelledBy = {
 } as const;
 
 export interface Chat {
-	business_user_id: string;
-	client_user_id: string;
+	businessUserId: string;
+	clientUserId: string;
 	id: string;
-	created_at: string;
+	createdAt: string;
 }
 
 export type CliqueDescription = string | null;
@@ -154,15 +154,15 @@ export type CliqueImageUrl = string | null;
 export interface Clique {
 	name: string;
 	description?: CliqueDescription;
-	image_url?: CliqueImageUrl;
+	imageUrl?: CliqueImageUrl;
 	privacy?: Privacy;
 	timezone: string;
-	cancellation_cutoff_hours?: number;
-	occupation_ids?: string[];
+	cancellationCutoffHours?: number;
+	occupationIds?: string[];
 	id: string;
-	owner_user_id: string;
-	created_at: string;
-	updated_at: string;
+	ownerUserId: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type CliqueCreateDescription = string | null;
@@ -172,11 +172,11 @@ export type CliqueCreateImageUrl = string | null;
 export interface CliqueCreate {
 	name: string;
 	description?: CliqueCreateDescription;
-	image_url?: CliqueCreateImageUrl;
+	imageUrl?: CliqueCreateImageUrl;
 	privacy?: Privacy;
 	timezone: string;
-	cancellation_cutoff_hours?: number;
-	occupation_ids?: string[];
+	cancellationCutoffHours?: number;
+	occupationIds?: string[];
 }
 
 export type CliqueInviteExpiresAt = string | null;
@@ -185,12 +185,12 @@ export type CliqueInviteMaxUses = number | null;
 
 export interface CliqueInvite {
 	id: string;
-	clique_id: string;
+	cliqueId: string;
 	token: string;
-	expires_at?: CliqueInviteExpiresAt;
-	max_uses?: CliqueInviteMaxUses;
+	expiresAt?: CliqueInviteExpiresAt;
+	maxUses?: CliqueInviteMaxUses;
 	uses: number;
-	created_at: string;
+	createdAt: string;
 }
 
 export type CliqueInviteCreateExpiresAt = string | null;
@@ -198,17 +198,17 @@ export type CliqueInviteCreateExpiresAt = string | null;
 export type CliqueInviteCreateMaxUses = number | null;
 
 export interface CliqueInviteCreate {
-	expires_at?: CliqueInviteCreateExpiresAt;
-	max_uses?: CliqueInviteCreateMaxUses;
+	expiresAt?: CliqueInviteCreateExpiresAt;
+	maxUses?: CliqueInviteCreateMaxUses;
 }
 
 export interface CliqueMember {
 	id: string;
-	clique_id: string;
-	user_id: string;
+	cliqueId: string;
+	userId: string;
 	role: Role;
 	status: MembershipStatus;
-	created_at: string;
+	createdAt: string;
 }
 
 export type CliqueUpdateName = string | null;
@@ -228,11 +228,11 @@ export type CliqueUpdateOccupationIds = string[] | null;
 export interface CliqueUpdate {
 	name?: CliqueUpdateName;
 	description?: CliqueUpdateDescription;
-	image_url?: CliqueUpdateImageUrl;
+	imageUrl?: CliqueUpdateImageUrl;
 	privacy?: CliqueUpdatePrivacy;
 	timezone?: CliqueUpdateTimezone;
-	cancellation_cutoff_hours?: CliqueUpdateCancellationCutoffHours;
-	occupation_ids?: CliqueUpdateOccupationIds;
+	cancellationCutoffHours?: CliqueUpdateCancellationCutoffHours;
+	occupationIds?: CliqueUpdateOccupationIds;
 }
 
 export type CommentParentCommentId = string | null;
@@ -241,20 +241,20 @@ export type CommentDeletedAt = string | null;
 
 export interface Comment {
 	id: string;
-	post_id: string;
-	user_id: string;
+	postId: string;
+	userId: string;
 	body: string;
-	parent_comment_id?: CommentParentCommentId;
-	deleted_at?: CommentDeletedAt;
-	created_at: string;
-	updated_at: string;
+	parentCommentId?: CommentParentCommentId;
+	deletedAt?: CommentDeletedAt;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type CommentCreateParentCommentId = string | null;
 
 export interface CommentCreate {
 	body: string;
-	parent_comment_id?: CommentCreateParentCommentId;
+	parentCommentId?: CommentCreateParentCommentId;
 }
 
 export type ContentFormat = (typeof ContentFormat)[keyof typeof ContentFormat];
@@ -339,10 +339,10 @@ export interface CursorPageUsers {
 
 export interface Follow {
 	id: string;
-	follower_user_id: string;
-	followee_user_id: string;
+	followerUserId: string;
+	followeeUserId: string;
 	status: FollowStatus;
-	created_at: string;
+	createdAt: string;
 }
 
 export type FollowStatus = (typeof FollowStatus)[keyof typeof FollowStatus];
@@ -359,7 +359,7 @@ export interface HTTPValidationError {
 }
 
 export interface LoginRequest {
-	email_or_username: string;
+	emailOrUsername: string;
 	password: string;
 }
 
@@ -374,7 +374,7 @@ export type MediaCreateMeta = MediaCreateMetaAnyOf | null;
 export interface MediaCreate {
 	url: string;
 	mime?: MediaCreateMime;
-	size_bytes?: MediaCreateSizeBytes;
+	sizeBytes?: MediaCreateSizeBytes;
 	meta?: MediaCreateMeta;
 }
 
@@ -394,11 +394,11 @@ export type MessageMediaId = string | null;
 
 export interface Message {
 	body?: MessageBody;
-	media_id?: MessageMediaId;
+	mediaId?: MessageMediaId;
 	id: string;
-	chat_id: string;
-	sender_user_id: string;
-	sent_at: string;
+	chatId: string;
+	senderUserId: string;
+	sentAt: string;
 }
 
 export type MessageCreateBody = string | null;
@@ -407,7 +407,7 @@ export type MessageCreateMediaId = string | null;
 
 export interface MessageCreate {
 	body?: MessageCreateBody;
-	media_id?: MessageCreateMediaId;
+	mediaId?: MessageCreateMediaId;
 }
 
 export type NotificationPayload = { [key: string]: unknown };
@@ -417,11 +417,11 @@ export type NotificationReadAt = string | null;
 export interface Notification {
 	type: NotificationType;
 	payload: NotificationPayload;
-	is_read?: boolean;
-	read_at?: NotificationReadAt;
+	isRead?: boolean;
+	readAt?: NotificationReadAt;
 	id: string;
-	user_id: string;
-	created_at: string;
+	userId: string;
+	createdAt: string;
 }
 
 export type NotificationType =
@@ -449,22 +449,22 @@ export interface Occupation {
 export type PostDeletedAt = string | null;
 
 export interface Post {
-	content_format?: ContentFormat;
+	contentFormat?: ContentFormat;
 	content: string;
 	status?: PostStatus;
 	id: string;
-	clique_id: string;
-	author_user_id: string;
-	deleted_at?: PostDeletedAt;
-	created_at: string;
-	updated_at: string;
-	likes_count?: number;
-	comments_count?: number;
-	liked_by_me?: boolean;
+	cliqueId: string;
+	authorUserId: string;
+	deletedAt?: PostDeletedAt;
+	createdAt: string;
+	updatedAt: string;
+	likesCount?: number;
+	commentsCount?: number;
+	likedByMe?: boolean;
 }
 
 export interface PostCreate {
-	content_format?: ContentFormat;
+	contentFormat?: ContentFormat;
 	content: string;
 	status?: PostStatus;
 }
@@ -496,7 +496,7 @@ export const Privacy = {
 } as const;
 
 export interface RefreshRequest {
-	refresh_token: string;
+	refreshToken: string;
 }
 
 export type ReviewComment = string | null;
@@ -509,9 +509,9 @@ export interface Review {
 	rating: number;
 	comment?: ReviewComment;
 	id: string;
-	booking_id: string;
-	rater_user_id: string;
-	created_at: string;
+	bookingId: string;
+	raterUserId: string;
+	createdAt: string;
 }
 
 export type ReviewCreateComment = string | null;
@@ -540,15 +540,15 @@ export type ServicePriceMinor = number | null;
 export interface Service {
 	title: string;
 	description?: ServiceDescription;
-	price_minor?: ServicePriceMinor;
+	priceMinor?: ServicePriceMinor;
 	currency?: string;
-	duration_minutes: number;
-	buffer_minutes?: number;
-	is_active?: boolean;
+	durationMinutes: number;
+	bufferMinutes?: number;
+	isActive?: boolean;
 	id: string;
-	clique_id: string;
-	created_at: string;
-	updated_at: string;
+	cliqueId: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type ServiceCreateDescription = string | null;
@@ -558,11 +558,11 @@ export type ServiceCreatePriceMinor = number | null;
 export interface ServiceCreate {
 	title: string;
 	description?: ServiceCreateDescription;
-	price_minor?: ServiceCreatePriceMinor;
+	priceMinor?: ServiceCreatePriceMinor;
 	currency?: string;
-	duration_minutes: number;
-	buffer_minutes?: number;
-	is_active?: boolean;
+	durationMinutes: number;
+	bufferMinutes?: number;
+	isActive?: boolean;
 }
 
 export type ServiceUpdateTitle = string | null;
@@ -580,15 +580,15 @@ export type ServiceUpdateIsActive = boolean | null;
 export interface ServiceUpdate {
 	title?: ServiceUpdateTitle;
 	description?: ServiceUpdateDescription;
-	price_minor?: ServiceUpdatePriceMinor;
-	duration_minutes?: ServiceUpdateDurationMinutes;
-	buffer_minutes?: ServiceUpdateBufferMinutes;
-	is_active?: ServiceUpdateIsActive;
+	priceMinor?: ServiceUpdatePriceMinor;
+	durationMinutes?: ServiceUpdateDurationMinutes;
+	bufferMinutes?: ServiceUpdateBufferMinutes;
+	isActive?: ServiceUpdateIsActive;
 }
 
 export interface TokenRead {
-	access_token: string;
-	refresh_token: string;
+	accessToken: string;
+	refreshToken: string;
 	user: User;
 }
 
@@ -605,16 +605,16 @@ export interface User {
 	 * @maxLength 32
 	 */
 	username: string;
-	full_name?: UserFullName;
+	fullName?: UserFullName;
 	bio?: UserBio;
-	profile_image_url?: UserProfileImageUrl;
-	is_admin?: boolean;
-	is_active?: boolean;
-	is_private_account?: boolean;
-	is_business_page?: boolean;
+	profileImageUrl?: UserProfileImageUrl;
+	isAdmin?: boolean;
+	isActive?: boolean;
+	isPrivateAccount?: boolean;
+	isBusinessPage?: boolean;
 	id: string;
-	created_at: string;
-	updated_at: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export type UserCreateFullName = string | null;
@@ -630,13 +630,13 @@ export interface UserCreate {
 	 * @maxLength 32
 	 */
 	username: string;
-	full_name?: UserCreateFullName;
+	fullName?: UserCreateFullName;
 	bio?: UserCreateBio;
-	profile_image_url?: UserCreateProfileImageUrl;
-	is_admin?: boolean;
-	is_active?: boolean;
-	is_private_account?: boolean;
-	is_business_page?: boolean;
+	profileImageUrl?: UserCreateProfileImageUrl;
+	isAdmin?: boolean;
+	isActive?: boolean;
+	isPrivateAccount?: boolean;
+	isBusinessPage?: boolean;
 	password: string;
 }
 
@@ -649,10 +649,10 @@ export type UserUpdateProfileImageUrl = string | null;
 export type UserUpdateIsPrivateAccount = boolean | null;
 
 export interface UserUpdate {
-	full_name?: UserUpdateFullName;
+	fullName?: UserUpdateFullName;
 	bio?: UserUpdateBio;
-	profile_image_url?: UserUpdateProfileImageUrl;
-	is_private_account?: UserUpdateIsPrivateAccount;
+	profileImageUrl?: UserUpdateProfileImageUrl;
+	isPrivateAccount?: UserUpdateIsPrivateAccount;
 }
 
 export type ValidationErrorLocItem = string | number;
@@ -695,7 +695,7 @@ export type SearchUsersApiV1UsersGetParams = {
 	/**
 	 * Filter to users tagged with a specific occupation.
 	 */
-	occupation_id?: string | null;
+	occupationId?: string | null;
 	/**
 	 * Sort expression in the form `field:direction`.
 	 */
@@ -753,6 +753,12 @@ export type UnblockApiV1UsersUserIdFollowBlockDelete200 = {
 };
 
 export type FeedApiV1CliquesFeedGetParams = {
+	cursor?: string | null;
+	/**
+	 * @minimum 1
+	 * @maximum 100
+	 */
+	limit?: number;
 	/**
 	 * Opaque pagination cursor from previous response `nextCursor`.
 	 */
@@ -768,10 +774,7 @@ export type FeedApiV1CliquesFeedGetParams = {
 export type GetCliqueApiV1CliquesCliqueIdGet200 = { [key: string]: unknown };
 
 export type JoinApiV1CliquesCliqueIdJoinPostParams = {
-	/**
-	 * Invite token for private cliques, if required.
-	 */
-	invite_token?: string | null;
+	inviteToken?: string | null;
 };
 
 export type LeaveApiV1CliquesCliqueIdMembersMeDelete200 = {
@@ -779,6 +782,12 @@ export type LeaveApiV1CliquesCliqueIdMembersMeDelete200 = {
 };
 
 export type ListMembersApiV1CliquesCliqueIdMembersGetParams = {
+	cursor?: string | null;
+	/**
+	 * @minimum 1
+	 * @maximum 100
+	 */
+	limit?: number;
 	/**
 	 * Opaque pagination cursor from previous response `nextCursor`.
 	 */
@@ -792,6 +801,12 @@ export type ListMembersApiV1CliquesCliqueIdMembersGetParams = {
 };
 
 export type ListPendingMembersApiV1CliquesCliqueIdMembersPendingGetParams = {
+	cursor?: string | null;
+	/**
+	 * @minimum 1
+	 * @maximum 100
+	 */
+	limit?: number;
 	/**
 	 * Opaque pagination cursor from previous response `nextCursor`.
 	 */
@@ -830,7 +845,7 @@ export type PresignUploadApiV1MediaUploadsPresignPostParams = {
 	 * Planned upload size in bytes.
 	 * @minimum 1
 	 */
-	size_bytes: number;
+	sizeBytes: number;
 	/**
 	 * Purpose of the media (e.g. `profile`, `gallery`, `attachment`).
 	 */
@@ -844,10 +859,13 @@ export type PresignUploadApiV1MediaUploadsPresignPost201 = {
 export type RegisterUploadedApiV1MediaPost201 = { [key: string]: string };
 
 export type ListMyBookingsApiV1BookingsMeGetParams = {
-	/**
-	 * Filter by booking status (pending, confirmed, completed)
-	 */
 	status?: string | null;
+	cursor?: string | null;
+	/**
+	 * @minimum 1
+	 * @maximum 100
+	 */
+	limit?: number;
 	/**
 	 * Opaque pagination cursor from previous response `nextCursor`.
 	 */
@@ -861,10 +879,13 @@ export type ListMyBookingsApiV1BookingsMeGetParams = {
 };
 
 export type ListCliqueBookingsApiV1BookingsCliquesCliqueIdGetParams = {
-	/**
-	 * Filter by booking status (pending, confirmed, completed)
-	 */
 	status?: string | null;
+	cursor?: string | null;
+	/**
+	 * @minimum 1
+	 * @maximum 100
+	 */
+	limit?: number;
 	/**
 	 * Opaque pagination cursor from previous response `nextCursor`.
 	 */
@@ -878,9 +899,6 @@ export type ListCliqueBookingsApiV1BookingsCliquesCliqueIdGetParams = {
 };
 
 export type CancelApiV1BookingsBookingIdCancelPostParams = {
-	/**
-	 * Reason for cancellation when performed by the clique owner
-	 */
 	reason?: string | null;
 };
 
@@ -975,21 +993,20 @@ export type UpdateUserOccupationsEndpointApiV1OccupationsUserPut200 = {
 	[key: string]: string;
 };
 
+export type UpdateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutParams =
+	{
+		clique_id: string;
+	};
+
 export type UpdateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPut200 =
 	{ [key: string]: string };
 
 export type CreateServiceEndpointApiV1ServicesPostParams = {
-	/**
-	 * Clique creating the service
-	 */
-	clique_id: string;
+	cliqueId: string;
 };
 
 export type ListCliqueServicesApiV1ServicesCliqueIdGetParams = {
-	/**
-	 * When true, only return active services.
-	 */
-	active_only?: boolean;
+	activeOnly?: boolean;
 };
 
 export type DeleteServiceEndpointApiV1ServicesServiceIdDelete200 = {
@@ -997,10 +1014,7 @@ export type DeleteServiceEndpointApiV1ServicesServiceIdDelete200 = {
 };
 
 export type CreateAvailabilityEndpointApiV1AvailabilityPostParams = {
-	/**
-	 * Clique owning the availability
-	 */
-	clique_id: string;
+	cliqueId: string;
 };
 
 export type DeleteAvailabilityEndpointApiV1AvailabilityAvailabilityIdDelete200 =
@@ -5028,19 +5042,39 @@ export type updateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutResp
 	| updateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutResponseError;
 
 export const getUpdateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutUrl =
-	(cliqueId: string) => {
-		return `http://localhost:8000/api/v1/occupations/clique/${cliqueId}`;
+	(
+		cliqueId: string,
+		params: UpdateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutParams,
+	) => {
+		const normalizedParams = new URLSearchParams();
+
+		Object.entries(params || {}).forEach(([key, value]) => {
+			if (value !== undefined) {
+				normalizedParams.append(
+					key,
+					value === null ? "null" : value.toString(),
+				);
+			}
+		});
+
+		const stringifiedParams = normalizedParams.toString();
+
+		return stringifiedParams.length > 0
+			? `http://localhost:8000/api/v1/occupations/clique/${cliqueId}?${stringifiedParams}`
+			: `http://localhost:8000/api/v1/occupations/clique/${cliqueId}`;
 	};
 
 export const updateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPut =
 	async (
 		cliqueId: string,
 		updateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutBody: string[],
+		params: UpdateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutParams,
 		options?: RequestInit,
 	): Promise<updateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutResponse> => {
 		return customFetch<updateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutResponse>(
 			getUpdateCliqueOccupationsEndpointApiV1OccupationsCliqueCliqueIdPutUrl(
 				cliqueId,
+				params,
 			),
 			{
 				...options,

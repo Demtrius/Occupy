@@ -23,7 +23,7 @@ async def test_message_delete_retention_window(
         json={"body": "Hi there"},
         headers=auth_headers(make_token(customer)),
     )
-    assert send_resp.status_code == 200
+    assert send_resp.status_code == 201
     message_id = send_resp.json()["id"]
 
     delete_resp = await client.delete(
@@ -37,7 +37,7 @@ async def test_message_delete_retention_window(
         json={"body": "Follow up"},
         headers=auth_headers(make_token(customer)),
     )
-    assert second_resp.status_code == 200
+    assert second_resp.status_code == 201
     late_message_id = second_resp.json()["id"]
 
     list_resp = await client.get(

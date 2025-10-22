@@ -2,11 +2,12 @@ from typing import Any
 
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+
+from app.schemas.base import BaseSchema
 from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 
 
-class ErrorResponse(BaseModel):
+class ErrorResponse(BaseSchema):
     error: dict[str, Any]
 
 
@@ -117,7 +118,9 @@ def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         headers = {"WWW-Authenticate": "Bearer"}
     return JSONResponse(
         status_code=getattr(exc, "status_code", 400),
-        content=ErrorResponse(error=_build_error_payload(exc)).model_dump(),
+        content=ErrorResponse(error=_build_error_payload(exc)).model_dump(
+            by_alias=True
+        ),
         headers=headers,
     )
 
@@ -152,7 +155,7 @@ def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONRespon
                 "message": "Review already exists",
                 "details": {},
             }
-        ).model_dump()
+        ).model_dump(by_alias=True)
         return JSONResponse(status_code=400, content=payload)
     payload = ErrorResponse(
         error={
@@ -160,7 +163,7 @@ def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONRespon
             "message": "Integrity constraint violated",
             "details": {},
         }
-    ).model_dump()
+    ).model_dump(by_alias=True)
     return JSONResponse(status_code=400, content=payload)
 
 
@@ -171,7 +174,7 @@ def operational_error_handler(request: Request, exc: OperationalError) -> JSONRe
             "message": "Database operation failed",
             "details": {},
         }
-    ).model_dump()
+    ).model_dump(by_alias=True)
     return JSONResponse(status_code=500, content=payload)
 
 
@@ -182,7 +185,7 @@ def programming_error_handler(request: Request, exc: ProgrammingError) -> JSONRe
             "message": "Database programming error",
             "details": {},
         }
-    ).model_dump()
+    ).model_dump(by_alias=True)
     return JSONResponse(status_code=500, content=payload)
 
 
@@ -190,5 +193,5 @@ def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse
     """Normalize raw HTTPExceptions into the standard error envelope."""
     payload = ErrorResponse(
         error={"code": "http_error", "message": exc.detail, "details": {}}
-    ).model_dump()
+    ).model_dump(by_alias=True)
     return JSONResponse(status_code=exc.status_code, content=payload)

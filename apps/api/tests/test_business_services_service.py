@@ -27,20 +27,20 @@ async def test_service_routes_enforce_owner(client, db_session, make_token):
     }
 
     forbidden = await client.post(
-        "/api/v1/services/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/services",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(other_user)),
     )
     assert forbidden.status_code == 403
 
     create = await client.post(
-        "/api/v1/services/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/services",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(owner)),
     )
-    assert create.status_code == 200
+    assert create.status_code == 201
     service_id = create.json()["id"]
 
     list_owner = await client.get(
@@ -100,8 +100,8 @@ async def test_service_list_and_update_for_private_clique(
     }
 
     create = await client.post(
-        "/api/v1/services/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/services",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(owner)),
     )

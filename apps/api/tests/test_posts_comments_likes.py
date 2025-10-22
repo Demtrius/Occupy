@@ -31,7 +31,7 @@ async def test_create_and_list_posts(client, db_session, make_token):
     )
     assert response.status_code == 201
     post = response.json()
-    assert post["likes_count"] == 0
+    assert post["likesCount"] == 0
     post_id = post["id"]
 
     stored = await db_session.get(Post, post_id)
@@ -82,14 +82,14 @@ async def test_like_and_unlike_post_service(client, db_session, make_token):
         headers=auth_headers(make_token(owner)),
     )
     assert like_resp.status_code == 200
-    assert like_resp.json()["likes_count"] == 1
+    assert like_resp.json()["likesCount"] == 1
 
     unlike_resp = await client.delete(
         f"/api/v1/posts/{post.id}/like",
         headers=auth_headers(make_token(owner)),
     )
     assert unlike_resp.status_code == 200
-    assert unlike_resp.json()["likes_count"] == 0
+    assert unlike_resp.json()["likesCount"] == 0
 
 
 @pytest.mark.asyncio

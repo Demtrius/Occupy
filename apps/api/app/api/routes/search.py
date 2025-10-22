@@ -26,7 +26,7 @@ router = APIRouter(prefix="/api/v1/search", tags=["Search"])
                             {
                                 "id": "d0a93f94-9fab-41a2-964d-8f6a78524c1d",
                                 "username": "clique_founder",
-                                "full_name": "Clique Founder",
+                                "fullName": "Clique Founder",
                             }
                         ],
                         "occupations": [
@@ -40,6 +40,7 @@ router = APIRouter(prefix="/api/v1/search", tags=["Search"])
                                 "id": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
                                 "name": "Clique Studio",
                                 "privacy": "private",
+                                "imageUrl": "https://cdn.example.com/cliques/studio.png",
                             }
                         ],
                     }
@@ -66,9 +67,10 @@ async def search(
     current_user: User | None = Depends(get_optional_user),
 ) -> dict[str, Any]:
     result = await unified_search(db, q, limit)
-    users = [user.model_dump(mode="json") for user in result.users]
+    users = [user.model_dump(mode="json", by_alias=True) for user in result.users]
     occupations = [
-        occupation.model_dump(mode="json") for occupation in result.occupations
+        occupation.model_dump(mode="json", by_alias=True)
+        for occupation in result.occupations
     ]
 
     cliques: list[dict[str, Any]] = []

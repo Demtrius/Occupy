@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class ChatBase(BaseModel):
+class ChatBase(BaseSchema):
     business_user_id: UUID
     client_user_id: UUID
 
@@ -15,13 +15,11 @@ class ChatCreate(ChatBase):
 
 
 class Chat(ChatBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     created_at: datetime
 
 
-class MessageBase(BaseModel):
+class MessageBase(BaseSchema):
     body: Optional[str] = None
     media_id: Optional[UUID] = None
 
@@ -31,8 +29,6 @@ class MessageCreate(MessageBase):
 
 
 class Message(MessageBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     chat_id: UUID
     sender_user_id: UUID

@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Path, Query
+from pydantic import AliasChoices
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -25,7 +27,7 @@ def _parse_iso_dt(value: str, label: str) -> datetime:
 
 
 @router.get(
-    "/{clique_id}/slots",
+    "/{cliqueId}/slots",
     summary="List available slots",
     description="Return available start/end timestamps for a service within the requested window.",
     response_model=dict[str, list[dict[str, str]]],
@@ -50,7 +52,7 @@ def _parse_iso_dt(value: str, label: str) -> datetime:
     openapi_extra=secured(),
 )
 async def list_slots(
-    clique_id: UUID,
+    cliqueId: Annotated[UUID, Path(alias="cliqueId")],
     service_id: UUID = Query(
         ..., alias="serviceId", description="Service identifier to compute slots for."
     ),
@@ -74,7 +76,7 @@ async def list_slots(
     try:
         slots = await compute_slots(
             db,
-            str(clique_id),
+            str(cliqueId),
             str(service_id),
             start_dt,
             end_dt,

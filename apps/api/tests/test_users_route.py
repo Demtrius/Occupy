@@ -94,12 +94,12 @@ async def test_get_and_update_me(client, db_session, make_token):
         headers=auth_headers(make_token(user)),
     )
     assert me_response.status_code == 200, me_response.text
-    assert me_response.json()["full_name"] == user.full_name
+    assert me_response.json()["fullName"] == user.full_name
 
     update_response = await client.patch(
         "/api/v1/users/me",
-        json={"full_name": "Updated"},
+        json={"fullName": "Updated"},
         headers=auth_headers(make_token(user)),
     )
     assert update_response.status_code == 200
-    assert update_response.json()["full_name"] == "Updated"
+    assert update_response.json()["fullName"] == "Updated"

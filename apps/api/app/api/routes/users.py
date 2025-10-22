@@ -1,6 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query
+from typing import Annotated
+from uuid import UUID
+
+from fastapi import APIRouter, Body, Depends, Path, Query
+from pydantic import AliasChoices
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,14 +59,14 @@ async def update_me(
     data: UserUpdate = Body(
         ...,
         examples={
-            "profile": {
-                "summary": "Update bio and image",
-                "value": {
-                    "full_name": "Clique Founder",
-                    "bio": "Curating experiences for boutique brands.",
-                    "profile_image_url": "https://cdn.example.com/profiles/clique_founder.png",
-                },
-            }
+             "profile": {
+                 "summary": "Update bio and image",
+                 "value": {
+                     "fullName": "Clique Founder",
+                     "bio": "Curating experiences for boutique brands.",
+                     "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+                 },
+             }
         },
     ),
     current_user: User = Depends(require_active_user),
@@ -93,7 +97,7 @@ async def search_users(
         description="Free-text search across usernames and bios.",
     ),
     occupation_id: UUID | None = Query(
-        None, description="Filter to users tagged with a specific occupation."
+        None, alias="occupationId", description="Filter to users tagged with a specific occupation."
     ),
     cursor: str | None = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -128,7 +132,7 @@ async def search_users(
 
 
 @router.get(
-    "/{user_id}",
+    "/{userId}",
     summary="Get user by id",
     description="Retrieve another user's profile respecting blocking and privacy.",
     response_model=UserSchema,
@@ -139,16 +143,16 @@ async def search_users(
     openapi_extra=secured(),
 )
 async def get_user(
-    user_id: UUID,
+    userId: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.id == user_id:
+    if current_user.id == userId:
         return UserSchema.model_validate(current_user)
 
-    await check_blocking(current_user.id, user_id, db)
+    await check_blocking(current_user.id, userId, db)
 
-    user = await get_user_by_id(db, str(user_id))
+    user = await get_user_by_id(db, str(userId))
     if not user:
         raise NotFound()
 

@@ -1,6 +1,7 @@
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Path, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/api/v1/reviews", tags=["Reviews"])
 
 
 @router.post(
-    "/bookings/{booking_id}",
+    "/bookings/{bookingId}",
     summary="Review completed booking",
     description="Customers leave a rating and optional comment for a completed booking.",
     response_model=dict[str, UUID],
@@ -42,7 +43,7 @@ router = APIRouter(prefix="/api/v1/reviews", tags=["Reviews"])
     openapi_extra=secured(),
 )
 async def create(
-    booking_id: UUID,
+    bookingId: Annotated[UUID, Path(alias="bookingId")],
     data: ReviewCreate = Body(
         ...,
         examples={
@@ -58,7 +59,7 @@ async def create(
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    booking = await db.get(Booking, booking_id)
+    booking = await db.get(Booking, bookingId)
     if not booking:
         raise NotFound("Booking not found")
     if booking.user_id != current_user.id:
@@ -68,7 +69,7 @@ async def create(
 
     review = await create_review(
         db,
-        str(booking_id),
+        str(bookingId),
         str(current_user.id),
         data.rating,
         data.comment,
@@ -77,7 +78,7 @@ async def create(
 
 
 @router.get(
-    "/cliques/{clique_id}",
+    "/cliques/{cliqueId}",
     summary="List clique reviews",
     description="Paginated reviews left for services hosted by the clique.",
     response_model=CursorPageReviews,
@@ -88,7 +89,7 @@ async def create(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_clique_reviews(
-    clique_id: UUID,
+    cliqueId: Annotated[UUID, Path(alias="cliqueId")],
     current_user: User = Depends(require_active_user),
     cursor: str | None = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -102,8 +103,8 @@ async def list_clique_reviews(
     ),
     db: AsyncSession = Depends(get_db),
 ):
-    reviews = await get_clique_reviews(db, str(clique_id), cursor, limit)
-    average = await get_average_rating(db, str(clique_id))
+    reviews = await get_clique_reviews(db, str(cliqueId), cursor, limit)
+    average = await get_average_rating(db, str(cliqueId))
     items = [ReviewSchema.model_validate(review) for review in reviews]
     return CursorPageReviews(
         items=items, next_cursor=None, meta={"average_rating": average}

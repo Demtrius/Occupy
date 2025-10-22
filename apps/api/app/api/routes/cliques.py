@@ -1,7 +1,8 @@
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Path, status
+from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import (
@@ -46,8 +47,26 @@ from ...services.cliques import (
     reject_member,
     update_clique_details,
 )
+from ...schemas.base import BaseSchema
 
 router = APIRouter(prefix="/api/v1/cliques", tags=["Cliques"])
+
+
+class CursorPaginationParams(BaseSchema):
+    cursor: str | None = Field(
+        default=None, description="Opaque pagination cursor from `nextCursor`."
+    )
+    limit: int = Field(
+        default=20, ge=1, le=100, description="Page size (default 20, max 100)"
+    )
+
+
+class JoinParams(BaseSchema):
+    invite_token: str | None = Field(
+        default=None,
+        description="Invite token for private cliques, if required.",
+        json_schema_extra={"examples": ["clique-invite-abc123"]},
+    )
 
 
 @router.get(
@@ -62,20 +81,12 @@ router = APIRouter(prefix="/api/v1/cliques", tags=["Cliques"])
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def feed(
-    cursor: str | None = Query(
-        None, include_in_schema=False, description="Opaque pagination cursor"
-    ),
-    limit: int = Query(
-        20,
-        ge=1,
-        le=100,
-        include_in_schema=False,
-        description="Page size (default 20, max 100)",
-    ),
+    params: CursorPaginationParams = Depends(),
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    limit = min(max(limit, 1), 100)
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
     posts, next_cursor = await get_feed_posts(db, str(current_user.id), cursor, limit)
     items = [PostSchema.model_validate(post) for post in posts]
     return CursorPagePosts(items=items, next_cursor=next_cursor)
@@ -104,8 +115,8 @@ async def create(
                     "description": "Creative studio for boutique brands.",
                     "privacy": "private",
                     "timezone": "America/New_York",
-                    "cancellation_cutoff_hours": 24,
-                    "occupation_ids": [
+                    "cancellationCutoffHours": 24,
+                    "occupationIds": [
                         "9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
                         "8f9d6c2a-9525-4cd3-b963-59f82a28cd31",
                     ],
@@ -127,7 +138,7 @@ async def create(
 
 
 @router.get(
-    "/{clique_id}",
+    "/{cliqueId}",
     summary="Get clique",
     description="Retrieve the public profile for a clique, with visibility rules applied.",
     response_model=dict[str, Any],
@@ -137,7 +148,7 @@ async def create(
     },
 )
 async def get_clique(
-    clique_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     db: AsyncSession = Depends(get_db),
     current_user: User | None = Depends(get_optional_user),
 ):
@@ -149,7 +160,7 @@ async def get_clique(
 
 
 @router.patch(
-    "/{clique_id}",
+    "/{cliqueId}",
     summary="Update clique",
     description="Clique owners can edit name, imagery, privacy, and cancellation policy.",
     response_model=CliqueSchema,
@@ -160,13 +171,13 @@ async def get_clique(
     openapi_extra=secured(),
 )
 async def update_clique(
-    clique_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     data: CliqueUpdate = Body(
         ...,
         examples={
             "adjust_policy": {
                 "summary": "Update cancellation policy",
-                "value": {"cancellation_cutoff_hours": 12},
+                "value": {"cancellationCutoffHours": 12},
             }
         },
     ),
@@ -182,7 +193,7 @@ async def update_clique(
 
 
 @router.delete(
-    "/{clique_id}",
+    "/{cliqueId}",
     summary="Delete clique",
     description="Clique owners can permanently delete their clique.",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -193,7 +204,7 @@ async def update_clique(
     openapi_extra=secured(),
 )
 async def delete_clique(
-    clique_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -205,7 +216,7 @@ async def delete_clique(
 
 
 @router.post(
-    "/{clique_id}/join",
+    "/{cliqueId}/join",
     summary="Request to join clique",
     description="Join a clique using an invite token when required.",
     response_model=CliqueMemberSchema,
@@ -216,18 +227,14 @@ async def delete_clique(
     openapi_extra=secured(),
 )
 async def join(
-    clique_id: UUID,
-    invite_token: str | None = Query(
-        None,
-        description="Invite token for private cliques, if required.",
-        examples=["clique-invite-abc123"],
-    ),
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    params: JoinParams = Depends(),
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     try:
         membership = await join_clique(
-            db, str(current_user.id), str(clique_id), invite_token
+            db, str(current_user.id), str(clique_id), params.invite_token
         )
     except ValueError as exc:
         raise Validation(str(exc))
@@ -235,7 +242,7 @@ async def join(
 
 
 @router.delete(
-    "/{clique_id}/members/me",
+    "/{cliqueId}/members/me",
     summary="Leave clique",
     description="Members can leave a clique they previously joined.",
     response_model=dict[str, str],
@@ -249,7 +256,7 @@ async def join(
     openapi_extra=secured(),
 )
 async def leave(
-    clique_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -258,7 +265,7 @@ async def leave(
 
 
 @router.get(
-    "/{clique_id}/members",
+    "/{cliqueId}/members",
     summary="List clique members",
     description="Paginated list of members with role and status.",
     response_model=CursorPageCliqueMembers,
@@ -269,17 +276,8 @@ async def leave(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_members(
-    clique_id: UUID,
-    cursor: str | None = Query(
-        None, include_in_schema=False, description="Opaque pagination cursor"
-    ),
-    limit: int = Query(
-        20,
-        ge=1,
-        le=100,
-        include_in_schema=False,
-        description="Page size (default 20, max 100)",
-    ),
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    params: CursorPaginationParams = Depends(),
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -292,14 +290,15 @@ async def list_members(
         and not await is_member_of_clique(db, str(clique_id), str(current_user.id))
     ):
         raise Forbidden()
-    limit = min(max(limit, 1), 100)
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
     members, next_cursor = await get_clique_members(db, str(clique_id), cursor, limit)
     items = [CliqueMemberSchema.model_validate(member) for member in members]
     return CursorPageCliqueMembers(items=items, next_cursor=next_cursor)
 
 
 @router.get(
-    "/{clique_id}/members/pending",
+    "/{cliqueId}/members/pending",
     summary="List pending membership requests",
     description="View join requests awaiting moderation by the clique owner.",
     response_model=CursorPageCliqueMembers,
@@ -310,29 +309,21 @@ async def list_members(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_pending_members(
-    clique_id: UUID,
-    cursor: str | None = Query(
-        None, include_in_schema=False, description="Opaque pagination cursor"
-    ),
-    limit: int = Query(
-        20,
-        ge=1,
-        le=100,
-        include_in_schema=False,
-        description="Page size (default 20, max 100)",
-    ),
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    params: CursorPaginationParams = Depends(),
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     await require_clique_owner(clique_id, current_user, db)
-    limit = min(max(limit, 1), 100)
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
     members, next_cursor = await get_pending_members(db, str(clique_id), cursor, limit)
     items = [CliqueMemberSchema.model_validate(member) for member in members]
     return CursorPageCliqueMembers(items=items, next_cursor=next_cursor)
 
 
 @router.post(
-    "/{clique_id}/members/{member_id}/approve",
+    "/{cliqueId}/members/{memberId}/approve",
     response_model=CliqueMemberSchema,
     summary="Approve membership request",
     description="Clique owners approve pending members.",
@@ -343,8 +334,8 @@ async def list_pending_members(
     openapi_extra=secured(),
 )
 async def approve_membership(
-    clique_id: UUID,
-    member_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    member_id: Annotated[UUID, Path(alias="memberId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -357,7 +348,7 @@ async def approve_membership(
 
 
 @router.post(
-    "/{clique_id}/members/{member_id}/reject",
+    "/{cliqueId}/members/{memberId}/reject",
     summary="Reject membership request",
     description="Decline a pending membership request.",
     response_model=dict[str, str],
@@ -371,8 +362,8 @@ async def approve_membership(
     openapi_extra=secured(),
 )
 async def reject_membership(
-    clique_id: UUID,
-    member_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    member_id: Annotated[UUID, Path(alias="memberId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -385,7 +376,7 @@ async def reject_membership(
 
 
 @router.post(
-    "/{clique_id}/invites",
+    "/{cliqueId}/invites",
     summary="Create invite link",
     description="Clique owners create invite tokens for members to join.",
     response_model=CliqueInviteSchema,
@@ -397,15 +388,15 @@ async def reject_membership(
     openapi_extra=secured(),
 )
 async def create_invite_endpoint(
-    clique_id: UUID,
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     data: CliqueInviteCreate = Body(
         ...,
         examples={
             "limited": {
                 "summary": "Limited-use invite",
                 "value": {
-                    "expires_at": "2024-05-01T00:00:00Z",
-                    "max_uses": 20,
+                    "expiresAt": "2024-05-01T00:00:00Z",
+                    "maxUses": 20,
                 },
             }
         },

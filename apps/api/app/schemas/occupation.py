@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 
-class OccupationBase(BaseModel):
+class OccupationBase(BaseSchema):
     name: str
     slug: str
 
@@ -12,12 +12,10 @@ class OccupationCreate(OccupationBase):
     pass
 
 
-class OccupationUpdate(BaseModel):
+class OccupationUpdate(BaseSchema):
     name: str | None = None
     slug: str | None = None
 
 
 class Occupation(OccupationBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID

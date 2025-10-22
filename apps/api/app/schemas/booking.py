@@ -2,32 +2,30 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from app.schemas.base import BaseSchema
 
 from ..models.enums import BookingStatus, CancelledBy
 
 
-class BookingCreate(BaseModel):
+class BookingCreate(BaseSchema):
     service_id: UUID
     start_ts: datetime
     note: Optional[str] = None
     idempotency_key: Optional[str] = None
 
 
-class BookingReschedule(BaseModel):
+class BookingReschedule(BaseSchema):
     start_ts: datetime
 
 
-class BookingUpdate(BaseModel):
+class BookingUpdate(BaseSchema):
     status: Optional[BookingStatus] = None
     cancelled_by: Optional[CancelledBy] = None
     cancellation_reason: Optional[str] = None
     note: Optional[str] = None
 
 
-class Booking(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class Booking(BaseSchema):
     id: UUID
     service_id: UUID
     clique_id: UUID

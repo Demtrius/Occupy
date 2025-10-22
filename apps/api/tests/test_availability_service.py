@@ -34,12 +34,12 @@ async def test_availability_validation_and_permissions(client, db_session, make_
     }
 
     created = await client.post(
-        "/api/v1/availability/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/availability",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(owner)),
     )
-    assert created.status_code == 200
+    assert created.status_code == 201
     availability_id = created.json()["id"]
 
     list_owner = await client.get(
@@ -55,8 +55,8 @@ async def test_availability_validation_and_permissions(client, db_session, make_
     assert list_forbidden.status_code == 403
 
     overlap = await client.post(
-        "/api/v1/availability/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/availability",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(owner)),
     )
@@ -133,24 +133,24 @@ async def test_availability_route_for_private_clique(client, db_session, make_to
     await db_session.commit()
 
     payload = {
-        "is_recurring": False,
+        "isRecurring": False,
         "date": date.today().isoformat(),
-        "start_time": time(9, 0).isoformat(),
-        "end_time": time(10, 0).isoformat(),
+        "startTime": time(9, 0).isoformat(),
+        "endTime": time(10, 0).isoformat(),
         "timezone": "UTC",
     }
 
     member_create = await client.post(
-        "/api/v1/availability/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/availability",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(member)),
     )
     assert member_create.status_code == 403
 
     owner_create = await client.post(
-        "/api/v1/availability/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/availability",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(owner)),
     )
@@ -171,13 +171,13 @@ async def test_availability_route_for_private_clique(client, db_session, make_to
 
     update_resp = await client.put(
         f"/api/v1/availability/{availability_id}",
-        json={"start_time": time(11, 0).isoformat()},
+        json={"startTime": time(11, 0).isoformat()},
         headers=auth_headers(make_token(owner)),
     )
     assert update_resp.status_code == 200
     updated_payload = update_resp.json()
-    assert updated_payload["start_time"] == "11:00:00"
-    assert updated_payload["end_time"] == "12:00:00"
+    assert updated_payload["startTime"] == "11:00:00"
+    assert updated_payload["endTime"] == "12:00:00"
 
     delete_resp = await client.delete(
         f"/api/v1/availability/{availability_id}",
@@ -201,30 +201,30 @@ async def test_partial_update_only_start_time_preserves_other_fields(
     await db_session.commit()
 
     payload = {
-        "is_recurring": False,
+        "isRecurring": False,
         "date": date.today().isoformat(),
-        "start_time": time(9, 0).isoformat(),
-        "end_time": time(10, 0).isoformat(),
+        "startTime": time(9, 0).isoformat(),
+        "endTime": time(10, 0).isoformat(),
         "timezone": "UTC",
     }
     created = await client.post(
-        "/api/v1/availability/",
-        params={"clique_id": str(clique.id)},
+        "/api/v1/availability",
+        params={"cliqueId": str(clique.id)},
         json=payload,
         headers=auth_headers(make_token(owner)),
     )
-    assert created.status_code == 200
+    assert created.status_code == 201
     availability_id = created.json()["id"]
 
     update_resp = await client.put(
         f"/api/v1/availability/{availability_id}",
-        json={"start_time": time(8, 30).isoformat()},
+        json={"startTime": time(8, 30).isoformat()},
         headers=auth_headers(make_token(owner)),
     )
     assert update_resp.status_code == 200
     updated = update_resp.json()
-    assert updated["start_time"] == "08:30:00"
-    assert updated["end_time"] == "10:00:00"
+    assert updated["startTime"] == "08:30:00"
+    assert updated["endTime"] == "10:00:00"
 
     record = await db_session.get(Availability, availability_id)
     assert record is not None

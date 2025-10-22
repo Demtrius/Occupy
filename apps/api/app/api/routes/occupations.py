@@ -1,7 +1,7 @@
-from typing import List
+from typing import Annotated, List
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Body, Depends, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user, require_clique_owner
@@ -90,7 +90,7 @@ async def update_user_occupations_endpoint(
 
 
 @router.put(
-    "/clique/{clique_id}",
+    "/clique/{cliqueId}",
     summary="Update clique occupations",
     description="Clique owners set the occupations associated with their business.",
     response_model=dict[str, str],
@@ -108,7 +108,7 @@ async def update_user_occupations_endpoint(
     openapi_extra=secured(),
 )
 async def update_clique_occupations_endpoint(
-    clique_id: UUID,
+    cliqueId: Annotated[UUID, Path(alias="cliqueId")],
     occupation_ids: List[UUID] = Body(
         ...,
         examples={
@@ -124,5 +124,5 @@ async def update_clique_occupations_endpoint(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_clique_owner),
 ):
-    await update_clique_occupations(db, clique_id, occupation_ids)
+    await update_clique_occupations(db, cliqueId, occupation_ids)
     return {"message": "Clique occupations updated"}

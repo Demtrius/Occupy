@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 
 from app.api.routes import availability as availability_routes
+from app.api.routes.availability import AvailabilityCreateParams
 from app.core.errors import Forbidden, NotFound, Validation
 from app.models.enums import Privacy
 from app.schemas.availability import AvailabilityCreate, AvailabilityUpdate
@@ -37,7 +38,7 @@ async def test_create_availability_endpoint_validation(db_session, monkeypatch):
 
     with pytest.raises(Validation):
         await availability_routes.create_availability_endpoint(
-            clique.id,
+            AvailabilityCreateParams(clique_id=clique.id),
             _availability_payload(),
             db_session,
             owner,

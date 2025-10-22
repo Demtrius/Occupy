@@ -15,7 +15,7 @@ async def test_register_creates_user(client, faker, db_session):
     response = await client.post("/api/v1/auth/register", json=payload)
     assert response.status_code == 201
     data = response.json()
-    assert "access_token" in data
+    assert "accessToken" in data
     assert data["user"]["email"] == payload["email"]
 
     user_id = data["user"]["id"]
@@ -56,8 +56,8 @@ async def test_login_success(client, faker):
     response = await client.post("/api/v1/auth/login", json=login_payload)
     assert response.status_code == 200
     tokens = response.json()
-    assert tokens["access_token"]
-    assert tokens["refresh_token"]
+    assert tokens["accessToken"]
+    assert tokens["refreshToken"]
 
 
 @pytest.mark.asyncio
@@ -89,13 +89,13 @@ async def test_logout_requires_valid_token(client, faker):
     }
     register = await client.post("/api/v1/auth/register", json=payload)
     data = register.json()
-    token = data["access_token"]
-    refresh_token = data["refresh_token"]
+    token = data["accessToken"]
+    refresh_token = data["refreshToken"]
 
     response = await client.post(
         "/api/v1/auth/logout",
         headers={"Authorization": f"Bearer {token}"},
-        json={"refresh_token": refresh_token},
+        json={"refreshToken": refresh_token},
     )
     assert response.status_code == 200
 
@@ -108,19 +108,19 @@ async def test_refresh_rotates_tokens(client, faker):
         "password": "Str0ngPass!",
     }
     register = await client.post("/api/v1/auth/register", json=payload)
-    original = register.json()["refresh_token"]
+    original = register.json()["refreshToken"]
 
     refresh = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": original},
+        json={"refreshToken": original},
     )
     assert refresh.status_code == 200
-    rotated = refresh.json()["refresh_token"]
+    rotated = refresh.json()["refreshToken"]
     assert rotated != original
 
     reuse = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": original},
+        json={"refreshToken": original},
     )
     assert reuse.status_code == 401
     assert_error(reuse, "http_error")
@@ -130,7 +130,7 @@ async def test_refresh_rotates_tokens(client, faker):
 async def test_refresh_requires_valid_token(client):
     response = await client.post(
         "/api/v1/auth/refresh",
-        json={"refresh_token": "invalid"},
+        json={"refreshToken": "invalid"},
     )
     assert response.status_code == 401
     assert_error(response, "http_error")
@@ -157,7 +157,7 @@ async def test_logout_rejects_mismatched_user(client, faker):
 
     logout = await client.post(
         "/api/v1/auth/logout",
-        json={"refresh_token": owner.json()["refresh_token"]},
-        headers={"Authorization": f"Bearer {other.json()['access_token']}"},
+        json={"refreshToken": owner.json()["refreshToken"]},
+        headers={"Authorization": f"Bearer {other.json()['accessToken']}"},
     )
     assert logout.status_code == 401

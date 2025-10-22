@@ -17,7 +17,7 @@ async def test_unified_search_returns_results(client, db_session):
     db_session.add(occupation)
     await db_session.commit()
 
-    response = await client.get("/api/v1/search/", params={"q": "sun"})
+    response = await client.get("/api/v1/search", params={"q": "sun"})
     assert response.status_code == 200
     data = response.json()
     assert any(item["username"] == "saria" for item in data["users"])

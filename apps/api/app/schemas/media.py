@@ -1,15 +1,16 @@
-from pydantic import BaseModel
 from typing import Optional
 
+from app.schemas.base import BaseSchema
 
-class MediaCreate(BaseModel):
+
+class MediaCreate(BaseSchema):
     url: str
     mime: Optional[str] = None
     size_bytes: Optional[int] = None
     meta: Optional[dict] = None
 
 
-class Media(BaseModel):
+class Media(BaseSchema):
     id: str
     owner_user_id: str
     url: str

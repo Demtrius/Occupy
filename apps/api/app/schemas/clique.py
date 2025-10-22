@@ -2,12 +2,14 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from app.schemas.base import BaseSchema
 
 from ..models.enums import MembershipStatus, Privacy, Role
 
 
-class CliqueBase(BaseModel):
+class CliqueBase(BaseSchema):
     name: str
     description: Optional[str] = None
     image_url: Optional[str] = None
@@ -21,7 +23,7 @@ class CliqueCreate(CliqueBase):
     pass
 
 
-class CliqueUpdate(BaseModel):
+class CliqueUpdate(BaseSchema):
     name: Optional[str] = None
     description: Optional[str] = None
     image_url: Optional[str] = None
@@ -31,9 +33,7 @@ class CliqueUpdate(BaseModel):
     occupation_ids: Optional[List[UUID]] = None
 
 
-class CliqueMember(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class CliqueMember(BaseSchema):
     id: UUID
     clique_id: UUID
     user_id: UUID
@@ -42,14 +42,12 @@ class CliqueMember(BaseModel):
     created_at: datetime
 
 
-class CliqueInviteCreate(BaseModel):
+class CliqueInviteCreate(BaseSchema):
     expires_at: Optional[datetime] = None
     max_uses: Optional[int] = Field(default=None, ge=1)
 
 
-class CliqueInvite(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class CliqueInvite(BaseSchema):
     id: UUID
     clique_id: UUID
     token: str
@@ -60,8 +58,6 @@ class CliqueInvite(BaseModel):
 
 
 class Clique(CliqueBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: UUID
     owner_user_id: UUID
     created_at: datetime

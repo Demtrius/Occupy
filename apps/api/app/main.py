@@ -44,7 +44,7 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 auth_sessionmaker = async_session
 deps_sessionmaker = async_session
 
-APP_TITLE = "Clique API"
+APP_TITLE = "Occupy API"
 APP_DESC = """
 API for a social + bookings platform for small businesses.
 

@@ -1,7 +1,7 @@
-from typing import List
+from typing import Annotated, List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Path, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -39,7 +39,7 @@ async def list_notifications(
 
 
 @router.put(
-    "/{notification_id}/read",
+    "/{notificationId}/read",
     summary="Mark notification read",
     description="Mark a single notification as read and return the updated record.",
     response_model=NotificationSchema,
@@ -50,11 +50,11 @@ async def list_notifications(
     openapi_extra=secured(),
 )
 async def mark_notification_read(
-    notification_id: UUID,
+    notificationId: Annotated[UUID, Path(alias="notificationId")],
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
-    notification = await mark_notification_as_read(db, notification_id, current_user.id)
+    notification = await mark_notification_as_read(db, notificationId, current_user.id)
     if not notification:
         raise NotFound("Notification not found")
     return notification

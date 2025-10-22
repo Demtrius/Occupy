@@ -16,7 +16,7 @@ async def test_follow_and_list(client, db_session, make_token):
         f"/api/v1/users/{followee.id}/follow",
         headers=auth_headers(make_token(follower)),
     )
-    assert follow_response.status_code == 200
+    assert follow_response.status_code == 201
     assert follow_response.json()["status"] == FollowStatus.ACCEPTED.value
 
     followers = await client.get(
@@ -26,7 +26,7 @@ async def test_follow_and_list(client, db_session, make_token):
     assert followers.status_code == 200
     payload = followers.json()
     assert_cursor_page(payload)
-    ids = {row["follower_user_id"] for row in payload["items"]}
+    ids = {row["followerUserId"] for row in payload["items"]}
     assert str(follower.id) in ids
 
 
@@ -103,7 +103,7 @@ async def test_follow_approval_flow(client, db_session, make_token):
         f"/api/v1/users/{private_user.id}/follow",
         headers=auth_headers(make_token(owner)),
     )
-    assert pending.status_code == 200
+    assert pending.status_code == 201
     assert pending.json()["status"] == FollowStatus.PENDING.value
 
     approve = await client.post(
