@@ -18,6 +18,7 @@ export default function TabsLayout() {
 			}}
 		>
 			<Tabs.Screen name="feed" options={{ title: "Feed" }} />
+			<Tabs.Screen name="search" options={{ title: "Search" }} />
 			<Tabs.Screen name="cliques" options={{ title: "Cliques" }} />
 			<Tabs.Screen name="messages" options={{ title: "Messages" }} />
 			<Tabs.Screen name="profile" options={{ title: "Profile" }} />
