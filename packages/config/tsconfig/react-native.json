@@ -1,7 +1,0 @@
-{
-  "extends": "./base.json",
-  "compilerOptions": {
-    "types": ["react", "react-native"],
-    "allowSyntheticDefaultImports": true
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "extends": "@occupy/config/tsconfig/react-native",
-  "compilerOptions": {
-    "composite": false,
-    "declaration": false
-  },
-  "include": ["src"]
-}

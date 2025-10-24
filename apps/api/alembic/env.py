@@ -10,6 +10,7 @@ from alembic import context
 
 config = context.config
 
+
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -20,9 +21,10 @@ target_metadata = Base.metadata
 
 existing = config.get_main_option("sqlalchemy.url")
 url = os.getenv(
-    "DATABASE_URL"
-    # "postgresql+asyncpg://postgres:postgres@localhost:5432/clique",
+    "DATABASE_URL",
+    "postgresql+asyncpg://postgres:postgres@localhost:5432/clique",
 )
+
 print("URLS", url)
 print("URLS", existing)
 

@@ -39,8 +39,8 @@ class User(UserBase):
 
 
 class LoginRequest(BaseSchema):
-    email_or_username: str
-    password: str
+    email_or_username: str = Field(min_length=1)
+    password: str = Field(min_length=1)
 
 
 class RefreshRequest(BaseSchema):

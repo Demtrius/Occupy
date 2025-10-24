@@ -11,9 +11,9 @@ from jose import JWTError, jwt
 from redis.exceptions import RedisError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from ..models.user import User
 from .errors import Forbidden, Unauthorized
 from .redis import get_redis_client
-from ..models.user import User
 
 
 # Settings
@@ -29,7 +29,6 @@ REFRESH_TOKEN_PREFIX = "auth:refresh"
 
 password_hasher = PasswordHasher()
 
-# Placeholder, set in main.py
 sessionmaker: async_sessionmaker[AsyncSession] | None = None
 
 

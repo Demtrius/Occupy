@@ -133,3 +133,5 @@ junit.xml
 *.iml
 
 .hypothesis
+
+_mobile/

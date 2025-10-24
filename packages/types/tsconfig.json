@@ -1,8 +1,0 @@
-{
-  "extends": "@occupy/config/tsconfig/base",
-  "compilerOptions": {
-    "composite": false,
-    "declaration": false
-  },
-  "include": ["src"]
-}

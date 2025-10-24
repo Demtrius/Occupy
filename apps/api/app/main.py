@@ -1,6 +1,7 @@
 import os
 
 from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from slowapi.middleware import SlowAPIMiddleware
@@ -24,6 +25,7 @@ from .api.routes.search import router as search_router
 from .api.routes.slots import router as slots_router
 from .api.routes.users import router as users_router
 from .api.ws import router as ws_router
+from .core import auth
 from .core.errors import (
     AppError,
     app_error_handler,
@@ -31,6 +33,7 @@ from .core.errors import (
     integrity_error_handler,
     operational_error_handler,
     programming_error_handler,
+    validation_error_handler,
 )
 from .core.limiter import limiter
 
@@ -43,6 +46,7 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 # Set sessionmaker
 auth_sessionmaker = async_session
 deps_sessionmaker = async_session
+auth.sessionmaker = async_session
 
 APP_TITLE = "Occupy API"
 APP_DESC = """
@@ -114,6 +118,7 @@ app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(OperationalError, operational_error_handler)
 app.add_exception_handler(ProgrammingError, programming_error_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_error_handler)
 
 # Limiter
 app.state.limiter = limiter

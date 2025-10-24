@@ -175,6 +175,7 @@ async def login(
     user = await get_user_by_email_or_username(
         db, credentials.email_or_username, credentials.email_or_username
     )
+
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token = create_access_token({"sub": str(user.id)})

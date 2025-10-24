@@ -1,6 +1,8 @@
+import logging
 from typing import Any
 
 from fastapi import HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.schemas.base import BaseSchema
@@ -146,6 +148,7 @@ def rate_limited_handler(request: Request, exc: RateLimited) -> JSONResponse:
 
 
 def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
+    logging.error(f"Database integrity error: {exc}")
     message = str(getattr(exc, "orig", exc))
     message_lower = message.lower()
     if "uq_reviews_booking_id" in message_lower:
@@ -168,6 +171,7 @@ def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONRespon
 
 
 def operational_error_handler(request: Request, exc: OperationalError) -> JSONResponse:
+    logging.error(f"Database operational error: {exc}")
     payload = ErrorResponse(
         error={
             "code": "database_error",
@@ -179,6 +183,7 @@ def operational_error_handler(request: Request, exc: OperationalError) -> JSONRe
 
 
 def programming_error_handler(request: Request, exc: ProgrammingError) -> JSONResponse:
+    logging.error(f"Database programming error: {exc}")
     payload = ErrorResponse(
         error={
             "code": "database_error",
@@ -195,3 +200,15 @@ def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse
         error={"code": "http_error", "message": exc.detail, "details": {}}
     ).model_dump(by_alias=True)
     return JSONResponse(status_code=exc.status_code, content=payload)
+
+
+def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """Normalize RequestValidationError into the standard error envelope."""
+    payload = ErrorResponse(
+        error={
+            "code": "validation_error",
+            "message": "Request validation failed",
+            "details": {"errors": exc.errors()},
+        }
+    ).model_dump(by_alias=True)
+    return JSONResponse(status_code=422, content=payload)
