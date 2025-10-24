@@ -1,0 +1,6228 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "Occupy API",
+		"description": "\nAPI for a social + bookings platform for small businesses.\n\n- **Auth**: JWT Bearer (`Authorization: Bearer <token>`)\n- **Pagination**: Cursor-based via `cursor` and `limit` query params; responses include `items[]` and `nextCursor`.\n- **Errors**: Standardized envelope `{ \"error\": { \"code\", \"message\", \"details\" } }`.\n\nSee **/redoc** for a compact reference.\n",
+		"version": "0.1.0"
+	},
+	"paths": {
+		"/api/v1/auth/register": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Register new user",
+				"description": "Create a user account and return signed access and refresh tokens.",
+				"operationId": "register_api_v1_auth_register_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/UserCreate" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"description": "Registration successful",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/TokenRead" },
+								"example": {
+									"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+									"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+									"user": {
+										"id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
+										"email": "founder@example.com",
+										"username": "clique_founder",
+										"fullName": "Clique Founder",
+										"bio": "Owner of Clique Salon",
+										"profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+										"isAdmin": false,
+										"isActive": true,
+										"isPrivateAccount": false,
+										"isBusinessPage": true,
+										"createdAt": "2024-03-01T09:00:00Z",
+										"updatedAt": "2024-03-01T09:00:00Z"
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"409": {
+						"description": "Conflict",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/login": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Login with email or username",
+				"description": "Validate credentials and issue new access and refresh tokens.",
+				"operationId": "login_api_v1_auth_login_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/LoginRequest" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Authenticated",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/TokenRead" },
+								"example": {
+									"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+									"refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+									"user": {
+										"id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
+										"email": "founder@example.com",
+										"username": "clique_founder",
+										"fullName": "Clique Founder",
+										"bio": "Owner of Clique Salon",
+										"profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+										"isAdmin": false,
+										"isActive": true,
+										"isPrivateAccount": false,
+										"isBusinessPage": true,
+										"createdAt": "2024-03-01T09:00:00Z",
+										"updatedAt": "2024-03-01T09:00:00Z"
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/refresh": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Refresh access token",
+				"description": "Exchange a valid refresh token for a new access + refresh pair.",
+				"operationId": "refresh_api_v1_auth_refresh_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/RefreshRequest" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Tokens refreshed",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/TokenRead" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/auth/logout": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Revoke refresh token",
+				"description": "Invalidate an issued refresh token for the current user.",
+				"operationId": "logout_api_v1_auth_logout_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/RefreshRequest" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Refresh token revoked",
+						"content": {
+							"application/json": {
+								"schema": {
+									"additionalProperties": { "type": "string" },
+									"type": "object",
+									"title": "Response Logout Api V1 Auth Logout Post"
+								},
+								"example": { "message": "Logged out" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"503": {
+						"description": "Service Unavailable",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/users/me": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "Get current user",
+				"description": "Return the profile for the authenticated user.",
+				"operationId": "get_me_api_v1_users_me_get",
+				"responses": {
+					"200": {
+						"description": "Current user profile",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/User" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			},
+			"patch": {
+				"tags": ["Users"],
+				"summary": "Update current user",
+				"description": "Patch the profile fields for the authenticated user.",
+				"operationId": "update_me_api_v1_users_me_patch",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/UserUpdate" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Updated profile",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/User" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/users": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "Search users",
+				"description": "Paginated user search supporting text query, occupation filter, and sort.",
+				"operationId": "search_users_api_v1_users_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "q",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Free-text search across usernames and bios.",
+							"default": "",
+							"title": "Q"
+						},
+						"description": "Free-text search across usernames and bios."
+					},
+					{
+						"name": "occupationId",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{ "type": "string", "format": "uuid" },
+								{ "type": "null" }
+							],
+							"description": "Filter to users tagged with a specific occupation.",
+							"title": "Occupationid"
+						},
+						"description": "Filter to users tagged with a specific occupation."
+					},
+					{
+						"name": "sort",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"description": "Sort expression in the form `field:direction`.",
+							"default": "created_at:desc",
+							"title": "Sort"
+						},
+						"description": "Sort expression in the form `field:direction`."
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Users page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageUsers" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "Get user by id",
+				"description": "Retrieve another user's profile respecting blocking and privacy.",
+				"operationId": "get_user_api_v1_users__userId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "User profile",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/User" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Follow user",
+				"description": "Send a follow request or follow immediately if the account is public.",
+				"operationId": "follow_api_v1_users__userId__follow_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"201": {
+						"description": "Follow request sent",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Follow" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Users"],
+				"summary": "Unfollow user",
+				"description": "Stop following another user.",
+				"operationId": "unfollow_api_v1_users__userId__follow_delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Unfollowed",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Unfollow Api V1 Users  Userid  Follow Delete"
+								},
+								"example": { "status": "unfollowed" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow/approve": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Approve follow request",
+				"description": "Accept a pending follow request from another user.",
+				"operationId": "approve_api_v1_users__userId__follow_approve_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Follow approved",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Follow" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow/reject": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Reject follow request",
+				"description": "Decline a pending follow request.",
+				"operationId": "reject_api_v1_users__userId__follow_reject_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Follow rejected",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Reject Api V1 Users  Userid  Follow Reject Post"
+								},
+								"example": { "status": "rejected" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow/followers/{followerId}": {
+			"delete": {
+				"tags": ["Users"],
+				"summary": "Remove follower",
+				"description": "Remove a follower from your audience.",
+				"operationId": "remove_follower_api_v1_users__userId__follow_followers__followerId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					},
+					{
+						"name": "followerId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Followerid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Follower removed",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Remove Follower Api V1 Users  Userid  Follow Followers  Followerid  Delete"
+								},
+								"example": { "status": "removed" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow/followers": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "List followers",
+				"description": "Paginated list of followers for the specified user.",
+				"operationId": "list_followers_api_v1_users__userId__follow_followers_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Followers page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageFollows" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow/following": {
+			"get": {
+				"tags": ["Users"],
+				"summary": "List following",
+				"description": "Paginated list of accounts the specified user follows.",
+				"operationId": "list_following_api_v1_users__userId__follow_following_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Following page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageFollows" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/users/{userId}/follow/block": {
+			"post": {
+				"tags": ["Users"],
+				"summary": "Block user",
+				"description": "Block another user; any follow relationship is converted to a block.",
+				"operationId": "block_api_v1_users__userId__follow_block_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "User blocked",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Follow" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Users"],
+				"summary": "Unblock user",
+				"description": "Remove a previously created block.",
+				"operationId": "unblock_api_v1_users__userId__follow_block_delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "User unblocked",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Unblock Api V1 Users  Userid  Follow Block Delete"
+								},
+								"example": { "status": "unblocked" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/feed": {
+			"get": {
+				"tags": ["Cliques"],
+				"summary": "View clique feed",
+				"description": "Paginated feed of posts from cliques the user belongs to.",
+				"operationId": "feed_api_v1_cliques_feed_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Feed page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPagePosts" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques": {
+			"post": {
+				"tags": ["Cliques"],
+				"summary": "Create clique",
+				"description": "Business pages create cliques to organize services and bookings.",
+				"operationId": "create_api_v1_cliques_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/CliqueCreate" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"description": "Clique created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Clique" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/cliques/{cliqueId}": {
+			"get": {
+				"tags": ["Cliques"],
+				"summary": "Get clique",
+				"description": "Retrieve the public profile for a clique, with visibility rules applied.",
+				"operationId": "get_clique_api_v1_cliques__cliqueId__get",
+				"security": [{ "HTTPBearer": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Clique profile",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": true,
+									"title": "Response Get Clique Api V1 Cliques  Cliqueid  Get"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"tags": ["Cliques"],
+				"summary": "Update clique",
+				"description": "Clique owners can edit name, imagery, privacy, and cancellation policy.",
+				"operationId": "update_clique_api_v1_cliques__cliqueId__patch",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CliqueUpdate",
+								"examples": {
+									"adjust_policy": {
+										"summary": "Update cancellation policy",
+										"value": { "cancellationCutoffHours": 12 }
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Clique updated",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Clique" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Cliques"],
+				"summary": "Delete clique",
+				"description": "Clique owners can permanently delete their clique.",
+				"operationId": "delete_clique_api_v1_cliques__cliqueId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"responses": {
+					"204": { "description": "Clique deleted" },
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/join": {
+			"post": {
+				"tags": ["Cliques"],
+				"summary": "Request to join clique",
+				"description": "Join a clique using an invite token when required.",
+				"operationId": "join_api_v1_cliques__cliqueId__join_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "inviteToken",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Invitetoken"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Join request recorded",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CliqueMember" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/members/me": {
+			"delete": {
+				"tags": ["Cliques"],
+				"summary": "Leave clique",
+				"description": "Members can leave a clique they previously joined.",
+				"operationId": "leave_api_v1_cliques__cliqueId__members_me_delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Left clique",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Leave Api V1 Cliques  Cliqueid  Members Me Delete"
+								},
+								"example": { "status": "left" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/members": {
+			"get": {
+				"tags": ["Cliques"],
+				"summary": "List clique members",
+				"description": "Paginated list of members with role and status.",
+				"operationId": "list_members_api_v1_cliques__cliqueId__members_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Members page",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CursorPageCliqueMembers"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/members/pending": {
+			"get": {
+				"tags": ["Cliques"],
+				"summary": "List pending membership requests",
+				"description": "View join requests awaiting moderation by the clique owner.",
+				"operationId": "list_pending_members_api_v1_cliques__cliqueId__members_pending_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Pending members",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CursorPageCliqueMembers"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/members/{memberId}/approve": {
+			"post": {
+				"tags": ["Cliques"],
+				"summary": "Approve membership request",
+				"description": "Clique owners approve pending members.",
+				"operationId": "approve_membership_api_v1_cliques__cliqueId__members__memberId__approve_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "memberId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Memberid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Membership approved",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CliqueMember" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/members/{memberId}/reject": {
+			"post": {
+				"tags": ["Cliques"],
+				"summary": "Reject membership request",
+				"description": "Decline a pending membership request.",
+				"operationId": "reject_membership_api_v1_cliques__cliqueId__members__memberId__reject_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "memberId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Memberid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Membership rejected",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Reject Membership Api V1 Cliques  Cliqueid  Members  Memberid  Reject Post"
+								},
+								"example": { "status": "rejected" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/invites": {
+			"post": {
+				"tags": ["Cliques"],
+				"summary": "Create invite link",
+				"description": "Clique owners create invite tokens for members to join.",
+				"operationId": "create_invite_endpoint_api_v1_cliques__cliqueId__invites_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CliqueInviteCreate",
+								"examples": {
+									"limited": {
+										"summary": "Limited-use invite",
+										"value": {
+											"expiresAt": "2024-05-01T00:00:00Z",
+											"maxUses": 20
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Invite created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CliqueInvite" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/cliques/{cliqueId}/posts": {
+			"post": {
+				"tags": ["Posts"],
+				"summary": "Create post in clique",
+				"description": "Clique owners create posts to share updates with members.",
+				"operationId": "create_post_route_api_v1_posts_cliques__cliqueId__posts_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PostCreate",
+								"examples": {
+									"announcement": {
+										"summary": "Publish announcement",
+										"value": {
+											"content": "✨ Spring product launch this Friday at 5pm!",
+											"status": "posted"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Post created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Post" },
+								"example": {
+									"id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+									"cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+									"authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+									"content": "✨ Spring product launch this Friday at 5pm!",
+									"status": "posted",
+									"likesCount": 0,
+									"commentsCount": 0,
+									"likedByMe": false,
+									"createdAt": "2024-04-01T12:00:00Z",
+									"updatedAt": "2024-04-01T12:00:00Z"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"tags": ["Posts"],
+				"summary": "List clique posts",
+				"description": "Paginated posts visible to the current user, including engagement metadata.",
+				"operationId": "list_clique_posts_route_api_v1_posts_cliques__cliqueId__posts_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Posts page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPagePosts" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/{postId}": {
+			"get": {
+				"tags": ["Posts"],
+				"summary": "Get post",
+				"description": "Retrieve a post with reactions and visibility checks applied.",
+				"operationId": "get_post_route_api_v1_posts__postId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Postid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Post detail",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Post" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"tags": ["Posts"],
+				"summary": "Update post",
+				"description": "Post authors or clique owners can edit content or status.",
+				"operationId": "update_post_route_api_v1_posts__postId__patch",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Postid" }
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PostUpdate",
+								"examples": {
+									"publish": {
+										"summary": "Publish draft",
+										"value": { "status": "posted" }
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Post updated",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Post" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Posts"],
+				"summary": "Delete post",
+				"description": "Delete a post as the author or clique owner.",
+				"operationId": "delete_post_route_api_v1_posts__postId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Postid" }
+					}
+				],
+				"responses": {
+					"204": { "description": "Post deleted" },
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/{postId}/like": {
+			"post": {
+				"tags": ["Posts"],
+				"summary": "Like post",
+				"description": "Toggle the current user's like on the specified post.",
+				"operationId": "like_route_api_v1_posts__postId__like_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Postid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Post with updated reactions",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Post" },
+								"example": {
+									"id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+									"likesCount": 12,
+									"commentsCount": 3,
+									"likedByMe": true
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Posts"],
+				"summary": "Unlike post",
+				"description": "Remove the user's like from the post.",
+				"operationId": "unlike_route_api_v1_posts__postId__like_delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Postid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Post with updated reactions",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Post" },
+								"example": {
+									"id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+									"likesCount": 11,
+									"commentsCount": 3,
+									"likedByMe": false
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/{postId}/comments": {
+			"post": {
+				"tags": ["Posts"],
+				"summary": "Create comment",
+				"description": "Add a comment to a visible post.",
+				"operationId": "create_comment_route_api_v1_posts__postId__comments_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "postId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Postid" }
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CommentCreate",
+								"examples": {
+									"supportive": {
+										"summary": "Friendly comment",
+										"value": {
+											"content": "Can't wait to see the new collection!"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Comment created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Comment" },
+								"example": {
+									"id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
+									"postId": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+									"userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+									"content": "Can't wait to see the new collection!",
+									"createdAt": "2024-04-01T13:00:00Z"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/comments/{commentId}": {
+			"delete": {
+				"tags": ["Posts"],
+				"summary": "Delete comment",
+				"description": "Delete a comment authored by the user or managed by the clique owner.",
+				"operationId": "delete_comment_route_api_v1_posts_comments__commentId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "commentId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Commentid"
+						}
+					}
+				],
+				"responses": {
+					"204": { "description": "Comment deleted" },
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/media/uploads/presign": {
+			"post": {
+				"tags": ["Media"],
+				"summary": "Generate presigned upload",
+				"description": "Return a presigned URL and required form fields for direct uploads.",
+				"operationId": "presign_upload_api_v1_media_uploads_presign_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "mime",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"description": "MIME type of the file to be uploaded.",
+							"title": "Mime"
+						},
+						"description": "MIME type of the file to be uploaded."
+					},
+					{
+						"name": "sizeBytes",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"description": "Planned upload size in bytes.",
+							"title": "Sizebytes"
+						},
+						"description": "Planned upload size in bytes."
+					},
+					{
+						"name": "purpose",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"description": "Purpose of the media (e.g. `profile`, `gallery`, `attachment`).",
+							"title": "Purpose"
+						},
+						"description": "Purpose of the media (e.g. `profile`, `gallery`, `attachment`)."
+					}
+				],
+				"responses": {
+					"201": {
+						"description": "Presign generated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": true,
+									"title": "Response Presign Upload Api V1 Media Uploads Presign Post"
+								},
+								"example": {
+									"uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
+									"fields": {
+										"key": "media/2024/04/02/b19fd.png",
+										"Content-Type": "image/png",
+										"policy": "eyJleHBpcmVzIjoiMjAyNC0wNC0wMlQxNTowMDowMFoi...",
+										"signature": "abc123"
+									},
+									"expiresIn": 900
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/media": {
+			"post": {
+				"tags": ["Media"],
+				"summary": "Register uploaded media",
+				"description": "Persist uploaded media metadata after a successful presigned upload.",
+				"operationId": "register_uploaded_api_v1_media_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/MediaCreate" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"description": "Media registered",
+						"content": {
+							"application/json": {
+								"schema": {
+									"additionalProperties": { "type": "string" },
+									"type": "object",
+									"title": "Response Register Uploaded Api V1 Media Post"
+								},
+								"example": { "mediaId": "28c77070-40a9-4478-b6a6-319d1490d0dd" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/bookings": {
+			"post": {
+				"tags": ["Bookings"],
+				"summary": "Create booking",
+				"description": "Book a service for a specific start time. Idempotent per `idempotency_key`.",
+				"operationId": "create_api_v1_bookings_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/BookingCreate" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"description": "Booking created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Booking" },
+								"example": {
+									"id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+									"serviceId": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
+									"cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+									"userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+									"startTs": "2024-04-02T14:00:00Z",
+									"endTs": "2024-04-02T15:00:00Z",
+									"status": "pending",
+									"note": "Please prepare the studio for a product shoot.",
+									"idempotencyKey": "booking-20240402",
+									"createdAt": "2024-04-01T10:00:00Z",
+									"updatedAt": "2024-04-01T10:00:00Z"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"409": {
+						"description": "Conflict",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/bookings/{bookingId}/reschedule": {
+			"patch": {
+				"tags": ["Bookings"],
+				"summary": "Reschedule booking",
+				"description": "Move a pending booking to a new start time.",
+				"operationId": "reschedule_booking_route_api_v1_bookings__bookingId__reschedule_patch",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "bookingId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Bookingid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BookingReschedule",
+								"examples": {
+									"new_time": {
+										"summary": "Reschedule to a later slot",
+										"value": { "startTs": "2024-04-03T16:00:00Z" }
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Booking rescheduled",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Booking" },
+								"example": {
+									"id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+									"startTs": "2024-04-03T16:00:00Z",
+									"endTs": "2024-04-03T17:00:00Z",
+									"status": "pending"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"409": {
+						"description": "Conflict",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/bookings/me": {
+			"get": {
+				"tags": ["Bookings"],
+				"summary": "List my bookings",
+				"description": "Paginated bookings made by the authenticated user.",
+				"operationId": "list_my_bookings_api_v1_bookings_me_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Status"
+						}
+					},
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Bookings page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageBookings" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/bookings/cliques/{cliqueId}": {
+			"get": {
+				"tags": ["Bookings"],
+				"summary": "List clique bookings",
+				"description": "Paginated bookings for a clique. Only the owner can access.",
+				"operationId": "list_clique_bookings_api_v1_bookings_cliques__cliqueId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Status"
+						}
+					},
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Bookings page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageBookings" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/bookings/{bookingId}/confirm": {
+			"post": {
+				"tags": ["Bookings"],
+				"summary": "Confirm booking",
+				"description": "Clique owner confirms a pending booking.",
+				"operationId": "confirm_api_v1_bookings__bookingId__confirm_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "bookingId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Bookingid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Booking confirmed",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Booking" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"409": {
+						"description": "Conflict",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/bookings/{bookingId}/cancel": {
+			"post": {
+				"tags": ["Bookings"],
+				"summary": "Cancel booking",
+				"description": "Cancel a booking as the owner or the customer. Optional reason required for owners.",
+				"operationId": "cancel_api_v1_bookings__bookingId__cancel_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "bookingId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Bookingid"
+						}
+					},
+					{
+						"name": "reason",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Reason"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Booking cancelled",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Booking" },
+								"example": {
+									"id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+									"status": "cancelled",
+									"cancellationReason": "Client unavailable"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"409": {
+						"description": "Conflict",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/reviews/bookings/{bookingId}": {
+			"post": {
+				"tags": ["Reviews"],
+				"summary": "Review completed booking",
+				"description": "Customers leave a rating and optional comment for a completed booking.",
+				"operationId": "create_api_v1_reviews_bookings__bookingId__post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "bookingId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Bookingid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ReviewCreate",
+								"examples": {
+									"five_star": {
+										"summary": "Five-star review",
+										"value": {
+											"rating": 5,
+											"comment": "Incredible service and attention to detail."
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Review created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "string",
+										"format": "uuid"
+									},
+									"title": "Response Create Api V1 Reviews Bookings  Bookingid  Post"
+								},
+								"example": { "id": "9dd1b664-9e45-4e1c-8343-cfb819a6f5ce" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/reviews/cliques/{cliqueId}": {
+			"get": {
+				"tags": ["Reviews"],
+				"summary": "List clique reviews",
+				"description": "Paginated reviews left for services hosted by the clique.",
+				"operationId": "list_clique_reviews_api_v1_reviews_cliques__cliqueId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Reviews page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageReviews" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/notifications": {
+			"get": {
+				"tags": ["Notifications"],
+				"summary": "List notifications",
+				"description": "Return notifications for the current user ordered by recency.",
+				"operationId": "list_notifications_api_v1_notifications_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 50,
+							"title": "Limit"
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"default": 0,
+							"title": "Offset"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Notifications list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/Notification" },
+									"title": "Response List Notifications Api V1 Notifications Get"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/notifications/{notificationId}/read": {
+			"put": {
+				"tags": ["Notifications"],
+				"summary": "Mark notification read",
+				"description": "Mark a single notification as read and return the updated record.",
+				"operationId": "mark_notification_read_api_v1_notifications__notificationId__read_put",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "notificationId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Notificationid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Notification updated",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Notification" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/notifications/read-all": {
+			"put": {
+				"tags": ["Notifications"],
+				"summary": "Mark all notifications read",
+				"description": "Mark every unread notification for the current user as read.",
+				"operationId": "mark_all_read_api_v1_notifications_read_all_put",
+				"responses": {
+					"200": {
+						"description": "All notifications marked read",
+						"content": {
+							"application/json": {
+								"schema": {
+									"additionalProperties": { "type": "string" },
+									"type": "object",
+									"title": "Response Mark All Read Api V1 Notifications Read All Put"
+								},
+								"example": { "message": "Marked 12 notifications as read" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/search": {
+			"get": {
+				"tags": ["Search"],
+				"summary": "Unified search",
+				"description": "Search across users, occupations, and cliques with a single query.",
+				"operationId": "search_api_v1_search_get",
+				"security": [{ "HTTPBearer": [] }],
+				"parameters": [
+					{
+						"name": "q",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"minLength": 1,
+							"maxLength": 100,
+							"description": "Search term applied to users, occupations, and cliques.",
+							"title": "Q"
+						},
+						"description": "Search term applied to users, occupations, and cliques."
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"description": "Maximum number of results per collection.",
+							"default": 20,
+							"title": "Limit"
+						},
+						"description": "Maximum number of results per collection."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Search results",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": true,
+									"title": "Response Search Api V1 Search Get"
+								},
+								"example": {
+									"users": [
+										{
+											"id": "d0a93f94-9fab-41a2-964d-8f6a78524c1d",
+											"username": "clique_founder",
+											"fullName": "Clique Founder"
+										}
+									],
+									"occupations": [
+										{
+											"id": "9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
+											"name": "Photographer"
+										}
+									],
+									"cliques": [
+										{
+											"id": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+											"name": "Clique Studio",
+											"privacy": "private",
+											"imageUrl": "https://cdn.example.com/cliques/studio.png"
+										}
+									]
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/chats": {
+			"get": {
+				"tags": ["Messaging"],
+				"summary": "List chats",
+				"description": "Return chats the current user participates in, sorted by recent activity.",
+				"operationId": "list_chats_api_v1_chats_get",
+				"responses": {
+					"200": {
+						"description": "Chats list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": { "$ref": "#/components/schemas/Chat" },
+									"type": "array",
+									"title": "Response List Chats Api V1 Chats Get"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				},
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+			}
+		},
+		"/api/v1/messages/{chatId}": {
+			"get": {
+				"tags": ["Messaging"],
+				"summary": "List chat messages",
+				"description": "Return the latest messages in a chat the user participates in.",
+				"operationId": "list_messages_api_v1_messages__chatId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "chatId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Chatid" }
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 50,
+							"title": "Limit"
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"default": 0,
+							"title": "Offset"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Messages list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/Message" },
+									"title": "Response List Messages Api V1 Messages  Chatid  Get"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": ["Messaging"],
+				"summary": "Send message",
+				"description": "Send a message in a chat between a client and a business.",
+				"operationId": "create_message_api_v1_messages__chatId__post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "chatId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Chatid" }
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/MessageCreate",
+								"examples": {
+									"text": {
+										"summary": "Simple message",
+										"value": {
+											"content": "Looking forward to our session tomorrow!"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Message sent",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Message" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/messages/{messageId}": {
+			"delete": {
+				"tags": ["Messaging"],
+				"summary": "Delete message",
+				"description": "Delete a message sent by the current user.",
+				"operationId": "remove_message_api_v1_messages__messageId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "messageId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Messageid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Message deleted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Remove Message Api V1 Messages  Messageid  Delete"
+								},
+								"example": { "message": "Message deleted" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/occupations": {
+			"get": {
+				"tags": ["Occupations"],
+				"summary": "List occupations",
+				"description": "Return top occupations in the catalog ordered by usage.",
+				"operationId": "list_occupations_api_v1_occupations_get",
+				"parameters": [
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 50,
+							"title": "Limit"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Occupations list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/Occupation" },
+									"title": "Response List Occupations Api V1 Occupations Get"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/occupations/search": {
+			"get": {
+				"tags": ["Occupations"],
+				"summary": "Search occupations",
+				"description": "Search occupation taxonomy by name prefix.",
+				"operationId": "search_occupations_endpoint_api_v1_occupations_search_get",
+				"parameters": [
+					{
+						"name": "q",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"minLength": 1,
+							"maxLength": 100,
+							"title": "Q"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Search results",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/Occupation" },
+									"title": "Response Search Occupations Endpoint Api V1 Occupations Search Get"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/occupations/user": {
+			"put": {
+				"tags": ["Occupations"],
+				"summary": "Update my occupations",
+				"description": "Replace the authenticated user's occupation list.",
+				"operationId": "update_user_occupations_endpoint_api_v1_occupations_user_put",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "array",
+								"items": { "type": "string", "format": "uuid" },
+								"examples": {
+									"studio_owner": {
+										"summary": "Replace occupations",
+										"value": [
+											"9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
+											"8f9d6c2a-9525-4cd3-b963-59f82a28cd31"
+										]
+									}
+								},
+								"title": "Occupation Ids"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Occupations updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Update User Occupations Endpoint Api V1 Occupations User Put"
+								},
+								"example": { "message": "User occupations updated" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/occupations/clique/{cliqueId}": {
+			"put": {
+				"tags": ["Occupations"],
+				"summary": "Update clique occupations",
+				"description": "Clique owners set the occupations associated with their business.",
+				"operationId": "update_clique_occupations_endpoint_api_v1_occupations_clique__cliqueId__put",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "clique_id",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Clique Id"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "array",
+								"items": { "type": "string", "format": "uuid" },
+								"examples": {
+									"studio_owner": {
+										"summary": "Replace clique occupations",
+										"value": [
+											"9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
+											"8f9d6c2a-9525-4cd3-b963-59f82a28cd31"
+										]
+									}
+								},
+								"title": "Occupation Ids"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Clique occupations updated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Update Clique Occupations Endpoint Api V1 Occupations Clique  Cliqueid  Put"
+								},
+								"example": { "message": "Clique occupations updated" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/services": {
+			"post": {
+				"tags": ["Services"],
+				"summary": "Create service",
+				"description": "Clique owners define a bookable service with pricing metadata.",
+				"operationId": "create_service_endpoint_api_v1_services_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ServiceCreate",
+								"examples": {
+									"duration_with_price": {
+										"summary": "Standard service",
+										"value": {
+											"title": "Signature facial",
+											"description": "60 minute facial tailored to the client.",
+											"durationMinutes": 60,
+											"priceMinor": 12000,
+											"currency": "USD",
+											"isActive": true
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Service created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Service" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/services/{cliqueId}": {
+			"get": {
+				"tags": ["Services"],
+				"summary": "List clique services",
+				"description": "Return services configured for a clique, optionally only active ones.",
+				"operationId": "list_clique_services_api_v1_services__cliqueId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "activeOnly",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"default": true,
+							"title": "Activeonly"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Services list",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/Service" },
+									"title": "Response List Clique Services Api V1 Services  Cliqueid  Get"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/services/{serviceId}": {
+			"put": {
+				"tags": ["Services"],
+				"summary": "Update service",
+				"description": "Modify details of a service owned by the clique.",
+				"operationId": "update_service_endpoint_api_v1_services__serviceId__put",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "serviceId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Serviceid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ServiceUpdate",
+								"examples": {
+									"toggle_availability": {
+										"summary": "Deactivate service",
+										"value": { "isActive": false }
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Service updated",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Service" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Services"],
+				"summary": "Delete service",
+				"description": "Remove a service definition owned by the clique.",
+				"operationId": "delete_service_endpoint_api_v1_services__serviceId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "serviceId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Serviceid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Service deleted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Delete Service Endpoint Api V1 Services  Serviceid  Delete"
+								},
+								"example": { "message": "Service deleted" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/availability": {
+			"post": {
+				"tags": ["Availability"],
+				"summary": "Create availability window",
+				"description": "Clique owners define recurring or single-day availability windows.",
+				"operationId": "create_availability_endpoint_api_v1_availability_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AvailabilityCreate",
+								"examples": {
+									"weekday": {
+										"summary": "Weekly recurring hours",
+										"value": {
+											"isRecurring": true,
+											"dayOfWeek": 4,
+											"startTime": "09:00:00",
+											"endTime": "17:00:00",
+											"timezone": "UTC"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Availability created",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Availability" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/availability/{cliqueId}": {
+			"get": {
+				"tags": ["Availability"],
+				"summary": "List clique availability",
+				"description": "Return available booking windows visible to the current user.",
+				"operationId": "list_clique_availability_api_v1_availability__cliqueId__get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Availability windows",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/Availability" },
+									"title": "Response List Clique Availability Api V1 Availability  Cliqueid  Get"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/availability/{availabilityId}": {
+			"put": {
+				"tags": ["Availability"],
+				"summary": "Update availability window",
+				"description": "Modify the timing or cadence of an availability window.",
+				"operationId": "update_availability_endpoint_api_v1_availability__availabilityId__put",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "availabilityId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Availabilityid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AvailabilityUpdate",
+								"examples": {
+									"shorter_window": {
+										"summary": "Adjust time range",
+										"value": { "startTime": "10:00:00", "endTime": "15:00:00" }
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Availability updated",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Availability" }
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": ["Availability"],
+				"summary": "Delete availability window",
+				"description": "Remove an availability window owned by the clique.",
+				"operationId": "delete_availability_endpoint_api_v1_availability__availabilityId__delete",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "availabilityId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Availabilityid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Availability deleted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": { "type": "string" },
+									"title": "Response Delete Availability Endpoint Api V1 Availability  Availabilityid  Delete"
+								},
+								"example": { "message": "Availability deleted" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/cliques/{cliqueId}/slots": {
+			"get": {
+				"tags": ["Slots"],
+				"summary": "List available slots",
+				"description": "Return available start/end timestamps for a service within the requested window.",
+				"operationId": "list_slots_api_v1_cliques__cliqueId__slots_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cliqueId",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Cliqueid"
+						}
+					},
+					{
+						"name": "serviceId",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"description": "Service identifier to compute slots for.",
+							"title": "Serviceid"
+						},
+						"description": "Service identifier to compute slots for."
+					},
+					{
+						"name": "from",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"description": "Inclusive ISO 8601 start datetime (timezone-aware).",
+							"title": "From"
+						},
+						"description": "Inclusive ISO 8601 start datetime (timezone-aware)."
+					},
+					{
+						"name": "to",
+						"in": "query",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"description": "Exclusive ISO 8601 end datetime (timezone-aware).",
+							"title": "To"
+						},
+						"description": "Exclusive ISO 8601 end datetime (timezone-aware)."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Computed availability slots",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"additionalProperties": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"additionalProperties": { "type": "string" }
+										}
+									},
+									"title": "Response List Slots Api V1 Cliques  Cliqueid  Slots Get"
+								},
+								"example": {
+									"slots": [
+										{
+											"start_ts": "2024-04-02T14:00:00+00:00",
+											"end_ts": "2024-04-02T15:00:00+00:00"
+										}
+									]
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/health": {
+			"get": {
+				"tags": ["Health"],
+				"summary": "Health check",
+				"description": "Simple liveness probe.",
+				"operationId": "health_api_v1_health_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"additionalProperties": { "type": "string" },
+									"type": "object",
+									"title": "Response Health Api V1 Health Get"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Availability": {
+				"properties": {
+					"isRecurring": { "type": "boolean", "title": "Isrecurring" },
+					"date": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Date"
+					},
+					"dayOfWeek": {
+						"anyOf": [
+							{ "type": "integer", "maximum": 6.0, "minimum": 0.0 },
+							{ "type": "null" }
+						],
+						"title": "Dayofweek"
+					},
+					"startTime": {
+						"type": "string",
+						"format": "time",
+						"title": "Starttime"
+					},
+					"endTime": { "type": "string", "format": "time", "title": "Endtime" },
+					"validFrom": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Validfrom"
+					},
+					"validUntil": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Validuntil"
+					},
+					"timezone": { "type": "string", "title": "Timezone" },
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"cliqueId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Cliqueid"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"isRecurring",
+					"startTime",
+					"endTime",
+					"timezone",
+					"id",
+					"cliqueId",
+					"createdAt",
+					"updatedAt"
+				],
+				"title": "Availability"
+			},
+			"AvailabilityCreate": {
+				"properties": {
+					"isRecurring": { "type": "boolean", "title": "Isrecurring" },
+					"date": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Date"
+					},
+					"dayOfWeek": {
+						"anyOf": [
+							{ "type": "integer", "maximum": 6.0, "minimum": 0.0 },
+							{ "type": "null" }
+						],
+						"title": "Dayofweek"
+					},
+					"startTime": {
+						"type": "string",
+						"format": "time",
+						"title": "Starttime"
+					},
+					"endTime": { "type": "string", "format": "time", "title": "Endtime" },
+					"validFrom": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Validfrom"
+					},
+					"validUntil": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Validuntil"
+					},
+					"timezone": { "type": "string", "title": "Timezone" }
+				},
+				"type": "object",
+				"required": ["isRecurring", "startTime", "endTime", "timezone"],
+				"title": "AvailabilityCreate"
+			},
+			"AvailabilityUpdate": {
+				"properties": {
+					"isRecurring": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Isrecurring"
+					},
+					"date": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Date"
+					},
+					"dayOfWeek": {
+						"anyOf": [
+							{ "type": "integer", "maximum": 6.0, "minimum": 0.0 },
+							{ "type": "null" }
+						],
+						"title": "Dayofweek"
+					},
+					"startTime": {
+						"anyOf": [
+							{ "type": "string", "format": "time" },
+							{ "type": "null" }
+						],
+						"title": "Starttime"
+					},
+					"endTime": {
+						"anyOf": [
+							{ "type": "string", "format": "time" },
+							{ "type": "null" }
+						],
+						"title": "Endtime"
+					},
+					"validFrom": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Validfrom"
+					},
+					"validUntil": {
+						"anyOf": [
+							{ "type": "string", "format": "date" },
+							{ "type": "null" }
+						],
+						"title": "Validuntil"
+					},
+					"timezone": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Timezone"
+					}
+				},
+				"type": "object",
+				"title": "AvailabilityUpdate"
+			},
+			"Booking": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"serviceId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Serviceid"
+					},
+					"cliqueId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Cliqueid"
+					},
+					"userId": { "type": "string", "format": "uuid", "title": "Userid" },
+					"startTs": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Startts"
+					},
+					"endTs": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Endts"
+					},
+					"status": { "$ref": "#/components/schemas/BookingStatus" },
+					"cancelledBy": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/CancelledBy" },
+							{ "type": "null" }
+						]
+					},
+					"cancellationReason": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Cancellationreason"
+					},
+					"note": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Note"
+					},
+					"idempotencyKey": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Idempotencykey"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"id",
+					"serviceId",
+					"cliqueId",
+					"userId",
+					"startTs",
+					"endTs",
+					"status",
+					"createdAt",
+					"updatedAt"
+				],
+				"title": "Booking"
+			},
+			"BookingCreate": {
+				"properties": {
+					"serviceId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Serviceid"
+					},
+					"startTs": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Startts"
+					},
+					"note": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Note"
+					},
+					"idempotencyKey": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Idempotencykey"
+					}
+				},
+				"type": "object",
+				"required": ["serviceId", "startTs"],
+				"title": "BookingCreate"
+			},
+			"BookingReschedule": {
+				"properties": {
+					"startTs": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Startts"
+					}
+				},
+				"type": "object",
+				"required": ["startTs"],
+				"title": "BookingReschedule"
+			},
+			"BookingStatus": {
+				"type": "string",
+				"enum": ["pending", "confirmed", "completed", "cancelled"],
+				"title": "BookingStatus"
+			},
+			"CancelledBy": {
+				"type": "string",
+				"enum": ["owner", "client"],
+				"title": "CancelledBy"
+			},
+			"Chat": {
+				"properties": {
+					"businessUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Businessuserid"
+					},
+					"clientUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Clientuserid"
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["businessUserId", "clientUserId", "id", "createdAt"],
+				"title": "Chat"
+			},
+			"Clique": {
+				"properties": {
+					"name": { "type": "string", "title": "Name" },
+					"description": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Description"
+					},
+					"imageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Imageurl"
+					},
+					"privacy": {
+						"$ref": "#/components/schemas/Privacy",
+						"default": "public"
+					},
+					"timezone": { "type": "string", "title": "Timezone" },
+					"cancellationCutoffHours": {
+						"type": "integer",
+						"title": "Cancellationcutoffhours",
+						"default": 24
+					},
+					"occupationIds": {
+						"items": { "type": "string", "format": "uuid" },
+						"type": "array",
+						"title": "Occupationids"
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"ownerUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Owneruserid"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"name",
+					"timezone",
+					"id",
+					"ownerUserId",
+					"createdAt",
+					"updatedAt"
+				],
+				"title": "Clique"
+			},
+			"CliqueCreate": {
+				"properties": {
+					"name": { "type": "string", "title": "Name" },
+					"description": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Description"
+					},
+					"imageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Imageurl"
+					},
+					"privacy": {
+						"$ref": "#/components/schemas/Privacy",
+						"default": "public"
+					},
+					"timezone": { "type": "string", "title": "Timezone" },
+					"cancellationCutoffHours": {
+						"type": "integer",
+						"title": "Cancellationcutoffhours",
+						"default": 24
+					},
+					"occupationIds": {
+						"items": { "type": "string", "format": "uuid" },
+						"type": "array",
+						"title": "Occupationids"
+					}
+				},
+				"type": "object",
+				"required": ["name", "timezone"],
+				"title": "CliqueCreate"
+			},
+			"CliqueInvite": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"cliqueId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Cliqueid"
+					},
+					"token": { "type": "string", "title": "Token" },
+					"expiresAt": {
+						"anyOf": [
+							{ "type": "string", "format": "date-time" },
+							{ "type": "null" }
+						],
+						"title": "Expiresat"
+					},
+					"maxUses": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Maxuses"
+					},
+					"uses": { "type": "integer", "title": "Uses" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["id", "cliqueId", "token", "uses", "createdAt"],
+				"title": "CliqueInvite"
+			},
+			"CliqueInviteCreate": {
+				"properties": {
+					"expiresAt": {
+						"anyOf": [
+							{ "type": "string", "format": "date-time" },
+							{ "type": "null" }
+						],
+						"title": "Expiresat"
+					},
+					"maxUses": {
+						"anyOf": [
+							{ "type": "integer", "minimum": 1.0 },
+							{ "type": "null" }
+						],
+						"title": "Maxuses"
+					}
+				},
+				"type": "object",
+				"title": "CliqueInviteCreate"
+			},
+			"CliqueMember": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"cliqueId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Cliqueid"
+					},
+					"userId": { "type": "string", "format": "uuid", "title": "Userid" },
+					"role": { "$ref": "#/components/schemas/Role" },
+					"status": { "$ref": "#/components/schemas/MembershipStatus" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["id", "cliqueId", "userId", "role", "status", "createdAt"],
+				"title": "CliqueMember"
+			},
+			"CliqueUpdate": {
+				"properties": {
+					"name": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Name"
+					},
+					"description": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Description"
+					},
+					"imageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Imageurl"
+					},
+					"privacy": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/Privacy" },
+							{ "type": "null" }
+						]
+					},
+					"timezone": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Timezone"
+					},
+					"cancellationCutoffHours": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Cancellationcutoffhours"
+					},
+					"occupationIds": {
+						"anyOf": [
+							{
+								"items": { "type": "string", "format": "uuid" },
+								"type": "array"
+							},
+							{ "type": "null" }
+						],
+						"title": "Occupationids"
+					}
+				},
+				"type": "object",
+				"title": "CliqueUpdate"
+			},
+			"Comment": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"postId": { "type": "string", "format": "uuid", "title": "Postid" },
+					"userId": { "type": "string", "format": "uuid", "title": "Userid" },
+					"body": { "type": "string", "title": "Body" },
+					"parentCommentId": {
+						"anyOf": [
+							{ "type": "string", "format": "uuid" },
+							{ "type": "null" }
+						],
+						"title": "Parentcommentid"
+					},
+					"deletedAt": {
+						"anyOf": [
+							{ "type": "string", "format": "date-time" },
+							{ "type": "null" }
+						],
+						"title": "Deletedat"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"id",
+					"postId",
+					"userId",
+					"body",
+					"createdAt",
+					"updatedAt"
+				],
+				"title": "Comment"
+			},
+			"CommentCreate": {
+				"properties": {
+					"body": { "type": "string", "title": "Body" },
+					"parentCommentId": {
+						"anyOf": [
+							{ "type": "string", "format": "uuid" },
+							{ "type": "null" }
+						],
+						"title": "Parentcommentid"
+					}
+				},
+				"type": "object",
+				"required": ["body"],
+				"title": "CommentCreate"
+			},
+			"ContentFormat": {
+				"type": "string",
+				"enum": ["markdown"],
+				"title": "ContentFormat"
+			},
+			"CursorPageBookings": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/Booking" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPageBookings"
+			},
+			"CursorPageCliqueMembers": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/CliqueMember" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPageCliqueMembers"
+			},
+			"CursorPageFollows": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/Follow" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPageFollows"
+			},
+			"CursorPagePosts": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/Post" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPagePosts"
+			},
+			"CursorPageReviews": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/Review" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPageReviews"
+			},
+			"CursorPageUsers": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/User" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPageUsers"
+			},
+			"Follow": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"followerUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Followeruserid"
+					},
+					"followeeUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Followeeuserid"
+					},
+					"status": { "$ref": "#/components/schemas/FollowStatus" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"id",
+					"followerUserId",
+					"followeeUserId",
+					"status",
+					"createdAt"
+				],
+				"title": "Follow"
+			},
+			"FollowStatus": {
+				"type": "string",
+				"enum": ["pending", "accepted", "blocked"],
+				"title": "FollowStatus"
+			},
+			"HTTPValidationError": {
+				"properties": {
+					"detail": {
+						"items": { "$ref": "#/components/schemas/ValidationError" },
+						"type": "array",
+						"title": "Detail"
+					}
+				},
+				"type": "object",
+				"title": "HTTPValidationError"
+			},
+			"LoginRequest": {
+				"properties": {
+					"emailOrUsername": {
+						"type": "string",
+						"minLength": 1,
+						"title": "Emailorusername"
+					},
+					"password": { "type": "string", "minLength": 1, "title": "Password" }
+				},
+				"type": "object",
+				"required": ["emailOrUsername", "password"],
+				"title": "LoginRequest"
+			},
+			"MediaCreate": {
+				"properties": {
+					"url": { "type": "string", "title": "Url" },
+					"mime": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Mime"
+					},
+					"sizeBytes": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Sizebytes"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					}
+				},
+				"type": "object",
+				"required": ["url"],
+				"title": "MediaCreate"
+			},
+			"MembershipStatus": {
+				"type": "string",
+				"enum": ["joined", "pending", "banned"],
+				"title": "MembershipStatus"
+			},
+			"Message": {
+				"properties": {
+					"body": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Body"
+					},
+					"mediaId": {
+						"anyOf": [
+							{ "type": "string", "format": "uuid" },
+							{ "type": "null" }
+						],
+						"title": "Mediaid"
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"chatId": { "type": "string", "format": "uuid", "title": "Chatid" },
+					"senderUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Senderuserid"
+					},
+					"sentAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Sentat"
+					}
+				},
+				"type": "object",
+				"required": ["id", "chatId", "senderUserId", "sentAt"],
+				"title": "Message"
+			},
+			"MessageCreate": {
+				"properties": {
+					"body": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Body"
+					},
+					"mediaId": {
+						"anyOf": [
+							{ "type": "string", "format": "uuid" },
+							{ "type": "null" }
+						],
+						"title": "Mediaid"
+					}
+				},
+				"type": "object",
+				"title": "MessageCreate"
+			},
+			"Notification": {
+				"properties": {
+					"type": { "$ref": "#/components/schemas/NotificationType" },
+					"payload": {
+						"additionalProperties": true,
+						"type": "object",
+						"title": "Payload"
+					},
+					"isRead": { "type": "boolean", "title": "Isread", "default": false },
+					"readAt": {
+						"anyOf": [
+							{ "type": "string", "format": "date-time" },
+							{ "type": "null" }
+						],
+						"title": "Readat"
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"userId": { "type": "string", "format": "uuid", "title": "Userid" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["type", "payload", "id", "userId", "createdAt"],
+				"title": "Notification"
+			},
+			"NotificationType": {
+				"type": "string",
+				"enum": [
+					"like",
+					"comment",
+					"follow",
+					"booking_request",
+					"booking_confirmed",
+					"booking_cancelled",
+					"review",
+					"system",
+					"message"
+				],
+				"title": "NotificationType"
+			},
+			"Occupation": {
+				"properties": {
+					"name": { "type": "string", "title": "Name" },
+					"slug": { "type": "string", "title": "Slug" },
+					"id": { "type": "string", "format": "uuid", "title": "Id" }
+				},
+				"type": "object",
+				"required": ["name", "slug", "id"],
+				"title": "Occupation"
+			},
+			"Post": {
+				"properties": {
+					"contentFormat": {
+						"$ref": "#/components/schemas/ContentFormat",
+						"default": "markdown"
+					},
+					"content": { "type": "string", "title": "Content" },
+					"status": {
+						"$ref": "#/components/schemas/PostStatus",
+						"default": "draft"
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"cliqueId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Cliqueid"
+					},
+					"authorUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Authoruserid"
+					},
+					"deletedAt": {
+						"anyOf": [
+							{ "type": "string", "format": "date-time" },
+							{ "type": "null" }
+						],
+						"title": "Deletedat"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					},
+					"likesCount": {
+						"type": "integer",
+						"title": "Likescount",
+						"default": 0
+					},
+					"commentsCount": {
+						"type": "integer",
+						"title": "Commentscount",
+						"default": 0
+					},
+					"likedByMe": {
+						"type": "boolean",
+						"title": "Likedbyme",
+						"default": false
+					}
+				},
+				"type": "object",
+				"required": [
+					"content",
+					"id",
+					"cliqueId",
+					"authorUserId",
+					"createdAt",
+					"updatedAt"
+				],
+				"title": "Post"
+			},
+			"PostCreate": {
+				"properties": {
+					"contentFormat": {
+						"$ref": "#/components/schemas/ContentFormat",
+						"default": "markdown"
+					},
+					"content": { "type": "string", "title": "Content" },
+					"status": {
+						"$ref": "#/components/schemas/PostStatus",
+						"default": "draft"
+					}
+				},
+				"type": "object",
+				"required": ["content"],
+				"title": "PostCreate"
+			},
+			"PostStatus": {
+				"type": "string",
+				"enum": ["draft", "posted", "archived"],
+				"title": "PostStatus"
+			},
+			"PostUpdate": {
+				"properties": {
+					"content": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Content"
+					},
+					"status": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/PostStatus" },
+							{ "type": "null" }
+						]
+					}
+				},
+				"type": "object",
+				"title": "PostUpdate"
+			},
+			"Privacy": {
+				"type": "string",
+				"enum": ["public", "private"],
+				"title": "Privacy"
+			},
+			"RefreshRequest": {
+				"properties": {
+					"refreshToken": { "type": "string", "title": "Refreshtoken" }
+				},
+				"type": "object",
+				"required": ["refreshToken"],
+				"title": "RefreshRequest"
+			},
+			"Review": {
+				"properties": {
+					"rating": {
+						"type": "integer",
+						"maximum": 5.0,
+						"minimum": 1.0,
+						"title": "Rating"
+					},
+					"comment": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Comment"
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"bookingId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Bookingid"
+					},
+					"raterUserId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Rateruserid"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["rating", "id", "bookingId", "raterUserId", "createdAt"],
+				"title": "Review"
+			},
+			"ReviewCreate": {
+				"properties": {
+					"rating": {
+						"type": "integer",
+						"maximum": 5.0,
+						"minimum": 1.0,
+						"title": "Rating"
+					},
+					"comment": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Comment"
+					}
+				},
+				"type": "object",
+				"required": ["rating"],
+				"title": "ReviewCreate"
+			},
+			"Role": {
+				"type": "string",
+				"enum": ["owner", "member"],
+				"title": "Role"
+			},
+			"Service": {
+				"properties": {
+					"title": { "type": "string", "title": "Title" },
+					"description": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Description"
+					},
+					"priceMinor": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Priceminor"
+					},
+					"currency": {
+						"type": "string",
+						"title": "Currency",
+						"default": "EUR"
+					},
+					"durationMinutes": { "type": "integer", "title": "Durationminutes" },
+					"bufferMinutes": {
+						"type": "integer",
+						"title": "Bufferminutes",
+						"default": 0
+					},
+					"isActive": {
+						"type": "boolean",
+						"title": "Isactive",
+						"default": true
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"cliqueId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Cliqueid"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"title",
+					"durationMinutes",
+					"id",
+					"cliqueId",
+					"createdAt",
+					"updatedAt"
+				],
+				"title": "Service"
+			},
+			"ServiceCreate": {
+				"properties": {
+					"title": { "type": "string", "title": "Title" },
+					"description": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Description"
+					},
+					"priceMinor": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Priceminor"
+					},
+					"currency": {
+						"type": "string",
+						"title": "Currency",
+						"default": "EUR"
+					},
+					"durationMinutes": { "type": "integer", "title": "Durationminutes" },
+					"bufferMinutes": {
+						"type": "integer",
+						"title": "Bufferminutes",
+						"default": 0
+					},
+					"isActive": {
+						"type": "boolean",
+						"title": "Isactive",
+						"default": true
+					}
+				},
+				"type": "object",
+				"required": ["title", "durationMinutes"],
+				"title": "ServiceCreate"
+			},
+			"ServiceUpdate": {
+				"properties": {
+					"title": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Title"
+					},
+					"description": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Description"
+					},
+					"priceMinor": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Priceminor"
+					},
+					"durationMinutes": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Durationminutes"
+					},
+					"bufferMinutes": {
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
+						"title": "Bufferminutes"
+					},
+					"isActive": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Isactive"
+					}
+				},
+				"type": "object",
+				"title": "ServiceUpdate"
+			},
+			"TokenRead": {
+				"properties": {
+					"accessToken": { "type": "string", "title": "Accesstoken" },
+					"refreshToken": { "type": "string", "title": "Refreshtoken" },
+					"user": { "$ref": "#/components/schemas/User" }
+				},
+				"type": "object",
+				"required": ["accessToken", "refreshToken", "user"],
+				"title": "TokenRead"
+			},
+			"User": {
+				"properties": {
+					"email": { "type": "string", "format": "email", "title": "Email" },
+					"username": {
+						"type": "string",
+						"maxLength": 32,
+						"minLength": 3,
+						"title": "Username"
+					},
+					"fullName": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Fullname"
+					},
+					"bio": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Bio"
+					},
+					"profileImageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Profileimageurl"
+					},
+					"isAdmin": {
+						"type": "boolean",
+						"title": "Isadmin",
+						"default": false
+					},
+					"isActive": {
+						"type": "boolean",
+						"title": "Isactive",
+						"default": true
+					},
+					"isPrivateAccount": {
+						"type": "boolean",
+						"title": "Isprivateaccount",
+						"default": false
+					},
+					"isBusinessPage": {
+						"type": "boolean",
+						"title": "Isbusinesspage",
+						"default": false
+					},
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Updatedat"
+					}
+				},
+				"type": "object",
+				"required": ["email", "username", "id", "createdAt", "updatedAt"],
+				"title": "User"
+			},
+			"UserCreate": {
+				"properties": {
+					"email": { "type": "string", "format": "email", "title": "Email" },
+					"username": {
+						"type": "string",
+						"maxLength": 32,
+						"minLength": 3,
+						"title": "Username"
+					},
+					"fullName": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Fullname"
+					},
+					"bio": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Bio"
+					},
+					"profileImageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Profileimageurl"
+					},
+					"isAdmin": {
+						"type": "boolean",
+						"title": "Isadmin",
+						"default": false
+					},
+					"isActive": {
+						"type": "boolean",
+						"title": "Isactive",
+						"default": true
+					},
+					"isPrivateAccount": {
+						"type": "boolean",
+						"title": "Isprivateaccount",
+						"default": false
+					},
+					"isBusinessPage": {
+						"type": "boolean",
+						"title": "Isbusinesspage",
+						"default": false
+					},
+					"password": { "type": "string", "title": "Password" }
+				},
+				"type": "object",
+				"required": ["email", "username", "password"],
+				"title": "UserCreate"
+			},
+			"UserUpdate": {
+				"properties": {
+					"fullName": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Fullname"
+					},
+					"bio": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Bio"
+					},
+					"profileImageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Profileimageurl"
+					},
+					"isPrivateAccount": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Isprivateaccount"
+					}
+				},
+				"type": "object",
+				"title": "UserUpdate"
+			},
+			"ValidationError": {
+				"properties": {
+					"loc": {
+						"items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+						"type": "array",
+						"title": "Location"
+					},
+					"msg": { "type": "string", "title": "Message" },
+					"type": { "type": "string", "title": "Error Type" }
+				},
+				"type": "object",
+				"required": ["loc", "msg", "type"],
+				"title": "ValidationError"
+			},
+			"ErrorEnvelope": {
+				"type": "object",
+				"required": ["error"],
+				"properties": {
+					"error": {
+						"type": "object",
+						"required": ["code", "message", "details"],
+						"properties": {
+							"code": { "type": "string", "example": "validation_error" },
+							"message": {
+								"type": "string",
+								"example": "Invalid parent comment"
+							},
+							"details": {
+								"type": "object",
+								"additionalProperties": true,
+								"example": {}
+							}
+						}
+					}
+				}
+			}
+		},
+		"securitySchemes": {
+			"HTTPBearer": { "type": "http", "scheme": "bearer" },
+			"BearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		},
+		"parameters": {
+			"CursorParam": {
+				"name": "cursor",
+				"in": "query",
+				"required": false,
+				"schema": { "type": "string" },
+				"description": "Opaque pagination cursor from previous response `nextCursor`."
+			},
+			"LimitParam": {
+				"name": "limit",
+				"in": "query",
+				"required": false,
+				"schema": {
+					"type": "integer",
+					"default": 20,
+					"maximum": 100,
+					"minimum": 1
+				},
+				"description": "Max items to return (default 20, max 100)."
+			}
+		},
+		"headers": {
+			"X-RateLimit-Limit": {
+				"schema": { "type": "integer" },
+				"description": "Request limit for the window."
+			},
+			"X-RateLimit-Remaining": {
+				"schema": { "type": "integer" },
+				"description": "Requests left in the window."
+			},
+			"X-RateLimit-Reset": {
+				"schema": { "type": "integer" },
+				"description": "Seconds until reset."
+			}
+		}
+	}
+}
