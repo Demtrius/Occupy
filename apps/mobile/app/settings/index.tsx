@@ -8,7 +8,7 @@ export default function Page() {
 			justifyContent="center"
 			backgroundColor="background"
 		>
-			<Text variant="body">tabs/messages</Text>
+			<Text variant="body">settings/index</Text>
 		</Box>
 	);
 }

@@ -1,42 +1,26 @@
-import { Redirect, Tabs } from "expo-router";
-import { useMe } from "@/hooks/use-auth";
+import { useTheme } from "@shopify/restyle";
+import { Tabs } from "expo-router";
+import type { Theme } from "@/config/theme";
 
-export default function TabLayout() {
-	const { data: meData, isLoading } = useMe();
-	if (!isLoading && !meData) {
-		return <Redirect href="/(auth)/login" />;
-	}
+export default function TabsLayout() {
+	const theme = useTheme<Theme>();
 
 	return (
 		<Tabs
 			screenOptions={{
 				headerShown: false,
+				tabBarActiveTintColor: theme.colors.primary,
+				tabBarInactiveTintColor: theme.colors["muted-foreground"],
+				tabBarStyle: {
+					backgroundColor: theme.colors.card,
+					borderTopColor: theme.colors.border,
+				},
 			}}
 		>
-			<Tabs.Screen
-				name="index"
-				options={{
-					title: "Home",
-				}}
-			/>
-			<Tabs.Screen
-				name="cliques"
-				options={{
-					title: "Cliques",
-				}}
-			/>
-			<Tabs.Screen
-				name="messages"
-				options={{
-					title: "Messages",
-				}}
-			/>
-			<Tabs.Screen
-				name="profile"
-				options={{
-					title: "Profile",
-				}}
-			/>
+			<Tabs.Screen name="feed" options={{ title: "Feed" }} />
+			<Tabs.Screen name="cliques" options={{ title: "Cliques" }} />
+			<Tabs.Screen name="messages" options={{ title: "Messages" }} />
+			<Tabs.Screen name="profile" options={{ title: "Profile" }} />
 		</Tabs>
 	);
 }

@@ -1,44 +1,51 @@
+// /stores/auth-store.ts
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
+import type { User } from "@/types/user";
 
 type Tokens = { accessToken: string; refreshToken: string } | null;
 
 type AuthState = {
-	user: { id: string; username: string } | null;
+	user: User | null;
 	tokens: Tokens;
-	setAuth: (p: { user: any; tokens: Tokens }) => Promise<void>;
-	clear: () => Promise<void>;
 	hydrate: () => Promise<void>;
+	setAuth: (p: { user: User | null; tokens: Tokens }) => Promise<void>;
+	clear: () => Promise<void>;
 };
 
-const key = "auth.tokens";
+const TOKENS_KEY = "auth.tokens";
 
 async function saveTokens(tokens: Tokens) {
 	const json = tokens ? JSON.stringify(tokens) : "";
 	try {
-		if (tokens) await SecureStore.setItemAsync(key, json);
-		else await SecureStore.deleteItemAsync(key);
+		if (tokens) await SecureStore.setItemAsync(TOKENS_KEY, json);
+		else await SecureStore.deleteItemAsync(TOKENS_KEY);
 	} catch {
-		if (tokens) await AsyncStorage.setItem(key, json);
-		else await AsyncStorage.removeItem(key);
+		if (tokens) await AsyncStorage.setItem(TOKENS_KEY, json);
+		else await AsyncStorage.removeItem(TOKENS_KEY);
 	}
 }
 
 async function loadTokens(): Promise<Tokens> {
 	try {
-		const v = await SecureStore.getItemAsync(key);
+		const v = await SecureStore.getItemAsync(TOKENS_KEY);
 		if (v) return JSON.parse(v);
 	} catch {
-		const v = await AsyncStorage.getItem(key);
+		const v = await AsyncStorage.getItem(TOKENS_KEY);
 		if (v) return JSON.parse(v);
 	}
 	return null;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set, _get) => ({
 	user: null,
 	tokens: null,
+	hydrate: async () => {
+		const tokens = await loadTokens();
+		set({ tokens });
+	},
 	setAuth: async ({ user, tokens }) => {
 		await saveTokens(tokens);
 		set({ user, tokens });
@@ -46,9 +53,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	clear: async () => {
 		await saveTokens(null);
 		set({ user: null, tokens: null });
-	},
-	hydrate: async () => {
-		const tokens = await loadTokens();
-		set({ tokens });
 	},
 }));

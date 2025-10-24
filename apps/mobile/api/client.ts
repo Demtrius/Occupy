@@ -1,9 +1,23 @@
 import { API_BASE_URL } from "@/config/env";
-import { useAuthStore } from "@/state/auth.store";
+import { validateTokenResponse } from "@/schemas/auth";
+import { useAuthStore } from "@/stores/auth-store";
 
-type ErrorEnvelope = {
+export type ErrorEnvelope = {
 	error: { code: string; message: string; details?: any };
 };
+
+export class ApiError extends Error {
+	code?: string;
+	status?: number;
+	details?: any;
+
+	constructor(message: string, code?: string, status?: number, details?: any) {
+		super(message);
+		this.code = code;
+		this.status = status;
+		this.details = details;
+	}
+}
 
 let refreshing: Promise<string | null> | null = null;
 
@@ -11,22 +25,23 @@ async function refreshToken(
 	oldRefresh: string | undefined,
 ): Promise<string | null> {
 	if (!oldRefresh) return null;
-	const r = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+	const res = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ refresh_token: oldRefresh }),
+		body: JSON.stringify({ refreshToken: oldRefresh }),
 	});
-	if (r.ok) {
-		const data = await r.json();
-		const { setAuth, user, tokens: _ } = useAuthStore.getState();
+	if (res.ok) {
+		const data = await res.json();
+		const validated = validateTokenResponse(data);
+		const { setAuth } = useAuthStore.getState();
 		await setAuth({
-			user,
+			user: validated.user,
 			tokens: {
-				accessToken: data.access_token,
-				refreshToken: data.refresh_token,
+				accessToken: validated.accessToken,
+				refreshToken: validated.refreshToken,
 			},
 		});
-		return data.accessToken as string;
+		return validated.accessToken;
 	}
 	return null;
 }
@@ -48,10 +63,11 @@ export async function apiFetch<T = any>(
 	let res = await fetch(url, { ...init, headers });
 
 	if (res.status === 401 && tokens?.refreshToken) {
-		if (!refreshing)
+		if (!refreshing) {
 			refreshing = refreshToken(tokens.refreshToken).finally(() => {
 				refreshing = null;
 			});
+		}
 		const newAccess = await refreshing;
 		if (newAccess) {
 			headers.Authorization = `Bearer ${newAccess}`;
@@ -66,11 +82,24 @@ export async function apiFetch<T = any>(
 		const err = (data as ErrorEnvelope) ?? {
 			error: { code: "http_error", message: `${res.status}` },
 		};
-		throw Object.assign(new Error(err.error.message), {
-			code: err.error.code,
-			status: res.status,
-			details: err.error.details,
-		});
+		throw new ApiError(
+			err.error.message,
+			err.error.code,
+			res.status,
+			err.error.details,
+		);
 	}
 	return data as T;
+}
+
+export function qs(
+	params: Record<string, string | number | boolean | null | undefined>,
+): string {
+	const search = new URLSearchParams();
+	for (const [k, v] of Object.entries(params)) {
+		if (v !== undefined && v !== null && v !== "") {
+			search.append(k, String(v));
+		}
+	}
+	return search.toString();
 }

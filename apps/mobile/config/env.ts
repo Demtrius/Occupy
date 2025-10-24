@@ -10,4 +10,4 @@ const devBase =
 const prodBase =
 	Constants.expoConfig?.extra?.apiBaseUrlProd ?? "https://occupy-app.com";
 
-export const API_BASE_URL = __DEV__ ? devBase : prodBase;
+export const API_BASE_URL = (__DEV__ ? devBase : prodBase).replace(/\/$/, "");

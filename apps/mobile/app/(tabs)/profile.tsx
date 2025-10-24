@@ -1,22 +1,55 @@
 import { router } from "expo-router";
-import { Pressable, Text, View } from "react-native";
-import { useAuthStore } from "@/state/auth.store";
+import { Pressable } from "react-native";
+import { Button } from "@/components/ui/button";
+import { Box, Text } from "@/components/ui/restyle-components";
+import { useAuthStore } from "@/stores/auth-store";
+import { useThemeStore } from "@/stores/theme-store";
 
-export default function Profile() {
+export default function Page() {
 	const user = useAuthStore((s) => s.user);
 	const clear = useAuthStore((s) => s.clear);
+	const { mode, setMode } = useThemeStore();
+
 	return (
-		<View className="flex-1 items-center justify-center">
-			<Text className="text-xl mb-2">Hello {user?.username ?? "user"}</Text>
-			<Pressable
-				className="bg-neutral-200 rounded-xl px-4 py-2"
+		<Box
+			flex={1}
+			alignItems="center"
+			justifyContent="center"
+			backgroundColor="background"
+		>
+			<Text variant="subheader" marginBottom="l">
+				Hello {user?.username ?? "user"}
+			</Text>
+			<Button
 				onPress={async () => {
 					await clear();
 					router.replace("/(auth)/login");
 				}}
 			>
-				<Text>Logout</Text>
+				Logout
+			</Button>
+			<Pressable
+				style={{
+					marginTop: 24,
+					borderRadius: 24,
+					paddingHorizontal: 12,
+					paddingVertical: 8,
+				}}
+				onPress={() =>
+					setMode(
+						mode === "light" ? "dark" : mode === "dark" ? "system" : "light",
+					)
+				}
+			>
+				<Box
+					backgroundColor="muted"
+					borderRadius="xl"
+					paddingHorizontal="m"
+					paddingVertical="s"
+				>
+					<Text variant="body">Theme: {mode}</Text>
+				</Box>
 			</Pressable>
-		</View>
+		</Box>
 	);
 }

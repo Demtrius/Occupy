@@ -1,51 +1,97 @@
-import { Link, router } from "expo-router";
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import { useLogin } from "@/hooks/use-auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTheme } from "@shopify/restyle";
+import { Link } from "expo-router";
+import { useForm } from "react-hook-form";
+import { Screen } from "@/components/screen";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-utils";
+import { Input } from "@/components/ui/input";
+import { KeyboardAvoidForm, ScrollForm } from "@/components/ui/keyboard-forms";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Text } from "@/components/ui/restyle-components";
+import type { Theme } from "@/config/theme";
+import { useLoginMutation } from "@/hooks/query";
+import { loginSchema } from "@/schemas/auth";
+import { showToast } from "@/stores/toast-store";
+import type { LoginBody } from "@/types/auth";
+
+type LoginForm = LoginBody;
 
 export default function Login() {
-	const [id, setId] = useState("");
-	const [pw, setPw] = useState("");
-	const { mutateAsync, isPending, error } = useLogin();
+	const loginMutation = useLoginMutation();
+	const { control, handleSubmit } = useForm<LoginForm>({
+		resolver: zodResolver(loginSchema as any),
+	});
+	const theme = useTheme<Theme>();
+
+	const onSubmit = (data: LoginForm) => {
+		loginMutation.mutate(data, {
+			onSuccess: () => {
+				showToast({ type: "success", message: "Logged in successfully" });
+			},
+			onError: (error: any) => {
+				console.log(error);
+				showToast({
+					type: "error",
+					message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
+				});
+			},
+		});
+	};
 
 	return (
-		<View className="flex-1 justify-center px-4">
-			<Text className="text-2xl mb-4">Login</Text>
-			<TextInput
-				placeholder="email or username"
-				value={id}
-				onChangeText={setId}
-				autoCapitalize="none"
-				className="border rounded-xl p-3 mb-3"
-			/>
-			<TextInput
-				placeholder="password"
-				value={pw}
-				onChangeText={setPw}
-				secureTextEntry
-				autoCapitalize="none"
-				className="border rounded-xl p-3 mb-3"
-			/>
-			<Pressable
-				className="bg-blue-600 rounded-xl p-3 items-center"
-				disabled={isPending}
-				onPress={async () => {
-					try {
-						await mutateAsync({ emailOrUsername: id, password: pw });
-						router.replace("/(tabs)");
-					} catch (e: any) {
-						console.log("login error", e?.detail);
-					}
-				}}
-			>
-				<Text className="text-white">{isPending ? "..." : "Sign in"}</Text>
-			</Pressable>
-			{error ? (
-				<Text className="text-red-500 mt-2">{String(error)}</Text>
-			) : null}
-			<Link href="/(auth)/register" className="mt-4 text-blue-600">
-				Create account
-			</Link>
-		</View>
+		<Screen>
+			<KeyboardAvoidForm>
+				<ScrollForm>
+					<Text variant="header" marginBottom="l">
+						Login
+					</Text>
+					<FormField
+						name="emailOrUsername"
+						control={control}
+						label="Email or Username"
+						render={({ value, onChange, onBlur, error }) => (
+							<Input
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								placeholder="email or username"
+								autoCapitalize="none"
+							/>
+						)}
+					/>
+					<FormField
+						name="password"
+						control={control}
+						label="Password"
+						render={({ value, onChange, onBlur, error }) => (
+							<PasswordInput
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								placeholder="password"
+								autoCapitalize="none"
+							/>
+						)}
+					/>
+					<Button
+						onPress={handleSubmit(onSubmit)}
+						disabled={loginMutation.isPending}
+					>
+						{loginMutation.isPending ? "Signing in..." : "Sign in"}
+					</Button>
+					<Link
+						href="/(auth)/register"
+						style={{
+							marginTop: theme.spacing.l,
+							color: theme.colors.primary,
+							textAlign: "center",
+						}}
+					>
+						Create account
+					</Link>
+				</ScrollForm>
+			</KeyboardAvoidForm>
+		</Screen>
 	);
 }

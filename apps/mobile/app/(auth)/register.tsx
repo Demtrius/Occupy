@@ -1,60 +1,113 @@
-// app/(auth)/register.tsx
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTheme } from "@shopify/restyle";
+import { Link } from "expo-router";
+import { useForm } from "react-hook-form";
+import { Screen } from "@/components/screen";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-utils";
+import { Input } from "@/components/ui/input";
+import { KeyboardAvoidForm, ScrollForm } from "@/components/ui/keyboard-forms";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Text } from "@/components/ui/restyle-components";
+import type { Theme } from "@/config/theme";
+import { useRegisterMutation } from "@/hooks/query";
+import { registerSchema } from "@/schemas/auth";
+import { showToast } from "@/stores/toast-store";
+import type { RegisterBody } from "@/types/auth";
 
-import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import { useRegister } from "@/hooks/use-auth";
+type RegisterForm = RegisterBody;
 
 export default function Register() {
-	const [email, setEmail] = useState("");
-	const [username, setUsername] = useState("");
-	const [pw, setPw] = useState("");
-	const { mutateAsync, isPending, error } = useRegister();
+	const registerMutation = useRegisterMutation();
+	const { control, handleSubmit } = useForm<RegisterForm>({
+		resolver: zodResolver(registerSchema as any),
+	});
+	const theme = useTheme<Theme>();
+
+	const onSubmit = (data: RegisterForm) => {
+		registerMutation.mutate(data, {
+			onSuccess: () => {
+				showToast({ type: "success", message: "Account created successfully" });
+			},
+			onError: (error: any) => {
+				showToast({
+					type: "error",
+					message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
+				});
+			},
+		});
+	};
 
 	return (
-		<View className="flex-1 justify-center px-4">
-			<Text className="text-2xl mb-4">Register</Text>
-			<TextInput
-				placeholder="email"
-				value={email}
-				onChangeText={setEmail}
-				autoCapitalize="none"
-				className="border rounded-xl p-3 mb-3"
-			/>
-			<TextInput
-				placeholder="username"
-				value={username}
-				onChangeText={setUsername}
-				autoCapitalize="none"
-				className="border rounded-xl p-3 mb-3"
-			/>
-			<TextInput
-				placeholder="password"
-				value={pw}
-				onChangeText={setPw}
-				secureTextEntry
-				autoCapitalize="none"
-				className="border rounded-xl p-3 mb-3"
-			/>
-			<Pressable
-				className="bg-blue-600 rounded-xl p-3 items-center"
-				disabled={isPending}
-				onPress={async () => {
-					try {
-						await mutateAsync({ email, username, password: pw });
-						router.replace("/(tabs)");
-					} catch (e: any) {
-						console.log("register error", e?.detail);
-					}
-				}}
-			>
-				<Text className="text-white">
-					{isPending ? "..." : "Create account"}
-				</Text>
-			</Pressable>
-			{error ? (
-				<Text className="text-red-500 mt-2">{String(error)}</Text>
-			) : null}
-		</View>
+		<Screen>
+			<KeyboardAvoidForm>
+				<ScrollForm>
+					<Text variant="header" marginBottom="l">
+						Register
+					</Text>
+					<FormField
+						name="email"
+						control={control}
+						label="Email"
+						render={({ value, onChange, onBlur, error }) => (
+							<Input
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								placeholder="email"
+								autoCapitalize="none"
+								keyboardType="email-address"
+							/>
+						)}
+					/>
+					<FormField
+						name="username"
+						control={control}
+						label="Username"
+						render={({ value, onChange, onBlur, error }) => (
+							<Input
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								placeholder="username"
+								autoCapitalize="none"
+							/>
+						)}
+					/>
+					<FormField
+						name="password"
+						control={control}
+						label="Password"
+						render={({ value, onChange, onBlur, error }) => (
+							<PasswordInput
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								placeholder="password"
+								autoCapitalize="none"
+							/>
+						)}
+					/>
+					<Button
+						onPress={handleSubmit(onSubmit)}
+						disabled={registerMutation.isPending}
+					>
+						{registerMutation.isPending
+							? "Creating account..."
+							: "Create account"}
+					</Button>
+					<Link
+						href="/(auth)/login"
+						style={{
+							marginTop: theme.spacing.l,
+							color: theme.colors.primary,
+							textAlign: "center",
+						}}
+					>
+						Already have an account? Sign in
+					</Link>
+				</ScrollForm>
+			</KeyboardAvoidForm>
+		</Screen>
 	);
 }

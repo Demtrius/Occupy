@@ -1,9 +1,14 @@
-import { Text, View } from "react-native";
+import { Box, Text } from "@/components/ui/restyle-components";
 
-export default function Cliques() {
+export default function Page() {
 	return (
-		<View className="flex-1 items-center justify-center">
-			<Text>Cliques</Text>
-		</View>
+		<Box
+			flex={1}
+			alignItems="center"
+			justifyContent="center"
+			backgroundColor="background"
+		>
+			<Text variant="body">tabs/cliques</Text>
+		</Box>
 	);
 }
