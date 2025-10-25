@@ -9,10 +9,10 @@ export default function ProfileLayout() {
 	return (
 		<Stack
 			screenOptions={{
-				headerLeft: () => <BackButton path="/(tabs)/profile" />,
+				headerLeft: () => <BackButton />,
 				headerTitleAlign: "center",
+				headerTitleStyle: { color: theme.colors.foreground },
 				headerStyle: { backgroundColor: theme.colors.background },
-				headerTintColor: theme.colors.foreground,
 			}}
 		>
 			<Stack.Screen name="edit" options={{ title: "Edit Profile" }} />
