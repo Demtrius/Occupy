@@ -26,6 +26,7 @@ from ...services.posts import (
     delete_post,
     get_clique_posts,
     get_post_by_id,
+    get_user_posts,
     like_post,
     unlike_post,
     update_post,
@@ -132,6 +133,39 @@ async def list_clique_posts_route(
             raise Forbidden()
     posts, next_cursor = await get_clique_posts(
         db, str(cliqueId), str(current_user.id), cursor, limit
+    )
+    return CursorPagePosts(items=posts, next_cursor=next_cursor)
+
+
+@router.get(
+    "/user/{userId}/posts",
+    summary="List user posts",
+    description="Paginated posts by a user visible to the current user, respecting privacy settings.",
+    response_model=CursorPagePosts,
+    responses={
+        200: {"description": "User posts page"},
+        **error_responses(401, 404),
+    },
+    openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
+)
+async def list_user_posts_route(
+    userId: Annotated[UUID, Path(alias="userId")],
+    current_user: User = Depends(require_active_user),
+    cursor: str | None = Query(
+        None, include_in_schema=False, description="Opaque pagination cursor"
+    ),
+    limit: int = Query(
+        20,
+        ge=1,
+        le=50,
+        include_in_schema=False,
+        description="Page size (default 20, max 50)",
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    limit, cursor = parse_limit_cursor(limit, cursor)
+    posts, next_cursor = await get_user_posts(
+        db, str(userId), str(current_user.id), cursor, limit
     )
     return CursorPagePosts(items=posts, next_cursor=next_cursor)
 

@@ -11,4 +11,13 @@ export type User = {
 	isActive: boolean;
 	createdAt: string;
 	updatedAt: string;
+	// Additional fields for profile display
+	occupations?: Array<{ id: string; name: string; slug: string }>;
+	followersCount?: number;
+	followingCount?: number;
+	postsCount?: number;
+	cliquesCount?: number;
+	isFollowing?: boolean;
+	isFollowRequested?: boolean;
+	isBlocked?: boolean;
 };

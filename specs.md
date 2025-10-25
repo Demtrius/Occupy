@@ -1,314 +1,374 @@
-# Project Spec — Social + Bookings Platform for Small Businesses
+# Occupy — Project Description
 
-_Last updated: 2025-10-22_
-
----
-
-## 1) Elevator Pitch
-
-A mobile-first social network (Expo/React Native) where **business pages** (barbers, trainers, photographers, etc.) create **cliques** (their community hubs) to post updates, list services, publish availability, accept bookings, chat 1:1 with clients, and collect reviews. **Users** follow businesses, like/comment posts, book services in available time slots, and chat with owners.
+> Social platform for small business owners to showcase services, manage availability, take bookings, post updates, and chat with clients.
 
 ---
 
-## 2) Roles & Entities
+## 1) Summary
 
-- **User**
-  - Flags: `is_business_page`, `is_private_account`, `is_admin`, `is_active`
-  - Profile: username (unique, case-insensitive), email, full name, bio, profile image, occupations
-
-- **Follow**: user ↔ user (statuses: `pending` for private target, `accepted`, `blocked`)
-- **Clique**: owned by a business user; has privacy (`public`/`private`), name, description, image, timezone, occupations, cancellation cutoff hours
-- **Post**: belongs to clique, authored by the owner; markdown content, status (`draft`/`posted`/`archived`), 0..n images
-- **Comment**: 1-level replies (parent optional, only one depth); soft deletable
-- **Like**: post likes (idempotent)
-- **Service**: offering within a clique (title, desc, price_minor nullable, currency `EUR`, duration, buffer, is_active)
-- **Availability**: global schedule windows for a clique
-  - One-off: date + start/end time
-  - Recurring weekly: day_of_week + start/end time (+ validity range)
-
-- **Slot**: computed (not stored) from availability + service duration/buffer
-- **Booking**: user books service at slot; statuses: `pending`/`confirmed`/`completed`/`cancelled`; cancellation reason & `cancelled_by`
-- **Review**: one per completed booking (rating 1..5, optional comment)
-- **Notification**: in-app events (like, comment, follow, booking request/confirmed/cancelled, review, message, system)
-- **Chat**: explicit 1:1 business ↔ client
-- **Message**: text or single image; hard-delete by sender within 15 minutes
-- **Media**: files in MinIO (image/jpeg, png, webp) via presigned uploads
+- **Name:** **Occupy**
+- **Tagline:** Bookable communities for local businesses.
+- **Brand color:** `#0084d1`
+- **Platforms:** iOS & Android (Expo / React Native)
+- **Production URL:** `https://occupy-app.com`
+- **MVP focus:** Business-led “cliques” where owners post updates, list services, publish availability, accept bookings, and converse with clients. Social graph supports follows, likes, and comments with privacy controls.
 
 ---
 
-## 3) Core User Stories (MVP ✅)
+## 2) Primary Users & Roles
 
-### 3.1 Account & Auth
+- **Normal account (client):** Discover businesses, follow, request to join private cliques, like/comment posts, book services, chat, leave reviews.
+- **Business page (owner):** Create and manage cliques, publish posts, define services, set availability, manage bookings, moderate comments/members, chat with clients, respond to reviews.
 
-- As a user, I can register with email, username, password.
-- As a user, I can log in, refresh tokens, and log out.
-- As an admin, I can access admin-only endpoints (future).
+---
 
-### 3.2 Profiles, Follows, Privacy
+## 3) Core Features (MVP)
 
-- As a private user, follow requests to me must be approved before followers can see my content.
-- As any user, I can block another user (mutual invisibility of content).
-- As a user, I can edit my profile, set private/public, pick occupations.
+### 3.1 Accounts & Auth
 
-### 3.3 Cliques (Business Hubs)
+- Email/username + password authentication.
+- JWT-based session with access/refresh tokens stored securely on device.
+- Email verification **deferred** (post-MVP).
+- OAuth providers **planned** (post-MVP).
+- Account flags: `is_business_page`, `is_private_account`, `is_admin`, `is_active`.
 
-- As a **business** user, I can create/edit/delete a clique.
-- As an outsider, I can always see a **private clique’s** _name_ and _description_ (metadata), but not content/members.
-- As a user, I can join public cliques instantly or request to join private cliques and be approved/denied/banned by the owner.
+### 3.2 Profiles & Relationships
 
-### 3.4 Posts, Likes, Comments
+- Public or **private profiles**; private profiles require follow requests.
+- Follow lifecycle: **request → approve/reject → unfollow**; owner can **block/unblock**.
+- Profile includes avatar, bio, username (unique, case-insensitive), occupations.
 
-- As a clique owner, I can create posts (draft → posted → archived), attach images, and edit/archive them.
-- As a member/outsider (according to privacy), I can like/unlike posts (idempotent).
-- As a member, I can comment on posts and reply one level deep; the owner can delete any comment in their clique (soft delete).
+### 3.3 Cliques (Business Communities)
 
-### 3.5 Services & Availability
+- Created/owned by a **business page** user.
+- **Privacy:** public or private.
+- **Membership:** owner, member; join for public is instant; private requires approval (join links supported).
+- **Metadata visible to outsiders** even if private: name & description.
+- Occupations tagging for discovery.
+- **Timezone** at clique level (drives booking windows & slots).
 
-- As a clique owner, I can define services with duration/buffer and set availability (one-off & recurring).
-- As a user, I can view available **slots** generated from availability + service duration/buffer (non-overlapping, capacity=1).
+### 3.4 Social Content
+
+- **Posts** authored by the clique owner.
+  - Status: draft, posted, archived.
+  - Rich text formatting (links, basic emphasis).
+  - **Single image** per post (MVP).
+
+- **Reactions:** like/unlike (idempotent).
+- **Comments:** top-level + one-level replies (like Instagram/YouTube).
+  - **Soft delete** for comments; owner can delete member comments.
+  - Post deletion by owner removes from listings.
+
+### 3.5 Services, Availability & Slots
+
+- **Services:** title, description, duration, buffer, `price_minor` (EUR minor units), `is_active`.
+- **Availability:**
+  - **One-off** by date with start/end.
+  - **Recurring** by day-of-week with start/end.
+  - Optional valid-from/until window.
+
+- **Slots:** computed from service duration + buffer across availability and existing bookings.
 
 ### 3.6 Bookings
 
-- As a user, I can book a service for a slot (with optional note); creation is idempotent with `Idempotency-Key`.
-- As an owner, I can confirm/complete/cancel bookings (cancellation requires reason, and cutoff enforced).
-- As a user, I can cancel before the cutoff.
-- As a user/owner, I can reschedule a booking (same row updated, overlap rules enforced).
+- Create booking by selecting a **service** and **slot**.
+- **Statuses:** Pending → Confirmed → Completed; Cancelled.
+- **Cancellation policy:** owner-defined cutoff (hours); client cannot cancel inside cutoff; owner can cancel anytime with reason.
+- **Reschedule:** client may reschedule before cutoff; owner can reschedule administratively (MVP: client path).
+- **Notes:** client can attach note at booking time.
+- **Visibility:** owner views all bookings for their clique; client views own bookings.
 
 ### 3.7 Reviews
 
-- As a user, I can submit exactly one review for my **completed** booking.
-- As anyone, I can view a clique’s reviews and its average rating.
+- One **review per completed booking** by the booking user.
+- Rating 1–5, optional comment.
+- Listing per clique with **average rating**.
 
 ### 3.8 Messaging
 
-- As a client, I can start a chat with a business (explicit creation).
-- As participants, we can exchange messages and see real-time updates via WebSockets.
-- As a sender, I can delete my message within 15 minutes (hard delete).
+- **1:1 chat** between business owner and client (no group chats).
+- Typing indicators and unread counters.
+- **Sender delete** within 15 minutes (hard delete).
+- **Single image** per message (MVP).
 
 ### 3.9 Notifications
 
-- As a user, I receive in-app notifications for: like, comment, follow, booking request/confirmed/cancelled, review, message, system.
-- I can list notifications and mark read or mark all read.
+- In-app notification center for:
+  - like, comment, follow (request/accept), booking request/confirm/cancel, review, **system**
 
-### 3.10 Search
+- Mark read / mark all read.
+- Push notifications **deferred** (post-MVP).
 
-- As a user, I can search users, occupations, cliques (private cliques appear with only name/description).
+### 3.10 Search & Discovery
 
----
+- Unified search across **users, occupations, cliques**.
+- Private cliques **appear** in search with **name/description only** (no sensitive fields).
 
-## 4) Non-Functional Requirements (MVP)
+### 3.11 Media
 
-- **API**: FastAPI, async SQLAlchemy 2.0, PostgreSQL, Redis, MinIO
-- **Auth**: JWT (access/refresh); `Authorization: Bearer <token>`
-- **Pagination**: Cursor-based (`items`, `nextCursor`)
-- **Error shape**:
-
-  ```json
-  { "error": { "code": "string", "message": "string", "details": {} } }
-  ```
-
-- **Rate limiting**: enabled for auth + write routes (configurable)
-- **Time**: all timestamps in UTC; cliques store a timezone for availability logic
-- **Validation**: rich DTO validation (Pydantic v2)
-- **Security**: block lists, private accounts, permission checks
-- **Uploads**: presigned PUT to MinIO; backend only registers metadata
-- **Testing**: ≥85% coverage, Testcontainers for Postgres/Redis/MinIO, WS tests
-- **Performance**: end-to-end test suite < ~6 minutes in CI
+- File storage via object store; **image types:** jpeg, png, webp.
+- **Max size:** 10 MB (MVP).
+- Upload flow: presign → PUT → register.
 
 ---
 
-## 5) Permissions Matrix (high level)
+## 4) Key User Flows
 
-| Action                          | Visitor |                          Auth’d User | Follower (public target) | Follower (private target, approved) | Clique Member | Clique Owner |    Admin |
-| ------------------------------- | ------: | -----------------------------------: | -----------------------: | ----------------------------------: | ------------: | -----------: | -------: |
-| View user profile (public)      |       ✓ |                                    ✓ |                        ✓ |                                   ✓ |             ✓ |            ✓ |        ✓ |
-| View user profile (private)     |       ✗ |                                    ✗ |                        ✗ |                                   ✓ |             ✓ |            ✓ |        ✓ |
-| Follow user (public)            |       — |                      ✓ (auto-accept) |                        — |                                   — |             — |            — |        — |
-| Follow user (private)           |       — |                          ✓ (pending) |                        — |                                   — |             — |            — |        — |
-| Block user                      |       — |                             ✓ (self) |                        — |                                   — |             — |            — |        ✓ |
-| View private clique metadata    |       ✓ |                                    ✓ |                        ✓ |                                   ✓ |             ✓ |            ✓ |        ✓ |
-| View private clique content     |       ✗ |                                    ✗ |                        ✗ |                       ✓ (if member) |             ✓ |            ✓ |        ✓ |
-| Create posts in clique          |       ✗ |                                    ✗ |                        ✗ |                                   ✗ |             ✗ |            ✓ |        ✓ |
-| Like/comment post               |       ✗ | ✓ (if allowed by privacy/membership) |                        ✓ |                                   ✓ |             ✓ |            ✓ |        ✓ |
-| Manage services/availability    |       ✗ |                                    ✗ |                        ✗ |                                   ✗ |             ✗ |            ✓ |        ✓ |
-| Book service                    |       ✗ |                                    ✓ |                        ✓ |                                   ✓ |             ✓ |            — |        ✓ |
-| Confirm/Cancel/Complete booking |       ✗ |                                    ✗ |                        ✗ |                                   ✗ |             ✗ |            ✓ |        ✓ |
-| Review booking                  |       ✗ |                          booker only |                        — |                                   — |             — |            — | ✓ (list) |
-| Create chat                     |       ✗ |            ✓ (with business account) |                        ✓ |                                   ✓ |             ✓ |            ✓ |        ✓ |
+1. **Onboarding & Auth**
+   - Register → auto-login → land on feed.
+   - Login → token storage → “Me” hydration.
+   - Logout clears tokens/state.
 
----
+2. **Follow & Privacy**
+   - Client follows public profile → instant.
+   - Client requests private profile → pending → owner approval → access.
 
-## 6) API Contracts (summary)
+3. **Join Clique**
+   - Public join: instant.
+   - Private join: request → owner approves/rejects (join links supported).
 
-- **Auth**: `/api/v1/auth/login|refresh|logout|register`
-- **Users**: `/users/{id}`, `/me`, `/users?q=`, followers/following CRUD, block/unblock
-- **Occupations**: `/occupations`, `/occupations/user`, `/occupations/clique/{id}`
-- **Cliques**: CRUD; `/cliques/{id}/members` + `join/approve/reject/ban/leave`; invites; `/feed`
-- **Posts**: create/update/delete; list per clique; likes; comments (1-level); media attach
-- **Media**: `/media/uploads/presign`, `/media`
-- **Services**: `/services` under a clique; list/filter
-- **Availability**: create/list/delete; **partial updates**
-- **Slots**: `/cliques/{id}/slots?serviceId&from&to`
-- **Bookings**: create (idempotent), confirm, complete, cancel, reschedule, show/list (mine, by clique)
-- **Reviews**: create via booking; list by clique (with average)
-- **Notifications**: list, mark read, mark all read
-- **Search**: `q`, `types=users,occupations,cliques`
-- **Messaging**: chats CRUD; messages CRUD (delete window)
-- **WebSockets**: `/ws/chat` (join, message.send, message.created, message.deleted, typing)
+4. **Posts & Interactions**
+   - Owner composes post (optional image) → posts → appears in feed.
+   - Client likes/unlikes; comments/replies; owner moderates.
 
-All list endpoints: **cursor pagination**.
+5. **Services & Bookings**
+   - Client opens clique → services → selects service → sees slots → books.
+   - Client reschedules (before cutoff) or requests cancel (enforced).
+   - Owner confirms/cancels with reason; client is notified.
 
-All errors: standardized **error envelope**.
+6. **Reviews**
+   - After completion, client reviews the booking (1–5 + comment).
+   - Reviews appear on clique with updated average.
+
+7. **Messaging**
+   - Client opens chat with owner → send/receive messages (WS-backed).
+   - Delete sent message within 15 minutes.
+
+8. **Search**
+   - Search users/occupations/cliques; navigate to result.
+   - Private clique shows limited metadata until member.
+
+9. **Media Upload**
+   - Avatar or post image: request presign → upload → register → update UI.
 
 ---
 
-## 7) Scheduling & Slot Rules
+## 5) Privacy & Access Rules
 
-- **Slot generation**:
-  - For each availability window and the selected service:
-    - slot length = `service.duration_minutes + service.buffer_minutes`
-    - generate non-overlapping slots inside window
-
-  - Exclude slots overlapping existing **pending/confirmed** bookings
-  - Capacity = 1
-
-- **Availability variants**:
-  - One-off: `date` + `start_time`–`end_time` (timezone of clique)
-  - Recurring weekly: `day_of_week` + `start_time`–`end_time`, optional `valid_from`–`valid_until`
-
-- **Cancellation cutoff**:
-  - `clique.cancellation_cutoff_hours` default 24h
-  - Client cannot cancel inside cutoff; owner can cancel anytime (must provide reason)
+- **Profiles:** Private profiles hidden from non-followers except minimal metadata (e.g., username).
+- **Cliques:** Even if private, **name & description** visible to outsiders/search.
+- **Posts:** Visible to members (private cliques) or public (public cliques).
+- **Comments/likes:** Only members of the clique can interact on private cliques.
+- **Bookings:** Viewable by the **booker** and the **clique owner**.
+- **Messaging:** Only between chat participants; no group visibility.
+- **Moderation:** Owner can delete comments within their clique; block abusive users (affects follows/visibility).
+- **Soft vs Hard delete:** Comments soft-delete; message delete is hard within 15 minutes.
 
 ---
 
-## 8) Messaging & WS Rules
+## 6) Mobile App Architecture
 
-- **Chat creation**: explicit; unique pair (business, client)
-- **Messages**: text or one image; created/received in real time via `/ws/chat`
-- **Delete window**: sender can hard-delete within 15 minutes; after that → 403
-- **Events (WS)**:
-  - Client → Server: `join`, `message.send`, `typing`
-  - Server → Client: `message.created`, `message.deleted`, `typing`
+- **Framework:** Expo + React Native.
+- **Routing:** Expo Router v6; deep link scheme `occupy://`.
+- **State:** **Zustand**:
+  - `auth-store` (tokens, user, hydration)
+  - `theme-store` (light/dark/system) with device scheme sync
 
----
+- **Data fetching & caching:** TanStack Query v5 (retry, cache, stale-time, infinite queries, optimistic updates).
+- **Secure storage:** `expo-secure-store` (with AsyncStorage fallback for resilience).
+- **Styling:** **@shopify/restyle** (semantic design tokens; dark mode via class toggle).
+- **Dates & time:** dayjs (timezones handled by backend; client displays per device/clique context).
+- **Testing:**
+  - Unit/integration (Jest + Testing Library).
+  - E2E: Maestro (local simulators/emulators) with backend Testcontainers harness.
 
-## 9) Notifications
-
-Trigger on:
-
-- `like`, `comment`, `follow (pending/accepted)`, `booking_request`, `booking_confirmed`, `booking_cancelled`, `review`, `message`, `system`
-
-Behavior:
-
-- In-app store with JSON payload for deeplinks
-- List unread/all, mark one read, mark all read
-
----
-
-## 10) Validation Rules & Error Cases
-
-- Username: unique (case-insensitive), length 3–32, URL-safe
-- Email: unique (case-insensitive), valid format
-- Posts: status transitions allowed: `draft↔posted↔archived` (no likes/comments on soft-deleted posts)
-- Comments: parent must exist and be top-level; body required; soft delete masks body
-- Media: MIME ∈ {jpeg, png, webp}; `size_bytes <= 10MB`
-- Services: `duration_minutes > 0`; `buffer_minutes ≥ 0`; `currency == "EUR"`
-- Availability:
-  - If `is_recurring=true` → `date = NULL`, `day_of_week != NULL`
-  - If `is_recurring=false` → `date != NULL`, `day_of_week = NULL`
-  - `end_time > start_time`
-  - **Partial updates** supported (patch semantics)
-
-- Booking:
-  - `start_ts` within a valid slot; `end_ts` derived
-  - Overlap prevented (DB exclusion + service checks)
-  - Create supports `Idempotency-Key`
-  - Cancel inside cutoff → 400 validation error
-
-- Review:
-  - Only booker
-  - Only after `completed`
-  - One per booking (graceful validation error, not raw DB error)
-
-- Search:
-  - Private cliques appear with limited fields `{id,name,description}` only
-
-- Auth:
-  - Missing/invalid token → **401** + `WWW-Authenticate: Bearer`
-  - Authenticated but unauthorized → **403**
+- **Conventions:**
+  - **Path alias:** `@/*`
+  - **Kebab-case** filenames for packages and apps.
+  - Screen skeletons for: auth, feed, cliques, services/bookings, posts, notifications, profile, search, chats.
 
 ---
 
-## 11) Admin & Moderation (Post-MVP)
+## 7) Backend Architecture
 
-- Admin tools to view/disable accounts/cliques/posts/comments
-- Content reports and resolution actions
-- Rate-limit dashboards
-- Audit logs
+- **Framework:** FastAPI (Python).
+- **Persistence:** PostgreSQL (SQLAlchemy), Alembic migrations.
+- **Cache/queues:** Redis.
+- **Object storage:** MinIO (S3-compatible).
+- **Realtime:** WebSocket endpoints for chat & typing indicators.
+- **API surface:**
+  - REST, JSON, **camelCase** payloads externally (snake_case internal).
+  - Standard **error envelope** with machine-readable codes (`forbidden`, `validation_error`, `conflict`, `unauthorized`, etc.).
+  - **Cursor-based** pagination for listings.
 
----
+- **Testing & QA:**
+  - pytest + Testcontainers; **≥85%** coverage gate.
+  - Product verifier script for end-to-end behaviors & invariants.
 
-## 12) Observability & Ops (Post-MVP suggestions)
-
-- Structured logging (request id, user id)
-- Error tracking (Sentry)
-- Metrics: bookings conversion, DAU/MAU, message counts, post engagement
-- Background jobs (notifications fanout, cleanup tasks)
-- Backups: DB, MinIO
-
----
-
-## 13) Roadmap
-
-### MVP (current)
-
-- All features listed in sections 3–10 with minimal polish
-- WS chat and notifications
-- ≥85% test coverage
-
-### Phase 2
-
-- Payment integrations (hold, charge, refund flows)
-- Multi-asset posts/messages
-- Group chat (optional)
-- Rich moderation tools
-- Full-text search / ranking
-- Internationalization
-
-### Phase 3
-
-- Recommendations (people/cliques/services)
-- Calendaring integrations (iCal export)
-- Analytics for business owners
+- **Security:**
+  - JWT auth (access + refresh, rotation).
+  - Rate limiting (IP/user buckets; tune per route).
+  - Validation with consistent error envelopes.
+  - Exclusion constraints for overlapping bookings.
 
 ---
 
-## 14) Acceptance Checklist (Go/No-Go)
+## 8) Data Model Overview (Conceptual)
 
-- [ ] Auth: register/login/refresh/logout; 401 vs 403 correctly
-- [ ] Privacy: private profiles gated; blocks enforced
-- [ ] Cliques: business-only create; private metadata visible; membership flows
-- [ ] Posts: CRUD, media, likes/comments (1-level), soft delete, counts present
-- [ ] Services: CRUD; Availability: one-off/recurring; **partial update**
-- [ ] Slots: computed, non-overlapping, capacity=1, excludes pending/confirmed
-- [ ] Bookings: idempotent create; lifecycle; cutoff; reschedule; visibility
-- [ ] Reviews: 1 per completed booking; list + average rating
-- [ ] Notifications: all events stored and can be marked read/all
-- [ ] Search: users/occupations/cliques; private cliques limited
-- [ ] Messaging: explicit chat; messages WS; delete window enforced
-- [ ] Media: presign + register; MIME/size validated
-- [ ] Error envelope everywhere; cursor pagination everywhere
-- [ ] Tests: all pass; coverage ≥ 85%
+- **User**
+  - id, email, username, full_name, bio, profile_image, flags (`is_admin`, `is_active`, `is_private_account`, `is_business_page`)
+  - relations: occupations, followers, following
+
+- **Occupation**
+  - id, name, slug
+
+- **Follow**
+  - follower_user_id, target_user_id, status (pending/accepted/blocked)
+
+- **Clique**
+  - id, owner_user_id, name, description, privacy, timezone, occupations, image
+  - members (role: owner/member; status: joined/pending/rejected)
+
+- **Post**
+  - id, clique_id, author_id (owner), content, status, image, counts (likes/comments)
+
+- **Comment**
+  - id, post_id, author_id, body, parent_comment_id (optional), soft-deleted flags
+
+- **Like**
+  - user_id, post_id (unique)
+
+- **Service**
+  - id, clique_id, title, description, duration, buffer, price_minor, currency, is_active
+
+- **Availability**
+  - id, clique_id, is_recurring, date or day_of_week, start_time, end_time, valid_from/until, timezone
+
+- **Booking**
+  - id, clique_id, service_id, user_id, start_ts, end_ts, status, cancellation_reason (owner-specified), notes
+
+- **Review**
+  - id, booking_id (unique), rater_user_id, rating, comment
+
+- **Chat & Message**
+  - chat (business_user_id, client_user_id)
+  - message (chat_id, sender_id, body, image, sent_at; hard-delete window)
+
+- **Notification**
+  - id, type, actor_id, target_user_id, entity_ref (post/comment/booking/follow), is_read, created_at
+
+- **Media**
+  - id, url, mime, size_bytes, meta, owner_id
 
 ---
 
-## 15) Glossary
+## 9) Environments
 
-- **Clique**: A business’s community hub (page + community + scheduling).
-- **Slot**: A computed time interval available to book, derived from availability + service duration/buffer.
-- **Cutoff**: Minimum time before `start_ts` after which client cancellations are forbidden.
+- **Development (local):**
+  - iOS: API base `http://localhost:8000`
+  - Android emulator: API base `http://10.0.2.2:8000`
+
+- **Production:** `https://occupy-app.com` (backing API under same host or `api.occupy-app.com`, to be finalized)
+- **Secrets:** Managed via `.env` (local) / platform secrets (prod).
+- **Deep links:** `occupy://...` → route mapping for chat, bookings, posts, cliques.
 
 ---
 
-> **Note:** This spec captures the **current** agreed MVP behavior plus near-term suggestions. When changes are made in implementation (e.g., adding payments or group chat), update this document to keep engineering, QA, and product aligned.
+## 10) Quality, Performance & Accessibility
+
+- **Mobile performance targets:**
+  - Cold start: < 3s on modern devices.
+  - Feed first contentful render: < 1.5s on warm cache.
+  - Infinite scroll with recycling, minimal over-fetching, image caching.
+
+- **Accessibility:**
+  - Provide roles/labels, proper hitSlop, contrast checks for light/dark.
+  - Focus and large text support where applicable.
+
+- **Testing targets:**
+  - Backend coverage ≥ 85%.
+  - Key E2E flows green on iOS (full) and Android (smoke).
+
+---
+
+## 11) Security, Privacy & Compliance (MVP)
+
+- **Transport:** TLS for production.
+- **Auth:** JWT with secure storage; refresh rotation.
+- **Rate limiting:** Per-route strategy (e.g., auth, searches, messaging).
+- **Privacy:** Private profiles/cliques gating; minimal exposure for private entities in search.
+- **Data integrity:** Booking overlap exclusion; one-review-per-booking constraint.
+- **Content moderation:** Owner comment deletion; user blocking.
+- **PII:** Minimal retention; data export/delete **planned** (post-MVP).
+
+---
+
+## 12) Constraints & Assumptions
+
+- Payments & deposits **out of scope** for MVP.
+- Push notifications OS-level delivery **deferred**; in-app center exists.
+- Media limited to **images** (single image per post/message) up to **10 MB**.
+- No group chats; **1:1 only**.
+- English-only UI; currency **EUR**.
+- Timezone at **clique level**; device display aligns to clique’s configuration where relevant.
+
+---
+
+## 13) Roadmap (Post-MVP)
+
+1. **CI/CD & Observability**
+   - GitHub Actions: lint, typecheck, tests, E2E (simulators), artifact uploads.
+   - Sentry & OpenTelemetry (traces/metrics), structured logging, request IDs.
+
+2. **Store Readiness**
+   - App icons/splash, metadata, privacy nutrition labels, localization scaffolding.
+   - Feature flags for risky features.
+
+3. **Analytics & Growth**
+   - Privacy-friendly analytics, funnel tracking (onboarding, follow, booking, message, review).
+   - Experiments via feature flags.
+
+4. **Admin & Safety**
+   - Admin dashboard: report handling, ban controls, content moderation queues.
+   - Enhanced abuse prevention (heuristics & thresholds).
+
+5. **Payments (optional)**
+   - Stripe intents, deposits, cancellation fees aligned with cutoff rules.
+
+6. **Data Lifecycle**
+   - GDPR basics: export/delete account, retention policies, backups/DR runbooks.
+
+---
+
+## 14) Definition of Done (MVP)
+
+- All **core features** above implemented with documented API.
+- **Privacy rules** enforced (profiles/cliques).
+- **Bookings** respect availability, cutoffs, and rescheduling rules.
+- **Reviews** gated by completion; one per booking.
+- **Messaging** live with delete window, typing, unread counters.
+- **Notifications** list + mark read/all; event triggers wired.
+- **Media** upload pipeline functioning (presign → PUT → register).
+- **Search** returns users/occupations/cliques; private cliques limited exposure.
+- **Mobile app** navigable (auth gate → feed → details) with **stable theming**.
+- **Testing**: backend ≥ 85% coverage; E2E key flows pass locally on iOS; Android smoke green.
+- **Performance & accessibility** baselines met.
+
+---
+
+## 15) Tech Stack
+
+- **Mobile**
+  - Expo (React Native), Expo Router v6
+  - **@shopify/restyle** (theming), dayjs
+  - Zustand (auth/theme stores), TanStack Query v5 (data)
+  - Storage: **expo-secure-store** (primary), AsyncStorage (fallback)
+  - Testing: Jest + Testing Library; **Maestro** E2E (local simulators/emulators)
+  - Conventions: deep links `occupy://`, path alias `@/*`, kebab-case filenames
+
+- **Backend**
+  - FastAPI, SQLAlchemy
+  - PostgreSQL, Redis, MinIO (S3-compatible)
+  - Alembic migrations
+  - Testing: pytest + Testcontainers; product verification harness
+  - API: REST + WebSockets, JSON, camelCase externally

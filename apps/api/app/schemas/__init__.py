@@ -33,6 +33,7 @@ from .pagination import CursorPage
 from .pagination_openapi import (
     CursorPageBookings,
     CursorPageCliqueMembers,
+    CursorPageCliques,
     CursorPageFollows,
     CursorPagePosts,
     CursorPageReviews,
@@ -97,6 +98,7 @@ __all__ = [
     "CursorPage",
     "CursorPageBookings",
     "CursorPageCliqueMembers",
+    "CursorPageCliques",
     "CursorPageFollows",
     "CursorPagePosts",
     "CursorPageReviews",

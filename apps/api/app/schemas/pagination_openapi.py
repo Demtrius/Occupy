@@ -5,7 +5,7 @@ from typing import Any
 from app.schemas.base import BaseSchema
 
 from .booking import Booking
-from .clique import CliqueMember
+from .clique import Clique, CliqueMember
 from .post import Post
 from .user import Follow, User
 from .review import Review
@@ -26,6 +26,10 @@ class CursorPageBookings(CursorPageBase):
 
 class CursorPageCliqueMembers(CursorPageBase):
     items: list[CliqueMember]
+
+
+class CursorPageCliques(CursorPageBase):
+    items: list[Clique]
 
 
 class CursorPageUsers(CursorPageBase):

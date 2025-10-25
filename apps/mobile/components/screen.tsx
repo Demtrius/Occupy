@@ -7,16 +7,11 @@ export function Screen({ children, ...rest }: ViewProps) {
 	return (
 		<SafeAreaView
 			style={[{ flex: 1 }, rest.style]}
-			edges={["top", "right", "left"]}
+			edges={["right", "left"]}
 			{...rest}
 		>
 			<StatusBar style="auto" />
-			<Box
-				flex={1}
-				backgroundColor="background"
-				paddingHorizontal="l"
-				paddingVertical="m"
-			>
+			<Box flex={1} backgroundColor="background" paddingVertical="m">
 				{children}
 			</Box>
 		</SafeAreaView>

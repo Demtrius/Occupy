@@ -10,17 +10,41 @@ export const Button: React.FC<
 	React.ComponentProps<typeof Pressable> & {
 		children?: React.ReactNode;
 		variant?: keyof Theme["buttonVariants"];
+		backgroundColor?: keyof Theme["colors"];
 	}
-> = ({ children, variant = "defaults", disabled, ...rest }) => {
+> = ({
+	children,
+	variant = "defaults",
+	disabled,
+	backgroundColor: bgColor,
+	...rest
+}) => {
 	const theme = useTheme<Theme>();
-	const buttonStyle = theme.buttonVariants[variant];
+	const baseStyle = theme.buttonVariants.defaults;
+	const variantStyle = theme.buttonVariants[variant];
+	const buttonStyle = { ...baseStyle, ...variantStyle };
+
+	const resolvedBackgroundColor =
+		typeof buttonStyle.backgroundColor === "string" &&
+		buttonStyle.backgroundColor in theme.colors
+			? theme.colors[buttonStyle.backgroundColor as keyof typeof theme.colors]
+			: buttonStyle.backgroundColor;
+
+	const finalBackgroundColor = bgColor
+		? theme.colors[bgColor]
+		: resolvedBackgroundColor;
+
+	const resolvedStyle = {
+		...buttonStyle,
+		backgroundColor: finalBackgroundColor,
+	};
 
 	return (
 		<Pressable
 			style={
 				{
-					...buttonStyle,
-					opacity: disabled ? 0.5 : (buttonStyle as any).opacity || 1,
+					...resolvedStyle,
+					opacity: disabled ? 0.5 : (resolvedStyle as any).opacity || 1,
 				} as any
 			}
 			accessibilityRole="button"
@@ -36,12 +60,22 @@ export const Button: React.FC<
 export const Input: React.FC<
 	React.ComponentProps<typeof TextInput> & {
 		variant?: keyof Theme["inputVariants"];
+		backgroundColor?: keyof Theme["colors"];
 	}
-> = ({ variant = "defaults", ...rest }) => {
+> = ({ variant = "defaults", backgroundColor: bgColor, ...rest }) => {
 	const theme = useTheme<Theme>();
 	const inputStyle = theme.inputVariants[variant];
 
-	return <TextInput style={inputStyle as any} {...rest} />;
+	const finalBackgroundColor = bgColor
+		? theme.colors[bgColor]
+		: inputStyle.backgroundColor;
+
+	const resolvedStyle = {
+		...inputStyle,
+		backgroundColor: finalBackgroundColor,
+	};
+
+	return <TextInput style={resolvedStyle as any} {...rest} />;
 };
 
 export const Card: React.FC<

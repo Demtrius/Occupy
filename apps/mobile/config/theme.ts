@@ -8,7 +8,7 @@ const lightColors = {
 	popover: "#ffffff",
 	"popover-foreground": "#09090b",
 	primary: "#0084d1",
-	"primary-foreground": "#09090b",
+	"primary-foreground": "#ffffff",
 	secondary: "#f4f4f5",
 	"secondary-foreground": "#18181b",
 	muted: "#f4f4f5",
@@ -29,7 +29,7 @@ const darkColors = {
 	popover: "#09090b",
 	"popover-foreground": "#eff6ff",
 	primary: "#0084d1",
-	"primary-foreground": "#eff6ff",
+	"primary-foreground": "#ffffff",
 	secondary: "#18181b",
 	"secondary-foreground": "#eff6ff",
 	muted: "#18181b",
@@ -98,7 +98,7 @@ const baseTheme = {
 	},
 	buttonVariants: {
 		defaults: {
-			minHeight: 44,
+			minHeight: 52,
 			borderRadius: 8,
 			paddingHorizontal: 24,
 			paddingVertical: 16,
@@ -108,6 +108,13 @@ const baseTheme = {
 		},
 		primary: {
 			backgroundColor: "primary",
+		},
+		icon: {
+			backgroundColor: "primary",
+			minWidth: 52,
+			minHeight: 52,
+			paddingHorizontal: 14,
+			paddingVertical: 10,
 		},
 		disabled: {
 			opacity: 0.5,

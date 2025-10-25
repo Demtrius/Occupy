@@ -245,6 +245,38 @@ async def is_member_of_clique(db: AsyncSession, clique_id: str, user_id: str) ->
     return member is not None
 
 
+async def get_user_cliques(
+    db: AsyncSession,
+    user_id: str,
+    current_user_id: str,
+    cursor: str | None,
+    limit: int,
+) -> tuple[list[Clique], str | None]:
+    # If viewing own cliques, show all
+    if user_id == current_user_id:
+        stmt = select(Clique).where(Clique.owner_user_id == user_id)
+    else:
+        # For other users, only show public cliques or cliques where current user is a member
+        from sqlalchemy import or_
+        stmt = select(Clique).where(
+            Clique.owner_user_id == user_id,
+            or_(
+                Clique.privacy == Privacy.PUBLIC,
+                Clique.id.in_(
+                    select(CliqueMember.clique_id).where(
+                        CliqueMember.user_id == current_user_id,
+                        CliqueMember.status == MembershipStatus.JOINED,
+                    )
+                ),
+            ),
+        )
+
+    stmt = apply_datetime_cursor(stmt, Clique, cursor, limit)
+    result = await db.execute(stmt)
+    rows = result.scalars().unique().all()
+    return slice_results(rows, limit)
+
+
 async def update_clique_details(
     db: AsyncSession,
     clique_id: str,

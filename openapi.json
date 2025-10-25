@@ -1781,6 +1781,72 @@
 				}
 			}
 		},
+		"/api/v1/cliques/user/{userId}/cliques": {
+			"get": {
+				"tags": ["Cliques"],
+				"summary": "List user cliques",
+				"description": "Paginated cliques owned by a user visible to the current user, respecting privacy settings.",
+				"operationId": "list_user_cliques_route_api_v1_cliques_user__userId__cliques_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					},
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "User cliques page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageCliques" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/v1/cliques/{cliqueId}/invites": {
 			"post": {
 				"tags": ["Cliques"],
@@ -1995,6 +2061,59 @@
 					},
 					"403": {
 						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"404": {
+						"description": "Not Found",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/user/{userId}/posts": {
+			"get": {
+				"tags": ["Posts"],
+				"summary": "List user posts",
+				"description": "Paginated posts by a user visible to the current user, respecting privacy settings.",
+				"operationId": "list_user_posts_route_api_v1_posts_user__userId__posts_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid", "title": "Userid" }
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "User posts page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPagePosts" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
 						"content": {
 							"application/json": {
 								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
@@ -5440,6 +5559,29 @@
 				"type": "object",
 				"required": ["items"],
 				"title": "CursorPageCliqueMembers"
+			},
+			"CursorPageCliques": {
+				"properties": {
+					"nextCursor": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Nextcursor"
+					},
+					"meta": {
+						"anyOf": [
+							{ "additionalProperties": true, "type": "object" },
+							{ "type": "null" }
+						],
+						"title": "Meta"
+					},
+					"items": {
+						"items": { "$ref": "#/components/schemas/Clique" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": ["items"],
+				"title": "CursorPageCliques"
 			},
 			"CursorPageFollows": {
 				"properties": {

@@ -28,6 +28,7 @@ from ...schemas import (
     CliqueMember as CliqueMemberSchema,
     CliqueUpdate,
     CursorPageCliqueMembers,
+    CursorPageCliques,
     CursorPagePosts,
     Post as PostSchema,
 )
@@ -41,6 +42,7 @@ from ...services.cliques import (
     get_clique_public,
     get_feed_posts,
     get_pending_members,
+    get_user_cliques,
     is_member_of_clique,
     join_clique,
     leave_clique,
@@ -373,6 +375,32 @@ async def reject_membership(
     except ValueError as exc:
         raise Validation(str(exc))
     return {"status": "rejected"}
+
+
+@router.get(
+    "/user/{userId}/cliques",
+    summary="List user cliques",
+    description="Paginated cliques owned by a user visible to the current user, respecting privacy settings.",
+    response_model=CursorPageCliques,
+    responses={
+        200: {"description": "User cliques page"},
+        **error_responses(401),
+    },
+    openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
+)
+async def list_user_cliques_route(
+    user_id: Annotated[UUID, Path(alias="userId")],
+    params: CursorPaginationParams = Depends(),
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
+    cliques, next_cursor = await get_user_cliques(
+        db, str(user_id), str(current_user.id), cursor, limit
+    )
+    items = [CliqueSchema.model_validate(clique) for clique in cliques]
+    return CursorPageCliques(items=items, next_cursor=next_cursor)
 
 
 @router.post(

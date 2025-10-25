@@ -1,4 +1,4 @@
-import { Slot } from "expo-router";
+import { Slot, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
 
 import { ToastHost } from "@/components/toast-host";
@@ -7,11 +7,27 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export default function RootLayout() {
 	const [hydrated, setHydrated] = useState(false);
-	const { hydrate } = useAuthStore();
+	const { hydrate, tokens } = useAuthStore();
+	const router = useRouter();
+	const segments = useSegments();
 
 	useEffect(() => {
 		hydrate().then(() => setHydrated(true));
 	}, [hydrate]);
+
+	useEffect(() => {
+		if (!hydrated) return;
+
+		const inAuthGroup = segments[0] === "(auth)";
+
+		if (!tokens?.accessToken && !inAuthGroup) {
+			// Redirect to login if not authenticated and not already in auth group
+			router.replace("/(auth)/login");
+		} else if (tokens?.accessToken && inAuthGroup) {
+			// Redirect to main app if authenticated but in auth group
+			router.replace("/(tabs)/feed");
+		}
+	}, [hydrated, tokens, segments, router]);
 
 	if (!hydrated) {
 		return null; // or a loading screen

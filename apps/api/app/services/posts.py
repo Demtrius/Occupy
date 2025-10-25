@@ -64,6 +64,45 @@ async def get_clique_posts(
     return hydrated, next_cursor
 
 
+async def get_user_posts(
+    db: AsyncSession,
+    user_id: str,
+    current_user_id: str,
+    cursor: str | None,
+    limit: int,
+) -> tuple[list[PostSchema], str | None]:
+    from ..models.clique import CliqueMember
+    from ..models.enums import MembershipStatus, Privacy
+
+    # Get posts by the user that are posted and not deleted
+    base_stmt = select(Post).where(
+        Post.author_user_id == user_id,
+        Post.status == PostStatus.POSTED,
+        Post.deleted_at.is_(None),
+    )
+
+    # If viewing own posts, show all
+    if user_id == current_user_id:
+        stmt = base_stmt
+    else:
+        # For other users, only show posts from public cliques or cliques where current user is a member
+        public_cliques_stmt = select(Clique.id).where(Clique.privacy == Privacy.PUBLIC)
+        member_cliques_stmt = select(CliqueMember.clique_id).where(
+            CliqueMember.user_id == current_user_id,
+            CliqueMember.status == MembershipStatus.JOINED,
+        )
+
+        allowed_clique_ids = public_cliques_stmt.union(member_cliques_stmt)
+        stmt = base_stmt.where(Post.clique_id.in_(allowed_clique_ids))
+
+    stmt = apply_datetime_cursor(stmt, Post, cursor, limit)
+    result = await db.execute(stmt)
+    rows = result.scalars().unique().all()
+    posts, next_cursor = slice_results(rows, limit)
+    hydrated = [await _hydrate_post(db, post, current_user_id) for post in posts]
+    return hydrated, next_cursor
+
+
 async def update_post(
     db: AsyncSession, post_id: str, content: str | None, status: PostStatus | None
 ) -> Post | None:
