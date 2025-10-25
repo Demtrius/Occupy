@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { apiFetch } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 
 import type { User } from "@/types/user";
 
@@ -9,10 +9,8 @@ export function useUpdateUserMutation() {
 
 	return useMutation({
 		mutationFn: async (data: Partial<User>) => {
-			return apiFetch<User>("/api/v1/users/me", {
-				method: "PATCH",
-				body: JSON.stringify(data),
-			});
+			const response = await api.patch<User>("/api/v1/users/me", data);
+			return response.data;
 		},
 		onSuccess: () => {
 			// Invalidate user queries to ensure consistency

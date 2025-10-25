@@ -1,46 +1,38 @@
-import { apiFetch } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import { validateUser } from "@/schemas/user";
-import type { Clique, Post } from "@/types/profile";
+import type { Booking, Clique, Post, Review } from "@/types/profile";
 import type { User } from "@/types/user";
 
 export async function getMe(): Promise<User> {
-	const data = await apiFetch("/api/v1/users/me");
-	return validateUser(data);
+	const response = await api.get("/api/v1/users/me");
+	return validateUser(response.data);
 }
 
 export async function getUser(userId: string): Promise<User> {
-	const data = await apiFetch(`/api/v1/users/${userId}`);
-	return validateUser(data);
+	const response = await api.get(`/api/v1/users/${userId}`);
+	return validateUser(response.data);
 }
 
 export async function followUser(userId: string): Promise<{ status: string }> {
-	const data = await apiFetch(`/api/v1/users/${userId}/follow`, {
-		method: "POST",
-	});
-	return data;
+	const response = await api.post(`/api/v1/users/${userId}/follow`);
+	return response.data as { status: string };
 }
 
 export async function unfollowUser(
 	userId: string,
 ): Promise<{ status: string }> {
-	const data = await apiFetch(`/api/v1/users/${userId}/follow`, {
-		method: "DELETE",
-	});
-	return data;
+	const response = await api.delete(`/api/v1/users/${userId}/follow`);
+	return response.data as { status: string };
 }
 
 export async function blockUser(userId: string): Promise<{ status: string }> {
-	const data = await apiFetch(`/api/v1/users/${userId}/follow/block`, {
-		method: "POST",
-	});
-	return data;
+	const response = await api.post(`/api/v1/users/${userId}/follow/block`);
+	return response.data as { status: string };
 }
 
 export async function unblockUser(userId: string): Promise<{ status: string }> {
-	const data = await apiFetch(`/api/v1/users/${userId}/follow/block`, {
-		method: "DELETE",
-	});
-	return data;
+	const response = await api.delete(`/api/v1/users/${userId}/follow/block`);
+	return response.data as { status: string };
 }
 
 export async function getUserPosts(
@@ -51,11 +43,10 @@ export async function getUserPosts(
 	items: Post[];
 	nextCursor?: string;
 }> {
-	const params = new URLSearchParams({ limit: limit.toString() });
-	if (cursor) params.append("cursor", cursor);
-
-	const data = await apiFetch(`/api/v1/posts/user/${userId}/posts?${params}`);
-	return data;
+	const response = await api.get(`/api/v1/posts/user/${userId}/posts`, {
+		params: { limit, cursor },
+	});
+	return response.data as { items: Post[]; nextCursor?: string };
 }
 
 export async function getUserCliques(
@@ -66,27 +57,23 @@ export async function getUserCliques(
 	items: Clique[];
 	nextCursor?: string;
 }> {
-	const params = new URLSearchParams({ limit: limit.toString() });
-	if (cursor) params.append("cursor", cursor);
-
-	const data = await apiFetch(
-		`/api/v1/cliques/user/${userId}/cliques?${params}`,
-	);
-	return data;
+	const response = await api.get(`/api/v1/cliques/user/${userId}/cliques`, {
+		params: { limit, cursor },
+	});
+	return response.data as { items: Clique[]; nextCursor?: string };
 }
 
 export async function getUserBookings(
 	cursor?: string,
 	limit = 20,
 ): Promise<{
-	items: any[];
+	items: Booking[];
 	nextCursor?: string;
 }> {
-	const params = new URLSearchParams({ limit: limit.toString() });
-	if (cursor) params.append("cursor", cursor);
-
-	const data = await apiFetch(`/api/v1/bookings/me?${params}`);
-	return data;
+	const response = await api.get(`/api/v1/bookings/me`, {
+		params: { limit, cursor },
+	});
+	return response.data as { items: Booking[]; nextCursor?: string };
 }
 
 export async function getCliqueReviews(
@@ -94,12 +81,11 @@ export async function getCliqueReviews(
 	cursor?: string,
 	limit = 20,
 ): Promise<{
-	items: any[];
+	items: Review[];
 	nextCursor?: string;
 }> {
-	const params = new URLSearchParams({ limit: limit.toString() });
-	if (cursor) params.append("cursor", cursor);
-
-	const data = await apiFetch(`/api/v1/reviews/cliques/${cliqueId}?${params}`);
-	return data;
+	const response = await api.get(`/api/v1/reviews/cliques/${cliqueId}`, {
+		params: { limit, cursor },
+	});
+	return response.data as { items: Review[]; nextCursor?: string };
 }
