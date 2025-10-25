@@ -1,11 +1,8 @@
-import { useRouter } from "expo-router";
 import { ScrollView } from "react-native";
 import { Screen } from "@/components/screen";
 import { Box, Text } from "@/components/ui/restyle-components";
 
 export default function EditProfilePage() {
-	const router = useRouter();
-
 	return (
 		<Screen>
 			<ScrollView showsVerticalScrollIndicator={false}>
