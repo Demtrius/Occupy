@@ -6,20 +6,13 @@ import * as users from "@/api/users";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useMeQuery() {
-	const { tokens, setAuth, user: currentUser } = useAuthStore();
+	const { tokens } = useAuthStore();
 	const query = useQuery({
 		queryKey: ["me"],
 		queryFn: users.getMe,
 		enabled: !!tokens?.accessToken,
 		retry: false,
 	});
-
-	// Update the auth store when user data is fetched and different from current
-	useEffect(() => {
-		if (query.data && (!currentUser || currentUser.id !== query.data.id)) {
-			setAuth({ user: query.data, tokens });
-		}
-	}, [query.data, currentUser, tokens, setAuth]);
 
 	return query;
 }

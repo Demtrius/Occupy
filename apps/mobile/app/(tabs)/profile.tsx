@@ -9,24 +9,25 @@ import { Button } from "@/components/ui/button";
 import { Box, Text } from "@/components/ui/restyle-components";
 import {
 	useFollowMutation,
+	useMeQuery,
 	useUnfollowMutation,
 	useUserQuery,
 } from "@/hooks/query";
-import { useAuthStore } from "@/stores/auth-store";
 
 export default function ProfilePage() {
 	const { userId } = useLocalSearchParams<{ userId?: string }>();
 	const router = useRouter();
-	const currentUser = useAuthStore((s) => s.user);
+	const { data: currentUser } = useMeQuery();
+	const currentUserData = currentUser || null;
 
 	// If userId is provided, show that user's profile
 	// Otherwise show current user's profile
-	const isOwnProfile = !userId || userId === currentUser?.id;
-	const profileUserId = userId || currentUser?.id;
+	const isOwnProfile = !userId || userId === currentUserData?.id;
+	const profileUserId = userId || currentUserData?.id;
 
 	// Fetch user data for other users
 	const userQuery = useUserQuery(isOwnProfile ? undefined : userId);
-	const profileUser = isOwnProfile ? currentUser : userQuery.data || null;
+	const profileUser = isOwnProfile ? currentUserData : userQuery.data || null;
 
 	// Follow mutations
 	const followMutation = useFollowMutation();

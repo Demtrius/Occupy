@@ -11,11 +11,8 @@ export async function login(body: LoginBody): Promise<User> {
 	});
 	const { user, accessToken, refreshToken } = validateTokenResponse(data);
 	await useAuthStore.getState().setAuth({
-		user,
-		tokens: {
-			accessToken,
-			refreshToken,
-		},
+		accessToken,
+		refreshToken,
 	});
 	return user;
 }
@@ -27,11 +24,8 @@ export async function register(body: RegisterBody): Promise<User> {
 	});
 	const { user, accessToken, refreshToken } = validateTokenResponse(data);
 	await useAuthStore.getState().setAuth({
-		user,
-		tokens: {
-			accessToken,
-			refreshToken,
-		},
+		accessToken,
+		refreshToken,
 	});
 	return user;
 }

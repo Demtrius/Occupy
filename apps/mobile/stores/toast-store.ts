@@ -7,12 +7,14 @@ type Toast = {
 	message?: string;
 	duration?: number;
 };
+
 type ToastState = {
 	toasts: Toast[];
 	show: (t: Omit<Toast, "id">) => void;
 	dismiss: (id: string) => void;
 	clear: () => void;
 };
+
 export const useToastStore = create<ToastState>((set, get) => ({
 	toasts: [],
 	show: (t) => {

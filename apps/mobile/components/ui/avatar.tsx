@@ -1,6 +1,6 @@
 import type { ImageProps } from "expo-image";
 import { Image } from "expo-image";
-import { Box } from "./restyle-components";
+import { Box, Text } from "./restyle-components";
 
 interface AvatarProps extends Omit<ImageProps, "source"> {
 	size?: number;
@@ -46,7 +46,9 @@ export function Avatar({
 					justifyContent="center"
 					backgroundColor="primary"
 				>
-					{/* Fallback: show first letter of username or default icon */}
+					<Text variant="body" color="primary-foreground">
+						{fallback || "?"}
+					</Text>
 				</Box>
 			)}
 		</Box>

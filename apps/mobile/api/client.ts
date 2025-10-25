@@ -35,11 +35,8 @@ async function refreshToken(
 		const validated = validateTokenResponse(data);
 		const { setAuth } = useAuthStore.getState();
 		await setAuth({
-			user: validated.user,
-			tokens: {
-				accessToken: validated.accessToken,
-				refreshToken: validated.refreshToken,
-			},
+			accessToken: validated.accessToken,
+			refreshToken: validated.refreshToken,
 		});
 		return validated.accessToken;
 	}

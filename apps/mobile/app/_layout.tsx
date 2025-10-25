@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export default function RootLayout() {
 	const [hydrated, setHydrated] = useState(false);
-	const { hydrate, tokens, user } = useAuthStore();
+	const { hydrate, tokens } = useAuthStore();
 	const router = useRouter();
 	const segments = useSegments();
 
@@ -20,14 +20,14 @@ export default function RootLayout() {
 
 		const inAuthGroup = segments[0] === "(auth)";
 
-		if ((!tokens?.accessToken || !user) && !inAuthGroup) {
+		if (!tokens?.accessToken && !inAuthGroup) {
 			// Redirect to login if not authenticated and not already in auth group
 			router.replace("/(auth)/login");
-		} else if (tokens?.accessToken && user && inAuthGroup) {
+		} else if (tokens?.accessToken && inAuthGroup) {
 			// Redirect to main app if authenticated but in auth group
 			router.replace("/(tabs)/feed");
 		}
-	}, [hydrated, tokens, user, segments, router]);
+	}, [hydrated, tokens, segments, router]);
 
 	if (!hydrated) {
 		return null; // or a loading screen

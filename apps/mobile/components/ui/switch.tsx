@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { useTheme } from "@shopify/restyle";
+import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -21,7 +21,7 @@ export function Switch({ value, onValueChange, disabled }: SwitchProps) {
 
 	useEffect(() => {
 		translateX.value = withTiming(value ? 18 : 0, { duration: 200 });
-	}, [value]);
+	}, [value, translateX]);
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		transform: [{ translateX: translateX.value }],

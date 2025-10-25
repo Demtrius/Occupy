@@ -51,6 +51,7 @@ export function ProfileStats({
 			<Box
 				flexDirection="row"
 				justifyContent="center"
+				paddingHorizontal="l"
 				paddingVertical="m"
 				gap="xl"
 			>
@@ -83,8 +84,8 @@ export function ProfileStats({
 		<Box
 			flexDirection="row"
 			justifyContent="center"
-			paddingVertical="m"
 			paddingHorizontal="l"
+			paddingVertical="m"
 			gap="xl"
 		>
 			<StatItem

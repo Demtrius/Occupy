@@ -16,7 +16,7 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
 	if (isLoading || !user) {
 		return (
-			<Box alignItems="center" paddingVertical="l">
+			<Box alignItems="center" paddingTop="l">
 				<Box
 					width={80}
 					height={80}
@@ -41,24 +41,20 @@ export function ProfileHeader({
 		user.isPrivateAccount && !isOwnProfile && !user.isFollowing;
 
 	return (
-		<Box
-			alignItems="center"
-			paddingTop="xl"
-			paddingBottom="m"
-			paddingHorizontal="l"
-		>
+		<Box alignItems="center" paddingTop="l" paddingHorizontal="l" rowGap="s">
 			{/* Avatar - always visible */}
 			<Avatar
 				size={80}
 				source={
 					user.profileImageUrl ? { uri: user.profileImageUrl } : undefined
 				}
-				marginBottom="m"
+				fallback={user?.username?.[0]?.toUpperCase()}
+				marginBottom="s"
 			/>
 
 			{/* Name and Username - always visible */}
 			{user.fullName && (
-				<Text variant="subheader" textAlign="center" marginBottom="xs">
+				<Text variant="subheader" textAlign="center">
 					{user.fullName}
 				</Text>
 			)}
@@ -80,7 +76,6 @@ export function ProfileHeader({
 					paddingHorizontal="s"
 					paddingVertical="xs"
 					borderRadius="s"
-					marginBottom="s"
 					gap="xs"
 				>
 					<Ionicons name="briefcase-outline" size={14} color="white" />
@@ -92,12 +87,7 @@ export function ProfileHeader({
 
 			{/* Bio - always visible */}
 			{user.bio && (
-				<Text
-					variant="body"
-					textAlign="center"
-					marginBottom="m"
-					numberOfLines={3}
-				>
+				<Text variant="body" textAlign="center" numberOfLines={3}>
 					{user.bio}
 				</Text>
 			)}
