@@ -6,8 +6,10 @@ import { ScrollView, TextInput } from "react-native";
 import { Screen } from "@/components/screen";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ErrorScreen } from "@/components/ui/error-screen";
 import { FormField } from "@/components/ui/form-utils";
 import { Input } from "@/components/ui/input";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { Switch } from "@/components/ui/switch";
 import { useMeQuery, useUpdateUserMutation } from "@/hooks/query";
@@ -60,22 +62,15 @@ export default function EditProfilePage() {
 	};
 
 	if (userQuery.isLoading) {
-		return (
-			<Screen>
-				<Box flex={1} justifyContent="center" alignItems="center">
-					<Text variant="body">Loading...</Text>
-				</Box>
-			</Screen>
-		);
+		return <LoadingScreen />;
 	}
 
 	if (userQuery.error) {
 		return (
-			<Screen>
-				<Box flex={1} justifyContent="center" alignItems="center">
-					<Text variant="body">Failed to load profile</Text>
-				</Box>
-			</Screen>
+			<ErrorScreen
+				message="Failed to load profile"
+				onRetry={() => userQuery.refetch()}
+			/>
 		);
 	}
 

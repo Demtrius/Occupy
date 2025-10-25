@@ -6,6 +6,8 @@ import { ProfileStats } from "@/components/profile/profile-stats";
 import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { Screen } from "@/components/screen";
 import { Button } from "@/components/ui/button";
+import { ErrorScreen } from "@/components/ui/error-screen";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box, Text } from "@/components/ui/restyle-components";
 import {
 	useFollowMutation,
@@ -18,16 +20,15 @@ export default function ProfilePage() {
 	const { userId } = useLocalSearchParams<{ userId?: string }>();
 	const router = useRouter();
 	const { data: currentUser } = useMeQuery();
-	const currentUserData = currentUser || null;
 
 	// If userId is provided, show that user's profile
 	// Otherwise show current user's profile
-	const isOwnProfile = !userId || userId === currentUserData?.id;
-	const profileUserId = userId || currentUserData?.id;
+	const isOwnProfile = !userId || userId === currentUser?.id;
+	const profileUserId = userId || currentUser?.id;
 
 	// Fetch user data for other users
 	const userQuery = useUserQuery(isOwnProfile ? undefined : userId);
-	const profileUser = isOwnProfile ? currentUserData : userQuery.data || null;
+	const profileUser = isOwnProfile ? currentUser : userQuery.data || null;
 
 	// Follow mutations
 	const followMutation = useFollowMutation();
@@ -48,25 +49,17 @@ export default function ProfilePage() {
 	const isLoading = isOwnProfile ? false : userQuery.isLoading;
 	const error = isOwnProfile ? null : userQuery.error;
 
+	if (isLoading) {
+		return <LoadingScreen />;
+	}
+
 	// Show error state for other user profiles
 	if (error && !isOwnProfile) {
 		return (
-			<Screen>
-				<Box flex={1} alignItems="center" justifyContent="center" padding="l">
-					<Text variant="body" textAlign="center" marginBottom="m">
-						Failed to load profile
-					</Text>
-					<Text
-						variant="caption"
-						textAlign="center"
-						color="destructive"
-						marginBottom="l"
-					>
-						{error.message || "Something went wrong"}
-					</Text>
-					<Button onPress={() => userQuery.refetch()}>Try Again</Button>
-				</Box>
-			</Screen>
+			<ErrorScreen
+				message={`Failed to load profile: ${error.message || "Something went wrong"}`}
+				onRetry={() => userQuery.refetch()}
+			/>
 		);
 	}
 

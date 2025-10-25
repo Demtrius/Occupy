@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { apiFetch } from "@/api/client";
+import { apiFetch } from "@/lib/api-client";
 
 import type { User } from "@/types/user";
 

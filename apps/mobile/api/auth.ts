@@ -1,8 +1,8 @@
+import { apiFetch } from "@/lib/api-client";
 import { validateTokenResponse } from "@/schemas/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import type { LoginBody, RegisterBody } from "@/types/auth";
 import type { User } from "@/types/user";
-import { apiFetch } from "./client";
 
 export async function login(body: LoginBody): Promise<User> {
 	const data = await apiFetch("/api/v1/auth/login", {
