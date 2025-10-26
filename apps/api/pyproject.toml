@@ -49,11 +49,11 @@ allowedUntypedLibraries = ["testcontainers"]
 [tool.ruff]
 line-length = 100
 target-version = "py313"
-extend-select = ["I"] # import sorting
 exclude = ["alembic/"]
 
-[tool.ruff.lint.per-file-ignores]
-"app/api/deps/*.py" = ["E402"]
+[tool.ruff.lint]
+extend-select = ["I", "N"] # import sorting, naming conventions
+
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"

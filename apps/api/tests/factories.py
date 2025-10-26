@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from datetime import date as DateType, datetime, time as TimeType, timedelta, timezone
+from datetime import date as DateType
+from datetime import datetime, timedelta, timezone
+from datetime import time as TimeType
 from typing import Optional
 from uuid import UUID
 
