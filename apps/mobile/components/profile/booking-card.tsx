@@ -1,4 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@shopify/restyle";
 import { Box, Text } from "@/components/ui/restyle-components";
+import type { Theme } from "@/config/theme";
 import type { Booking } from "@/types";
 
 interface BookingCardProps {
@@ -6,6 +9,7 @@ interface BookingCardProps {
 }
 
 export function BookingCard({ booking }: BookingCardProps) {
+	const theme = useTheme<Theme>();
 	const startDate = new Date(booking.startTs);
 	const _endDate = new Date(booking.endTs);
 
@@ -73,12 +77,26 @@ export function BookingCard({ booking }: BookingCardProps) {
 
 			{/* Booking Time */}
 			<Box marginBottom="s">
-				<Text variant="caption" color="muted-foreground">
-					📅 {formatDate(startDate)}
-				</Text>
-				<Text variant="caption" color="muted-foreground">
-					⏱️ Duration: {booking.service?.durationMinutes || 0} minutes
-				</Text>
+				<Box flexDirection="row" alignItems="center" marginBottom="xs">
+					<Ionicons
+						name="calendar-outline"
+						size={16}
+						color={theme.colors["muted-foreground"]}
+					/>
+					<Text variant="caption" color="muted-foreground" marginLeft="xs">
+						{formatDate(startDate)}
+					</Text>
+				</Box>
+				<Box flexDirection="row" alignItems="center">
+					<Ionicons
+						name="time-outline"
+						size={16}
+						color={theme.colors["muted-foreground"]}
+					/>
+					<Text variant="caption" color="muted-foreground" marginLeft="xs">
+						{booking.service?.durationMinutes || 0} minutes
+					</Text>
+				</Box>
 			</Box>
 
 			{/* Price */}

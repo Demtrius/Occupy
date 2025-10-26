@@ -1,5 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
+import type { Theme } from "@/config/theme";
 import type { Post } from "@/types";
 
 interface PostCardProps {
@@ -7,6 +10,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+	const theme = useTheme<Theme>();
 	return (
 		<Box
 			backgroundColor="card"
@@ -51,13 +55,27 @@ export function PostCard({ post }: PostCardProps) {
 			)}
 
 			{/* Post Stats */}
-			<Box flexDirection="row" justifyContent="space-between">
-				<Text variant="caption" color="muted-foreground">
-					❤️ {post.likesCount} likes
-				</Text>
-				<Text variant="caption" color="muted-foreground">
-					💬 {post.commentsCount} comments
-				</Text>
+			<Box flexDirection="row" alignItems="center">
+				<Box flexDirection="row" alignItems="center" marginRight="m">
+					<Ionicons
+						name="heart-outline"
+						size={16}
+						color={theme.colors["muted-foreground"]}
+					/>
+					<Text variant="caption" color="muted-foreground" marginLeft="xs">
+						{post.likesCount}
+					</Text>
+				</Box>
+				<Box flexDirection="row" alignItems="center">
+					<Ionicons
+						name="chatbubble-outline"
+						size={16}
+						color={theme.colors["muted-foreground"]}
+					/>
+					<Text variant="caption" color="muted-foreground" marginLeft="xs">
+						{post.commentsCount}
+					</Text>
+				</Box>
 			</Box>
 		</Box>
 	);

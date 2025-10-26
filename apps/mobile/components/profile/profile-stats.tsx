@@ -46,7 +46,6 @@ export function ProfileStats({
 	onFollowersPress,
 	onFollowingPress,
 }: ProfileStatsProps) {
-
 	if (isLoading || !user) {
 		return (
 			<Box
