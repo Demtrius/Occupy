@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import type { ViewProps } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Box } from "./ui/restyle-components";
+import { Box } from "./restyle-components";
 
 export function Screen({ children, ...rest }: ViewProps) {
 	return (

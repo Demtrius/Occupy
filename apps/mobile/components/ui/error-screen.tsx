@@ -1,4 +1,4 @@
-import { Screen } from "@/components/screen";
+import { Screen } from "@/components/ui/screen";
 import { Button } from "./button";
 import { Box, Text } from "./restyle-components";
 

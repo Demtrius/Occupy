@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
-import { PostCard } from "@/components/profile/post-card";
-import { Screen } from "@/components/screen";
+import { PostCard } from "@/components/cards/post-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
 import { TabsHeader } from "@/components/ui/tabs-header";
 import { useFeedPosts } from "@/hooks/use-feed-posts";
 
@@ -39,7 +39,7 @@ export default function Page() {
 					<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
 				}
 			>
-				<Box padding="m">
+				<Box padding="s">
 					{/* Posts List */}
 					{posts.length === 0 ? (
 						<EmptyState message="No posts to show" />

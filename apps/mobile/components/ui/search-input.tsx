@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRestyle, useTheme } from "@shopify/restyle";
-import { type StyleProp, TouchableOpacity, type ViewStyle } from "react-native";
+import { useTheme } from "@shopify/restyle";
+import { TouchableOpacity } from "react-native";
 import type { Theme } from "@/config/theme";
 import { Box, Input as RestyleInput } from "./restyle-components";
 

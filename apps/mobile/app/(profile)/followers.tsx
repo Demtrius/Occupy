@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native";
-import { Screen } from "@/components/screen";
+import { Screen } from "@/components/ui/screen";
 import { Box, Text } from "@/components/ui/restyle-components";
 
 export default function FollowersPage() {

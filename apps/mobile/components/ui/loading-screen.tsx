@@ -1,5 +1,5 @@
 import { ActivityIndicator } from "react-native";
-import { Screen } from "@/components/screen";
+import { Screen } from "@/components/ui/screen";
 import { Box } from "./restyle-components";
 
 export function LoadingScreen() {

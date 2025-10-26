@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
-import { CliqueCard } from "@/components/profile/clique-card";
-import { Screen } from "@/components/screen";
+import { CliqueCard } from "@/components/cards/clique-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
 import { TabsHeader } from "@/components/ui/tabs-header";
 import { useMeQuery } from "@/hooks";
 import {
@@ -60,7 +60,7 @@ export default function Page() {
 					<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
 				}
 			>
-				<Box padding="m">
+				<Box padding="s">
 					{/* Cliques List */}
 					{cliques.length === 0 ? (
 						<EmptyState

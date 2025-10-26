@@ -10,9 +10,9 @@ import {
 	useListUserPostsQuery,
 } from "@/hooks";
 import type { Booking, Clique, Post, Review, User } from "@/types";
-import { BookingCard } from "./booking-card";
-import { CliqueCard } from "./clique-card";
-import { PostCard } from "./post-card";
+import { BookingCard } from "../cards/booking-card";
+import { CliqueCard } from "../cards/clique-card";
+import { PostCard } from "../cards/post-card";
 
 interface ProfileTabsProps {
 	user: User | null | undefined;
@@ -106,7 +106,7 @@ export function ProfileTabs({
 			case "posts": {
 				if (postsQuery.isLoading) {
 					return (
-						<Box padding="l">
+						<Box padding="s">
 							<Box
 								height={100}
 								backgroundColor="muted"
@@ -120,7 +120,7 @@ export function ProfileTabs({
 
 				if (postsQuery.error) {
 					return (
-						<Box padding="l" alignItems="center">
+						<Box padding="s" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load posts
 							</Text>
@@ -138,7 +138,7 @@ export function ProfileTabs({
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="m">
+						<Box padding="s">
 							{posts.map((post: Post) => (
 								<PostCard key={post.id} post={post} />
 							))}
@@ -150,7 +150,7 @@ export function ProfileTabs({
 			case "cliques": {
 				if (cliquesQuery.isLoading) {
 					return (
-						<Box padding="m">
+						<Box padding="s">
 							<Box
 								height={80}
 								backgroundColor="muted"
@@ -164,7 +164,7 @@ export function ProfileTabs({
 
 				if (cliquesQuery.error) {
 					return (
-						<Box padding="m" alignItems="center">
+						<Box padding="s" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load cliques
 							</Text>
@@ -182,7 +182,7 @@ export function ProfileTabs({
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="m">
+						<Box padding="s">
 							{cliques.map((clique: Clique) => (
 								<CliqueCard key={clique.id} clique={clique} />
 							))}
@@ -194,7 +194,7 @@ export function ProfileTabs({
 			case "reviews": {
 				if (reviewsQuery.isLoading) {
 					return (
-						<Box padding="m">
+						<Box padding="s">
 							<Box
 								height={60}
 								backgroundColor="muted"
@@ -208,7 +208,7 @@ export function ProfileTabs({
 
 				if (reviewsQuery.error) {
 					return (
-						<Box padding="m" alignItems="center">
+						<Box padding="s" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load reviews
 							</Text>
@@ -226,7 +226,7 @@ export function ProfileTabs({
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="m">
+						<Box padding="s">
 							{reviews.map((review: Review) => (
 								<Box
 									key={review.id}
@@ -269,7 +269,7 @@ export function ProfileTabs({
 			case "bookings": {
 				if (bookingsQuery.isLoading) {
 					return (
-						<Box padding="m">
+						<Box padding="s">
 							<Box
 								height={100}
 								backgroundColor="muted"
@@ -283,7 +283,7 @@ export function ProfileTabs({
 
 				if (bookingsQuery.error) {
 					return (
-						<Box padding="m" alignItems="center">
+						<Box padding="s" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load bookings
 							</Text>
@@ -301,7 +301,7 @@ export function ProfileTabs({
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="m">
+						<Box padding="s">
 							{bookings.map((booking: Booking) => (
 								<BookingCard key={booking.id} booking={booking} />
 							))}

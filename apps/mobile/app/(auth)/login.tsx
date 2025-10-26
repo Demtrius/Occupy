@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "@shopify/restyle";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
-import { Screen } from "@/components/screen";
+import { Screen } from "@/components/ui/screen";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-utils";
 import { Input } from "@/components/ui/input";

@@ -1,7 +1,7 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
 
-import { ToastHost } from "@/components/toast-host";
+import { ToastHost } from "@/components/ui/toast-host";
 import Providers from "@/providers";
 import { useAuthStore } from "@/stores/auth-store";
 

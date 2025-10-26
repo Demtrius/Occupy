@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { ScrollView } from "react-native";
-import { CliqueCard } from "@/components/profile/clique-card";
-import { UserCard } from "@/components/profile/user-card";
-import { Screen } from "@/components/screen";
+import { CliqueCard } from "@/components/cards/clique-card";
+import { UserCard } from "@/components/cards/user-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useSearchQuery } from "@/hooks/use-search";
@@ -36,7 +36,7 @@ export default function Page() {
 				/>
 			</Box>
 			<ScrollView showsVerticalScrollIndicator={false}>
-				<Box padding="m">
+				<Box padding="s">
 					{query ? (
 						<>
 							{/* Users */}

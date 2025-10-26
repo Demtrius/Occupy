@@ -4,7 +4,7 @@ import { ProfileActions } from "@/components/profile/profile-actions";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileStats } from "@/components/profile/profile-stats";
 import { ProfileTabs } from "@/components/profile/profile-tabs";
-import { Screen } from "@/components/screen";
+import { Screen } from "@/components/ui/screen";
 import { ErrorScreen } from "@/components/ui/error-screen";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import {

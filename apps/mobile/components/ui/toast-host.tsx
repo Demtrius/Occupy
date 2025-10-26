@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { useToastStore } from "@/stores/toast-store";
-import { Box, Card, Text } from "./ui/restyle-components";
+import { Box, Card, Text } from "./restyle-components";
 
 export function ToastHost() {
 	const toasts = useToastStore((s) => s.toasts);

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ScrollView } from "react-native";
-import { Screen } from "@/components/screen";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useListChatsQuery } from "@/hooks/use-messaging";
@@ -33,7 +33,7 @@ export default function Page() {
 				/>
 			</Box>
 			<ScrollView showsVerticalScrollIndicator={false}>
-				<Box padding="m">
+				<Box padding="s">
 					{isLoading ? (
 						<EmptyState message="Loading conversations..." />
 					) : filteredChats.length > 0 ? (

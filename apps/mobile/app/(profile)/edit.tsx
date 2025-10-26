@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
-import { Screen } from "@/components/screen";
+import { Screen } from "@/components/ui/screen";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorScreen } from "@/components/ui/error-screen";
