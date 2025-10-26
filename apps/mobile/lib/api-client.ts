@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/config/env";
-import { validateTokenResponse } from "@/schemas/auth";
+import { validateTokenRead } from "@/schemas/auth";
 import { useAuthStore } from "@/stores/auth-store";
 
 export type ErrorEnvelope = {
@@ -69,7 +69,7 @@ async function refreshToken(
 	});
 	if (res.ok) {
 		const data = await res.json();
-		const validated = validateTokenResponse(data);
+		const validated = validateTokenRead(data);
 		const { setAuth } = useAuthStore.getState();
 		await setAuth({
 			accessToken: validated.accessToken,

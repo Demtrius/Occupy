@@ -4,10 +4,9 @@ import type { Post } from "@/types";
 
 interface PostCardProps {
 	post: Post;
-	onPress?: () => void;
 }
 
-export function PostCard({ post, onPress }: PostCardProps) {
+export function PostCard({ post }: PostCardProps) {
 	return (
 		<Box
 			backgroundColor="card"

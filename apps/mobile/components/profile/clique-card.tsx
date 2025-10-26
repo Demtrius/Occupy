@@ -4,10 +4,9 @@ import type { Clique } from "@/types";
 
 interface CliqueCardProps {
 	clique: Clique;
-	onPress?: () => void;
 }
 
-export function CliqueCard({ clique, onPress }: CliqueCardProps) {
+export function CliqueCard({ clique }: CliqueCardProps) {
 	return (
 		<Box
 			backgroundColor="card"

@@ -2,21 +2,21 @@ import { z } from "zod";
 
 export const messageSchema = z.object({
 	body: z.string().nullish(),
-	mediaId: z.string().uuid().nullish(),
-	id: z.string().uuid(),
-	chatId: z.string().uuid(),
-	senderUserId: z.string().uuid(),
-	sentAt: z.string().datetime(),
+	mediaId: z.uuid().nullish(),
+	id: z.uuid(),
+	chatId: z.uuid(),
+	senderUserId: z.uuid(),
+	sentAt: z.iso.datetime(),
 });
 
 export const messageCreateSchema = z.object({
 	body: z.string().nullish(),
-	mediaId: z.string().uuid().nullish(),
+	mediaId: z.uuid().nullish(),
 });
 
 export const chatSchema = z.object({
-	businessUserId: z.string().uuid(),
-	clientUserId: z.string().uuid(),
-	id: z.string().uuid(),
-	createdAt: z.string().datetime(),
+	businessUserId: z.uuid(),
+	clientUserId: z.uuid(),
+	id: z.uuid(),
+	createdAt: z.iso.datetime(),
 });

@@ -11,16 +11,16 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import { useLoginMutation } from "@/hooks";
-import { loginSchema } from "@/schemas/auth";
+import { loginRequestSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
-import type { LoginBody } from "@/types/auth";
+import type { LoginRequest } from "@/types/auth";
 
-type LoginForm = LoginBody;
+type LoginForm = LoginRequest;
 
 export default function Login() {
 	const loginMutation = useLoginMutation();
 	const { control, handleSubmit } = useForm<LoginForm>({
-		resolver: zodResolver(loginSchema as any),
+		resolver: zodResolver(loginRequestSchema),
 	});
 	const theme = useTheme<Theme>();
 
@@ -50,7 +50,7 @@ export default function Login() {
 						name="emailOrUsername"
 						control={control}
 						label="Email or Username"
-						render={({ value, onChange, onBlur, error }) => (
+						render={({ value, onChange, onBlur }) => (
 							<Input
 								value={value}
 								onChangeText={onChange}
@@ -64,7 +64,7 @@ export default function Login() {
 						name="password"
 						control={control}
 						label="Password"
-						render={({ value, onChange, onBlur, error }) => (
+						render={({ value, onChange, onBlur }) => (
 							<PasswordInput
 								value={value}
 								onChangeText={onChange}

@@ -7,7 +7,7 @@ interface BookingCardProps {
 
 export function BookingCard({ booking }: BookingCardProps) {
 	const startDate = new Date(booking.startTs);
-	const endDate = new Date(booking.endTs);
+	const _endDate = new Date(booking.endTs);
 
 	const formatDate = (date: Date) => {
 		return (
@@ -82,7 +82,7 @@ export function BookingCard({ booking }: BookingCardProps) {
 			</Box>
 
 			{/* Price */}
-			{booking.service && booking.service.priceMinor && (
+			{booking.service?.priceMinor && (
 				<Text variant="body" fontWeight="600" color="primary">
 					€{(booking.service.priceMinor / 100).toFixed(2)}
 				</Text>

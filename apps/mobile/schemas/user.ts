@@ -2,8 +2,8 @@ import { z } from "zod";
 import type { User } from "../types/user";
 
 export const userSchema = z.object({
-	id: z.string(),
-	email: z.email(),
+	id: z.uuid(),
+	email: z.string().email(),
 	username: z.string(),
 	fullName: z.string().nullish(),
 	bio: z.string().nullish(),
@@ -26,6 +26,6 @@ export const userUpdateSchema = z.object({
 
 export type UserUpdateForm = z.infer<typeof userUpdateSchema>;
 
-export function validateUser(data: any): User {
+export function validateUser(data: unknown): User {
 	return userSchema.parse(data);
 }

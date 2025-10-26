@@ -8,7 +8,7 @@ export const loginRequestSchema = z.object({
 });
 
 export const userCreateSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	username: z.string().min(3).max(32),
 	fullName: z.string().nullish(),
 	bio: z.string().nullish(),
@@ -30,25 +30,14 @@ export const tokenReadSchema = z.object({
 	user: userSchema,
 });
 
-export function validateTokenRead(data: any): TokenRead {
+export function validateTokenRead(data: unknown): TokenRead {
 	return tokenReadSchema.parse(data);
 }
 
-export function validateLoginRequest(data: any): LoginRequest {
+export function validateLoginRequest(data: unknown): LoginRequest {
 	return loginRequestSchema.parse(data);
 }
 
-export function validateUserCreate(data: any): UserCreate {
+export function validateUserCreate(data: unknown): UserCreate {
 	return userCreateSchema.parse(data);
 }
-
-// Aliases for backward compatibility
-export const loginSchema = loginRequestSchema;
-export const registerSchema = userCreateSchema;
-export const tokenResponseSchema = tokenReadSchema;
-export const validateTokenResponse = validateTokenRead;
-export const validateLoginBody = validateLoginRequest;
-export const validateRegisterBody = validateUserCreate;
-export type LoginBody = LoginRequest;
-export type RegisterBody = UserCreate;
-export type TokenResponse = TokenRead;

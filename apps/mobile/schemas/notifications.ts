@@ -12,12 +12,12 @@ export const notificationSchema = z.object({
 		"system",
 		"message",
 	]),
-	payload: z.object({}).passthrough(),
+	payload: z.object({}).loose(),
 	isRead: z.boolean(),
-	readAt: z.string().datetime().nullish(),
-	id: z.string().uuid(),
-	userId: z.string().uuid(),
-	createdAt: z.string().datetime(),
+	readAt: z.iso.datetime().nullish(),
+	id: z.uuid(),
+	userId: z.uuid(),
+	createdAt: z.iso.datetime(),
 });
 
 export const notificationTypeSchema = z.enum([

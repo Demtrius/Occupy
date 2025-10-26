@@ -3,24 +3,23 @@ import { useTheme } from "@shopify/restyle";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
 import { Screen } from "@/components/screen";
-import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-utils";
 import { Input } from "@/components/ui/input";
 import { KeyboardAvoidForm, ScrollForm } from "@/components/ui/keyboard-forms";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Text } from "@/components/ui/restyle-components";
+import { Button, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import { useRegisterMutation } from "@/hooks";
-import { registerSchema } from "@/schemas/auth";
+import { userCreateSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
-import type { RegisterBody } from "@/types/auth";
+import type { UserCreate } from "@/types/auth";
 
-type RegisterForm = RegisterBody;
+type RegisterForm = UserCreate;
 
 export default function Register() {
 	const registerMutation = useRegisterMutation();
 	const { control, handleSubmit } = useForm<RegisterForm>({
-		resolver: zodResolver(registerSchema as any),
+		resolver: zodResolver(userCreateSchema),
 	});
 	const theme = useTheme<Theme>();
 
@@ -49,7 +48,7 @@ export default function Register() {
 						name="email"
 						control={control}
 						label="Email"
-						render={({ value, onChange, onBlur, error }) => (
+						render={({ value, onChange, onBlur }) => (
 							<Input
 								value={value}
 								onChangeText={onChange}
@@ -64,7 +63,7 @@ export default function Register() {
 						name="username"
 						control={control}
 						label="Username"
-						render={({ value, onChange, onBlur, error }) => (
+						render={({ value, onChange, onBlur }) => (
 							<Input
 								value={value}
 								onChangeText={onChange}
@@ -78,7 +77,7 @@ export default function Register() {
 						name="password"
 						control={control}
 						label="Password"
-						render={({ value, onChange, onBlur, error }) => (
+						render={({ value, onChange, onBlur }) => (
 							<PasswordInput
 								value={value}
 								onChangeText={onChange}

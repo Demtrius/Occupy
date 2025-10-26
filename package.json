@@ -12,7 +12,7 @@
 		"verify:api": "tsx scripts/verify-api.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.2.6",
+		"@biomejs/biome": "2.3.0",
 		"tsx": "^4.19.2",
 		"turbo": "^2.5.8"
 	}

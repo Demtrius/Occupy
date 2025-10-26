@@ -4,12 +4,12 @@ export const postSchema = z.object({
 	contentFormat: z.enum(["markdown"]),
 	content: z.string(),
 	status: z.enum(["draft", "posted", "archived"]),
-	id: z.string().uuid(),
-	cliqueId: z.string().uuid(),
-	authorUserId: z.string().uuid(),
-	deletedAt: z.string().datetime().nullish(),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+	id: z.uuid(),
+	cliqueId: z.uuid(),
+	authorUserId: z.uuid(),
+	deletedAt: z.iso.datetime().nullish(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 	likesCount: z.number(),
 	commentsCount: z.number(),
 	likedByMe: z.boolean(),
@@ -32,17 +32,17 @@ export const postStatusSchema = z.enum(["draft", "posted", "archived"]);
 export const contentFormatSchema = z.enum(["markdown"]);
 
 export const commentSchema = z.object({
-	id: z.string().uuid(),
-	postId: z.string().uuid(),
-	userId: z.string().uuid(),
+	id: z.uuid(),
+	postId: z.uuid(),
+	userId: z.uuid(),
 	body: z.string(),
-	parentCommentId: z.string().uuid().nullish(),
-	deletedAt: z.string().datetime().nullish(),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+	parentCommentId: z.uuid().nullish(),
+	deletedAt: z.iso.datetime().nullish(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 });
 
 export const commentCreateSchema = z.object({
 	body: z.string(),
-	parentCommentId: z.string().uuid().nullish(),
+	parentCommentId: z.uuid().nullish(),
 });

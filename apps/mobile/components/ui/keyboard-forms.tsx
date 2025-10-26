@@ -4,7 +4,6 @@ import {
 	ScrollView,
 	type ViewProps,
 } from "react-native";
-import { Box } from "./restyle-components";
 
 export function KeyboardAvoidForm({ children, ...rest }: ViewProps) {
 	return (

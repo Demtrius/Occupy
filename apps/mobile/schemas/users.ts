@@ -1,9 +1,9 @@
 import { z } from "zod";
-import type { Follow, FollowStatus, User, UserUpdate } from "../types/users";
+import type { Follow, User, UserUpdate } from "../types/users";
 
 export const userSchema = z.object({
-	id: z.string().uuid(),
-	email: z.string().email(),
+	id: z.uuid(),
+	email: z.email(),
 	username: z.string().min(3).max(32),
 	fullName: z.string().nullish(),
 	bio: z.string().nullish(),
@@ -12,8 +12,8 @@ export const userSchema = z.object({
 	isActive: z.boolean(),
 	isPrivateAccount: z.boolean(),
 	isBusinessPage: z.boolean(),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 });
 
 export const userUpdateSchema = z.object({
@@ -24,23 +24,23 @@ export const userUpdateSchema = z.object({
 });
 
 export const followSchema = z.object({
-	id: z.string().uuid(),
-	followerUserId: z.string().uuid(),
-	followeeUserId: z.string().uuid(),
+	id: z.uuid(),
+	followerUserId: z.uuid(),
+	followeeUserId: z.uuid(),
 	status: z.enum(["pending", "accepted", "blocked"]),
-	createdAt: z.string().datetime(),
+	createdAt: z.iso.datetime(),
 });
 
 export const followStatusSchema = z.enum(["pending", "accepted", "blocked"]);
 
-export function validateUser(data: any): User {
+export function validateUser(data: unknown): User {
 	return userSchema.parse(data);
 }
 
-export function validateUserUpdate(data: any): UserUpdate {
+export function validateUserUpdate(data: unknown): UserUpdate {
 	return userUpdateSchema.parse(data);
 }
 
-export function validateFollow(data: any): Follow {
+export function validateFollow(data: unknown): Follow {
 	return followSchema.parse(data);
 }

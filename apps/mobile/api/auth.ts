@@ -1,13 +1,13 @@
 import { api } from "@/lib/api-client";
-import { validateTokenResponse } from "@/schemas/auth";
+import { validateTokenRead } from "@/schemas/auth";
 import { useAuthStore } from "@/stores/auth-store";
-import type { LoginBody, RegisterBody } from "@/types/auth";
+import type { LoginRequest, UserCreate } from "@/types/auth";
 import type { User } from "@/types/user";
 
-export async function login(body: LoginBody): Promise<User> {
+export async function login(body: LoginRequest): Promise<User> {
 	const response = await api.post("/api/v1/auth/login", body);
 	const data = response.data;
-	const { user, accessToken, refreshToken } = validateTokenResponse(data);
+	const { user, accessToken, refreshToken } = validateTokenRead(data);
 	await useAuthStore.getState().setAuth({
 		accessToken,
 		refreshToken,
@@ -15,10 +15,10 @@ export async function login(body: LoginBody): Promise<User> {
 	return user;
 }
 
-export async function register(body: RegisterBody): Promise<User> {
+export async function register(body: UserCreate): Promise<User> {
 	const response = await api.post("/api/v1/auth/register", body);
 	const data = response.data;
-	const { user, accessToken, refreshToken } = validateTokenResponse(data);
+	const { user, accessToken, refreshToken } = validateTokenRead(data);
 	await useAuthStore.getState().setAuth({
 		accessToken,
 		refreshToken,
@@ -35,7 +35,7 @@ export async function refresh(): Promise<User> {
 		refreshToken: tokens.refreshToken,
 	});
 	const data = response.data;
-	const { user, accessToken, refreshToken } = validateTokenResponse(data);
+	const { user, accessToken, refreshToken } = validateTokenRead(data);
 	await useAuthStore.getState().setAuth({
 		accessToken,
 		refreshToken,

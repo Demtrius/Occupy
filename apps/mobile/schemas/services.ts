@@ -8,10 +8,10 @@ export const serviceSchema = z.object({
 	durationMinutes: z.number(),
 	bufferMinutes: z.number(),
 	isActive: z.boolean(),
-	id: z.string().uuid(),
-	cliqueId: z.string().uuid(),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+	id: z.uuid(),
+	cliqueId: z.uuid(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 });
 
 export const serviceCreateSchema = z.object({

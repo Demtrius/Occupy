@@ -1,19 +1,19 @@
 import { z } from "zod";
 
 export const bookingSchema = z.object({
-	id: z.string().uuid(),
-	serviceId: z.string().uuid(),
-	cliqueId: z.string().uuid(),
-	userId: z.string().uuid(),
-	startTs: z.string().datetime(),
-	endTs: z.string().datetime(),
+	id: z.uuid(),
+	serviceId: z.uuid(),
+	cliqueId: z.uuid(),
+	userId: z.uuid(),
+	startTs: z.iso.datetime(),
+	endTs: z.iso.datetime(),
 	status: z.enum(["pending", "confirmed", "completed", "cancelled"]),
 	cancelledBy: z.enum(["owner", "client"]).nullish(),
 	cancellationReason: z.string().nullish(),
 	note: z.string().nullish(),
 	idempotencyKey: z.string().nullish(),
-	createdAt: z.string().datetime(),
-	updatedAt: z.string().datetime(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 	service: z
 		.object({
 			title: z.string(),
@@ -32,14 +32,14 @@ export const bookingSchema = z.object({
 });
 
 export const bookingCreateSchema = z.object({
-	serviceId: z.string().uuid(),
-	startTs: z.string().datetime(),
+	serviceId: z.uuid(),
+	startTs: z.iso.datetime(),
 	note: z.string().nullish(),
 	idempotencyKey: z.string().nullish(),
 });
 
 export const bookingRescheduleSchema = z.object({
-	startTs: z.string().datetime(),
+	startTs: z.iso.datetime(),
 });
 
 export const bookingStatusSchema = z.enum([

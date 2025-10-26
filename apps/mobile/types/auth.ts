@@ -27,8 +27,3 @@ export type TokenRead = {
 	refreshToken: string;
 	user: User;
 };
-
-// Aliases for backward compatibility
-export type RegisterBody = UserCreate;
-export type LoginBody = LoginRequest;
-export type TokenResponse = TokenRead;

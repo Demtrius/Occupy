@@ -3,10 +3,10 @@ import { z } from "zod";
 export const reviewSchema = z.object({
 	rating: z.number().min(1).max(5),
 	comment: z.string().nullish(),
-	id: z.string().uuid(),
-	bookingId: z.string().uuid(),
-	raterUserId: z.string().uuid(),
-	createdAt: z.string().datetime(),
+	id: z.uuid(),
+	bookingId: z.uuid(),
+	raterUserId: z.uuid(),
+	createdAt: z.iso.datetime(),
 	rater: z
 		.object({
 			username: z.string(),
