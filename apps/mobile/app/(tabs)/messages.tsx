@@ -24,7 +24,7 @@ export default function Page() {
 
 	return (
 		<Screen>
-			<Box padding="m" paddingBottom="s">
+			<Box padding="s" paddingBottom="s">
 				<SearchInput
 					placeholder="Search conversations..."
 					value={searchQuery}

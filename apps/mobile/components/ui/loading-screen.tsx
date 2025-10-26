@@ -4,7 +4,7 @@ import { Box } from "./restyle-components";
 
 export function LoadingScreen() {
 	return (
-		<Screen>
+		<Screen centerContent>
 			<Box flex={1} alignItems="center" justifyContent="center">
 				<ActivityIndicator size="large" />
 			</Box>

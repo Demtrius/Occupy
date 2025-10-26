@@ -3,10 +3,11 @@ import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import type { User } from "@/types";
+import type { User } from "@/types/user";
+import type { UserFollow } from "@/types/users";
 
 interface UserCardProps {
-	user: User;
+	user: User | UserFollow;
 }
 
 export function UserCard({ user }: UserCardProps) {
@@ -40,7 +41,7 @@ export function UserCard({ user }: UserCardProps) {
 
 			{/* User Stats */}
 			<Box flexDirection="row" justifyContent="space-between">
-				{user.occupations && user.occupations.length > 0 && (
+				{'occupations' in user && user.occupations && user.occupations.length > 0 && (
 					<Box flexDirection="row" alignItems="center">
 						<Ionicons
 							name="briefcase-outline"

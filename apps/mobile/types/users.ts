@@ -13,15 +13,17 @@ export type User = {
 	isBusinessPage: boolean;
 	createdAt: string;
 	updatedAt: string;
-	// Additional fields for profile display
-	occupations?: Array<{ id: string; name: string; slug: string }>;
-	followersCount?: number;
-	followingCount?: number;
-	postsCount?: number;
-	cliquesCount?: number;
-	isFollowing?: boolean;
-	isFollowRequested?: boolean;
-	isBlocked?: boolean;
+	followersCount: number;
+	followingCount: number;
+};
+
+export type UserFollow = {
+	id: string;
+	username: string;
+	fullName: string;
+	profileImageUrl?: string | null;
+	isBusinessPage: boolean;
+	bio?: string | null;
 };
 
 export type UserUpdate = {
@@ -37,6 +39,7 @@ export type Follow = {
 	followeeUserId: string;
 	status: FollowStatus;
 	createdAt: string;
+	user: UserFollow;
 };
 
 export type FollowStatus = "pending" | "accepted" | "blocked";

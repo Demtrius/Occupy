@@ -5,13 +5,17 @@ import { Box } from "./restyle-components";
 
 interface ScreenProps extends ViewProps {
 	centerContent?: boolean;
+	noTopPadding?: boolean;
 }
 
 export function Screen({
 	children,
 	centerContent = false,
+	noTopPadding = false,
 	...rest
 }: ScreenProps) {
+	const topPadding = noTopPadding || centerContent ? undefined : "xxl";
+
 	return (
 		<SafeAreaView
 			style={[{ flex: 1 }, rest.style]}
@@ -22,7 +26,7 @@ export function Screen({
 			<Box
 				flex={1}
 				backgroundColor="background"
-				paddingTop={centerContent ? undefined : "xxl"}
+				paddingTop={topPadding}
 				justifyContent={centerContent ? "center" : undefined}
 			>
 				{children}

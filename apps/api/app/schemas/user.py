@@ -55,9 +55,19 @@ class TokenRead(BaseSchema):
     user: User
 
 
+class UserFollow(BaseSchema):
+    id: UUID
+    username: str
+    full_name: str
+    profile_image_url: Optional[str] = None
+    is_business_page: bool
+    bio: Optional[str] = None
+
+
 class Follow(BaseSchema):
     id: UUID
     follower_user_id: UUID
     followee_user_id: UUID
     status: FollowStatus
     created_at: datetime
+    user: UserFollow

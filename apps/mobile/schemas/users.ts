@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Follow, User, UserUpdate } from "../types/users";
+import type { Follow, User, UserFollow, UserUpdate } from "../types/users";
 
 export const userSchema = z.object({
 	id: z.uuid(),
@@ -14,6 +14,17 @@ export const userSchema = z.object({
 	isBusinessPage: z.boolean(),
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
+	followersCount: z.number(),
+	followingCount: z.number(),
+});
+
+export const userFollowSchema = z.object({
+	id: z.uuid(),
+	username: z.string().min(3).max(32),
+	fullName: z.string(),
+	profileImageUrl: z.string().nullish(),
+	isBusinessPage: z.boolean(),
+	bio: z.string().nullish(),
 });
 
 export const userUpdateSchema = z.object({
@@ -29,6 +40,7 @@ export const followSchema = z.object({
 	followeeUserId: z.uuid(),
 	status: z.enum(["pending", "accepted", "blocked"]),
 	createdAt: z.iso.datetime(),
+	user: userFollowSchema,
 });
 
 export const followStatusSchema = z.enum(["pending", "accepted", "blocked"]);

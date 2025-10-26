@@ -9,7 +9,8 @@ import {
 	useListUserCliquesQuery,
 	useListUserPostsQuery,
 } from "@/hooks";
-import type { Booking, Clique, Post, Review, User } from "@/types";
+import type { Booking, Clique, Post, Review } from "@/types";
+import type { User } from "@/types/user";
 import { BookingCard } from "../cards/booking-card";
 import { CliqueCard } from "../cards/clique-card";
 import { PostCard } from "../cards/post-card";

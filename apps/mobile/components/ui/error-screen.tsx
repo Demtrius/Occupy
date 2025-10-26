@@ -9,7 +9,7 @@ interface ErrorScreenProps {
 
 export function ErrorScreen({ message, onRetry }: ErrorScreenProps) {
 	return (
-		<Screen>
+		<Screen centerContent>
 			<Box flex={1} alignItems="center" justifyContent="center" padding="l">
 				<Text variant="body" textAlign="center" marginBottom="m">
 					{message}
