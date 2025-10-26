@@ -43,7 +43,7 @@ class User(TimestampMixin, Base):
     )
     email: Mapped[str] = mapped_column(String, nullable=False)
     username: Mapped[str] = mapped_column(String, nullable=False)
-    full_name: Mapped[Optional[str]] = mapped_column(String)
+    full_name: Mapped[str] = mapped_column(String, nullable=False)
     bio: Mapped[Optional[str]] = mapped_column(Text)
     profile_image_url: Mapped[Optional[str]] = mapped_column(String)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)

@@ -25,11 +25,9 @@ export function UserCard({ user }: UserCardProps) {
 					<Text variant="body" fontWeight="600" numberOfLines={1}>
 						{user.username}
 					</Text>
-					{user.fullName && (
-						<Text variant="caption" color="muted-foreground" numberOfLines={1}>
-							{user.fullName}
-						</Text>
-					)}
+					<Text variant="caption" color="muted-foreground" numberOfLines={1}>
+						{user.fullName}
+					</Text>
 				</Box>
 			</Box>
 

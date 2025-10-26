@@ -5,7 +5,7 @@ export const userSchema = z.object({
 	id: z.uuid(),
 	email: z.email(),
 	username: z.string().min(3).max(32),
-	fullName: z.string().nullish(),
+	fullName: z.string(),
 	bio: z.string().nullish(),
 	profileImageUrl: z.string().nullish(),
 	isAdmin: z.boolean(),

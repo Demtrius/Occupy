@@ -2,31 +2,107 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "@shopify/restyle";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
-import { Screen } from "@/components/ui/screen";
+import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-utils";
 import { Input } from "@/components/ui/input";
-import { KeyboardAvoidForm, ScrollForm } from "@/components/ui/keyboard-forms";
+import { KeyboardAvoidForm } from "@/components/ui/keyboard-avoid-forms";
+import { OccupationSelect } from "@/components/ui/occupation-select";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Button, Text } from "@/components/ui/restyle-components";
+import { Box, Text } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
+import { Switch } from "@/components/ui/switch";
 import type { Theme } from "@/config/theme";
-import { useRegisterMutation } from "@/hooks";
-import { userCreateSchema } from "@/schemas/auth";
+import {
+	useCreateOccupationMutation,
+	useListOccupationsQuery,
+	useRegisterMutation,
+	useUpdateUserOccupationsMutation,
+} from "@/hooks";
+import { registerFormSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
-import type { UserCreate } from "@/types/auth";
 
-type RegisterForm = UserCreate;
+type RegisterForm = {
+	email: string;
+	username: string;
+	fullName: string;
+	password: string;
+	confirmPassword: string;
+	isBusinessPage?: boolean;
+	occupations?: string[];
+};
 
 export default function Register() {
 	const registerMutation = useRegisterMutation();
-	const { control, handleSubmit } = useForm<RegisterForm>({
-		resolver: zodResolver(userCreateSchema),
-	});
+	const updateOccupationsMutation = useUpdateUserOccupationsMutation();
+	const createOccupationMutation = useCreateOccupationMutation();
+	const occupationsQuery = useListOccupationsQuery();
+	const { control, handleSubmit, watch, setValue, getValues } =
+		useForm<RegisterForm>({
+			resolver: zodResolver(registerFormSchema),
+			defaultValues: {
+				isBusinessPage: false,
+			},
+		});
 	const theme = useTheme<Theme>();
 
+	// Watch fullName to auto-fill username
+	const fullName = watch("fullName");
+	const username = watch("username");
+	const isBusinessPage = watch("isBusinessPage");
+
+	// Auto-fill username when fullName loses focus (only if username is empty or was auto-filled)
+	// Also clear username if fullName is cleared
+	const handleFullNameBlur = () => {
+		const currentFullName = watch("fullName");
+		if (currentFullName) {
+			// Auto-fill username if it's empty or was previously auto-filled
+			if (
+				!username ||
+				username === generateUsernameFromFullName(fullName || "")
+			) {
+				const generatedUsername = generateUsernameFromFullName(currentFullName);
+				setValue("username", generatedUsername);
+			}
+		} else {
+			// Clear username if fullName is cleared
+			setValue("username", "");
+		}
+	};
+
+	const generateUsernameFromFullName = (fullName: string): string => {
+		return fullName
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, "_")
+			.slice(0, 32);
+	};
+
 	const onSubmit = (data: RegisterForm) => {
-		registerMutation.mutate(data, {
+		const { confirmPassword: _, occupations, ...userData } = data;
+		registerMutation.mutate(userData, {
 			onSuccess: () => {
-				showToast({ type: "success", message: "Account created successfully" });
+				// If business page and occupations specified, update occupations
+				if (data.isBusinessPage && occupations && occupations.length > 0) {
+					updateOccupationsMutation.mutate(occupations, {
+						onSuccess: () => {
+							showToast({
+								type: "success",
+								message: "Business account created successfully",
+							});
+						},
+						onError: (error: any) => {
+							showToast({
+								type: "info",
+								message:
+									"Account created but failed to set occupations. You can set them later in your profile.",
+							});
+						},
+					});
+				} else {
+					showToast({
+						type: "success",
+						message: "Account created successfully",
+					});
+				}
 			},
 			onError: (error: any) => {
 				showToast({
@@ -38,12 +114,29 @@ export default function Register() {
 	};
 
 	return (
-		<Screen>
-			<KeyboardAvoidForm>
-				<ScrollForm>
+		<Screen centerContent>
+			<KeyboardAvoidForm style={{ width: "100%" }}>
+				<Box padding="m" width="100%">
 					<Text variant="header" marginBottom="l">
 						Register
 					</Text>
+					<FormField
+						name="fullName"
+						control={control}
+						label="Full Name"
+						render={({ value, onChange, onBlur }) => (
+							<Input
+								value={value}
+								onChangeText={onChange}
+								onBlur={() => {
+									onBlur();
+									handleFullNameBlur();
+								}}
+								placeholder="full name"
+								autoCapitalize="words"
+							/>
+						)}
+					/>
 					<FormField
 						name="email"
 						control={control}
@@ -87,24 +180,100 @@ export default function Register() {
 							/>
 						)}
 					/>
+					<FormField
+						name="confirmPassword"
+						control={control}
+						label="Confirm Password"
+						render={({ value, onChange, onBlur }) => (
+							<PasswordInput
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								placeholder="confirm password"
+								autoCapitalize="none"
+							/>
+						)}
+					/>
+
+					<Box>
+						<FormField
+							name="isBusinessPage"
+							control={control}
+							render={({ value, onChange }) => (
+								<Box
+									flexDirection="row"
+									alignItems="center"
+									justifyContent="space-between"
+								>
+									<Text variant="body" color="foreground">
+										This is a business page
+									</Text>
+									<Switch value={value} onValueChange={onChange} />
+								</Box>
+							)}
+						/>
+					</Box>
+
+					{isBusinessPage && (
+						<FormField
+							name="occupations"
+							control={control}
+							label="Occupations"
+							render={({ value, onChange }) => (
+								<OccupationSelect
+									value={value || []}
+									onChange={onChange}
+									occupations={occupationsQuery.data || []}
+									loading={occupationsQuery.isLoading}
+									placeholder="Select your business occupations..."
+									onCreateOccupation={async (name) => {
+										try {
+											const newOccupation =
+												await createOccupationMutation.mutateAsync(name);
+											// Add the new occupation to the selected occupations
+											const currentValue = getValues("occupations") || [];
+											setValue("occupations", [
+												...currentValue,
+												newOccupation.id,
+											]);
+											showToast({
+												type: "success",
+												message: `Created and selected "${newOccupation.name}"`,
+											});
+										} catch (error) {
+											showToast({
+												type: "error",
+												message:
+													"Failed to create occupation. Please try again.",
+											});
+										}
+									}}
+								/>
+							)}
+						/>
+					)}
+
 					<Button
 						onPress={handleSubmit(onSubmit)}
 						disabled={registerMutation.isPending}
 					>
-						{registerMutation.isPending
-							? "Creating account..."
-							: "Create account"}
+						<Text>
+							{registerMutation.isPending
+								? "Creating account..."
+								: "Create account"}
+						</Text>
 					</Button>
 					<Link
 						href="/(auth)/login"
 						style={{
 							color: theme.colors.primary,
 							textAlign: "center",
+							marginTop: theme.spacing.m,
 						}}
 					>
 						Already have an account? Sign in
 					</Link>
-				</ScrollForm>
+				</Box>
 			</KeyboardAvoidForm>
 		</Screen>
 	);

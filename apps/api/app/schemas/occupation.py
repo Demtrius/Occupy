@@ -8,8 +8,8 @@ class OccupationBase(BaseSchema):
     slug: str
 
 
-class OccupationCreate(OccupationBase):
-    pass
+class OccupationCreate(BaseSchema):
+    name: str
 
 
 class OccupationUpdate(BaseSchema):

@@ -16,7 +16,7 @@ async def create_user(
     email: str,
     username: str,
     password_hash: str,
-    full_name: str | None,
+    full_name: str,
     bio: str | None,
     profile_image_url: str | None,
     is_admin: bool,

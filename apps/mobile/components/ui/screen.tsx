@@ -3,7 +3,15 @@ import type { ViewProps } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Box } from "./restyle-components";
 
-export function Screen({ children, ...rest }: ViewProps) {
+interface ScreenProps extends ViewProps {
+	centerContent?: boolean;
+}
+
+export function Screen({
+	children,
+	centerContent = false,
+	...rest
+}: ScreenProps) {
 	return (
 		<SafeAreaView
 			style={[{ flex: 1 }, rest.style]}
@@ -11,7 +19,12 @@ export function Screen({ children, ...rest }: ViewProps) {
 			{...rest}
 		>
 			<StatusBar style="auto" />
-			<Box flex={1} backgroundColor="background" paddingTop="xxl">
+			<Box
+				flex={1}
+				backgroundColor="background"
+				paddingTop={centerContent ? undefined : "xxl"}
+				justifyContent={centerContent ? "center" : undefined}
+			>
 				{children}
 			</Box>
 		</SafeAreaView>

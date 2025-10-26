@@ -5,7 +5,7 @@ export const userSchema = z.object({
 	id: z.uuid(),
 	email: z.string().email(),
 	username: z.string(),
-	fullName: z.string().nullish(),
+	fullName: z.string(),
 	bio: z.string().nullish(),
 	profileImageUrl: z.string().nullish(),
 	isBusinessPage: z.boolean(),
@@ -25,6 +25,7 @@ export const userUpdateSchema = z.object({
 	profileImageUrl: z.string().nullish(),
 	isPrivateAccount: z.boolean().optional(),
 	isBusinessPage: z.boolean().optional(),
+	occupations: z.array(z.string()).optional(),
 });
 
 export type UserUpdateForm = z.infer<typeof userUpdateSchema>;

@@ -7,8 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...api.deps import get_db, require_active_user, require_clique_owner
 from ...api.openapi_helpers import error_responses, secured
 from ...models.user import User
-from ...schemas.occupation import Occupation as OccupationSchema
+from ...schemas.occupation import Occupation as OccupationSchema, OccupationCreate
 from ...services.occupations import (
+    create_occupation,
     get_occupations,
     search_occupations,
     update_clique_occupations,
@@ -51,6 +52,31 @@ async def search_occupations_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     return await search_occupations(db, q, limit)
+
+
+@router.post(
+    "",
+    summary="Create occupation",
+    description="Create a new occupation in the catalog.",
+    response_model=OccupationSchema,
+    responses={
+        201: {"description": "Occupation created"},
+        **error_responses(422),
+    },
+)
+async def create_occupation_endpoint(
+    occupation_data: OccupationCreate = Body(
+        ...,
+        examples={
+            "photographer": {
+                "summary": "Create photographer occupation",
+                "value": {"name": "Photographer"},
+            }
+        },
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    return await create_occupation(db, occupation_data)
 
 
 @router.put(

@@ -2,13 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "@shopify/restyle";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
-import { Screen } from "@/components/ui/screen";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-utils";
 import { Input } from "@/components/ui/input";
-import { KeyboardAvoidForm, ScrollForm } from "@/components/ui/keyboard-forms";
+import { KeyboardAvoidForm } from "@/components/ui/keyboard-avoid-forms";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Text } from "@/components/ui/restyle-components";
+import { Box, Text } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
 import type { Theme } from "@/config/theme";
 import { useLoginMutation } from "@/hooks";
 import { loginRequestSchema } from "@/schemas/auth";
@@ -40,9 +40,9 @@ export default function Login() {
 	};
 
 	return (
-		<Screen>
-			<KeyboardAvoidForm>
-				<ScrollForm>
+		<Screen centerContent>
+			<KeyboardAvoidForm style={{ width: "100%" }}>
+				<Box padding="m" width="100%">
 					<Text variant="header" marginBottom="l">
 						Login
 					</Text>
@@ -85,11 +85,12 @@ export default function Login() {
 						style={{
 							color: theme.colors.primary,
 							textAlign: "center",
+							marginTop: theme.spacing.m,
 						}}
 					>
 						Create account
 					</Link>
-				</ScrollForm>
+				</Box>
 			</KeyboardAvoidForm>
 		</Screen>
 	);

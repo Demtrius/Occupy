@@ -10,6 +10,7 @@ async def test_register_creates_user(client, faker, db_session):
     payload = {
         "email": faker.unique.email(),
         "username": faker.unique.user_name(),
+        "fullName": faker.name(),
         "password": "Str0ngPass!",
     }
     response = await client.post("/api/v1/auth/register", json=payload)
@@ -29,6 +30,7 @@ async def test_register_duplicate_email(client, faker):
     payload = {
         "email": faker.unique.email(),
         "username": faker.unique.user_name(),
+        "fullName": faker.name(),
         "password": "Str0ngPass!",
     }
     first = await client.post("/api/v1/auth/register", json=payload)
@@ -45,6 +47,7 @@ async def test_login_success(client, faker):
     credentials = {
         "email": email,
         "username": faker.unique.user_name(),
+        "fullName": faker.name(),
         "password": "Str0ngPass!",
     }
     await client.post("/api/v1/auth/register", json=credentials)
@@ -65,6 +68,7 @@ async def test_login_bad_password(client, faker):
     credentials = {
         "email": faker.unique.email(),
         "username": faker.unique.user_name(),
+        "fullName": faker.name(),
         "password": "Str0ngPass!",
     }
     await client.post("/api/v1/auth/register", json=credentials)
@@ -85,6 +89,7 @@ async def test_logout_requires_valid_token(client, faker):
     payload = {
         "email": faker.unique.email(),
         "username": faker.unique.user_name(),
+        "fullName": faker.name(),
         "password": "Str0ngPass!",
     }
     register = await client.post("/api/v1/auth/register", json=payload)
@@ -105,6 +110,7 @@ async def test_refresh_rotates_tokens(client, faker):
     payload = {
         "email": faker.unique.email(),
         "username": faker.unique.user_name(),
+        "fullName": faker.name(),
         "password": "Str0ngPass!",
     }
     register = await client.post("/api/v1/auth/register", json=payload)
@@ -143,6 +149,7 @@ async def test_logout_rejects_mismatched_user(client, faker):
         json={
             "email": faker.unique.email(),
             "username": faker.unique.user_name(),
+            "fullName": faker.name(),
             "password": "Str0ngPass!",
         },
     )
@@ -151,6 +158,7 @@ async def test_logout_rejects_mismatched_user(client, faker):
         json={
             "email": faker.unique.email(),
             "username": faker.unique.user_name(),
+            "fullName": faker.name(),
             "password": "Str0ngPass!",
         },
     )

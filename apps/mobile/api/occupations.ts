@@ -18,6 +18,11 @@ export async function searchOccupations(
 	return response.data as Occupation[];
 }
 
+export async function createOccupation(name: string): Promise<Occupation> {
+	const response = await api.post("/api/v1/occupations", { name });
+	return response.data as Occupation;
+}
+
 export async function updateUserOccupations(
 	occupationIds: string[],
 ): Promise<{ message: string }> {

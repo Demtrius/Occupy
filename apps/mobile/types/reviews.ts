@@ -9,7 +9,7 @@ export type Review = {
 	createdAt: string;
 	rater?: {
 		username: string;
-		fullName?: string;
+		fullName: string;
 		profileImageUrl?: string;
 	};
 };

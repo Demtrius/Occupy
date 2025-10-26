@@ -1,6 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Pressable, type TextInputProps } from "react-native";
-import { Box, Input, Text } from "./restyle-components";
+import { Input } from "./input";
+import { Box } from "./restyle-components";
 
 export function PasswordInput(props: TextInputProps) {
 	const [show, setShow] = useState(false);
@@ -12,11 +14,15 @@ export function PasswordInput(props: TextInputProps) {
 				style={{
 					position: "absolute",
 					right: 16,
-					top: 16,
+					top: 12,
 				}}
 				onPress={() => setShow((s) => !s)}
 			>
-				<Text variant="caption">{show ? "Hide" : "Show"}</Text>
+				<Ionicons
+					name={show ? "eye-off-outline" : "eye-outline"}
+					size={20}
+					color="#71717b"
+				/>
 			</Pressable>
 		</Box>
 	);

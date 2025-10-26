@@ -3,7 +3,7 @@ import type { User } from "./users";
 export type UserCreate = {
 	email: string;
 	username: string;
-	fullName?: string | null;
+	fullName: string;
 	bio?: string | null;
 	profileImageUrl?: string | null;
 	isAdmin?: boolean;

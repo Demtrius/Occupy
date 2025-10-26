@@ -53,11 +53,9 @@ export function ProfileHeader({
 			/>
 
 			{/* Name and Username - always visible */}
-			{user.fullName && (
-				<Text variant="subheader" textAlign="center">
-					{user.fullName}
-				</Text>
-			)}
+			<Text variant="subheader" textAlign="center">
+				{user.fullName}
+			</Text>
 			<Text
 				variant="body"
 				color="muted-foreground"

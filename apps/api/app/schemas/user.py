@@ -12,7 +12,7 @@ from ..models.enums import FollowStatus
 class UserBase(BaseSchema):
     email: EmailStr
     username: str = Field(min_length=3, max_length=32)
-    full_name: Optional[str] = None
+    full_name: str
     bio: Optional[str] = None
     profile_image_url: Optional[str] = None
     is_admin: bool = False

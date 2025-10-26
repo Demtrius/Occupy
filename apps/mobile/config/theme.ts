@@ -90,7 +90,7 @@ const baseTheme = {
 			fontSize: 16,
 			fontWeight: "500",
 			color: "foreground",
-			marginBottom: "xs",
+			marginBottom: "s",
 		},
 		error: {
 			fontSize: 14,
@@ -101,6 +101,10 @@ const baseTheme = {
 	buttonVariants: {
 		defaults: {},
 		primary: {},
+		secondary: {
+			backgroundColor: "secondary",
+			color: "secondary-foreground",
+		},
 		icon: {
 			minWidth: 52,
 			minHeight: 52,

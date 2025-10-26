@@ -10,7 +10,7 @@ export const loginRequestSchema = z.object({
 export const userCreateSchema = z.object({
 	email: z.email(),
 	username: z.string().min(3).max(32),
-	fullName: z.string().nullish(),
+	fullName: z.string(),
 	bio: z.string().nullish(),
 	profileImageUrl: z.string().nullish(),
 	isAdmin: z.boolean().default(false),
@@ -19,6 +19,29 @@ export const userCreateSchema = z.object({
 	isBusinessPage: z.boolean().default(false),
 	password: z.string(),
 });
+
+export const registerFormSchema = z
+	.object({
+		email: z.email(),
+		username: z.string().min(3).max(32),
+		fullName: z.string().min(1),
+		password: z.string().min(6),
+		confirmPassword: z.string(),
+		isBusinessPage: z.boolean().default(false),
+		occupations: z.array(z.string()).optional(), // Array of occupation IDs
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords don't match",
+		path: ["confirmPassword"],
+	})
+	.refine(
+		(data) =>
+			!data.isBusinessPage || (data.occupations && data.occupations.length > 0),
+		{
+			message: "Business pages must specify at least one occupation",
+			path: ["occupations"],
+		},
+	);
 
 export const refreshRequestSchema = z.object({
 	refreshToken: z.string(),

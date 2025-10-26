@@ -2,7 +2,7 @@ export type User = {
 	id: string;
 	email: string;
 	username: string;
-	fullName?: string | null;
+	fullName: string;
 	bio?: string | null;
 	profileImageUrl?: string | null;
 	isBusinessPage: boolean;
@@ -28,6 +28,7 @@ export type UserUpdate = {
 	profileImageUrl?: string | null;
 	isPrivateAccount?: boolean;
 	isBusinessPage?: boolean;
+	occupations?: string[];
 };
 
 export type UserSearchParams = {

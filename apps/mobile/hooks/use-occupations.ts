@@ -1,22 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as occupations from "@/api/occupations";
-import { useAuthStore } from "@/stores/auth-store";
 
 export function useListOccupationsQuery(limit = 50) {
-	const { tokens } = useAuthStore();
 	return useQuery({
 		queryKey: ["occupations", { limit }],
 		queryFn: () => occupations.listOccupations(limit),
-		enabled: !!tokens?.accessToken,
 	});
 }
 
 export function useSearchOccupationsQuery(q: string, limit = 20) {
-	const { tokens } = useAuthStore();
 	return useQuery({
 		queryKey: ["occupations", "search", { q, limit }],
 		queryFn: () => occupations.searchOccupations(q, limit),
-		enabled: !!tokens?.accessToken,
 	});
 }
 
@@ -26,6 +21,22 @@ export function useUpdateUserOccupationsMutation() {
 		mutationFn: occupations.updateUserOccupations,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+		},
+	});
+}
+
+export function useCreateOccupationMutation() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: occupations.createOccupation,
+		onSuccess: (newOccupation) => {
+			// Invalidate all occupation queries to refresh the list
+			queryClient.invalidateQueries({
+				queryKey: ["occupations"],
+				exact: false,
+			});
+			// Return the new occupation for immediate use
+			return newOccupation;
 		},
 	});
 }

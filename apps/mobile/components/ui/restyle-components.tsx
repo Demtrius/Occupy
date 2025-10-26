@@ -28,6 +28,7 @@ export const Button = createRestyleComponent<
 				alignItems: "center",
 				justifyContent: "center",
 				backgroundColor: "primary",
+				color: "primary-foreground",
 			},
 		}),
 	],
@@ -72,7 +73,7 @@ export const Card = createRestyleComponent<
 		createVariant({
 			themeKey: "cardVariants",
 			defaults: {
-				borderRadius: "m",
+				borderRadius: "l",
 				padding: "m",
 				backgroundColor: "card",
 				borderWidth: 1,

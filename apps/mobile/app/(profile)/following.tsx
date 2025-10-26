@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView } from "react-native";
-import { Screen } from "@/components/ui/screen";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { Screen } from "@/components/ui/screen";
 
 export default function FollowingPage() {
 	const { userId } = useLocalSearchParams<{ userId?: string }>();
