@@ -96,17 +96,20 @@ health:
 # -------- API (Dev) --------
 .PHONY: migrate revision seed api-shell
 migrate:
-	@cd API_DIR && poetry run alembic upgrade head
+	@cd $(API_DIR) && poetry run alembic upgrade head
 
 revision:
 ifndef M
 	$(error Usage: make revision M="your message")
 endif
-	@cd API_DIR && \
+	@cd $(API_DIR) && \
 		poetry run alembic revision --autogenerate -m "$(M)"
 
 seed:
-	@cd API_DIR && poetry run python -m app.scripts.seed
+	@cd $(API_DIR) && poetry run python -m app.scripts.seed
+
+clear:
+	@cd $(API_DIR) && poetry run python -m app.scripts.clear
 
 api-shell:
 	docker compose -f $(COMPOSE_DEV) exec api bash

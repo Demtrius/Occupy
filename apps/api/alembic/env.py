@@ -19,16 +19,14 @@ import app.models  # pyright: ignore reportUnusedImport=False
 
 target_metadata = Base.metadata
 
-existing = config.get_main_option("sqlalchemy.url")
 url = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://postgres:postgres@localhost:5432/clique",
 )
 
-print("URLS", url)
-print("URLS", existing)
-
-# config.set_main_option("sqlalchemy.url", str(url))
+existing = config.get_main_option("sqlalchemy.url")
+if not existing:
+    config.set_main_option("sqlalchemy.url", str(url))
 
 
 def run_migrations_offline() -> None:
