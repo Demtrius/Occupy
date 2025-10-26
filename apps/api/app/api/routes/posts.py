@@ -25,6 +25,7 @@ from ...services.posts import (
     delete_comment,
     delete_post,
     get_clique_posts,
+    get_feed_posts,
     get_post_by_id,
     get_user_posts,
     like_post,
@@ -33,6 +34,39 @@ from ...services.posts import (
 )
 
 router = APIRouter(prefix="/api/v1/posts", tags=["Posts"])
+
+
+@router.get(
+    "/feed",
+    summary="Get feed posts",
+    description="Paginated feed of posts visible to the current user, with optional filter for followings or cliques.",
+    response_model=CursorPagePosts,
+    responses={
+        200: {"description": "Feed posts page"},
+        **error_responses(401),
+    },
+    openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
+)
+async def get_feed_route(
+    filter: str | None = Query(None, description="Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques."),
+    current_user: User = Depends(require_active_user),
+    cursor: str | None = Query(
+        None, include_in_schema=False, description="Opaque pagination cursor"
+    ),
+    limit: int = Query(
+        20,
+        ge=1,
+        le=50,
+        include_in_schema=False,
+        description="Page size (default 20, max 50)",
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    limit, cursor = parse_limit_cursor(limit, cursor)
+    posts, next_cursor = await get_feed_posts(
+        db, str(current_user.id), filter, cursor, limit
+    )
+    return CursorPagePosts(items=posts, next_cursor=next_cursor)
 
 
 @router.post(

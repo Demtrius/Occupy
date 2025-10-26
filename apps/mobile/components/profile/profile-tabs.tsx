@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Pressable, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { TabsHeader } from "@/components/ui/tabs-header";
 import {
 	useListCliqueReviewsQuery,
 	useListMyBookingsQuery,
@@ -132,18 +134,12 @@ export function ProfileTabs({
 
 				const posts = postsQuery.data?.items || [];
 				if (posts.length === 0) {
-					return (
-						<Box padding="l" alignItems="center">
-							<Text variant="body" textAlign="center">
-								No posts yet
-							</Text>
-						</Box>
-					);
+					return <EmptyState message="No posts yet" />;
 				}
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="l">
+						<Box padding="m">
 							{posts.map((post: Post) => (
 								<PostCard key={post.id} post={post} />
 							))}
@@ -155,7 +151,7 @@ export function ProfileTabs({
 			case "cliques": {
 				if (cliquesQuery.isLoading) {
 					return (
-						<Box padding="l">
+						<Box padding="m">
 							<Box
 								height={80}
 								backgroundColor="muted"
@@ -169,7 +165,7 @@ export function ProfileTabs({
 
 				if (cliquesQuery.error) {
 					return (
-						<Box padding="l" alignItems="center">
+						<Box padding="m" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load cliques
 							</Text>
@@ -182,18 +178,12 @@ export function ProfileTabs({
 
 				const cliques = cliquesQuery.data?.items || [];
 				if (cliques.length === 0) {
-					return (
-						<Box padding="l" alignItems="center">
-							<Text variant="body" textAlign="center">
-								No cliques yet
-							</Text>
-						</Box>
-					);
+					return <EmptyState message="No cliques yet" />;
 				}
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="l">
+						<Box padding="m">
 							{cliques.map((clique: Clique) => (
 								<CliqueCard key={clique.id} clique={clique} />
 							))}
@@ -205,7 +195,7 @@ export function ProfileTabs({
 			case "reviews": {
 				if (reviewsQuery.isLoading) {
 					return (
-						<Box padding="l">
+						<Box padding="m">
 							<Box
 								height={60}
 								backgroundColor="muted"
@@ -219,7 +209,7 @@ export function ProfileTabs({
 
 				if (reviewsQuery.error) {
 					return (
-						<Box padding="l" alignItems="center">
+						<Box padding="m" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load reviews
 							</Text>
@@ -232,18 +222,12 @@ export function ProfileTabs({
 
 				const reviews = reviewsQuery.data?.items || [];
 				if (reviews.length === 0) {
-					return (
-						<Box padding="l" alignItems="center">
-							<Text variant="body" textAlign="center">
-								No reviews yet
-							</Text>
-						</Box>
-					);
+					return <EmptyState message="No reviews yet" />;
 				}
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="l">
+						<Box padding="m">
 							{reviews.map((review: Review) => (
 								<Box
 									key={review.id}
@@ -286,7 +270,7 @@ export function ProfileTabs({
 			case "bookings": {
 				if (bookingsQuery.isLoading) {
 					return (
-						<Box padding="l">
+						<Box padding="m">
 							<Box
 								height={100}
 								backgroundColor="muted"
@@ -300,7 +284,7 @@ export function ProfileTabs({
 
 				if (bookingsQuery.error) {
 					return (
-						<Box padding="l" alignItems="center">
+						<Box padding="m" alignItems="center">
 							<Text variant="body" textAlign="center" marginBottom="s">
 								Failed to load bookings
 							</Text>
@@ -313,18 +297,12 @@ export function ProfileTabs({
 
 				const bookings = bookingsQuery.data?.items || [];
 				if (bookings.length === 0) {
-					return (
-						<Box padding="l" alignItems="center">
-							<Text variant="body" textAlign="center">
-								No bookings yet
-							</Text>
-						</Box>
-					);
+					return <EmptyState message="No bookings yet" />;
 				}
 
 				return (
 					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="l">
+						<Box padding="m">
 							{bookings.map((booking: Booking) => (
 								<BookingCard key={booking.id} booking={booking} />
 							))}
@@ -340,31 +318,11 @@ export function ProfileTabs({
 
 	return (
 		<Box paddingVertical="l">
-			{/* Tab Headers */}
-			<Box flexDirection="row" marginBottom="m">
-				{tabs.map((tab) => (
-					<Pressable
-						key={tab.key}
-						onPress={() => setActiveTab(tab.key)}
-						style={{ flex: 1 }}
-					>
-						<Box
-							paddingVertical="s"
-							alignItems="center"
-							borderBottomWidth={activeTab === tab.key ? 2 : 0}
-							borderBottomColor="primary"
-						>
-							<Text
-								variant="body"
-								color={activeTab === tab.key ? "primary" : "muted-foreground"}
-								fontWeight={activeTab === tab.key ? "600" : "400"}
-							>
-								{tab.label}
-							</Text>
-						</Box>
-					</Pressable>
-				))}
-			</Box>
+			<TabsHeader
+				tabs={tabs.map(({ key, label }) => ({ key, label }))}
+				activeTab={activeTab}
+				onTabChange={setActiveTab}
+			/>
 
 			{/* Tab Content */}
 			{renderTabContent()}

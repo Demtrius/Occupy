@@ -1,14 +1,55 @@
-import { Box, Text } from "@/components/ui/restyle-components";
+import { useState } from "react";
+import { RefreshControl, ScrollView } from "react-native";
+import { PostCard } from "@/components/profile/post-card";
+import { Screen } from "@/components/screen";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { Box } from "@/components/ui/restyle-components";
+import { TabsHeader } from "@/components/ui/tabs-header";
+import { useFeedPosts } from "@/hooks/use-feed-posts";
+
+type FeedFilter = "all" | "followings" | "cliques";
 
 export default function Page() {
+	const [filter, setFilter] = useState<FeedFilter>("all");
+	const { data, refetch, isLoading, isRefetching } = useFeedPosts({ filter });
+
+	const posts = data?.items ?? [];
+
+	const onRefresh = () => {
+		refetch();
+	};
+
+	const tabs = [
+		{ key: "all" as const, label: "All" },
+		{ key: "followings" as const, label: "Followings" },
+		{ key: "cliques" as const, label: "Cliques" },
+	];
+
+	if (isLoading) {
+		return <LoadingScreen />;
+	}
+
 	return (
-		<Box
-			flex={1}
-			alignItems="center"
-			justifyContent="center"
-			backgroundColor="background"
-		>
-			<Text variant="body">tabs/feed</Text>
-		</Box>
+		<Screen>
+			<ScrollView
+				showsVerticalScrollIndicator={false}
+				contentContainerStyle={{ paddingTop: 20 }}
+				refreshControl={
+					<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
+				}
+			>
+				<TabsHeader tabs={tabs} activeTab={filter} onTabChange={setFilter} />
+
+				<Box padding="m">
+					{/* Posts List */}
+					{posts.length === 0 ? (
+						<EmptyState message="No posts to show" />
+					) : (
+						posts.map((post) => <PostCard key={post.id} post={post} />)
+					)}
+				</Box>
+			</ScrollView>
+		</Screen>
 	);
 }

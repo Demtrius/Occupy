@@ -41,6 +41,17 @@ export async function listUserPosts(
 	return response.data as CursorPage<Post>;
 }
 
+export async function listFeedPosts(
+	filter?: string,
+	cursor?: string,
+	limit = 20,
+): Promise<CursorPage<Post>> {
+	const response = await api.get(`/api/v1/posts/feed`, {
+		params: { filter, limit, cursor },
+	});
+	return response.data as CursorPage<Post>;
+}
+
 export async function getPost(postId: string): Promise<Post> {
 	const response = await api.get(`/api/v1/posts/${postId}`);
 	return response.data as Post;

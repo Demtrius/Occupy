@@ -9,9 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.errors import Validation
 from ..core.pagination import apply_datetime_cursor, slice_results
-from ..models.clique import Clique
-from ..models.enums import PostStatus
+from ..models.clique import Clique, CliqueMember
+from ..models.enums import FollowStatus, MembershipStatus, PostStatus, Privacy
 from ..models.post import Comment, Post, PostLike
+from ..models.user import Follow
 from ..schemas.post import Comment as CommentSchema
 from ..schemas.post import CommentCreate, Post as PostSchema
 
@@ -92,6 +93,51 @@ async def get_user_posts(
             CliqueMember.status == MembershipStatus.JOINED,
         )
 
+        allowed_clique_ids = public_cliques_stmt.union(member_cliques_stmt)
+        stmt = base_stmt.where(Post.clique_id.in_(allowed_clique_ids))
+
+    stmt = apply_datetime_cursor(stmt, Post, cursor, limit)
+    result = await db.execute(stmt)
+    rows = result.scalars().unique().all()
+    posts, next_cursor = slice_results(rows, limit)
+    hydrated = [await _hydrate_post(db, post, current_user_id) for post in posts]
+    return hydrated, next_cursor
+
+
+async def get_feed_posts(
+    db: AsyncSession,
+    current_user_id: str,
+    filter_type: str | None,
+    cursor: str | None,
+    limit: int,
+) -> tuple[list[PostSchema], str | None]:
+    # Base query for posted, not deleted posts
+    base_stmt = select(Post).where(
+        Post.status == PostStatus.POSTED,
+        Post.deleted_at.is_(None),
+    )
+
+    if filter_type == "followings":
+        # Posts from users that current user follows
+        following_ids = select(Follow.followee_user_id).where(
+            Follow.follower_user_id == current_user_id,
+            Follow.status == FollowStatus.ACCEPTED,
+        )
+        stmt = base_stmt.where(Post.author_user_id.in_(following_ids))
+    elif filter_type == "cliques":
+        # Posts from cliques where user is a member
+        member_clique_ids = select(CliqueMember.clique_id).where(
+            CliqueMember.user_id == current_user_id,
+            CliqueMember.status == MembershipStatus.JOINED,
+        )
+        stmt = base_stmt.where(Post.clique_id.in_(member_clique_ids))
+    else:
+        # Default: posts from public cliques or cliques where user is member
+        public_cliques_stmt = select(Clique.id).where(Clique.privacy == Privacy.PUBLIC)
+        member_cliques_stmt = select(CliqueMember.clique_id).where(
+            CliqueMember.user_id == current_user_id,
+            CliqueMember.status == MembershipStatus.JOINED,
+        )
         allowed_clique_ids = public_cliques_stmt.union(member_cliques_stmt)
         stmt = base_stmt.where(Post.clique_id.in_(allowed_clique_ids))
 
