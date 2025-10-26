@@ -1,9 +1,13 @@
 import asyncio
 import os
+import random
 from datetime import datetime, time, timedelta, timezone
 
+from faker import Faker
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.models.enums import PostStatus
+from app.models.post import Post, PostMedia
 from tests.factories import (
     create_availability,
     create_booking,
@@ -18,6 +22,8 @@ from tests.factories import (
     create_user,
 )
 
+fake = Faker()
+
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/clique"
 )
@@ -25,36 +31,92 @@ engine = create_async_engine(DATABASE_URL)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
+def _get_user_data():
+    return [
+        {
+            "email": "user1@example.com",
+            "username": "user1",
+            "is_business_page": False,
+        },
+        {
+            "email": "user2@example.com",
+            "username": "user2",
+            "is_business_page": False,
+        },
+        {
+            "email": "user3@example.com",
+            "username": "user3",
+            "is_business_page": False,
+        },
+        {
+            "email": "user4@example.com",
+            "username": "user4",
+            "is_business_page": True,
+        },
+        {
+            "email": "user5@example.com",
+            "username": "user5",
+            "is_business_page": True,
+        },
+        {
+            "email": "user6@example.com",
+            "username": "user6",
+            "is_business_page": False,
+        },
+        {
+            "email": "user7@example.com",
+            "username": "user7",
+            "is_business_page": False,
+        },
+        {
+            "email": "user8@example.com",
+            "username": "user8",
+            "is_business_page": True,
+        },
+        {
+            "email": "user9@example.com",
+            "username": "user9",
+            "is_business_page": True,
+        },
+        {
+            "email": "user10@example.com",
+            "username": "user10",
+            "is_business_page": False,
+        },
+    ]
+
+
 async def seed() -> None:
     async with async_session() as session:
         # Create users
-        user1 = await create_user(
-            session, username="alice", email="alice@example.com", password="test"
-        )
-        user2 = await create_user(
-            session, username="bob", email="bob@example.com", password="test"
-        )
-        user3 = await create_user(
-            session, username="charlie", email="charlie@example.com", password="test"
-        )
-        user4 = await create_user(
-            session,
-            username="diana",
-            email="diana@example.com",
-            is_business_page=True,
-            password="test",
-        )
-        user5 = await create_user(
-            session,
-            username="eve",
-            email="eve@example.com",
-            is_business_page=True,
-            password="test",
-        )
 
-        # Create cliques
-        clique1 = await create_clique(session, user4, name="Alice's Bakery")
-        clique2 = await create_clique(session, user5, name="Eve's Salon")
+        users = []
+        for user_data in _get_user_data():
+            user = await create_user(
+                session,
+                email=user_data["email"],
+                username=user_data["username"],
+                is_business_page=user_data["is_business_page"],
+                password="test",
+            )
+            users.append(user)
+
+        # For reference
+        user1 = users[0]
+        user2 = users[1]
+        user3 = users[2]
+        user4 = users[3]  # business
+        user5 = users[4]  # business
+
+        # Create cliques for business users
+        cliques = []
+        business_users = [u for u in users if u.is_business_page]
+        for bu in business_users:
+            clique = await create_clique(session, bu)
+            cliques.append(clique)
+
+        clique1 = cliques[0]
+        clique2 = cliques[1]
 
         # Add members to cliques
         # Already owner, add others
@@ -84,10 +146,39 @@ async def seed() -> None:
             end_time=time(18, 0),
         )
 
-        # Create posts
-        post1 = await create_post(session, clique=clique1, author=user4)
-        post2 = await create_post(session, clique=clique2, author=user5)
-        await create_post(session, clique=clique1, author=user1)
+        # Create posts (100 posts for infinite scrolling)
+        posts = []
+        now = datetime.now(timezone.utc)
+        for _ in range(100):
+            author = random.choice(users)
+            clique = random.choice(cliques)
+            status = random.choice(list(PostStatus))
+            # Set random created_at in last 30 days
+            days_ago = random.randint(0, 30)
+            hours_ago = random.randint(0, 23)
+            minutes_ago = random.randint(0, 59)
+            created_at = now - timedelta(
+                days=days_ago, hours=hours_ago, minutes=minutes_ago
+            )
+            post = Post(
+                clique_id=clique.id,
+                author_user_id=author.id,
+                status=status,
+                content=fake.text(max_nb_chars=240),
+                created_at=created_at,
+            )
+            session.add(post)
+            await session.flush()
+            posts.append(post)
+
+            # Sometimes add media
+            if random.random() < 0.3:  # 30% chance
+                media = await create_media(session, owner=author)
+                post_media = PostMedia(post_id=post.id, media_id=media.id, position=0)
+                session.add(post_media)
+
+        post1 = posts[0]
+        post2 = posts[1]
 
         # Create comments
         await create_comment(session, post=post1, author=user1)
@@ -104,9 +195,14 @@ async def seed() -> None:
             session, service=service3, user=user2, start=start_time + timedelta(hours=2)
         )
 
-        # Create follows
-        await create_follow(session, follower=user1, followee=user2)
-        await create_follow(session, follower=user2, followee=user4)
+        # Create follows (25 random follows)
+        created_follows = set()
+        for _ in range(25):
+            follower = random.choice(users)
+            followee = random.choice([u for u in users if u != follower])
+            if (follower.id, followee.id) not in created_follows:
+                created_follows.add((follower.id, followee.id))
+                await create_follow(session, follower=follower, followee=followee)
 
         # Create chats and messages
         chat1 = await create_chat(session, business=user4, client=user1)
