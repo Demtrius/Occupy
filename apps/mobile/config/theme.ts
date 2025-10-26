@@ -19,7 +19,7 @@ const lightColors = {
 	border: "#e4e4e7",
 	input: "#e4e4e7",
 	ring: "#a1a1a1",
-};
+} as const;
 
 const darkColors = {
 	background: "#09090b",
@@ -39,10 +39,11 @@ const darkColors = {
 	destructive: "#e7000b",
 	border: "#212124",
 	input: "#212124",
-	ring: "#dedede",
-};
+	ring: "#404040",
+} as const;
 
 const baseTheme = {
+	colors: {},
 	spacing: {
 		xs: 4,
 		s: 8,
@@ -60,6 +61,7 @@ const baseTheme = {
 		m: 8,
 		l: 16,
 		xl: 24,
+		xxl: 32,
 	},
 	textVariants: {
 		defaults: {
@@ -97,49 +99,41 @@ const baseTheme = {
 		},
 	},
 	buttonVariants: {
-		defaults: {
-			minHeight: 52,
-			borderRadius: 8,
-			paddingHorizontal: 24,
-			paddingVertical: 16,
-			alignItems: "center",
-			justifyContent: "center",
-			backgroundColor: "primary",
-		},
-		primary: {
-			backgroundColor: "primary",
-		},
+		defaults: {},
+		primary: {},
 		icon: {
-			backgroundColor: "primary",
 			minWidth: 52,
 			minHeight: 52,
-			paddingHorizontal: 14,
-			paddingVertical: 10,
+			paddingHorizontal: "m",
+			paddingVertical: "s",
 		},
 		disabled: {
 			opacity: 0.5,
 		},
 	},
 	inputVariants: {
-		defaults: {
-			minHeight: 44,
-			borderRadius: 8,
-			paddingHorizontal: 16,
-			paddingVertical: 8,
-			backgroundColor: "card",
-			color: "foreground",
-			borderWidth: 1,
-			borderColor: "input",
-		},
+		defaults: {},
 	},
 	cardVariants: {
 		defaults: {
-			borderRadius: 8,
-			paddingHorizontal: 16,
-			paddingVertical: 8,
-			backgroundColor: "card",
-			borderWidth: 1,
-			borderColor: "border",
+			shadowColor: "ring",
+			shadowOffset: {
+				width: 0,
+				height: 2,
+			},
+			shadowOpacity: 0.12,
+			shadowRadius: 4,
+			elevation: 2,
+		},
+		elevated: {
+			shadowColor: "ring",
+			shadowOffset: {
+				width: 0,
+				height: 4,
+			},
+			shadowOpacity: 0.2,
+			shadowRadius: 8,
+			elevation: 5,
 		},
 	},
 };

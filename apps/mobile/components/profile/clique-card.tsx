@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
-import { Box, Text } from "@/components/ui/restyle-components";
+import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { Clique } from "@/types";
 
@@ -12,14 +12,7 @@ interface CliqueCardProps {
 export function CliqueCard({ clique }: CliqueCardProps) {
 	const theme = useTheme<Theme>();
 	return (
-		<Box
-			backgroundColor="card"
-			borderRadius="m"
-			padding="m"
-			marginBottom="s"
-			borderWidth={1}
-			borderColor="border"
-		>
+		<Card variant="elevated" marginBottom="m">
 			{/* Clique Header */}
 			<Box flexDirection="row" alignItems="center" marginBottom="s">
 				<Avatar
@@ -72,6 +65,6 @@ export function CliqueCard({ clique }: CliqueCardProps) {
 					{clique.timezone}
 				</Text>
 			</Box>
-		</Box>
+		</Card>
 	);
 }

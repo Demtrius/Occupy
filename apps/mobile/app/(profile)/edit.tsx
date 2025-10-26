@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { ScrollView, TextInput } from "react-native";
+import { ScrollView } from "react-native";
 import { Screen } from "@/components/screen";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export default function EditProfilePage() {
 				showToast({ type: "success", message: "Profile updated successfully" });
 				router.back();
 			},
-			onError: (error: any) => {
+			onError: (error) => {
 				showToast({
 					type: "error",
 					message: error.message || "Failed to update profile",
@@ -109,23 +109,13 @@ export default function EditProfilePage() {
 					control={control}
 					label="Bio"
 					render={({ value, onChange, onBlur }) => (
-						<TextInput
+						<Input
 							value={value}
 							onChangeText={onChange}
 							onBlur={onBlur}
 							placeholder="Tell us about yourself"
 							multiline
 							numberOfLines={4}
-							style={{
-								borderWidth: 1,
-								borderColor: "#e4e4e7",
-								borderRadius: 8,
-								padding: 12,
-								fontSize: 16,
-								backgroundColor: "#ffffff",
-								color: "#09090b",
-								minHeight: 80,
-							}}
 						/>
 					)}
 				/>

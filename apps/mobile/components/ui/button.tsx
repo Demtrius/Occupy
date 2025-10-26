@@ -4,9 +4,9 @@ import { Button as RestyleButton, Text } from "./restyle-components";
 export function Button({
 	children,
 	disabled,
-	variant = "defaults",
+	variant = "primary",
 	...rest
-}: React.ComponentProps<typeof RestyleButton>) {
+}: React.ComponentProps<typeof RestyleButton> & React.PropsWithChildren) {
 	return (
 		<RestyleButton disabled={disabled} variant={variant} {...rest}>
 			<Text variant="body" color="primary-foreground" fontWeight="500">

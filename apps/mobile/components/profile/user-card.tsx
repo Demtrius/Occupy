@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
-import { Box, Text } from "@/components/ui/restyle-components";
+import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { User } from "@/types";
 
@@ -12,15 +12,7 @@ interface UserCardProps {
 export function UserCard({ user }: UserCardProps) {
 	const theme = useTheme<Theme>();
 	return (
-		<Box
-			backgroundColor="card"
-			borderRadius="m"
-			padding="m"
-			marginBottom="s"
-			borderWidth={1}
-			borderColor="border"
-		>
-			{/* User Header */}
+		<Card variant="elevated" marginBottom="m">
 			{/* User Header */}
 			<Box flexDirection="row" alignItems="center" marginBottom="s">
 				<Avatar
@@ -75,6 +67,6 @@ export function UserCard({ user }: UserCardProps) {
 					</Box>
 				)}
 			</Box>
-		</Box>
+		</Card>
 	);
 }

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
-import { Box, Text } from "@/components/ui/restyle-components";
+import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { Post } from "@/types";
 
@@ -12,14 +12,7 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
 	const theme = useTheme<Theme>();
 	return (
-		<Box
-			backgroundColor="card"
-			borderRadius="m"
-			padding="m"
-			marginBottom="s"
-			borderWidth={1}
-			borderColor="border"
-		>
+		<Card variant="elevated" marginBottom="m">
 			{/* Post Header */}
 			<Box flexDirection="row" alignItems="center" marginBottom="s">
 				<Avatar size={32} />
@@ -43,7 +36,7 @@ export function PostCard({ post }: PostCardProps) {
 				<Box
 					height={150}
 					backgroundColor="muted"
-					borderRadius="s"
+					borderRadius="l"
 					marginBottom="s"
 					alignItems="center"
 					justifyContent="center"
@@ -77,6 +70,6 @@ export function PostCard({ post }: PostCardProps) {
 					</Text>
 				</Box>
 			</Box>
-		</Box>
+		</Card>
 	);
 }

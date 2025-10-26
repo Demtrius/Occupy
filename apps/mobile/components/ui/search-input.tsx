@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@shopify/restyle";
+import { useRestyle, useTheme } from "@shopify/restyle";
 import { type StyleProp, TouchableOpacity, type ViewStyle } from "react-native";
 import type { Theme } from "@/config/theme";
 import { Box, Input as RestyleInput } from "./restyle-components";
@@ -12,15 +12,29 @@ export function SearchInput({
 	onClear?: () => void;
 }) {
 	const theme = useTheme<Theme>();
-	const inputStyle = theme.inputVariants.defaults;
-
-	const resolvedStyle: StyleProp<ViewStyle> = {
-		...inputStyle,
-		paddingRight: 40,
-	};
 
 	return (
-		<Box position="relative" style={resolvedStyle}>
+		<Box
+			position="relative"
+			style={{
+				minHeight: 44,
+				borderRadius: theme.borderRadii.m,
+				paddingBlock: theme.spacing.s,
+				paddingInline: theme.spacing.m,
+				backgroundColor: theme.colors.card,
+				borderWidth: 1,
+				borderColor: theme.colors.border,
+				shadowColor: theme.colors.ring,
+				shadowOffset: {
+					width: 0,
+					height: 2,
+				},
+				shadowOpacity: 0.12,
+				shadowRadius: 4,
+				elevation: 2,
+				paddingRight: 40,
+			}}
+		>
 			<RestyleInput
 				editable={editable}
 				placeholderTextColor={theme.colors["muted-foreground"]}
@@ -31,6 +45,7 @@ export function SearchInput({
 					paddingVertical: 0,
 					minHeight: "auto",
 					height: 22,
+					color: theme.colors.foreground,
 				}}
 				{...props}
 			/>

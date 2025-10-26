@@ -23,7 +23,7 @@ export function ScrollForm({ children, ...rest }: ViewProps) {
 			keyboardShouldPersistTaps="handled"
 			contentContainerStyle={{ padding: 16 }}
 			style={rest.style}
-			{...(rest as any)}
+			{...rest}
 		>
 			{children}
 		</ScrollView>

@@ -98,7 +98,6 @@ export default function Register() {
 					<Link
 						href="/(auth)/login"
 						style={{
-							marginTop: theme.spacing.l,
 							color: theme.colors.primary,
 							textAlign: "center",
 						}}
