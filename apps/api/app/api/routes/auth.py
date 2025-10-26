@@ -18,9 +18,10 @@ from ...core.auth import (
     verify_password,
 )
 from ...core.errors import Conflict
-from ...core.limiter import limiter
 from ...models.user import User
 from ...schemas.user import LoginRequest, RefreshRequest, TokenRead, UserCreate
+from ...schemas.user import User as UserSchema
+from ...services.follows import count_followers, count_following
 from ...services.users import create_user, get_user_by_email_or_username
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
@@ -118,7 +119,7 @@ async def register(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Token store unavailable",
         ) from exc
-    return TokenRead(access_token=access_token, refresh_token=refresh_token, user=user)
+    return TokenRead(access_token=access_token, refresh_token=refresh_token, user=UserSchema.model_validate({**user.__dict__, 'followersCount': 0, 'followingCount': 0}))
 
 
 # @limiter.limit("10/minute")
@@ -189,7 +190,9 @@ async def login(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Token store unavailable",
         ) from exc
-    return TokenRead(access_token=access_token, refresh_token=refresh_token, user=user)
+    followers_count = await count_followers(db, str(user.id))
+    following_count = await count_following(db, str(user.id))
+    return TokenRead(access_token=access_token, refresh_token=refresh_token, user=UserSchema.model_validate({**user.__dict__, 'followersCount': followers_count, 'followingCount': following_count}))
 
 
 @router.post(
@@ -252,8 +255,10 @@ async def refresh(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Token store unavailable",
         ) from exc
+    followers_count = await count_followers(db, str(user.id))
+    following_count = await count_following(db, str(user.id))
     return TokenRead(
-        access_token=access_token, refresh_token=new_refresh_token, user=user
+        access_token=access_token, refresh_token=new_refresh_token, user=UserSchema.model_validate({**user.__dict__, 'followersCount': followers_count, 'followingCount': following_count})
     )
 
 

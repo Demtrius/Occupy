@@ -36,6 +36,8 @@ class User(UserBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
+    followersCount: int
+    followingCount: int
 
 
 class LoginRequest(BaseSchema):

@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.pagination import apply_datetime_cursor, slice_results
@@ -192,3 +192,21 @@ async def get_following(
     rows = result.scalars().all()
     items, next_cursor = slice_results(rows, limit)
     return [_to_schema(item) for item in items], next_cursor
+
+
+async def count_followers(db: AsyncSession, user_id: str) -> int:
+    stmt = select(func.count(Follow.id)).where(
+        Follow.followee_user_id == user_id,
+        Follow.status == FollowStatus.ACCEPTED,
+    )
+    result = await db.scalar(stmt)
+    return result or 0
+
+
+async def count_following(db: AsyncSession, user_id: str) -> int:
+    stmt = select(func.count(Follow.id)).where(
+        Follow.follower_user_id == user_id,
+        Follow.status == FollowStatus.ACCEPTED,
+    )
+    result = await db.scalar(stmt)
+    return result or 0

@@ -6211,10 +6211,20 @@
 						"type": "string",
 						"format": "date-time",
 						"title": "Updatedat"
-					}
+					},
+					"followersCount": { "type": "integer", "title": "Followerscount" },
+					"followingCount": { "type": "integer", "title": "Followingcount" }
 				},
 				"type": "object",
-				"required": ["email", "username", "id", "createdAt", "updatedAt"],
+				"required": [
+					"email",
+					"username",
+					"id",
+					"createdAt",
+					"updatedAt",
+					"followersCount",
+					"followingCount"
+				],
 				"title": "User"
 			},
 			"UserCreate": {

@@ -14,6 +14,9 @@ export const userSchema = z.object({
 	isActive: z.boolean(),
 	createdAt: z.string(),
 	updatedAt: z.string(),
+	// Additional fields for profile display
+	followersCount: z.number().optional(),
+	followingCount: z.number().optional(),
 });
 
 export const userUpdateSchema = z.object({

@@ -69,6 +69,10 @@ async def test_private_user_requires_follow_or_owner(client, db_session, make_to
     assert allowed_view.status_code == 200
     data = allowed_view.json()
     assert data["id"] == str(private_user.id)
+    assert "followersCount" in data
+    assert "followingCount" in data
+    assert data["followersCount"] == 1  # viewer follows private_user
+    assert data["followingCount"] == 0
 
 
 @pytest.mark.asyncio
@@ -94,7 +98,12 @@ async def test_get_and_update_me(client, db_session, make_token):
         headers=auth_headers(make_token(user)),
     )
     assert me_response.status_code == 200, me_response.text
-    assert me_response.json()["fullName"] == user.full_name
+    data = me_response.json()
+    assert data["fullName"] == user.full_name
+    assert "followersCount" in data
+    assert "followingCount" in data
+    assert data["followersCount"] == 0
+    assert data["followingCount"] == 0
 
     update_response = await client.patch(
         "/api/v1/users/me",
@@ -102,4 +111,9 @@ async def test_get_and_update_me(client, db_session, make_token):
         headers=auth_headers(make_token(user)),
     )
     assert update_response.status_code == 200
-    assert update_response.json()["fullName"] == "Updated"
+    data = update_response.json()
+    assert data["fullName"] == "Updated"
+    assert "followersCount" in data
+    assert "followingCount" in data
+    assert data["followersCount"] == 0
+    assert data["followingCount"] == 0

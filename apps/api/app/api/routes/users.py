@@ -1,10 +1,7 @@
-from uuid import UUID
-
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, Path, Query
-from pydantic import AliasChoices
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +17,7 @@ from ...models.enums import FollowStatus
 from ...models.user import Follow, User
 from ...schemas import CursorPageUsers
 from ...schemas.user import User as UserSchema, UserUpdate
+from ...services.follows import count_followers, count_following
 from ...services.users import (
     get_user_by_id,
     search_users as search_users_service,
@@ -40,8 +38,17 @@ router = APIRouter(prefix="/api/v1/users", tags=["Users"])
     },
     openapi_extra=secured(),
 )
-async def get_me(current_user: User = Depends(require_active_user)):
-    return UserSchema.model_validate(current_user)
+async def get_me(
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    followers_count = await count_followers(db, str(current_user.id))
+    following_count = await count_following(db, str(current_user.id))
+    return UserSchema.model_validate({
+        **current_user.__dict__,
+        'followersCount': followers_count,
+        'followingCount': following_count,
+    })
 
 
 @router.patch(
@@ -74,9 +81,21 @@ async def update_me(
 ):
     updates = data.model_dump(exclude_unset=True)
     if not updates:
-        return UserSchema.model_validate(current_user)
+        followers_count = await count_followers(db, str(current_user.id))
+        following_count = await count_following(db, str(current_user.id))
+        return UserSchema.model_validate({
+            **current_user.__dict__,
+            'followersCount': followers_count,
+            'followingCount': following_count,
+        })
     updated = await update_user_profile(db, current_user, updates)
-    return UserSchema.model_validate(updated)
+    followers_count = await count_followers(db, str(updated.id))
+    following_count = await count_following(db, str(updated.id))
+    return UserSchema.model_validate({
+        **updated.__dict__,
+        'followersCount': followers_count,
+        'followingCount': following_count,
+    })
 
 
 @router.get(
@@ -127,7 +146,17 @@ async def search_users(
         limit,
         descending=descending,
     )
-    items = [UserSchema.model_validate(user) for user in users]
+    # Add follower counts to each user
+    enriched_users = []
+    for user in users:
+        followers_count = await count_followers(db, str(user.id))
+        following_count = await count_following(db, str(user.id))
+        enriched_users.append(UserSchema.model_validate({
+            **user.__dict__,
+            'followersCount': followers_count,
+            'followingCount': following_count,
+        }))
+    items = enriched_users
     return CursorPageUsers(items=items, next_cursor=next_cursor)
 
 
@@ -148,7 +177,13 @@ async def get_user(
     db: AsyncSession = Depends(get_db),
 ):
     if current_user.id == userId:
-        return UserSchema.model_validate(current_user)
+        followers_count = await count_followers(db, str(current_user.id))
+        following_count = await count_following(db, str(current_user.id))
+        return UserSchema.model_validate({
+            **current_user.__dict__,
+            'followersCount': followers_count,
+            'followingCount': following_count,
+        })
 
     await check_blocking(current_user.id, userId, db)
 
@@ -166,4 +201,10 @@ async def get_user(
         if relation is None:
             raise NotFound()
 
-    return UserSchema.model_validate(user)
+    followers_count = await count_followers(db, str(user.id))
+    following_count = await count_following(db, str(user.id))
+    return UserSchema.model_validate({
+        **user.__dict__,
+        'followersCount': followers_count,
+        'followingCount': following_count,
+    })

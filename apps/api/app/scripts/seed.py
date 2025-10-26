@@ -2,12 +2,16 @@ import asyncio
 import os
 import random
 from datetime import datetime, time, timedelta, timezone
+from typing import Any, Dict, List
 
 from faker import Faker
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.models.enums import PostStatus
 from app.models.post import Post, PostMedia
+from app.models.user import User
 from tests.factories import (
     create_availability,
     create_booking,
@@ -17,7 +21,6 @@ from tests.factories import (
     create_follow,
     create_media,
     create_message,
-    create_post,
     create_service,
     create_user,
 )
@@ -31,7 +34,7 @@ engine = create_async_engine(DATABASE_URL)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
-def _get_user_data():
+def _get_user_data() -> List[Dict[str, Any]]:
     return [
         {
             "email": "user1@example.com",
@@ -92,13 +95,18 @@ async def seed() -> None:
 
         users = []
         for user_data in _get_user_data():
-            user = await create_user(
-                session,
-                email=user_data["email"],
-                username=user_data["username"],
-                is_business_page=user_data["is_business_page"],
-                password="test",
+            existing = await session.execute(
+                select(User).where(User.email == user_data["email"])
             )
+            user = existing.scalar_one_or_none()
+            if user is None:
+                user = await create_user(
+                    session,
+                    email=user_data["email"],
+                    username=user_data["username"],
+                    is_business_page=user_data["is_business_page"],
+                    password="test",
+                )
             users.append(user)
 
         # For reference
@@ -107,6 +115,8 @@ async def seed() -> None:
         user3 = users[2]
         user4 = users[3]  # business
         user5 = users[4]  # business
+        user6 = users[5]
+        user7 = users[6]
 
         # Create cliques for business users
         cliques = []
@@ -202,7 +212,10 @@ async def seed() -> None:
             followee = random.choice([u for u in users if u != follower])
             if (follower.id, followee.id) not in created_follows:
                 created_follows.add((follower.id, followee.id))
-                await create_follow(session, follower=follower, followee=followee)
+                try:
+                    await create_follow(session, follower=follower, followee=followee)
+                except IntegrityError:
+                    pass
 
         # Create chats and messages
         chat1 = await create_chat(session, business=user4, client=user1)
