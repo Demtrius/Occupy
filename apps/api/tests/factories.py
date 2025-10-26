@@ -22,9 +22,9 @@ from app.models.enums import (
     Role,
 )
 from app.models.media import Media
-from app.models.post import Comment, Post
+from app.models.post import Comment, Post, PostLike
 from app.models.service import Service
-from app.models.user import Follow, User
+from app.models.user import Follow, Occupation, User
 
 fake = Faker()
 
@@ -191,7 +191,6 @@ async def create_comment(
     author: User,
     body: Optional[str] = None,
     parent_comment_id: Optional[UUID] = None,
-    deleted: bool = False,
 ) -> Comment:
     comment = Comment(
         post_id=post.id,
@@ -199,11 +198,39 @@ async def create_comment(
         parent_comment_id=parent_comment_id,
         body=body or fake.sentence(),
     )
-    if deleted:
-        comment.deleted_at = datetime.now(timezone.utc)
     db.add(comment)
     await db.flush()
     return comment
+
+
+async def create_like(
+    db: AsyncSession,
+    *,
+    post: Post,
+    user: User,
+) -> PostLike:
+    like = PostLike(
+        post_id=post.id,
+        user_id=user.id,
+    )
+    db.add(like)
+    await db.flush()
+    return like
+
+
+async def create_occupation(
+    db: AsyncSession,
+    *,
+    name: str,
+    slug: Optional[str] = None,
+) -> Occupation:
+    occupation = Occupation(
+        name=name,
+        slug=slug or name.lower().replace(" ", "-"),
+    )
+    db.add(occupation)
+    await db.flush()
+    return occupation
 
 
 async def create_media(

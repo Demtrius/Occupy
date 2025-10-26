@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
 
+from sqlalchemy import update
+
 from app.api.routes import posts as posts_routes
 from app.core.errors import Forbidden, NotFound, Validation
 from app.models.enums import PostStatus, Privacy
+from app.models.post import Comment
 from app.schemas import CommentCreate
 from app.schemas.post import PostCreate, PostUpdate
 from tests.factories import (
@@ -218,7 +222,11 @@ async def test_delete_comment_route_deleted_comment_not_found(db_session):
     owner = await create_user(db_session, is_business_page=True)
     clique = await create_clique(db_session, owner=owner)
     post = await create_post(db_session, clique=clique, author=owner)
-    comment = await create_comment(db_session, post=post, author=owner, deleted=True)
+    comment = await create_comment(db_session, post=post, author=owner)
+    await db_session.execute(
+        update(Comment).where(Comment.id == comment.id).values(deleted_at=datetime.now(timezone.utc))
+    )
+    await db_session.refresh(comment)
     await db_session.commit()
 
     with pytest.raises(NotFound):

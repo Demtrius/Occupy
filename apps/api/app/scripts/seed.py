@@ -9,9 +9,10 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.models.enums import PostStatus
+from app.models.enums import PostStatus, Role, MembershipStatus
 from app.models.post import Post, PostMedia
-from app.models.user import User
+from app.models.clique import CliqueMember
+from app.models.user import User, UserOccupation, CliqueOccupation, Follow, Occupation
 from tests.factories import (
     create_availability,
     create_booking,
@@ -19,8 +20,10 @@ from tests.factories import (
     create_clique,
     create_comment,
     create_follow,
+    create_like,
     create_media,
     create_message,
+    create_occupation,
     create_service,
     create_user,
 )
@@ -118,6 +121,35 @@ async def seed() -> None:
         user6 = users[5]
         user7 = users[6]
 
+        # Create occupations
+        occupations = []
+        occupation_names = [
+            "Software Engineer",
+            "Chef",
+            "Photographer",
+            "Graphic Designer",
+            "Personal Trainer",
+            "Hair Stylist",
+            "Teacher",
+            "Writer",
+            "Musician",
+            "Artist",
+            "Mechanic",
+            "Nurse",
+            "Accountant",
+            "Marketing Specialist",
+            "Event Planner",
+        ]
+        for name in occupation_names:
+            # Check if occupation already exists
+            existing = await session.execute(
+                select(Occupation).where(Occupation.name == name)
+            )
+            occupation = existing.scalar_one_or_none()
+            if occupation is None:
+                occupation = await create_occupation(session, name=name)
+            occupations.append(occupation)
+
         # Create cliques for business users
         cliques = []
         business_users = [u for u in users if u.is_business_page]
@@ -128,9 +160,106 @@ async def seed() -> None:
         clique1 = cliques[0]
         clique2 = cliques[1]
 
+        # Assign occupations to users (1-3 random occupations per user)
+        for user in users:
+            num_occupations = random.randint(1, 3)
+            user_occupations = random.sample(occupations, num_occupations)
+            for occupation in user_occupations:
+                # Check if user occupation already exists
+                existing = await session.execute(
+                    select(UserOccupation).where(
+                        UserOccupation.user_id == user.id,
+                        UserOccupation.occupation_id == occupation.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    user_occupation = UserOccupation(user_id=user.id, occupation_id=occupation.id)
+                    session.add(user_occupation)
+
+        # Assign occupations to cliques (business-relevant occupations)
+        # Clique 1: Baking/Cooking related
+        baking_occupations = [occ for occ in occupations if "Chef" in occ.name or "Baker" in occ.name]
+        if baking_occupations:
+            for occupation in baking_occupations:
+                # Check if clique occupation already exists
+                existing = await session.execute(
+                    select(CliqueOccupation).where(
+                        CliqueOccupation.clique_id == clique1.id,
+                        CliqueOccupation.occupation_id == occupation.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    clique_occupation = CliqueOccupation(clique_id=clique1.id, occupation_id=occupation.id)
+                    session.add(clique_occupation)
+        else:
+            # Fallback to general creative occupations
+            creative_occupations = [occ for occ in occupations if occ.name in ["Artist", "Graphic Designer", "Event Planner"]]
+            for occupation in creative_occupations:
+                # Check if clique occupation already exists
+                existing = await session.execute(
+                    select(CliqueOccupation).where(
+                        CliqueOccupation.clique_id == clique1.id,
+                        CliqueOccupation.occupation_id == occupation.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    clique_occupation = CliqueOccupation(clique_id=clique1.id, occupation_id=occupation.id)
+                    session.add(clique_occupation)
+
+        # Clique 2: Beauty/Salon related
+        beauty_occupations = [occ for occ in occupations if "Hair" in occ.name or "Stylist" in occ.name]
+        if beauty_occupations:
+            for occupation in beauty_occupations:
+                # Check if clique occupation already exists
+                existing = await session.execute(
+                    select(CliqueOccupation).where(
+                        CliqueOccupation.clique_id == clique2.id,
+                        CliqueOccupation.occupation_id == occupation.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    clique_occupation = CliqueOccupation(clique_id=clique2.id, occupation_id=occupation.id)
+                    session.add(clique_occupation)
+        else:
+            # Fallback to service occupations
+            service_occupations = [occ for occ in occupations if occ.name in ["Personal Trainer", "Event Planner"]]
+            for occupation in service_occupations:
+                # Check if clique occupation already exists
+                existing = await session.execute(
+                    select(CliqueOccupation).where(
+                        CliqueOccupation.clique_id == clique2.id,
+                        CliqueOccupation.occupation_id == occupation.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    clique_occupation = CliqueOccupation(clique_id=clique2.id, occupation_id=occupation.id)
+                    session.add(clique_occupation)
+
         # Add members to cliques
-        # Already owner, add others
-        # For simplicity, just owners
+        # Owners are already members, add some regular users as members
+        regular_users = [u for u in users if not u.is_business_page]
+        for clique in cliques:
+            # Add 2-4 random regular users as members
+            num_members = random.randint(2, 4)
+            potential_members = [u for u in regular_users if u.id != clique.owner_user_id]
+            selected_members = random.sample(potential_members, min(num_members, len(potential_members)))
+
+            for member in selected_members:
+                # Check if already a member (shouldn't be, but safety check)
+                existing = await session.execute(
+                    select(CliqueMember).where(
+                        CliqueMember.clique_id == clique.id,
+                        CliqueMember.user_id == member.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    clique_member = CliqueMember(
+                        clique_id=clique.id,
+                        user_id=member.id,
+                        role=Role.MEMBER,
+                        status=MembershipStatus.JOINED
+                    )
+                    session.add(clique_member)
 
         # Create services
         service1 = await create_service(session, clique1, title="Cupcake Baking Class")
@@ -190,9 +319,32 @@ async def seed() -> None:
         post1 = posts[0]
         post2 = posts[1]
 
+        # Add likes to posts (0-10 random likes per post)
+        for post in posts:
+            num_likes = random.randint(0, 10)
+            if num_likes > 0:
+                likers = random.sample(users, min(num_likes, len(users)))
+                for liker in likers:
+                    try:
+                        await create_like(session, post=post, user=liker)
+                    except IntegrityError:
+                        # Skip if like already exists
+                        pass
+
         # Create comments
         await create_comment(session, post=post1, author=user1)
         await create_comment(session, post=post2, author=user2)
+
+        # Add more comments to posts (0-5 additional comments per post)
+        for post in posts:
+            num_additional_comments = random.randint(0, 5)
+            for _ in range(num_additional_comments):
+                commenter = random.choice(users)
+                try:
+                    await create_comment(session, post=post, author=commenter)
+                except IntegrityError:
+                    # Skip if comment creation fails
+                    pass
 
         # Create media
         await create_media(session, owner=user4)
@@ -210,12 +362,18 @@ async def seed() -> None:
         for _ in range(25):
             follower = random.choice(users)
             followee = random.choice([u for u in users if u != follower])
-            if (follower.id, followee.id) not in created_follows:
-                created_follows.add((follower.id, followee.id))
-                try:
+            follow_key = (follower.id, followee.id)
+            if follow_key not in created_follows:
+                created_follows.add(follow_key)
+                # Check if follow already exists
+                existing = await session.execute(
+                    select(Follow).where(
+                        Follow.follower_user_id == follower.id,
+                        Follow.followee_user_id == followee.id
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
                     await create_follow(session, follower=follower, followee=followee)
-                except IntegrityError:
-                    pass
 
         # Create chats and messages
         chat1 = await create_chat(session, business=user4, client=user1)
