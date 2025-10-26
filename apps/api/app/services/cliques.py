@@ -277,6 +277,31 @@ async def get_user_cliques(
     return slice_results(rows, limit)
 
 
+async def get_all_cliques(
+    db: AsyncSession,
+    current_user_id: str,
+    cursor: str | None,
+    limit: int,
+) -> tuple[list[Clique], str | None]:
+    from sqlalchemy import or_
+    stmt = select(Clique).where(
+        or_(
+            Clique.privacy == Privacy.PUBLIC,
+            Clique.id.in_(
+                select(CliqueMember.clique_id).where(
+                    CliqueMember.user_id == current_user_id,
+                    CliqueMember.status == MembershipStatus.JOINED,
+                )
+            ),
+        )
+    )
+
+    stmt = apply_datetime_cursor(stmt, Clique, cursor, limit)
+    result = await db.execute(stmt)
+    rows = result.scalars().unique().all()
+    return slice_results(rows, limit)
+
+
 async def update_clique_details(
     db: AsyncSession,
     clique_id: str,

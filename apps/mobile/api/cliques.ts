@@ -124,3 +124,13 @@ export async function getCliqueFeed(
 	});
 	return response.data as CursorPage<any>;
 }
+
+export async function listCliques(
+	cursor?: string,
+	limit = 20,
+): Promise<CursorPage<Clique>> {
+	const response = await api.get("/api/v1/cliques", {
+		params: { limit, cursor },
+	});
+	return response.data as CursorPage<Clique>;
+}

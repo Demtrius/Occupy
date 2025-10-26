@@ -11,7 +11,7 @@ export function Screen({ children, ...rest }: ViewProps) {
 			{...rest}
 		>
 			<StatusBar style="auto" />
-			<Box flex={1} backgroundColor="background" paddingVertical="m">
+			<Box flex={1} backgroundColor="background" paddingTop="xxl">
 				{children}
 			</Box>
 		</SafeAreaView>

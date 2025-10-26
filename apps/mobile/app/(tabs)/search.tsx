@@ -1,14 +1,102 @@
+import { useState } from "react";
+import { ScrollView } from "react-native";
+import { CliqueCard } from "@/components/profile/clique-card";
+import { UserCard } from "@/components/profile/user-card";
+import { Screen } from "@/components/screen";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { SearchInput } from "@/components/ui/search-input";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useSearchQuery } from "@/hooks/use-search";
 
 export default function Page() {
+	const [query, setQuery] = useState("");
+	const debouncedQuery = useDebounce(query, 300);
+
+	const { data, isLoading } = useSearchQuery(
+		debouncedQuery,
+		debouncedQuery ? 20 : 0,
+	);
+
+	const results = data || { users: [], occupations: [], cliques: [] };
+
+	const handleClear = () => {
+		setQuery("");
+	};
+
 	return (
-		<Box
-			flex={1}
-			alignItems="center"
-			justifyContent="center"
-			backgroundColor="background"
-		>
-			<Text variant="body">tabs/search</Text>
-		</Box>
+		<Screen>
+			<Box padding="m" paddingBottom="s">
+				<SearchInput
+					placeholder="Search users, occupations, cliques..."
+					value={query}
+					autoCapitalize="none"
+					onChangeText={setQuery}
+					onClear={handleClear}
+				/>
+			</Box>
+			<ScrollView showsVerticalScrollIndicator={false}>
+				<Box padding="m">
+					{query ? (
+						<>
+							{/* Users */}
+							{results.users.length > 0 && (
+								<Box marginBottom="l">
+									<Text variant="header" marginBottom="s">
+										Users
+									</Text>
+									{results.users.map((user) => (
+										<UserCard key={user.id} user={user} />
+									))}
+								</Box>
+							)}
+
+							{/* Occupations */}
+							{results.occupations.length > 0 && (
+								<Box marginBottom="l">
+									<Text variant="header" marginBottom="s">
+										Occupations
+									</Text>
+									{results.occupations.map((occupation) => (
+										<Box
+											key={occupation.id}
+											backgroundColor="card"
+											borderRadius="m"
+											padding="m"
+											marginBottom="s"
+											borderWidth={1}
+											borderColor="border"
+										>
+											<Text variant="body" fontWeight="600">
+												{occupation.name}
+											</Text>
+										</Box>
+									))}
+								</Box>
+							)}
+
+							{/* Cliques */}
+							{results.cliques.length > 0 && (
+								<Box marginBottom="l">
+									<Text variant="header" marginBottom="s">
+										Cliques
+									</Text>
+									{results.cliques.map((clique) => (
+										<CliqueCard key={clique.id} clique={clique} />
+									))}
+								</Box>
+							)}
+
+							{results.users.length === 0 &&
+								results.occupations.length === 0 &&
+								results.cliques.length === 0 &&
+								!isLoading && <EmptyState message="No results found" />}
+						</>
+					) : (
+						<EmptyState message="Start typing to search" />
+					)}
+				</Box>
+			</ScrollView>
+		</Screen>
 	);
 }

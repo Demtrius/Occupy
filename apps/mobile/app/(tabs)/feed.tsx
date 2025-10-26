@@ -32,15 +32,13 @@ export default function Page() {
 
 	return (
 		<Screen>
+			<TabsHeader tabs={tabs} activeTab={filter} onTabChange={setFilter} />
 			<ScrollView
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ paddingTop: 20 }}
 				refreshControl={
 					<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
 				}
 			>
-				<TabsHeader tabs={tabs} activeTab={filter} onTabChange={setFilter} />
-
 				<Box padding="m">
 					{/* Posts List */}
 					{posts.length === 0 ? (

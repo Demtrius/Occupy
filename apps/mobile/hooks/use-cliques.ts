@@ -177,3 +177,12 @@ export function useGetCliqueFeedQuery(cursor?: string, limit = 20) {
 		enabled: !!tokens?.accessToken,
 	});
 }
+
+export function useListCliquesQuery(limit = 20) {
+	const { tokens } = useAuthStore();
+	return useQuery({
+		queryKey: ["cliques", "all", { limit }],
+		queryFn: () => cliques.listCliques(undefined, limit),
+		enabled: !!tokens?.accessToken,
+	});
+}

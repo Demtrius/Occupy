@@ -87,7 +87,6 @@ export function ProfileTabs({
 		if (isPrivateAndNotAccessible) {
 			return (
 				<Box
-					paddingVertical="l"
 					paddingHorizontal="xs"
 					backgroundColor="muted"
 					borderRadius="m"
@@ -317,7 +316,7 @@ export function ProfileTabs({
 	};
 
 	return (
-		<Box paddingVertical="l">
+		<Box>
 			<TabsHeader
 				tabs={tabs.map(({ key, label }) => ({ key, label }))}
 				activeTab={activeTab}

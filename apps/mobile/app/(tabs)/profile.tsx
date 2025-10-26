@@ -63,10 +63,7 @@ export default function ProfilePage() {
 
 	return (
 		<Screen>
-			<ScrollView
-				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ paddingTop: 20 }}
-			>
+			<ScrollView showsVerticalScrollIndicator={false}>
 				{/* Profile Header */}
 				<ProfileHeader
 					user={profileUser}

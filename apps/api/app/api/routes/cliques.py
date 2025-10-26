@@ -37,6 +37,7 @@ from ...services.cliques import (
     create_clique,
     create_invite,
     delete_clique as delete_clique_service,
+    get_all_cliques,
     get_clique_by_id,
     get_clique_members,
     get_clique_public,
@@ -92,6 +93,29 @@ async def feed(
     posts, next_cursor = await get_feed_posts(db, str(current_user.id), cursor, limit)
     items = [PostSchema.model_validate(post) for post in posts]
     return CursorPagePosts(items=items, next_cursor=next_cursor)
+
+
+@router.get(
+    "",
+    summary="List all cliques",
+    description="Paginated list of all cliques visible to the current user (public or member).",
+    response_model=CursorPageCliques,
+    responses={
+        200: {"description": "Cliques page"},
+        **error_responses(401),
+    },
+    openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
+)
+async def list_cliques(
+    params: CursorPaginationParams = Depends(),
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    cursor = params.cursor
+    limit = min(max(params.limit, 1), 100)
+    cliques, next_cursor = await get_all_cliques(db, str(current_user.id), cursor, limit)
+    items = [CliqueSchema.model_validate(clique) for clique in cliques]
+    return CursorPageCliques(items=items, next_cursor=next_cursor)
 
 
 @router.post(

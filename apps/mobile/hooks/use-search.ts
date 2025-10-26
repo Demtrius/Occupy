@@ -7,6 +7,6 @@ export function useSearchQuery(q: string, limit = 20) {
 	return useQuery({
 		queryKey: ["search", { q, limit }],
 		queryFn: () => search.search(q, limit),
-		enabled: !!tokens?.accessToken,
+		enabled: !!tokens?.accessToken && !!q && limit > 0,
 	});
 }

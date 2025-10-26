@@ -9,6 +9,7 @@ from ..schemas import clique as clique_schema
 from ..schemas import occupation as occupation_schema
 from ..schemas import user as user_schema
 from ..schemas.search import SearchResult
+from .follows import count_followers, count_following
 
 
 async def search_users(db: AsyncSession, query: str, limit: int = 20) -> List[User]:
@@ -59,7 +60,15 @@ async def unified_search(db: AsyncSession, query: str, limit: int = 20) -> Searc
     occupations = await search_occupations(db, query, per_section)
     cliques = await search_cliques(db, query, per_section)
 
-    user_results = [user_schema.User.model_validate(u) for u in users]
+    user_results = []
+    for user in users:
+        followers_count = await count_followers(db, str(user.id))
+        following_count = await count_following(db, str(user.id))
+        user_results.append(user_schema.User.model_validate({
+            **user.__dict__,
+            'followersCount': followers_count,
+            'followingCount': following_count,
+        }))
     occupation_results = [
         occupation_schema.Occupation.model_validate(o) for o in occupations
     ]
