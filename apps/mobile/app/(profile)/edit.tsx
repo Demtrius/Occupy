@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { Switch } from "@/components/ui/switch";
-import { useMeQuery, useUpdateUserMutation } from "@/hooks/query";
-import { type ProfileUpdateForm, profileUpdateSchema } from "@/schemas/profile";
+import { useMeQuery, useUpdateUserMutation } from "@/hooks";
+import { type UserUpdateForm, userUpdateSchema } from "@/schemas/user";
 import { showToast } from "@/stores/toast-store";
 
 export default function EditProfilePage() {
@@ -21,11 +21,10 @@ export default function EditProfilePage() {
 	const userQuery = useMeQuery();
 	const updateMutation = useUpdateUserMutation();
 
-	const form = useForm<ProfileUpdateForm>({
-		resolver: zodResolver(profileUpdateSchema),
+	const form = useForm<UserUpdateForm>({
+		resolver: zodResolver(userUpdateSchema),
 		defaultValues: {
 			fullName: "",
-			username: "",
 			bio: "",
 			isPrivateAccount: false,
 			profileImageUrl: "",
@@ -38,7 +37,6 @@ export default function EditProfilePage() {
 		if (userQuery.data) {
 			reset({
 				fullName: userQuery.data.fullName || "",
-				username: userQuery.data.username || "",
 				bio: userQuery.data.bio || "",
 				isPrivateAccount: userQuery.data.isPrivateAccount || false,
 				profileImageUrl: userQuery.data.profileImageUrl || "",
@@ -46,7 +44,7 @@ export default function EditProfilePage() {
 		}
 	}, [userQuery.data, reset]);
 
-	const onSubmit = (data: ProfileUpdateForm) => {
+	const onSubmit = (data: UserUpdateForm) => {
 		updateMutation.mutate(data, {
 			onSuccess: () => {
 				showToast({ type: "success", message: "Profile updated successfully" });
@@ -102,20 +100,6 @@ export default function EditProfilePage() {
 							onChangeText={onChange}
 							onBlur={onBlur}
 							placeholder="Enter your full name"
-						/>
-					)}
-				/>
-
-				<FormField
-					name="username"
-					control={control}
-					label="Username"
-					render={({ value, onChange, onBlur }) => (
-						<Input
-							value={value}
-							onChangeText={onChange}
-							onBlur={onBlur}
-							placeholder="Enter your username"
 						/>
 					)}
 				/>

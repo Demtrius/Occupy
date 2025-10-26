@@ -2,19 +2,18 @@ import { useState } from "react";
 import { Pressable, ScrollView } from "react-native";
 import { Box, Text } from "@/components/ui/restyle-components";
 import {
-	useCliqueReviewsQuery,
-	useUserBookingsQuery,
-	useUserCliquesQuery,
-	useUserPostsQuery,
-} from "@/hooks/query";
-import type { Booking, Clique, Post, Review } from "@/types/profile";
-import type { User } from "@/types/user";
+	useListCliqueReviewsQuery,
+	useListMyBookingsQuery,
+	useListUserCliquesQuery,
+	useListUserPostsQuery,
+} from "@/hooks";
+import type { Booking, Clique, Post, Review, User } from "@/types";
 import { BookingCard } from "./booking-card";
 import { CliqueCard } from "./clique-card";
 import { PostCard } from "./post-card";
 
 interface ProfileTabsProps {
-	user: User | null;
+	user: User | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 }
@@ -29,18 +28,18 @@ export function ProfileTabs({
 	const [activeTab, setActiveTab] = useState<TabType>("posts");
 
 	// Data queries
-	const postsQuery = useUserPostsQuery(
+	const postsQuery = useListUserPostsQuery(
 		user?.id,
 		activeTab === "posts" && !isLoading,
 	);
-	const cliquesQuery = useUserCliquesQuery(
+	const cliquesQuery = useListUserCliquesQuery(
 		user?.id,
 		activeTab === "cliques" && !isLoading,
 	);
-	const bookingsQuery = useUserBookingsQuery(
+	const bookingsQuery = useListMyBookingsQuery(
 		activeTab === "bookings" && isOwnProfile && !isLoading,
 	);
-	const reviewsQuery = useCliqueReviewsQuery(
+	const reviewsQuery = useListCliqueReviewsQuery(
 		user?.id,
 		activeTab === "reviews" && !isLoading,
 	); // Note: This should be for user's owned cliques

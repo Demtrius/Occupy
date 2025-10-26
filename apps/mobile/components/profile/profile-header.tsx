@@ -4,7 +4,7 @@ import { Box, Text } from "@/components/ui/restyle-components";
 import type { User } from "@/types/user";
 
 interface ProfileHeaderProps {
-	user: User | null;
+	user: User | null | undefined;
 	isLoading?: boolean;
 	isOwnProfile?: boolean;
 }

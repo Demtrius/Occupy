@@ -10,7 +10,7 @@ import { KeyboardAvoidForm, ScrollForm } from "@/components/ui/keyboard-forms";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import { useLoginMutation } from "@/hooks/query";
+import { useLoginMutation } from "@/hooks";
 import { loginSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
 import type { LoginBody } from "@/types/auth";

@@ -14,7 +14,7 @@ import {
 	useMeQuery,
 	useUnfollowMutation,
 	useUserQuery,
-} from "@/hooks/query";
+} from "@/hooks";
 
 export default function ProfilePage() {
 	const { userId } = useLocalSearchParams<{ userId?: string }>();

@@ -1,33 +1,54 @@
 import { z } from "zod";
-import type { LoginBody, RegisterBody, TokenResponse } from "../types/auth";
-import { userSchema } from "./user";
+import type { LoginRequest, TokenRead, UserCreate } from "../types/auth";
+import { userSchema } from "./users";
 
-export const loginSchema = z.object({
+export const loginRequestSchema = z.object({
 	emailOrUsername: z.string().min(1),
 	password: z.string().min(1),
 });
 
-export const registerSchema = z.object({
-	email: z.email(),
-	username: z.string().min(1),
-	password: z.string().min(1),
-	fullName: z.string().optional(),
+export const userCreateSchema = z.object({
+	email: z.string().email(),
+	username: z.string().min(3).max(32),
+	fullName: z.string().nullish(),
+	bio: z.string().nullish(),
+	profileImageUrl: z.string().nullish(),
+	isAdmin: z.boolean().default(false),
+	isActive: z.boolean().default(true),
+	isPrivateAccount: z.boolean().default(false),
+	isBusinessPage: z.boolean().default(false),
+	password: z.string(),
 });
 
-export const tokenResponseSchema = z.object({
+export const refreshRequestSchema = z.object({
+	refreshToken: z.string(),
+});
+
+export const tokenReadSchema = z.object({
 	accessToken: z.string(),
 	refreshToken: z.string(),
 	user: userSchema,
 });
 
-export function validateTokenResponse(data: any): TokenResponse {
-	return tokenResponseSchema.parse(data);
+export function validateTokenRead(data: any): TokenRead {
+	return tokenReadSchema.parse(data);
 }
 
-export function validateLoginBody(data: any): LoginBody {
-	return loginSchema.parse(data);
+export function validateLoginRequest(data: any): LoginRequest {
+	return loginRequestSchema.parse(data);
 }
 
-export function validateRegisterBody(data: any): RegisterBody {
-	return registerSchema.parse(data);
+export function validateUserCreate(data: any): UserCreate {
+	return userCreateSchema.parse(data);
 }
+
+// Aliases for backward compatibility
+export const loginSchema = loginRequestSchema;
+export const registerSchema = userCreateSchema;
+export const tokenResponseSchema = tokenReadSchema;
+export const validateTokenResponse = validateTokenRead;
+export const validateLoginBody = validateLoginRequest;
+export const validateRegisterBody = validateUserCreate;
+export type LoginBody = LoginRequest;
+export type RegisterBody = UserCreate;
+export type TokenResponse = TokenRead;

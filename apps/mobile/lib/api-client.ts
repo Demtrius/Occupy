@@ -99,7 +99,9 @@ export class ApiClient {
 		};
 	}
 
-	async request<T = unknown>(config: ApiRequestConfig): Promise<ApiResponse<T>> {
+	async request<T = unknown>(
+		config: ApiRequestConfig,
+	): Promise<ApiResponse<T>> {
 		let mergedConfig = { ...this.defaults, ...config };
 
 		// Apply request interceptors
@@ -176,7 +178,9 @@ export class ApiClient {
 
 		// Apply response interceptors
 		for (const interceptor of this.interceptors.response) {
-			response = await interceptor(response as ApiResponse<unknown>) as ApiResponse<T>;
+			response = (await interceptor(
+				response as ApiResponse<unknown>,
+			)) as ApiResponse<T>;
 		}
 
 		if (!res.ok) {
@@ -237,9 +241,7 @@ export class ApiClient {
 
 export const api = new ApiClient();
 
-export function qs(
-	params: Record<string, unknown>,
-): string {
+export function qs(params: Record<string, unknown>): string {
 	const search = new URLSearchParams();
 	for (const [k, v] of Object.entries(params)) {
 		if (v !== undefined && v !== null && v !== "") {

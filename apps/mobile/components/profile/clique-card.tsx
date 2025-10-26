@@ -1,6 +1,6 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { Clique } from "@/types/profile";
+import type { Clique } from "@/types";
 
 interface CliqueCardProps {
 	clique: Clique;

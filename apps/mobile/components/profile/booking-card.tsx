@@ -1,5 +1,5 @@
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { Booking } from "@/types/profile";
+import type { Booking } from "@/types";
 
 interface BookingCardProps {
 	booking: Booking;
@@ -77,22 +77,22 @@ export function BookingCard({ booking }: BookingCardProps) {
 					📅 {formatDate(startDate)}
 				</Text>
 				<Text variant="caption" color="muted-foreground">
-					⏱️ Duration: {booking.service?.duration || 0} minutes
+					⏱️ Duration: {booking.service?.durationMinutes || 0} minutes
 				</Text>
 			</Box>
 
 			{/* Price */}
-			{booking.service && (
+			{booking.service && booking.service.priceMinor && (
 				<Text variant="body" fontWeight="600" color="primary">
 					€{(booking.service.priceMinor / 100).toFixed(2)}
 				</Text>
 			)}
 
 			{/* Notes */}
-			{booking.notes && (
+			{booking.note && (
 				<Box marginTop="s" padding="s" backgroundColor="muted" borderRadius="s">
 					<Text variant="caption" fontStyle="italic">
-						"{booking.notes}"
+						"{booking.note}"
 					</Text>
 				</Box>
 			)}

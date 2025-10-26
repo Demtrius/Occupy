@@ -21,3 +21,19 @@ export type User = {
 	isFollowRequested?: boolean;
 	isBlocked?: boolean;
 };
+
+export type UserUpdate = {
+	fullName?: string | null;
+	bio?: string | null;
+	profileImageUrl?: string | null;
+	isPrivateAccount?: boolean;
+	isBusinessPage?: boolean;
+};
+
+export type UserSearchParams = {
+	q?: string;
+	occupationId?: string;
+	sort?: string;
+	cursor?: string;
+	limit?: number;
+};

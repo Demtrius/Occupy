@@ -1,6 +1,6 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { Post } from "@/types/profile";
+import type { Post } from "@/types";
 
 interface PostCardProps {
 	post: Post;

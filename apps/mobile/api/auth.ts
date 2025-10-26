@@ -26,6 +26,23 @@ export async function register(body: RegisterBody): Promise<User> {
 	return user;
 }
 
+export async function refresh(): Promise<User> {
+	const { tokens } = useAuthStore.getState();
+	if (!tokens?.refreshToken) {
+		throw new Error("No refresh token available");
+	}
+	const response = await api.post("/api/v1/auth/refresh", {
+		refreshToken: tokens.refreshToken,
+	});
+	const data = response.data;
+	const { user, accessToken, refreshToken } = validateTokenResponse(data);
+	await useAuthStore.getState().setAuth({
+		accessToken,
+		refreshToken,
+	});
+	return user;
+}
+
 export async function logout(): Promise<void> {
 	const { tokens, clear } = useAuthStore.getState();
 	if (tokens?.refreshToken) {

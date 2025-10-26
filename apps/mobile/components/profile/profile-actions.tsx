@@ -7,7 +7,7 @@ import type { Theme } from "@/config/theme";
 import type { User } from "@/types/user";
 
 interface ProfileActionsProps {
-	user: User | null;
+	user: User | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 	onFollowPress?: () => void;

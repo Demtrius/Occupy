@@ -16,6 +16,16 @@ export const userSchema = z.object({
 	updatedAt: z.string(),
 });
 
+export const userUpdateSchema = z.object({
+	fullName: z.string().nullish(),
+	bio: z.string().nullish(),
+	profileImageUrl: z.string().nullish(),
+	isPrivateAccount: z.boolean().optional(),
+	isBusinessPage: z.boolean().optional(),
+});
+
+export type UserUpdateForm = z.infer<typeof userUpdateSchema>;
+
 export function validateUser(data: any): User {
 	return userSchema.parse(data);
 }
