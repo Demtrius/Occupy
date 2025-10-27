@@ -1,9 +1,9 @@
 import { Pressable } from "react-native";
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { UserProfile } from "@/types/users";
+import type { User } from "@/types";
 
 interface ProfileStatsProps {
-	user: UserProfile | null | undefined;
+	user: User | null | undefined;
 	isLoading?: boolean;
 	isOwnProfile?: boolean;
 	onFollowersPress?: () => void;
@@ -76,9 +76,9 @@ export function ProfileStats({
 		);
 	}
 
+	//TODO: Implement following check
 	// Check if profile is private and not accessible
-	const isPrivateAndNotAccessible =
-		user.isPrivateAccount && !isOwnProfile && !user.isFollowing;
+	const isPrivateAndNotAccessible = user.isPrivateAccount && !isOwnProfile; //&& !user.isFollowing;
 
 	return (
 		<Box

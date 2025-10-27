@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { UserProfile } from "@/types/users";
+import type { User } from "@/types";
 
 interface ProfileHeaderProps {
-	user: UserProfile | null | undefined;
+	user: User | null | undefined;
 	isLoading?: boolean;
 	isOwnProfile?: boolean;
 }
@@ -36,9 +36,9 @@ export function ProfileHeader({
 		);
 	}
 
+	//TODO: Implement following check
 	// Check if profile is private and not accessible
-	const isPrivateAndNotAccessible =
-		user.isPrivateAccount && !isOwnProfile && !user.isFollowing;
+	const isPrivateAndNotAccessible = user.isPrivateAccount && !isOwnProfile; //&& !user.isFollowing;
 
 	return (
 		<Box alignItems="center" paddingTop="l" paddingHorizontal="l" rowGap="s">
@@ -108,8 +108,9 @@ export function ProfileHeader({
 				</Box>
 			)}
 
+			{/* TODO: Implement Occupations */}
 			{/* Occupations - only show if not private or accessible */}
-			{!isPrivateAndNotAccessible &&
+			{/*{!isPrivateAndNotAccessible &&
 				user.occupations &&
 				user.occupations.length > 0 && (
 					<Box
@@ -130,7 +131,7 @@ export function ProfileHeader({
 							</Box>
 						))}
 					</Box>
-				)}
+				)}*/}
 		</Box>
 	);
 }

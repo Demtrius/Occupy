@@ -9,14 +9,13 @@ import {
 	useListUserCliquesQuery,
 	useListUserPostsQuery,
 } from "@/hooks";
-import type { Booking, Clique, Post, Review } from "@/types";
-import type { UserProfile } from "@/types/users";
+import type { Booking, Clique, Post, Review, User } from "@/types";
 import { BookingCard } from "../cards/booking-card";
 import { CliqueCard } from "../cards/clique-card";
 import { PostCard } from "../cards/post-card";
 
 interface ProfileTabsProps {
-	user: UserProfile | null | undefined;
+	user: User | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 }
@@ -61,9 +60,9 @@ export function ProfileTabs({
 		);
 	}
 
+	//TODO: Implement following check
 	// Check if profile is private and not accessible
-	const isPrivateAndNotAccessible =
-		user.isPrivateAccount && !isOwnProfile && !user.isFollowing;
+	const isPrivateAndNotAccessible = user.isPrivateAccount && !isOwnProfile; //&& !user.isFollowing;
 
 	const tabs: Array<{ key: TabType; label: string; show: boolean }> = [
 		{

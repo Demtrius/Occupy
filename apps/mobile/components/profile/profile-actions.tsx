@@ -4,10 +4,10 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { Box } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import type { UserProfile } from "@/types/users";
+import type { User } from "@/types";
 
 interface ProfileActionsProps {
-	user: UserProfile | null | undefined;
+	user: User | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 	onFollowPress?: () => void;
@@ -51,9 +51,10 @@ export function ProfileActions({
 		);
 	}
 
+	//TODO: implement follow/unfollow logic
 	// Other user's profile: Follow/Unfollow button
-	const isFollowing = user.isFollowing;
-	const isFollowRequested = user.isFollowRequested;
+	const isFollowing = false; //user.isFollowing;
+	const isFollowRequested = false; //user.isFollowRequested;
 
 	return (
 		<Box paddingHorizontal="l" marginBottom="l">
