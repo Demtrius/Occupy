@@ -1,5 +1,6 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { useTheme } from "@shopify/restyle";
+import { type } from "arktype";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -11,17 +12,21 @@ import { Box, Text } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import type { Theme } from "@/config/theme";
 import { useLoginMutation } from "@/hooks";
-import { loginRequestSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
-import type { LoginRequest } from "@/types/auth";
 
-type LoginForm = LoginRequest;
+const schema = type({
+	emailOrUsername: "string.email|string > 0",
+	password: "string > 0",
+});
+
+type LoginForm = typeof schema.infer;
 
 export default function Login() {
 	const loginMutation = useLoginMutation();
 	const { control, handleSubmit } = useForm<LoginForm>({
-		resolver: zodResolver(loginRequestSchema),
+		resolver: arktypeResolver(schema),
 	});
+
 	const theme = useTheme<Theme>();
 
 	const onSubmit = (data: LoginForm) => {

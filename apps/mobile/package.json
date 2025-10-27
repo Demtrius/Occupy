@@ -25,6 +25,7 @@
 		"@shopify/restyle": "^2.4.5",
 		"@tanstack/react-query": "^5.90.5",
 		"@tanstack/react-query-devtools": "^5.90.2",
+		"arktype": "^2.1.23",
 		"dayjs": "^1.11.18",
 		"expo": "~54.0.20",
 		"expo-asset": "^12.0.9",
@@ -56,7 +57,6 @@
 		"react-native-web": "~0.21.0",
 		"react-native-worklets": "0.6.1",
 		"uuid": "^13.0.0",
-		"zod": "^4.1.12",
 		"zustand": "^5.0.8"
 	},
 	"devDependencies": {

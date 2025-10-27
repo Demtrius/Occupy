@@ -1,5 +1,6 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { useTheme } from "@shopify/restyle";
+import { type } from "arktype";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -18,19 +19,31 @@ import {
 	useRegisterMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
-import { registerFormSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
 import type { Occupation } from "@/types";
 
-type RegisterForm = {
-	email: string;
-	username: string;
-	fullName: string;
-	password: string;
-	confirmPassword: string;
-	isBusinessPage?: boolean;
-	occupations?: string[];
-};
+const schema = type({
+	email: "string.email",
+	username: "3 < string < 32",
+	fullName: "string > 1",
+	password: "string > 6",
+	confirmPassword: "string",
+	isBusinessPage: "boolean = false",
+	occupations: "string[] | undefined",
+}).narrow((data) => {
+	if (data.password !== data.confirmPassword) {
+		throw new Error("Passwords don't match");
+	}
+	if (
+		data.isBusinessPage &&
+		(!data.occupations || data.occupations.length === 0)
+	) {
+		throw new Error("Business pages must specify at least one occupation");
+	}
+	return true;
+});
+
+type RegisterForm = typeof schema.infer;
 
 export default function Register() {
 	const registerMutation = useRegisterMutation();
@@ -39,7 +52,7 @@ export default function Register() {
 	const occupationsQuery = useListOccupationsQuery();
 	const { control, handleSubmit, watch, setValue, getValues } =
 		useForm<RegisterForm>({
-			resolver: zodResolver(registerFormSchema),
+			resolver: arktypeResolver(schema),
 			defaultValues: {
 				isBusinessPage: false,
 			},

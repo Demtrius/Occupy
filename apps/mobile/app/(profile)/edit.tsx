@@ -1,4 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arktypeResolver } from "@hookform/resolvers/arktype";
+import { type } from "arktype";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -20,12 +21,19 @@ import {
 	useUpdateUserMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
-import {
-	type UserProfileUpdateForm,
-	userProfileUpdateSchema,
-} from "@/schemas/users";
 import { showToast } from "@/stores/toast-store";
 import type { Occupation } from "@/types";
+
+const schema = type({
+	fullName: "string | null | undefined",
+	bio: "string | null | undefined",
+	profileImageUrl: "string | null | undefined",
+	isPrivateAccount: "boolean | undefined",
+	isBusinessPage: "boolean | undefined",
+	occupations: "string[] | undefined",
+});
+
+type UserProfileUpdateForm = typeof schema.infer;
 
 export default function EditProfilePage() {
 	const router = useRouter();
@@ -36,7 +44,7 @@ export default function EditProfilePage() {
 	const occupationsQuery = useListOccupationsQuery();
 
 	const form = useForm<UserProfileUpdateForm>({
-		resolver: zodResolver(userProfileUpdateSchema),
+		resolver: arktypeResolver(schema),
 		defaultValues: {
 			fullName: "",
 			bio: "",
