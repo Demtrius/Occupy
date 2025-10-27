@@ -22,21 +22,29 @@ from ...models.enums import Privacy
 from ...models.user import User
 from ...schemas import (
     Clique as CliqueSchema,
+)
+from ...schemas import (
     CliqueCreate,
-    CliqueInvite as CliqueInviteSchema,
     CliqueInviteCreate,
-    CliqueMember as CliqueMemberSchema,
     CliqueUpdate,
     CursorPageCliqueMembers,
     CursorPageCliques,
     CursorPagePosts,
+)
+from ...schemas import (
+    CliqueInvite as CliqueInviteSchema,
+)
+from ...schemas import (
+    CliqueMember as CliqueMemberSchema,
+)
+from ...schemas import (
     Post as PostSchema,
 )
+from ...schemas.base import BaseSchema
 from ...services.cliques import (
     approve_member,
     create_clique,
     create_invite,
-    delete_clique as delete_clique_service,
     get_all_cliques,
     get_clique_by_id,
     get_clique_members,
@@ -50,7 +58,9 @@ from ...services.cliques import (
     reject_member,
     update_clique_details,
 )
-from ...schemas.base import BaseSchema
+from ...services.cliques import (
+    delete_clique as delete_clique_service,
+)
 
 router = APIRouter(prefix="/api/v1/cliques", tags=["Cliques"])
 
@@ -74,6 +84,7 @@ class JoinParams(BaseSchema):
 
 @router.get(
     "/feed",
+    operation_id="CliquesFeed",
     summary="View clique feed",
     description="Paginated feed of posts from cliques the user belongs to.",
     response_model=CursorPagePosts,
@@ -97,6 +108,7 @@ async def feed(
 
 @router.get(
     "",
+    operation_id="Cliques",
     summary="List all cliques",
     description="Paginated list of all cliques visible to the current user (public or member).",
     response_model=CursorPageCliques,
@@ -113,13 +125,16 @@ async def list_cliques(
 ):
     cursor = params.cursor
     limit = min(max(params.limit, 1), 100)
-    cliques, next_cursor = await get_all_cliques(db, str(current_user.id), cursor, limit)
+    cliques, next_cursor = await get_all_cliques(
+        db, str(current_user.id), cursor, limit
+    )
     items = [CliqueSchema.model_validate(clique) for clique in cliques]
     return CursorPageCliques(items=items, next_cursor=next_cursor)
 
 
 @router.post(
     "",
+    operation_id="CliquesCreate",
     summary="Create clique",
     description="Business pages create cliques to organize services and bookings.",
     response_model=CliqueSchema,
@@ -165,6 +180,7 @@ async def create(
 
 @router.get(
     "/{cliqueId}",
+    operation_id="CliquesById",
     summary="Get clique",
     description="Retrieve the public profile for a clique, with visibility rules applied.",
     response_model=dict[str, Any],
@@ -187,6 +203,7 @@ async def get_clique(
 
 @router.patch(
     "/{cliqueId}",
+    operation_id="CliquesUpdateById",
     summary="Update clique",
     description="Clique owners can edit name, imagery, privacy, and cancellation policy.",
     response_model=CliqueSchema,
@@ -220,6 +237,7 @@ async def update_clique(
 
 @router.delete(
     "/{cliqueId}",
+    operation_id="CliquesDeleteById",
     summary="Delete clique",
     description="Clique owners can permanently delete their clique.",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -243,6 +261,7 @@ async def delete_clique(
 
 @router.post(
     "/{cliqueId}/join",
+    operation_id="CliquesJoin",
     summary="Request to join clique",
     description="Join a clique using an invite token when required.",
     response_model=CliqueMemberSchema,
@@ -269,6 +288,7 @@ async def join(
 
 @router.delete(
     "/{cliqueId}/members/me",
+    operation_id="CliquesLeave",
     summary="Leave clique",
     description="Members can leave a clique they previously joined.",
     response_model=dict[str, str],
@@ -292,6 +312,7 @@ async def leave(
 
 @router.get(
     "/{cliqueId}/members",
+    operation_id="CliquesMembers",
     summary="List clique members",
     description="Paginated list of members with role and status.",
     response_model=CursorPageCliqueMembers,
@@ -325,6 +346,7 @@ async def list_members(
 
 @router.get(
     "/{cliqueId}/members/pending",
+    operation_id="CliquesMembersPending",
     summary="List pending membership requests",
     description="View join requests awaiting moderation by the clique owner.",
     response_model=CursorPageCliqueMembers,
@@ -350,6 +372,7 @@ async def list_pending_members(
 
 @router.post(
     "/{cliqueId}/members/{memberId}/approve",
+    operation_id="CliquesMembersApprove",
     response_model=CliqueMemberSchema,
     summary="Approve membership request",
     description="Clique owners approve pending members.",
@@ -375,6 +398,7 @@ async def approve_membership(
 
 @router.post(
     "/{cliqueId}/members/{memberId}/reject",
+    operation_id="CliquesMembersReject",
     summary="Reject membership request",
     description="Decline a pending membership request.",
     response_model=dict[str, str],
@@ -403,6 +427,7 @@ async def reject_membership(
 
 @router.get(
     "/user/{userId}/cliques",
+    operation_id="CliquesUser",
     summary="List user cliques",
     description="Paginated cliques owned by a user visible to the current user, respecting privacy settings.",
     response_model=CursorPageCliques,
@@ -429,6 +454,7 @@ async def list_user_cliques_route(
 
 @router.post(
     "/{cliqueId}/invites",
+    operation_id="CliquesInvites",
     summary="Create invite link",
     description="Clique owners create invite tokens for members to join.",
     response_model=CliqueInviteSchema,

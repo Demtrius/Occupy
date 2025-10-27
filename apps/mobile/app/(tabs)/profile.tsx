@@ -7,12 +7,7 @@ import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { ErrorScreen } from "@/components/ui/error-screen";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Screen } from "@/components/ui/screen";
-import {
-	useFollowMutation,
-	useMeQuery,
-	useUnfollowMutation,
-	useUserQuery,
-} from "@/hooks";
+import { useFollowMutation, useMeQuery, useUserQuery } from "@/hooks";
 
 export default function ProfilePage() {
 	const { userId } = useLocalSearchParams<{ userId?: string }>();
@@ -30,17 +25,10 @@ export default function ProfilePage() {
 
 	// Follow mutations
 	const followMutation = useFollowMutation();
-	const unfollowMutation = useUnfollowMutation();
 
 	const handleFollow = () => {
 		if (userId) {
-			followMutation.mutate({ userId });
-		}
-	};
-
-	const handleUnfollow = () => {
-		if (userId) {
-			unfollowMutation.mutate({ userId });
+			followMutation.mutate({ params: { path: { userId } } });
 		}
 	};
 
@@ -55,7 +43,7 @@ export default function ProfilePage() {
 	if (error && !isOwnProfile) {
 		return (
 			<ErrorScreen
-				message={`Failed to load profile: ${error.message || "Something went wrong"}`}
+				message="Failed to load profile"
 				onRetry={() => userQuery.refetch()}
 			/>
 		);
@@ -90,7 +78,6 @@ export default function ProfilePage() {
 					isOwnProfile={isOwnProfile}
 					isLoading={isLoading}
 					onFollowPress={handleFollow}
-					onUnfollowPress={handleUnfollow}
 				/>
 
 				{/* Profile Content Tabs */}

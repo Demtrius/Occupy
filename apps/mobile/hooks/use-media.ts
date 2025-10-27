@@ -1,22 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
-import * as media from "@/api/media";
+import { $api } from "@/lib/api";
 
 export function usePresignUploadMutation() {
-	return useMutation({
-		mutationFn: ({
-			mime,
-			sizeBytes,
-			purpose,
-		}: {
-			mime: string;
-			sizeBytes: number;
-			purpose: string;
-		}) => media.presignUpload(mime, sizeBytes, purpose),
-	});
+	return $api.useMutation("post", "/api/v1/media/uploads/presign");
 }
 
 export function useRegisterUploadedMutation() {
-	return useMutation({
-		mutationFn: media.registerUploaded,
-	});
+	return $api.useMutation("post", "/api/v1/media");
 }

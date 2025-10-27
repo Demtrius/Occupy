@@ -1,17 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as reviews from "@/api/reviews";
+import { $api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useCreateReviewMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			bookingId,
-			body,
-		}: {
-			bookingId: string;
-			body: Parameters<typeof reviews.createReview>[1];
-		}) => reviews.createReview(bookingId, body),
+	return $api.useMutation("post", "/api/v1/reviews/bookings/{bookingId}", {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["reviews"] });
 		},
@@ -25,9 +18,11 @@ export function useListCliqueReviewsQuery(
 	limit = 20,
 ) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["reviews", "cliques", cliqueId, { cursor, limit }],
-		queryFn: () => reviews.listCliqueReviews(cliqueId!, cursor, limit),
+	return $api.useQuery("get", "/api/v1/reviews/cliques/{cliqueId}", {
+		params: {
+			path: { cliqueId: cliqueId! },
+			query: { cursor, limit },
+		},
 		enabled: !!tokens?.accessToken && !!cliqueId && enabled,
 	});
 }

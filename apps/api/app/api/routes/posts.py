@@ -17,7 +17,8 @@ from ...models.post import Comment, Post
 from ...models.user import User
 from ...schemas import Comment as CommentSchema
 from ...schemas import CommentCreate, CursorPagePosts
-from ...schemas.post import Post as PostSchema, PostCreate, PostUpdate
+from ...schemas.post import Post as PostSchema
+from ...schemas.post import PostCreate, PostUpdate
 from ...services.cliques import get_clique_by_id, is_member_of_clique
 from ...services.posts import (
     create_comment,
@@ -38,6 +39,7 @@ router = APIRouter(prefix="/api/v1/posts", tags=["Posts"])
 
 @router.get(
     "/feed",
+    operation_id="PostsFeed",
     summary="Get feed posts",
     description="Paginated feed of posts visible to the current user, with optional filter for followings or cliques.",
     response_model=CursorPagePosts,
@@ -48,7 +50,10 @@ router = APIRouter(prefix="/api/v1/posts", tags=["Posts"])
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def get_feed_route(
-    filter: str | None = Query(None, description="Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques."),
+    filter: str | None = Query(
+        None,
+        description="Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques.",
+    ),
     current_user: User = Depends(require_active_user),
     cursor: str | None = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -71,6 +76,7 @@ async def get_feed_route(
 
 @router.post(
     "/cliques/{cliqueId}/posts",
+    operation_id="PostsCreateCliquesPosts",
     summary="Create post in clique",
     description="Clique owners create posts to share updates with members.",
     response_model=PostSchema,
@@ -80,18 +86,18 @@ async def get_feed_route(
             "description": "Post created",
             "content": {
                 "application/json": {
-                     "example": {
-                         "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                         "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
-                         "authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                         "content": "✨ Spring product launch this Friday at 5pm!",
-                         "status": "posted",
-                         "likesCount": 0,
-                         "commentsCount": 0,
-                         "likedByMe": False,
-                         "createdAt": "2024-04-01T12:00:00Z",
-                         "updatedAt": "2024-04-01T12:00:00Z",
-                     }
+                    "example": {
+                        "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                        "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+                        "authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+                        "content": "✨ Spring product launch this Friday at 5pm!",
+                        "status": "posted",
+                        "likesCount": 0,
+                        "commentsCount": 0,
+                        "likedByMe": False,
+                        "createdAt": "2024-04-01T12:00:00Z",
+                        "updatedAt": "2024-04-01T12:00:00Z",
+                    }
                 }
             },
         },
@@ -133,6 +139,7 @@ async def create_post_route(
 
 @router.get(
     "/cliques/{cliqueId}/posts",
+    operation_id="PostsCliquesPosts",
     summary="List clique posts",
     description="Paginated posts visible to the current user, including engagement metadata.",
     response_model=CursorPagePosts,
@@ -173,6 +180,7 @@ async def list_clique_posts_route(
 
 @router.get(
     "/user/{userId}/posts",
+    operation_id="PostsUserPosts",
     summary="List user posts",
     description="Paginated posts by a user visible to the current user, respecting privacy settings.",
     response_model=CursorPagePosts,
@@ -206,6 +214,7 @@ async def list_user_posts_route(
 
 @router.get(
     "/{postId}",
+    operation_id="PostsById",
     summary="Get post",
     description="Retrieve a post with reactions and visibility checks applied.",
     response_model=PostSchema,
@@ -230,6 +239,7 @@ async def get_post_route(
 
 @router.patch(
     "/{postId}",
+    operation_id="PostsUpdateById",
     summary="Update post",
     description="Post authors or clique owners can edit content or status.",
     response_model=PostSchema,
@@ -264,6 +274,7 @@ async def update_post_route(
 
 @router.delete(
     "/{postId}",
+    operation_id="PostsDeleteById",
     summary="Delete post",
     description="Delete a post as the author or clique owner.",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -286,6 +297,7 @@ async def delete_post_route(
 
 @router.post(
     "/{postId}/like",
+    operation_id="PostsLike",
     summary="Like post",
     description="Toggle the current user's like on the specified post.",
     response_model=PostSchema,
@@ -294,12 +306,12 @@ async def delete_post_route(
             "description": "Post with updated reactions",
             "content": {
                 "application/json": {
-                     "example": {
-                         "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                         "likesCount": 12,
-                         "commentsCount": 3,
-                         "likedByMe": True,
-                     }
+                    "example": {
+                        "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                        "likesCount": 12,
+                        "commentsCount": 3,
+                        "likedByMe": True,
+                    }
                 }
             },
         },
@@ -320,6 +332,7 @@ async def like_route(
 
 @router.delete(
     "/{postId}/like",
+    operation_id="PostsUnlike",
     summary="Unlike post",
     description="Remove the user's like from the post.",
     response_model=PostSchema,
@@ -328,12 +341,12 @@ async def like_route(
             "description": "Post with updated reactions",
             "content": {
                 "application/json": {
-                     "example": {
-                         "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                         "likesCount": 11,
-                         "commentsCount": 3,
-                         "likedByMe": False,
-                     }
+                    "example": {
+                        "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                        "likesCount": 11,
+                        "commentsCount": 3,
+                        "likedByMe": False,
+                    }
                 }
             },
         },
@@ -354,6 +367,7 @@ async def unlike_route(
 
 @router.post(
     "/{postId}/comments",
+    operation_id="PostsCreateComments",
     summary="Create comment",
     description="Add a comment to a visible post.",
     response_model=CommentSchema,
@@ -363,13 +377,13 @@ async def unlike_route(
             "description": "Comment created",
             "content": {
                 "application/json": {
-                     "example": {
-                         "id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
-                         "postId": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                         "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                         "content": "Can't wait to see the new collection!",
-                         "createdAt": "2024-04-01T13:00:00Z",
-                     }
+                    "example": {
+                        "id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
+                        "postId": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+                        "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+                        "content": "Can't wait to see the new collection!",
+                        "createdAt": "2024-04-01T13:00:00Z",
+                    }
                 }
             },
         },
@@ -401,6 +415,7 @@ async def create_comment_route(
 
 @router.delete(
     "/comments/{commentId}",
+    operation_id="PostsDeleteCommentsById",
     summary="Delete comment",
     description="Delete a comment authored by the user or managed by the clique owner.",
     status_code=status.HTTP_204_NO_CONTENT,

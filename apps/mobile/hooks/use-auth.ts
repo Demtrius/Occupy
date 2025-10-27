@@ -1,12 +1,16 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import * as auth from "@/api/auth";
+import { $api } from "@/lib/api";
+import { useAuthStore } from "@/stores/auth-store";
 
 export function useLoginMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: auth.login,
-		onSuccess: () => {
+	return $api.useMutation("post", "/api/v1/auth/login", {
+		onSuccess: async ({ accessToken, refreshToken }) => {
+			await useAuthStore.getState().setAuth({
+				accessToken,
+				refreshToken,
+			});
 			queryClient.invalidateQueries({ queryKey: ["auth"] });
 			queryClient.invalidateQueries({ queryKey: ["users"] });
 			router.replace("/(tabs)/feed");
@@ -16,9 +20,12 @@ export function useLoginMutation() {
 
 export function useRegisterMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: auth.register,
-		onSuccess: () => {
+	return $api.useMutation("post", "/api/v1/auth/register", {
+		onSuccess: async ({ accessToken, refreshToken }) => {
+			await useAuthStore.getState().setAuth({
+				accessToken,
+				refreshToken,
+			});
 			queryClient.invalidateQueries({ queryKey: ["auth"] });
 			queryClient.invalidateQueries({ queryKey: ["users"] });
 			router.replace("/(tabs)/feed");
@@ -28,9 +35,12 @@ export function useRegisterMutation() {
 
 export function useRefreshMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: auth.refresh,
-		onSuccess: () => {
+	return $api.useMutation("post", "/api/v1/auth/refresh", {
+		onSuccess: async ({ accessToken, refreshToken }) => {
+			await useAuthStore.getState().setAuth({
+				accessToken,
+				refreshToken,
+			});
 			queryClient.invalidateQueries({ queryKey: ["auth"] });
 			queryClient.invalidateQueries({ queryKey: ["users"] });
 		},
@@ -39,9 +49,10 @@ export function useRefreshMutation() {
 
 export function useLogoutMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: auth.logout,
+	const { tokens: _, clear } = useAuthStore.getState();
+	return $api.useMutation("post", "/api/v1/auth/logout", {
 		onSuccess: () => {
+			clear();
 			queryClient.clear();
 			router.replace("/(auth)/login");
 		},

@@ -11,9 +11,9 @@ from ...core.errors import Forbidden, NotFound
 from ...models.enums import Privacy
 from ...models.service import Service
 from ...models.user import User
+from ...schemas.base import BaseSchema
 from ...schemas.service import Service as ServiceSchema
 from ...schemas.service import ServiceCreate, ServiceUpdate
-from ...schemas.base import BaseSchema
 from ...services.business_services import (
     create_service,
     delete_service,
@@ -26,7 +26,9 @@ router = APIRouter(prefix="/api/v1/services", tags=["Services"])
 
 
 class ServiceCreateParams(BaseSchema):
-    clique_id: UUID = Field(..., alias="cliqueId", description="Clique creating the service")
+    clique_id: UUID = Field(
+        ..., alias="cliqueId", description="Clique creating the service"
+    )
 
 
 class ServiceListParams(BaseSchema):
@@ -37,6 +39,7 @@ class ServiceListParams(BaseSchema):
 
 @router.post(
     "",
+    operation_id="ServicesCreate",
     summary="Create service",
     description="Clique owners define a bookable service with pricing metadata.",
     response_model=ServiceSchema,
@@ -75,6 +78,7 @@ async def create_service_endpoint(
 
 @router.get(
     "/{cliqueId}",
+    operation_id="ServicesByCliqueId",
     summary="List clique services",
     description="Return services configured for a clique, optionally only active ones.",
     response_model=List[ServiceSchema],
@@ -102,6 +106,7 @@ async def list_clique_services(
 
 @router.put(
     "/{serviceId}",
+    operation_id="ServicesUpdateById",
     summary="Update service",
     description="Modify details of a service owned by the clique.",
     response_model=ServiceSchema,
@@ -137,6 +142,7 @@ async def update_service_endpoint(
 
 @router.delete(
     "/{serviceId}",
+    operation_id="ServicesDeleteById",
     summary="Delete service",
     description="Remove a service definition owned by the clique.",
     response_model=dict[str, str],

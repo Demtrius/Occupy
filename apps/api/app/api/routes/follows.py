@@ -14,7 +14,8 @@ from ...api.openapi_helpers import (
 )
 from ...core.errors import Forbidden, NotFound, Validation
 from ...models.user import User
-from ...schemas import CursorPageFollows, Follow as FollowSchema
+from ...schemas import CursorPageFollows
+from ...schemas import Follow as FollowSchema
 from ...schemas.base import BaseSchema
 from ...services.follows import (
     approve_follow,
@@ -52,6 +53,7 @@ def _translate_error(exc: ValueError) -> Exception:
 
 @router.post(
     "",
+    operation_id="UsersFollow",
     summary="Follow user",
     description="Send a follow request or follow immediately if the account is public.",
     response_model=FollowSchema,
@@ -76,6 +78,7 @@ async def follow(
 
 @router.post(
     "/approve",
+    operation_id="UsersFollowApprove",
     summary="Approve follow request",
     description="Accept a pending follow request from another user.",
     response_model=FollowSchema,
@@ -101,6 +104,7 @@ async def approve(
 
 @router.post(
     "/reject",
+    operation_id="UsersFollowReject",
     summary="Reject follow request",
     description="Decline a pending follow request.",
     response_model=dict[str, str],
@@ -123,30 +127,8 @@ async def reject(
 
 
 @router.delete(
-    "",
-    summary="Unfollow user",
-    description="Stop following another user.",
-    response_model=dict[str, str],
-    responses={
-        200: {
-            "description": "Unfollowed",
-            "content": {"application/json": {"example": {"status": "unfollowed"}}},
-        },
-        **error_responses(401, 404),
-    },
-    openapi_extra=secured(),
-)
-async def unfollow(
-    user_id: Annotated[UUID, Path(alias="userId")],
-    current_user: User = Depends(require_active_user),
-    db: AsyncSession = Depends(get_db),
-):
-    await unfollow_user(db, str(current_user.id), str(user_id))
-    return {"status": "unfollowed"}
-
-
-@router.delete(
     "/followers/{followerId}",
+    operation_id="UsersDeleteFollowerById",
     summary="Remove follower",
     description="Remove a follower from your audience.",
     response_model=dict[str, str],
@@ -160,19 +142,20 @@ async def unfollow(
     openapi_extra=secured(),
 )
 async def remove_follower(
-    userId: Annotated[UUID, Path(alias="userId")],
-    followerId: Annotated[UUID, Path(alias="followerId")],
+    user_id: Annotated[UUID, Path(alias="userId")],
+    follower_id: Annotated[UUID, Path(alias="followerId")],
     current_user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.id != userId:
+    if current_user.id != user_id:
         raise Forbidden()
-    await unfollow_user(db, str(followerId), str(userId))
+    await unfollow_user(db, str(follower_id), str(user_id))
     return {"status": "removed"}
 
 
 @router.get(
     "/followers",
+    operation_id="UsersFollowFollowers",
     summary="List followers",
     description="Paginated list of followers for the specified user.",
     response_model=CursorPageFollows,
@@ -204,6 +187,7 @@ async def list_followers(
 
 @router.get(
     "/following",
+    operation_id="UsersFollowFollowing",
     summary="List following",
     description="Paginated list of accounts the specified user follows.",
     response_model=CursorPageFollows,
@@ -235,6 +219,7 @@ async def list_following(
 
 @router.post(
     "/block",
+    operation_id="UsersFollowBlock",
     summary="Block user",
     description="Block another user; any follow relationship is converted to a block.",
     response_model=FollowSchema,
@@ -258,6 +243,7 @@ async def block(
 
 @router.delete(
     "/block",
+    operation_id="UsersFollowUnblock",
     summary="Unblock user",
     description="Remove a previously created block.",
     response_model=dict[str, str],

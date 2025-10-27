@@ -1,5 +1,12 @@
 import { z } from "zod";
-import type { Follow, User, UserFollow, UserUpdate, UserProfile, UserProfileUpdate } from "../types/users";
+import type {
+	Follow,
+	User,
+	UserFollow,
+	UserProfile,
+	UserProfileUpdate,
+	UserUpdate,
+} from "../types/users";
 
 export const userSchema = z.object({
 	id: z.uuid(),

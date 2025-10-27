@@ -3,7 +3,6 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Path, Query
-from pydantic import AliasChoices
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -28,6 +27,7 @@ def _parse_iso_dt(value: str, label: str) -> datetime:
 
 @router.get(
     "/{cliqueId}/slots",
+    operation_id="CliquesSlots",
     summary="List available slots",
     description="Return available start/end timestamps for a service within the requested window.",
     response_model=dict[str, list[dict[str, str]]],

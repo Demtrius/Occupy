@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...api.deps import get_db, require_active_user, require_clique_owner
 from ...api.openapi_helpers import error_responses, secured
 from ...models.user import User
-from ...schemas.occupation import Occupation as OccupationSchema, OccupationCreate
+from ...schemas.occupation import Occupation as OccupationSchema
+from ...schemas.occupation import OccupationCreate
 from ...services.occupations import (
     create_occupation,
     get_occupations,
@@ -21,6 +22,7 @@ router = APIRouter(prefix="/api/v1/occupations", tags=["Occupations"])
 
 @router.get(
     "",
+    operation_id="Occupations",
     summary="List occupations",
     description="Return top occupations in the catalog ordered by usage.",
     response_model=List[OccupationSchema],
@@ -38,6 +40,7 @@ async def list_occupations(
 
 @router.get(
     "/search",
+    operation_id="OccupationsSearch",
     summary="Search occupations",
     description="Search occupation taxonomy by name prefix.",
     response_model=List[OccupationSchema],
@@ -56,6 +59,7 @@ async def search_occupations_endpoint(
 
 @router.post(
     "",
+    operation_id="OccupationsCreate",
     summary="Create occupation",
     description="Create a new occupation in the catalog.",
     response_model=OccupationSchema,
@@ -81,6 +85,7 @@ async def create_occupation_endpoint(
 
 @router.put(
     "/user",
+    operation_id="OccupationsUser",
     summary="Update my occupations",
     description="Replace the authenticated user's occupation list.",
     response_model=dict[str, str],
@@ -117,6 +122,7 @@ async def update_user_occupations_endpoint(
 
 @router.put(
     "/clique/{cliqueId}",
+    operation_id="OccupationsCliqueUpdate",
     summary="Update clique occupations",
     description="Clique owners set the occupations associated with their business.",
     response_model=dict[str, str],

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status, Body
+from fastapi import APIRouter, Body, Depends, Query, status
 from pydantic import AliasChoices
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api/v1/media", tags=["Media"])
 
 @router.post(
     "/uploads/presign",
+    operation_id="MediaUploadsPresign",
     summary="Generate presigned upload",
     description="Return a presigned URL and required form fields for direct uploads.",
     response_model=dict,
@@ -41,7 +42,12 @@ router = APIRouter(prefix="/api/v1/media", tags=["Media"])
     openapi_extra=secured(),
 )
 async def presign_upload(
-    mime: str = Query(..., validation_alias=AliasChoices("mimeType", "mime"), serialization_alias="mimeType", description="MIME type of the file to be uploaded."),
+    mime: str = Query(
+        ...,
+        validation_alias=AliasChoices("mimeType", "mime"),
+        serialization_alias="mimeType",
+        description="MIME type of the file to be uploaded.",
+    ),
     size_bytes: int = Query(
         ...,
         alias="sizeBytes",
@@ -62,6 +68,7 @@ async def presign_upload(
 
 @router.post(
     "",
+    operation_id="MediaRegister",
     summary="Register uploaded media",
     description="Persist uploaded media metadata after a successful presigned upload.",
     response_model=dict[str, str],
@@ -71,7 +78,7 @@ async def presign_upload(
             "description": "Media registered",
             "content": {
                 "application/json": {
-                     "example": {"mediaId": "28c77070-40a9-4478-b6a6-319d1490d0dd"}
+                    "example": {"mediaId": "28c77070-40a9-4478-b6a6-319d1490d0dd"}
                 }
             },
         },

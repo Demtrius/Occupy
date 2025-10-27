@@ -1,24 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as occupations from "@/api/occupations";
+import { $api } from "@/lib/api";
 
 export function useListOccupationsQuery(limit = 50) {
-	return useQuery({
-		queryKey: ["occupations", { limit }],
-		queryFn: () => occupations.listOccupations(limit),
+	return $api.useQuery("get", "/api/v1/occupations", {
+		params: {
+			query: { limit },
+		},
 	});
 }
 
 export function useSearchOccupationsQuery(q: string, limit = 20) {
-	return useQuery({
-		queryKey: ["occupations", "search", { q, limit }],
-		queryFn: () => occupations.searchOccupations(q, limit),
+	return $api.useQuery("get", "/api/v1/occupations/search", {
+		params: {
+			query: { q, limit },
+		},
 	});
 }
 
 export function useUpdateUserOccupationsMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: occupations.updateUserOccupations,
+	return $api.useMutation("put", "/api/v1/occupations/user", {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users", "me"] });
 		},
@@ -27,8 +28,7 @@ export function useUpdateUserOccupationsMutation() {
 
 export function useCreateOccupationMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: occupations.createOccupation,
+	return $api.useMutation("post", "/api/v1/occupations", {
 		onSuccess: (newOccupation) => {
 			// Invalidate all occupation queries to refresh the list
 			queryClient.invalidateQueries({
@@ -43,18 +43,9 @@ export function useCreateOccupationMutation() {
 
 export function useUpdateCliqueOccupationsMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			cliqueId,
-			occupationIds,
-			clique_id,
-		}: {
-			cliqueId: string;
-			occupationIds: string[];
-			clique_id: string;
-		}) =>
-			occupations.updateCliqueOccupations(cliqueId, occupationIds, clique_id),
-		onSuccess: (_, { cliqueId }) => {
+	return $api.useMutation("put", "/api/v1/occupations/clique/{cliqueId}", {
+		onSuccess: (data, variables) => {
+			const cliqueId = variables.params.path.cliqueId;
 			queryClient.invalidateQueries({ queryKey: ["cliques", cliqueId] });
 		},
 	});

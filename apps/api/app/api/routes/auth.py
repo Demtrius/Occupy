@@ -29,6 +29,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
 @router.post(
     "/register",
+    operation_id="AuthRegister",
     summary="Register new user",
     description="Create a user account and return signed access and refresh tokens.",
     response_model=TokenRead,
@@ -125,6 +126,7 @@ async def register(
 # @limiter.limit("10/minute")
 @router.post(
     "/login",
+    operation_id="AuthLogin",
     summary="Login with email or username",
     description="Validate credentials and issue new access and refresh tokens.",
     response_model=TokenRead,
@@ -197,6 +199,7 @@ async def login(
 
 @router.post(
     "/refresh",
+    operation_id="AuthRefresh",
     summary="Refresh access token",
     description="Exchange a valid refresh token for a new access + refresh pair.",
     response_model=TokenRead,
@@ -264,6 +267,7 @@ async def refresh(
 
 @router.post(
     "/logout",
+    operation_id="AuthLogout",
     summary="Revoke refresh token",
     description="Invalidate an issued refresh token for the current user.",
     status_code=status.HTTP_200_OK,

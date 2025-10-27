@@ -8,6 +8,7 @@ import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useSearchQuery } from "@/hooks/use-search";
+import type { SearchResult } from "@/types";
 
 export default function Page() {
 	const [query, setQuery] = useState("");
@@ -18,7 +19,11 @@ export default function Page() {
 		debouncedQuery ? 20 : 0,
 	);
 
-	const results = data || { users: [], occupations: [], cliques: [] };
+	const results = (data as SearchResult) || {
+		users: [],
+		occupations: [],
+		cliques: [],
+	};
 
 	const handleClear = () => {
 		setQuery("");

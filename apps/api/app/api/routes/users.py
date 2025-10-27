@@ -16,12 +16,15 @@ from ...core.errors import NotFound
 from ...models.enums import FollowStatus
 from ...models.user import Follow, User
 from ...schemas import CursorPageUsers
-from ...schemas.user import User as UserSchema, UserUpdate
+from ...schemas.user import User as UserSchema
+from ...schemas.user import UserUpdate
 from ...services.follows import count_followers, count_following
 from ...services.users import (
     get_user_by_id,
-    search_users as search_users_service,
     update_user_profile,
+)
+from ...services.users import (
+    search_users as search_users_service,
 )
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
@@ -29,6 +32,7 @@ router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
 @router.get(
     "/me",
+    operation_id="UsersMe",
     summary="Get current user",
     description="Return the profile for the authenticated user.",
     response_model=UserSchema,
@@ -44,15 +48,18 @@ async def get_me(
 ):
     followers_count = await count_followers(db, str(current_user.id))
     following_count = await count_following(db, str(current_user.id))
-    return UserSchema.model_validate({
-        **current_user.__dict__,
-        'followersCount': followers_count,
-        'followingCount': following_count,
-    })
+    return UserSchema.model_validate(
+        {
+            **current_user.__dict__,
+            "followersCount": followers_count,
+            "followingCount": following_count,
+        }
+    )
 
 
 @router.patch(
     "/me",
+    operation_id="UsersUpdateMe",
     summary="Update current user",
     description="Patch the profile fields for the authenticated user.",
     response_model=UserSchema,
@@ -66,14 +73,14 @@ async def update_me(
     data: UserUpdate = Body(
         ...,
         examples={
-             "profile": {
-                 "summary": "Update bio and image",
-                 "value": {
-                     "fullName": "Clique Founder",
-                     "bio": "Curating experiences for boutique brands.",
-                     "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
-                 },
-             }
+            "profile": {
+                "summary": "Update bio and image",
+                "value": {
+                    "fullName": "Clique Founder",
+                    "bio": "Curating experiences for boutique brands.",
+                    "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+                },
+            }
         },
     ),
     current_user: User = Depends(require_active_user),
@@ -83,23 +90,28 @@ async def update_me(
     if not updates:
         followers_count = await count_followers(db, str(current_user.id))
         following_count = await count_following(db, str(current_user.id))
-        return UserSchema.model_validate({
-            **current_user.__dict__,
-            'followersCount': followers_count,
-            'followingCount': following_count,
-        })
+        return UserSchema.model_validate(
+            {
+                **current_user.__dict__,
+                "followersCount": followers_count,
+                "followingCount": following_count,
+            }
+        )
     updated = await update_user_profile(db, current_user, updates)
     followers_count = await count_followers(db, str(updated.id))
     following_count = await count_following(db, str(updated.id))
-    return UserSchema.model_validate({
-        **updated.__dict__,
-        'followersCount': followers_count,
-        'followingCount': following_count,
-    })
+    return UserSchema.model_validate(
+        {
+            **updated.__dict__,
+            "followersCount": followers_count,
+            "followingCount": following_count,
+        }
+    )
 
 
 @router.get(
     "",
+    operation_id="Users",
     summary="Search users",
     description="Paginated user search supporting text query, occupation filter, and sort.",
     response_model=CursorPageUsers,
@@ -116,7 +128,9 @@ async def search_users(
         description="Free-text search across usernames and bios.",
     ),
     occupation_id: UUID | None = Query(
-        None, alias="occupationId", description="Filter to users tagged with a specific occupation."
+        None,
+        alias="occupationId",
+        description="Filter to users tagged with a specific occupation.",
     ),
     cursor: str | None = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -151,17 +165,22 @@ async def search_users(
     for user in users:
         followers_count = await count_followers(db, str(user.id))
         following_count = await count_following(db, str(user.id))
-        enriched_users.append(UserSchema.model_validate({
-            **user.__dict__,
-            'followersCount': followers_count,
-            'followingCount': following_count,
-        }))
+        enriched_users.append(
+            UserSchema.model_validate(
+                {
+                    **user.__dict__,
+                    "followersCount": followers_count,
+                    "followingCount": following_count,
+                }
+            )
+        )
     items = enriched_users
     return CursorPageUsers(items=items, next_cursor=next_cursor)
 
 
 @router.get(
     "/{userId}",
+    operation_id="UsersById",
     summary="Get user by id",
     description="Retrieve another user's profile respecting blocking and privacy.",
     response_model=UserSchema,
@@ -179,11 +198,13 @@ async def get_user(
     if current_user.id == userId:
         followers_count = await count_followers(db, str(current_user.id))
         following_count = await count_following(db, str(current_user.id))
-        return UserSchema.model_validate({
-            **current_user.__dict__,
-            'followersCount': followers_count,
-            'followingCount': following_count,
-        })
+        return UserSchema.model_validate(
+            {
+                **current_user.__dict__,
+                "followersCount": followers_count,
+                "followingCount": following_count,
+            }
+        )
 
     await check_blocking(current_user.id, userId, db)
 
@@ -203,8 +224,10 @@ async def get_user(
 
     followers_count = await count_followers(db, str(user.id))
     following_count = await count_following(db, str(user.id))
-    return UserSchema.model_validate({
-        **user.__dict__,
-        'followersCount': followers_count,
-        'followingCount': following_count,
-    })
+    return UserSchema.model_validate(
+        {
+            **user.__dict__,
+            "followersCount": followers_count,
+            "followingCount": following_count,
+        }
+    )

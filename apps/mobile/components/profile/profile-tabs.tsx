@@ -126,7 +126,7 @@ export function ProfileTabs({
 								Failed to load posts
 							</Text>
 							<Text variant="caption" textAlign="center">
-								{postsQuery.error.message}
+								Error loading posts
 							</Text>
 						</Box>
 					);
@@ -170,7 +170,7 @@ export function ProfileTabs({
 								Failed to load cliques
 							</Text>
 							<Text variant="caption" textAlign="center">
-								{cliquesQuery.error.message}
+								Error loading cliques
 							</Text>
 						</Box>
 					);
@@ -214,7 +214,7 @@ export function ProfileTabs({
 								Failed to load reviews
 							</Text>
 							<Text variant="caption" textAlign="center">
-								{reviewsQuery.error.message}
+								Error loading reviews
 							</Text>
 						</Box>
 					);
@@ -255,11 +255,6 @@ export function ProfileTabs({
 											{review.comment}
 										</Text>
 									)}
-									{review.rater && (
-										<Text variant="caption" color="muted-foreground">
-											By {review.rater.username}
-										</Text>
-									)}
 								</Box>
 							))}
 						</Box>
@@ -289,7 +284,7 @@ export function ProfileTabs({
 								Failed to load bookings
 							</Text>
 							<Text variant="caption" textAlign="center">
-								{bookingsQuery.error.message}
+								Error loading bookings
 							</Text>
 						</Box>
 					);

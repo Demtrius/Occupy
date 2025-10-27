@@ -3,7 +3,7 @@ import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import type { UserProfile, UserFollow } from "@/types/users";
+import type { UserFollow, UserProfile } from "@/types/users";
 
 interface UserCardProps {
 	user: UserProfile | UserFollow;
@@ -40,18 +40,6 @@ export function UserCard({ user }: UserCardProps) {
 
 			{/* User Stats */}
 			<Box flexDirection="row" justifyContent="space-between">
-				{'occupations' in user && user.occupations && user.occupations.length > 0 && (
-					<Box flexDirection="row" alignItems="center">
-						<Ionicons
-							name="briefcase-outline"
-							size={16}
-							color={theme.colors["muted-foreground"]}
-						/>
-						<Text variant="caption" color="muted-foreground" marginLeft="xs">
-							{user.occupations[0].name}
-						</Text>
-					</Box>
-				)}
 				{user.isBusinessPage && (
 					<Box flexDirection="row" alignItems="center">
 						<Ionicons

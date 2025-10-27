@@ -1,12 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as messaging from "@/api/messaging";
+import { useQueryClient } from "@tanstack/react-query";
+import { $api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useListChatsQuery() {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["chats"],
-		queryFn: messaging.listChats,
+	return $api.useQuery("get", "/api/v1/chats", {
 		enabled: !!tokens?.accessToken,
 	});
 }
@@ -17,24 +15,20 @@ export function useListMessagesQuery(
 	offset = 0,
 ) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["messages", chatId, { limit, offset }],
-		queryFn: () => messaging.listMessages(chatId!, limit, offset),
+	return $api.useQuery("get", "/api/v1/messages/{chatId}", {
+		params: {
+			path: { chatId: chatId! },
+			query: { limit, offset },
+		},
 		enabled: !!tokens?.accessToken && !!chatId,
 	});
 }
 
 export function useSendMessageMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			chatId,
-			body,
-		}: {
-			chatId: string;
-			body: Parameters<typeof messaging.sendMessage>[1];
-		}) => messaging.sendMessage(chatId, body),
-		onSuccess: (_, { chatId }) => {
+	return $api.useMutation("post", "/api/v1/messages/{chatId}", {
+		onSuccess: (data, variables) => {
+			const chatId = variables.params.path.chatId;
 			queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
 		},
 	});
@@ -42,8 +36,7 @@ export function useSendMessageMutation() {
 
 export function useDeleteMessageMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: messaging.deleteMessage,
+	return $api.useMutation("delete", "/api/v1/messages/{messageId}", {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["messages"] });
 		},

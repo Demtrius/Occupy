@@ -20,8 +20,12 @@ import {
 	useUpdateUserMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
-import { type UserProfileUpdateForm, userProfileUpdateSchema } from "@/schemas/users";
+import {
+	type UserProfileUpdateForm,
+	userProfileUpdateSchema,
+} from "@/schemas/users";
 import { showToast } from "@/stores/toast-store";
+import type { Occupation } from "@/types";
 
 export default function EditProfilePage() {
 	const router = useRouter();
@@ -54,7 +58,7 @@ export default function EditProfilePage() {
 				isPrivateAccount: userQuery.data.isPrivateAccount || false,
 				profileImageUrl: userQuery.data.profileImageUrl || "",
 				isBusinessPage: userQuery.data.isBusinessPage || false,
-				occupations: userQuery.data.occupations?.map((occ) => occ.id) || [],
+				occupations: [],
 			});
 		}
 	}, [userQuery.data, reset]);
@@ -63,11 +67,11 @@ export default function EditProfilePage() {
 		try {
 			// Update user profile (exclude isBusinessPage since it's not editable)
 			const { isBusinessPage: _, ...updateData } = data;
-			await updateMutation.mutateAsync(updateData);
+			await updateMutation.mutateAsync({ body: updateData });
 
 			// Update occupations if user is a business page
 			if (userQuery.data?.isBusinessPage && data.occupations) {
-				await updateOccupationsMutation.mutateAsync(data.occupations);
+				await updateOccupationsMutation.mutateAsync({ body: data.occupations });
 			}
 
 			showToast({ type: "success", message: "Profile updated successfully" });
@@ -183,23 +187,27 @@ export default function EditProfilePage() {
 							<OccupationSelect
 								value={value || []}
 								onChange={onChange}
-								occupations={occupationsQuery.data || []}
+								occupations={(occupationsQuery.data || []) as Occupation[]}
 								loading={occupationsQuery.isLoading}
 								placeholder="Select your business occupations..."
 								onCreateOccupation={async (name) => {
 									try {
 										const newOccupation =
-											await createOccupationMutation.mutateAsync(name);
-										// Add the new occupation to the selected occupations
-										const currentValue = getValues("occupations") || [];
-										setValue("occupations", [
-											...currentValue,
-											newOccupation.id,
-										]);
-										showToast({
-											type: "success",
-											message: `Created and selected "${newOccupation.name}"`,
-										});
+											await createOccupationMutation.mutateAsync({
+												body: { name },
+											});
+										if (newOccupation) {
+											// Add the new occupation to the selected occupations
+											const currentValue = getValues("occupations") || [];
+											setValue("occupations", [
+												...currentValue,
+												newOccupation.id,
+											]);
+											showToast({
+												type: "success",
+												message: `Created and selected "${newOccupation.name}"`,
+											});
+										}
 									} catch (error) {
 										showToast({
 											type: "error",

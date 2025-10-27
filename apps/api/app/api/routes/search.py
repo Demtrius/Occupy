@@ -3,9 +3,11 @@ from typing import Any
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.openapi_helpers import error_responses
+
 from ...api.deps import get_db, get_optional_user
-from ...api.openapi_helpers import error_responses
 from ...models.user import User
+from ...schemas import SearchResult
 from ...services.cliques import get_clique_public
 from ...services.search import unified_search
 
@@ -14,8 +16,10 @@ router = APIRouter(prefix="/api/v1/search", tags=["Search"])
 
 @router.get(
     "",
+    operation_id="Search",
     summary="Unified search",
     description="Search across users, occupations, and cliques with a single query.",
+    response_model=SearchResult,
     responses={
         200: {
             "description": "Search results",

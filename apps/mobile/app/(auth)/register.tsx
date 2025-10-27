@@ -20,6 +20,7 @@ import {
 } from "@/hooks";
 import { registerFormSchema } from "@/schemas/auth";
 import { showToast } from "@/stores/toast-store";
+import type { Occupation } from "@/types";
 
 type RegisterForm = {
 	email: string;
@@ -78,39 +79,52 @@ export default function Register() {
 
 	const onSubmit = (data: RegisterForm) => {
 		const { confirmPassword: _, occupations, ...userData } = data;
-		registerMutation.mutate(userData, {
-			onSuccess: () => {
-				// If business page and occupations specified, update occupations
-				if (data.isBusinessPage && occupations && occupations.length > 0) {
-					updateOccupationsMutation.mutate(occupations, {
-						onSuccess: () => {
-							showToast({
-								type: "success",
-								message: "Business account created successfully",
-							});
-						},
-						onError: (error: any) => {
-							showToast({
-								type: "info",
-								message:
-									"Account created but failed to set occupations. You can set them later in your profile.",
-							});
-						},
-					});
-				} else {
+		const registerData = {
+			...userData,
+			isAdmin: false,
+			isActive: true,
+			isPrivateAccount: false,
+			isBusinessPage: userData.isBusinessPage || false,
+		};
+		registerMutation.mutate(
+			{ body: registerData },
+			{
+				onSuccess: () => {
+					// If business page and occupations specified, update occupations
+					if (data.isBusinessPage && occupations && occupations.length > 0) {
+						updateOccupationsMutation.mutate(
+							{ body: occupations },
+							{
+								onSuccess: () => {
+									showToast({
+										type: "success",
+										message: "Business account created successfully",
+									});
+								},
+								onError: (error: any) => {
+									showToast({
+										type: "info",
+										message:
+											"Account created but failed to set occupations. You can set them later in your profile.",
+									});
+								},
+							},
+						);
+					} else {
+						showToast({
+							type: "success",
+							message: "Account created successfully",
+						});
+					}
+				},
+				onError: (error: any) => {
 					showToast({
-						type: "success",
-						message: "Account created successfully",
+						type: "error",
+						message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
 					});
-				}
+				},
 			},
-			onError: (error: any) => {
-				showToast({
-					type: "error",
-					message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
-				});
-			},
-		});
+		);
 	};
 
 	return (
@@ -223,23 +237,27 @@ export default function Register() {
 								<OccupationSelect
 									value={value || []}
 									onChange={onChange}
-									occupations={occupationsQuery.data || []}
+									occupations={(occupationsQuery.data || []) as Occupation[]}
 									loading={occupationsQuery.isLoading}
 									placeholder="Select your business occupations..."
 									onCreateOccupation={async (name) => {
 										try {
 											const newOccupation =
-												await createOccupationMutation.mutateAsync(name);
-											// Add the new occupation to the selected occupations
-											const currentValue = getValues("occupations") || [];
-											setValue("occupations", [
-												...currentValue,
-												newOccupation.id,
-											]);
-											showToast({
-												type: "success",
-												message: `Created and selected "${newOccupation.name}"`,
-											});
+												await createOccupationMutation.mutateAsync({
+													body: { name },
+												});
+											if (newOccupation) {
+												// Add the new occupation to the selected occupations
+												const currentValue = getValues("occupations") || [];
+												setValue("occupations", [
+													...currentValue,
+													newOccupation.id,
+												]);
+												showToast({
+													type: "success",
+													message: `Created and selected "${newOccupation.name}"`,
+												});
+											}
 										} catch (error) {
 											showToast({
 												type: "error",

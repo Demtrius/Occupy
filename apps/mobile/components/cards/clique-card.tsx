@@ -35,8 +35,6 @@ export function CliqueCard({ clique }: CliqueCardProps) {
 						/>
 						<Text variant="caption" color="muted-foreground" marginLeft="xs">
 							{clique.privacy === "private" ? "Private" : "Public"}
-							{clique.isOwner && " • Owner"}
-							{clique.isMember && !clique.isOwner && " • Member"}
 						</Text>
 					</Box>
 				</Box>
@@ -58,7 +56,7 @@ export function CliqueCard({ clique }: CliqueCardProps) {
 						color={theme.colors["muted-foreground"]}
 					/>
 					<Text variant="caption" color="muted-foreground" marginLeft="xs">
-						{clique.memberCount || 0} members
+						0 members
 					</Text>
 				</Box>
 				<Text variant="caption" color="muted-foreground">

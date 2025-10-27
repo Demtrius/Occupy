@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api/v1/chats", tags=["Messaging"])
 
 @router.get(
     "",
+    operation_id="Chats",
     summary="List chats",
     description="Return chats the current user participates in, sorted by recent activity.",
     response_model=List[ChatSchema],

@@ -11,7 +11,6 @@ interface ProfileActionsProps {
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 	onFollowPress?: () => void;
-	onUnfollowPress?: () => void;
 }
 
 export function ProfileActions({
@@ -19,7 +18,6 @@ export function ProfileActions({
 	isOwnProfile,
 	isLoading,
 	onFollowPress,
-	onUnfollowPress,
 }: ProfileActionsProps) {
 	const router = useRouter();
 	const theme = useTheme<Theme>();
@@ -59,11 +57,8 @@ export function ProfileActions({
 
 	return (
 		<Box paddingHorizontal="l" marginBottom="l">
-			<Button
-				onPress={isFollowing ? onUnfollowPress : onFollowPress}
-				disabled={isFollowRequested}
-			>
-				{isFollowRequested ? "Requested" : isFollowing ? "Following" : "Follow"}
+			<Button onPress={onFollowPress} disabled={isFollowRequested}>
+				{isFollowRequested ? "Requested" : isFollowing ? "Unfollow" : "Follow"}
 			</Button>
 		</Box>
 	);

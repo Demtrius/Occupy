@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as bookings from "@/api/bookings";
+import { $api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useCreateBookingMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: bookings.createBooking,
+	return $api.useMutation("post", "/api/v1/bookings", {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["bookings"] });
 		},
@@ -14,15 +13,9 @@ export function useCreateBookingMutation() {
 
 export function useRescheduleBookingMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			bookingId,
-			body,
-		}: {
-			bookingId: string;
-			body: Parameters<typeof bookings.rescheduleBooking>[1];
-		}) => bookings.rescheduleBooking(bookingId, body),
-		onSuccess: (_, { bookingId }) => {
+	return $api.useMutation("patch", "/api/v1/bookings/{bookingId}/reschedule", {
+		onSuccess: (data, variables) => {
+			const bookingId = variables.params.path.bookingId;
 			queryClient.invalidateQueries({ queryKey: ["bookings", bookingId] });
 		},
 	});
@@ -35,9 +28,10 @@ export function useListMyBookingsQuery(
 	limit = 20,
 ) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["bookings", "me", { status, cursor, limit }],
-		queryFn: () => bookings.listMyBookings(status, cursor, limit),
+	return $api.useQuery("get", "/api/v1/bookings/me", {
+		params: {
+			query: { status, cursor, limit },
+		},
 		enabled: !!tokens?.accessToken && enabled,
 	});
 }
@@ -49,19 +43,20 @@ export function useListCliqueBookingsQuery(
 	limit = 20,
 ) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["bookings", "cliques", cliqueId, { status, cursor, limit }],
-		queryFn: () =>
-			bookings.listCliqueBookings(cliqueId!, status, cursor, limit),
+	return $api.useQuery("get", "/api/v1/bookings/cliques/{cliqueId}", {
+		params: {
+			path: { cliqueId: cliqueId! },
+			query: { status, cursor, limit },
+		},
 		enabled: !!tokens?.accessToken && !!cliqueId,
 	});
 }
 
 export function useConfirmBookingMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: bookings.confirmBooking,
-		onSuccess: (_, bookingId) => {
+	return $api.useMutation("post", "/api/v1/bookings/{bookingId}/confirm", {
+		onSuccess: (data, variables) => {
+			const bookingId = variables.params.path.bookingId;
 			queryClient.invalidateQueries({ queryKey: ["bookings", bookingId] });
 		},
 	});
@@ -69,15 +64,9 @@ export function useConfirmBookingMutation() {
 
 export function useCancelBookingMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			bookingId,
-			reason,
-		}: {
-			bookingId: string;
-			reason?: string;
-		}) => bookings.cancelBooking(bookingId, reason),
-		onSuccess: (_, { bookingId }) => {
+	return $api.useMutation("post", "/api/v1/bookings/{bookingId}/cancel", {
+		onSuccess: (data, variables) => {
+			const bookingId = variables.params.path.bookingId;
 			queryClient.invalidateQueries({ queryKey: ["bookings", bookingId] });
 		},
 	});

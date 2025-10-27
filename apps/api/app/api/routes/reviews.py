@@ -25,6 +25,7 @@ router = APIRouter(prefix="/api/v1/reviews", tags=["Reviews"])
 
 @router.post(
     "/bookings/{bookingId}",
+    operation_id="ReviewsBookings",
     summary="Review completed booking",
     description="Customers leave a rating and optional comment for a completed booking.",
     response_model=dict[str, UUID],
@@ -79,6 +80,7 @@ async def create(
 
 @router.get(
     "/cliques/{cliqueId}",
+    operation_id="ReviewsCliques",
     summary="List clique reviews",
     description="Paginated reviews left for services hosted by the clique.",
     response_model=CursorPageReviews,

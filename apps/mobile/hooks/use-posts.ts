@@ -1,18 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as posts from "@/api/posts";
+import { $api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useCreatePostMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			cliqueId,
-			body,
-		}: {
-			cliqueId: string;
-			body: Parameters<typeof posts.createPost>[1];
-		}) => posts.createPost(cliqueId, body),
-		onSuccess: (_, { cliqueId }) => {
+	return $api.useMutation("post", "/api/v1/posts/cliques/{cliqueId}/posts", {
+		onSuccess: (data, variables) => {
+			const cliqueId = variables.params.path.cliqueId;
 			queryClient.invalidateQueries({
 				queryKey: ["posts", "cliques", cliqueId],
 			});
@@ -26,9 +20,11 @@ export function useListCliquePostsQuery(
 	limit = 20,
 ) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["posts", "cliques", cliqueId, { cursor, limit }],
-		queryFn: () => posts.listCliquePosts(cliqueId!, cursor, limit),
+	return $api.useQuery("get", "/api/v1/posts/cliques/{cliqueId}/posts", {
+		params: {
+			path: { cliqueId: cliqueId! },
+			query: { cursor, limit },
+		},
 		enabled: !!tokens?.accessToken && !!cliqueId,
 	});
 }
@@ -40,33 +36,30 @@ export function useListUserPostsQuery(
 	limit = 20,
 ) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["posts", "user", userId, { cursor, limit }],
-		queryFn: () => posts.listUserPosts(userId!, cursor, limit),
+	return $api.useQuery("get", "/api/v1/posts/user/{userId}/posts", {
+		params: {
+			path: { userId: userId! },
+			query: { cursor, limit },
+		},
 		enabled: !!tokens?.accessToken && !!userId && enabled,
 	});
 }
 
 export function useGetPostQuery(postId: string | undefined) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["posts", postId],
-		queryFn: () => posts.getPost(postId!),
+	return $api.useQuery("get", "/api/v1/posts/{postId}", {
+		params: {
+			path: { postId: postId! },
+		},
 		enabled: !!tokens?.accessToken && !!postId,
 	});
 }
 
 export function useUpdatePostMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			postId,
-			body,
-		}: {
-			postId: string;
-			body: Parameters<typeof posts.updatePost>[1];
-		}) => posts.updatePost(postId, body),
-		onSuccess: (_, { postId }) => {
+	return $api.useMutation("patch", "/api/v1/posts/{postId}", {
+		onSuccess: (data, variables) => {
+			const postId = variables.params.path.postId;
 			queryClient.invalidateQueries({ queryKey: ["posts", postId] });
 		},
 	});
@@ -74,8 +67,7 @@ export function useUpdatePostMutation() {
 
 export function useDeletePostMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: posts.deletePost,
+	return $api.useMutation("delete", "/api/v1/posts/{postId}", {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
@@ -84,9 +76,9 @@ export function useDeletePostMutation() {
 
 export function useLikePostMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: posts.likePost,
-		onSuccess: (_, postId) => {
+	return $api.useMutation("post", "/api/v1/posts/{postId}/like", {
+		onSuccess: (data, variables) => {
+			const postId = variables.params.path.postId;
 			queryClient.invalidateQueries({ queryKey: ["posts", postId] });
 		},
 	});
@@ -94,9 +86,9 @@ export function useLikePostMutation() {
 
 export function useUnlikePostMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: posts.unlikePost,
-		onSuccess: (_, postId) => {
+	return $api.useMutation("delete", "/api/v1/posts/{postId}/like", {
+		onSuccess: (data, variables) => {
+			const postId = variables.params.path.postId;
 			queryClient.invalidateQueries({ queryKey: ["posts", postId] });
 		},
 	});
@@ -104,15 +96,9 @@ export function useUnlikePostMutation() {
 
 export function useCreateCommentMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({
-			postId,
-			body,
-		}: {
-			postId: string;
-			body: Parameters<typeof posts.createComment>[1];
-		}) => posts.createComment(postId, body),
-		onSuccess: (_, { postId }) => {
+	return $api.useMutation("post", "/api/v1/posts/{postId}/comments", {
+		onSuccess: (data, variables) => {
+			const postId = variables.params.path.postId;
 			queryClient.invalidateQueries({ queryKey: ["posts", postId] });
 		},
 	});
@@ -120,8 +106,7 @@ export function useCreateCommentMutation() {
 
 export function useDeleteCommentMutation() {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: posts.deleteComment,
+	return $api.useMutation("delete", "/api/v1/posts/comments/{commentId}", {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
@@ -140,11 +125,10 @@ export function useFeedPosts({
 	enabled = true,
 }: UseFeedPostsOptions = {}) {
 	const { tokens } = useAuthStore();
-	return useQuery({
-		queryKey: ["feed-posts", filter],
-		queryFn: async () => {
-			const filterParam = filter === "all" ? undefined : filter;
-			return posts.listFeedPosts(filterParam);
+	const filterParam = filter === "all" ? undefined : filter;
+	return $api.useQuery("get", "/api/v1/posts/feed", {
+		params: {
+			query: filterParam ? { filter: filterParam } : undefined,
 		},
 		enabled: !!tokens?.accessToken && enabled,
 	});

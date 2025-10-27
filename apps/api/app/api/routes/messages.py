@@ -18,6 +18,7 @@ router = APIRouter(prefix="/api/v1/messages", tags=["Messaging"])
 
 @router.get(
     "/{chatId}",
+    operation_id="MessagesByChatId",
     summary="List chat messages",
     description="Return the latest messages in a chat the user participates in.",
     response_model=List[MessageSchema],
@@ -47,6 +48,7 @@ async def list_messages(
 
 @router.post(
     "/{chatId}",
+    operation_id="MessagesCreateByChatId",
     summary="Send message",
     description="Send a message in a chat between a client and a business.",
     response_model=MessageSchema,
@@ -84,6 +86,7 @@ async def create_message(
 
 @router.delete(
     "/{messageId}",
+    operation_id="MessagesDeleteById",
     summary="Delete message",
     description="Delete a message sent by the current user.",
     response_model=dict[str, str],

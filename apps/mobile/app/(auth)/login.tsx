@@ -25,18 +25,21 @@ export default function Login() {
 	const theme = useTheme<Theme>();
 
 	const onSubmit = (data: LoginForm) => {
-		loginMutation.mutate(data, {
-			onSuccess: () => {
-				showToast({ type: "success", message: "Logged in successfully" });
+		loginMutation.mutate(
+			{ body: data },
+			{
+				onSuccess: () => {
+					showToast({ type: "success", message: "Logged in successfully" });
+				},
+				onError: (error: any) => {
+					console.log(error);
+					showToast({
+						type: "error",
+						message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
+					});
+				},
 			},
-			onError: (error: any) => {
-				console.log(error);
-				showToast({
-					type: "error",
-					message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
-				});
-			},
-		});
+		);
 	};
 
 	return (

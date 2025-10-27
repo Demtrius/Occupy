@@ -16,6 +16,8 @@ from ...core.errors import Conflict, Forbidden, NotFound, Validation
 from ...models.user import User
 from ...schemas import (
     Booking as BookingSchema,
+)
+from ...schemas import (
     BookingCreate,
     BookingReschedule,
     CursorPageBookings,
@@ -88,6 +90,7 @@ def _map_booking_error(exc: ValueError) -> Exception:
 
 @router.post(
     "",
+    operation_id="BookingsCreate",
     summary="Create booking",
     description="Book a service for a specific start time. Idempotent per `idempotency_key`.",
     response_model=BookingSchema,
@@ -153,6 +156,7 @@ async def create(
 
 @router.patch(
     "/{bookingId}/reschedule",
+    operation_id="BookingsReschedule",
     summary="Reschedule booking",
     description="Move a pending booking to a new start time.",
     response_model=BookingSchema,
@@ -204,6 +208,7 @@ async def reschedule_booking_route(
 
 @router.get(
     "/me",
+    operation_id="BookingsMe",
     summary="List my bookings",
     description="Paginated bookings made by the authenticated user.",
     response_model=CursorPageBookings,
@@ -233,6 +238,7 @@ async def list_my_bookings(
 
 @router.get(
     "/cliques/{cliqueId}",
+    operation_id="BookingsCliques",
     summary="List clique bookings",
     description="Paginated bookings for a clique. Only the owner can access.",
     response_model=CursorPageBookings,
@@ -269,6 +275,7 @@ async def list_clique_bookings(
 
 @router.post(
     "/{bookingId}/confirm",
+    operation_id="BookingsConfirm",
     summary="Confirm booking",
     description="Clique owner confirms a pending booking.",
     response_model=BookingSchema,
@@ -294,6 +301,7 @@ async def confirm(
 
 @router.post(
     "/{bookingId}/cancel",
+    operation_id="BookingsCancel",
     summary="Cancel booking",
     description="Cancel a booking as the owner or the customer. Optional reason required for owners.",
     response_model=BookingSchema,

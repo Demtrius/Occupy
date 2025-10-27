@@ -20,6 +20,7 @@ router = APIRouter(prefix="/api/v1/notifications", tags=["Notifications"])
 
 @router.get(
     "",
+    operation_id="Notifications",
     summary="List notifications",
     description="Return notifications for the current user ordered by recency.",
     response_model=List[NotificationSchema],
@@ -40,6 +41,7 @@ async def list_notifications(
 
 @router.put(
     "/{notificationId}/read",
+    operation_id="NotificationsRead",
     summary="Mark notification read",
     description="Mark a single notification as read and return the updated record.",
     response_model=NotificationSchema,
@@ -62,6 +64,7 @@ async def mark_notification_read(
 
 @router.put(
     "/read-all",
+    operation_id="NotificationsReadAll",
     summary="Mark all notifications read",
     description="Mark every unread notification for the current user as read.",
     response_model=dict[str, str],

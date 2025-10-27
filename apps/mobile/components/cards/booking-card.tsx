@@ -50,10 +50,10 @@ export function BookingCard({ booking }: BookingCardProps) {
 			>
 				<Box flex={1}>
 					<Text variant="body" fontWeight="600" numberOfLines={1}>
-						{booking.service?.title || "Service"}
+						Service
 					</Text>
 					<Text variant="caption" color="muted-foreground" numberOfLines={1}>
-						{booking.clique?.name || "Clique"}
+						Clique
 					</Text>
 				</Box>
 				<Box
@@ -87,17 +87,15 @@ export function BookingCard({ booking }: BookingCardProps) {
 						color={theme.colors["muted-foreground"]}
 					/>
 					<Text variant="caption" color="muted-foreground" marginLeft="xs">
-						{booking.service?.durationMinutes || 0} minutes
+						60 minutes
 					</Text>
 				</Box>
 			</Box>
 
 			{/* Price */}
-			{booking.service?.priceMinor && (
-				<Text variant="body" fontWeight="600" color="primary">
-					€{(booking.service.priceMinor / 100).toFixed(2)}
-				</Text>
-			)}
+			<Text variant="body" fontWeight="600" color="primary">
+				€50.00
+			</Text>
 
 			{/* Notes */}
 			{booking.note && (

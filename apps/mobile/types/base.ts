@@ -1,5 +1,5 @@
-export interface CursorPage<T> {
-	items: T[];
+export type CursorPage<T> = {
 	nextCursor?: string | null;
-	meta?: Record<string, any> | null;
-}
+	meta?: { [key: string]: unknown } | null;
+	items: readonly T[];
+};

@@ -31,22 +31,6 @@ export function PostCard({ post }: PostCardProps) {
 				{post.content}
 			</Text>
 
-			{/* Post Image Placeholder */}
-			{post.imageUrl && (
-				<Box
-					height={150}
-					backgroundColor="muted"
-					borderRadius="l"
-					marginBottom="s"
-					alignItems="center"
-					justifyContent="center"
-				>
-					<Text variant="caption" color="muted-foreground">
-						Image: {post.imageUrl}
-					</Text>
-				</Box>
-			)}
-
 			{/* Post Stats */}
 			<Box flexDirection="row" alignItems="center">
 				<Box flexDirection="row" alignItems="center" marginRight="m">

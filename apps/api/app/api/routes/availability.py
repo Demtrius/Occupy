@@ -13,9 +13,12 @@ from ...models.enums import Privacy
 from ...models.user import User
 from ...schemas.availability import (
     Availability as AvailabilitySchema,
+)
+from ...schemas.availability import (
     AvailabilityCreate,
     AvailabilityUpdate,
 )
+from ...schemas.base import BaseSchema
 from ...services.availability import (
     create_availability,
     delete_availability,
@@ -23,7 +26,6 @@ from ...services.availability import (
     update_availability,
 )
 from ...services.cliques import get_clique_by_id, is_member_of_clique
-from ...schemas.base import BaseSchema
 
 router = APIRouter(prefix="/api/v1/availability", tags=["Availability"])
 
@@ -34,6 +36,7 @@ class AvailabilityCreateParams(BaseSchema):
 
 @router.post(
     "",
+    operation_id="AvailabilityCreate",
     summary="Create availability window",
     description="Clique owners define recurring or single-day availability windows.",
     response_model=AvailabilitySchema,
@@ -74,6 +77,7 @@ async def create_availability_endpoint(
 
 @router.get(
     "/{cliqueId}",
+    operation_id="AvailabilityByCliqueId",
     summary="List clique availability",
     description="Return available booking windows visible to the current user.",
     response_model=List[AvailabilitySchema],
@@ -100,6 +104,7 @@ async def list_clique_availability(
 
 @router.put(
     "/{availabilityId}",
+    operation_id="AvailabilityUpdateById",
     summary="Update availability window",
     description="Modify the timing or cadence of an availability window.",
     response_model=AvailabilitySchema,
@@ -138,6 +143,7 @@ async def update_availability_endpoint(
 
 @router.delete(
     "/{availabilityId}",
+    operation_id="AvailabilityDeleteById",
     summary="Delete availability window",
     description="Remove an availability window owned by the clique.",
     response_model=dict[str, str],
