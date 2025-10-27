@@ -1,9 +1,9 @@
 import { Pressable } from "react-native";
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { User } from "@/types/user";
+import type { UserProfile } from "@/types/users";
 
 interface ProfileStatsProps {
-	user: User | null | undefined;
+	user: UserProfile | null | undefined;
 	isLoading?: boolean;
 	isOwnProfile?: boolean;
 	onFollowersPress?: () => void;

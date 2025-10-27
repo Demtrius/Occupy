@@ -1066,18 +1066,95 @@
 			}
 		},
 		"/api/v1/cliques": {
+			"get": {
+				"tags": ["Cliques"],
+				"summary": "List all cliques",
+				"description": "Paginated list of all cliques visible to the current user (public or member).",
+				"operationId": "list_cliques_api_v1_cliques_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "cursor",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Cursor"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 100,
+							"minimum": 1,
+							"default": 20,
+							"title": "Limit"
+						}
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Cliques page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPageCliques" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
 			"post": {
 				"tags": ["Cliques"],
 				"summary": "Create clique",
 				"description": "Business pages create cliques to organize services and bookings.",
 				"operationId": "create_api_v1_cliques_post",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
 				"requestBody": {
+					"required": true,
 					"content": {
 						"application/json": {
-							"schema": { "$ref": "#/components/schemas/CliqueCreate" }
+							"schema": {
+								"$ref": "#/components/schemas/CliqueCreate",
+								"examples": {
+									"studio": {
+										"summary": "Photography studio",
+										"value": {
+											"name": "Clique Studio",
+											"description": "Creative studio for boutique brands.",
+											"privacy": "private",
+											"timezone": "America/New_York",
+											"cancellationCutoffHours": 24,
+											"occupationIds": [
+												"9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
+												"8f9d6c2a-9525-4cd3-b963-59f82a28cd31"
+											]
+										}
+									}
+								}
+							}
 						}
-					},
-					"required": true
+					}
 				},
 				"responses": {
 					"201": {
@@ -1112,8 +1189,7 @@
 							}
 						}
 					}
-				},
-				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }]
+				}
 			}
 		},
 		"/api/v1/cliques/{cliqueId}": {
@@ -1923,6 +1999,56 @@
 						"content": {
 							"application/json": {
 								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/posts/feed": {
+			"get": {
+				"tags": ["Posts"],
+				"summary": "Get feed posts",
+				"description": "Paginated feed of posts visible to the current user, with optional filter for followings or cliques.",
+				"operationId": "get_feed_route_api_v1_posts_feed_get",
+				"security": [{ "HTTPBearer": [] }, { "BearerAuth": [] }],
+				"parameters": [
+					{
+						"name": "filter",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"description": "Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques.",
+							"title": "Filter"
+						},
+						"description": "Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques."
+					},
+					{ "$ref": "#/components/parameters/CursorParam" },
+					{ "$ref": "#/components/parameters/LimitParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Feed posts page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/CursorPagePosts" }
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -3962,6 +4088,47 @@
 						}
 					}
 				}
+			},
+			"post": {
+				"tags": ["Occupations"],
+				"summary": "Create occupation",
+				"description": "Create a new occupation in the catalog.",
+				"operationId": "create_occupation_endpoint_api_v1_occupations_post",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OccupationCreate",
+								"examples": {
+									"photographer": {
+										"summary": "Create photographer occupation",
+										"value": { "name": "Photographer" }
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/Occupation" }
+							}
+						}
+					},
+					"201": { "description": "Occupation created" },
+					"422": {
+						"description": "Unprocessable Content",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ErrorEnvelope" }
+							}
+						}
+					}
+				}
 			}
 		},
 		"/api/v1/occupations/search": {
@@ -5693,7 +5860,8 @@
 						"type": "string",
 						"format": "date-time",
 						"title": "Createdat"
-					}
+					},
+					"user": { "$ref": "#/components/schemas/UserFollow" }
 				},
 				"type": "object",
 				"required": [
@@ -5701,7 +5869,8 @@
 					"followerUserId",
 					"followeeUserId",
 					"status",
-					"createdAt"
+					"createdAt",
+					"user"
 				],
 				"title": "Follow"
 			},
@@ -5861,6 +6030,12 @@
 				"type": "object",
 				"required": ["name", "slug", "id"],
 				"title": "Occupation"
+			},
+			"OccupationCreate": {
+				"properties": { "name": { "type": "string", "title": "Name" } },
+				"type": "object",
+				"required": ["name"],
+				"title": "OccupationCreate"
 			},
 			"Post": {
 				"properties": {
@@ -6169,10 +6344,7 @@
 						"minLength": 3,
 						"title": "Username"
 					},
-					"fullName": {
-						"anyOf": [{ "type": "string" }, { "type": "null" }],
-						"title": "Fullname"
-					},
+					"fullName": { "type": "string", "title": "Fullname" },
 					"bio": {
 						"anyOf": [{ "type": "string" }, { "type": "null" }],
 						"title": "Bio"
@@ -6219,6 +6391,7 @@
 				"required": [
 					"email",
 					"username",
+					"fullName",
 					"id",
 					"createdAt",
 					"updatedAt",
@@ -6236,10 +6409,7 @@
 						"minLength": 3,
 						"title": "Username"
 					},
-					"fullName": {
-						"anyOf": [{ "type": "string" }, { "type": "null" }],
-						"title": "Fullname"
-					},
+					"fullName": { "type": "string", "title": "Fullname" },
 					"bio": {
 						"anyOf": [{ "type": "string" }, { "type": "null" }],
 						"title": "Bio"
@@ -6271,8 +6441,27 @@
 					"password": { "type": "string", "title": "Password" }
 				},
 				"type": "object",
-				"required": ["email", "username", "password"],
+				"required": ["email", "username", "fullName", "password"],
 				"title": "UserCreate"
+			},
+			"UserFollow": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"username": { "type": "string", "title": "Username" },
+					"fullName": { "type": "string", "title": "Fullname" },
+					"profileImageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Profileimageurl"
+					},
+					"isBusinessPage": { "type": "boolean", "title": "Isbusinesspage" },
+					"bio": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Bio"
+					}
+				},
+				"type": "object",
+				"required": ["id", "username", "fullName", "isBusinessPage"],
+				"title": "UserFollow"
 			},
 			"UserUpdate": {
 				"properties": {

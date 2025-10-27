@@ -2,9 +2,9 @@ import { api } from "@/lib/api-client";
 import { validateTokenRead } from "@/schemas/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import type { LoginRequest, UserCreate } from "@/types/auth";
-import type { User } from "@/types/user";
+import type { UserProfile } from "@/types/users";
 
-export async function login(body: LoginRequest): Promise<User> {
+export async function login(body: LoginRequest): Promise<UserProfile> {
 	const response = await api.post("/api/v1/auth/login", body);
 	const data = response.data;
 	const { user, accessToken, refreshToken } = validateTokenRead(data);
@@ -15,7 +15,7 @@ export async function login(body: LoginRequest): Promise<User> {
 	return user;
 }
 
-export async function register(body: UserCreate): Promise<User> {
+export async function register(body: UserCreate): Promise<UserProfile> {
 	const response = await api.post("/api/v1/auth/register", body);
 	const data = response.data;
 	const { user, accessToken, refreshToken } = validateTokenRead(data);
@@ -26,7 +26,7 @@ export async function register(body: UserCreate): Promise<User> {
 	return user;
 }
 
-export async function refresh(): Promise<User> {
+export async function refresh(): Promise<UserProfile> {
 	const { tokens } = useAuthStore.getState();
 	if (!tokens?.refreshToken) {
 		throw new Error("No refresh token available");

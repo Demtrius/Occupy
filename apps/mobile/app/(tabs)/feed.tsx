@@ -6,7 +6,7 @@ import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import { TabsHeader } from "@/components/ui/tabs-header";
-import { useFeedPosts } from "@/hooks/use-feed-posts";
+import { useFeedPosts } from "@/hooks";
 
 type FeedFilter = "all" | "followings" | "cliques";
 

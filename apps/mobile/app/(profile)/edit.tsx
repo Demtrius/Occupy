@@ -20,7 +20,7 @@ import {
 	useUpdateUserMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
-import { type UserUpdateForm, userUpdateSchema } from "@/schemas/user";
+import { type UserProfileUpdateForm, userProfileUpdateSchema } from "@/schemas/users";
 import { showToast } from "@/stores/toast-store";
 
 export default function EditProfilePage() {
@@ -31,8 +31,8 @@ export default function EditProfilePage() {
 	const createOccupationMutation = useCreateOccupationMutation();
 	const occupationsQuery = useListOccupationsQuery();
 
-	const form = useForm<UserUpdateForm>({
-		resolver: zodResolver(userUpdateSchema),
+	const form = useForm<UserProfileUpdateForm>({
+		resolver: zodResolver(userProfileUpdateSchema),
 		defaultValues: {
 			fullName: "",
 			bio: "",
@@ -59,7 +59,7 @@ export default function EditProfilePage() {
 		}
 	}, [userQuery.data, reset]);
 
-	const onSubmit = async (data: UserUpdateForm) => {
+	const onSubmit = async (data: UserProfileUpdateForm) => {
 		try {
 			// Update user profile (exclude isBusinessPage since it's not editable)
 			const { isBusinessPage: _, ...updateData } = data;

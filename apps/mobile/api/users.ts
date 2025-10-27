@@ -1,17 +1,16 @@
 import { api } from "@/lib/api-client";
-import { validateUser } from "@/schemas/user";
+import { validateUserProfile } from "@/schemas/users";
 import type { CursorPage } from "@/types/base";
-import type { User, UserSearchParams, UserUpdate } from "@/types/user";
-import type { Follow } from "@/types/users";
+import type { User, UserProfile, UserSearchParams, UserProfileUpdate, Follow } from "@/types/users";
 
-export async function getMe(): Promise<User> {
+export async function getMe(): Promise<UserProfile> {
 	const response = await api.get("/api/v1/users/me");
-	return validateUser(response.data);
+	return validateUserProfile(response.data);
 }
 
-export async function getUser(userId: string): Promise<User> {
+export async function getUser(userId: string): Promise<UserProfile> {
 	const response = await api.get(`/api/v1/users/${userId}`);
-	return validateUser(response.data);
+	return validateUserProfile(response.data);
 }
 
 export async function followUser(userId: string): Promise<Follow> {
@@ -36,9 +35,9 @@ export async function unblockUser(userId: string): Promise<{ status: string }> {
 	return response.data as { status: string };
 }
 
-export async function updateMe(body: UserUpdate): Promise<User> {
+export async function updateMe(body: UserProfileUpdate): Promise<UserProfile> {
 	const response = await api.patch("/api/v1/users/me", body);
-	return validateUser(response.data);
+	return validateUserProfile(response.data);
 }
 
 export async function searchUsers(

@@ -3,11 +3,10 @@ import { useTheme } from "@shopify/restyle";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import type { User } from "@/types/user";
-import type { UserFollow } from "@/types/users";
+import type { UserProfile, UserFollow } from "@/types/users";
 
 interface UserCardProps {
-	user: User | UserFollow;
+	user: UserProfile | UserFollow;
 }
 
 export function UserCard({ user }: UserCardProps) {

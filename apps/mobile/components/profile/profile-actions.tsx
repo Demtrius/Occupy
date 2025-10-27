@@ -4,10 +4,10 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { Box } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import type { User } from "@/types/user";
+import type { UserProfile } from "@/types/users";
 
 interface ProfileActionsProps {
-	user: User | null | undefined;
+	user: UserProfile | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 	onFollowPress?: () => void;

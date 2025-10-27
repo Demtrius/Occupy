@@ -17,6 +17,30 @@ export type User = {
 	followingCount: number;
 };
 
+export type UserProfile = {
+	id: string;
+	email: string;
+	username: string;
+	fullName: string;
+	bio?: string | null;
+	profileImageUrl?: string | null;
+	isBusinessPage: boolean;
+	isPrivateAccount: boolean;
+	isAdmin: boolean;
+	isActive: boolean;
+	createdAt: string;
+	updatedAt: string;
+	// Additional fields for profile display
+	occupations?: Array<{ id: string; name: string; slug: string }>;
+	followersCount?: number;
+	followingCount?: number;
+	postsCount?: number;
+	cliquesCount?: number;
+	isFollowing?: boolean;
+	isFollowRequested?: boolean;
+	isBlocked?: boolean;
+};
+
 export type UserFollow = {
 	id: string;
 	username: string;
@@ -31,6 +55,23 @@ export type UserUpdate = {
 	bio?: string | null;
 	profileImageUrl?: string | null;
 	isPrivateAccount?: boolean | null;
+};
+
+export type UserProfileUpdate = {
+	fullName?: string | null;
+	bio?: string | null;
+	profileImageUrl?: string | null;
+	isPrivateAccount?: boolean;
+	isBusinessPage?: boolean;
+	occupations?: string[];
+};
+
+export type UserSearchParams = {
+	q?: string;
+	occupationId?: string;
+	sort?: string;
+	cursor?: string;
+	limit?: number;
 };
 
 export type Follow = {

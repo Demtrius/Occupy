@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
-import type { User } from "@/types/user";
+import type { UserProfile } from "@/types/users";
 
 interface ProfileHeaderProps {
-	user: User | null | undefined;
+	user: UserProfile | null | undefined;
 	isLoading?: boolean;
 	isOwnProfile?: boolean;
 }

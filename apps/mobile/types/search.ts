@@ -1,14 +1,6 @@
 import type { Clique } from "./cliques";
 import type { Occupation } from "./occupations";
-import type { User } from "./users";
-
-export type UserSearchParams = {
-	q?: string;
-	occupationId?: string;
-	sort?: string;
-	cursor?: string;
-	limit?: number;
-};
+import type { User, UserSearchParams } from "./users";
 
 export type SearchResult = {
 	users: User[];

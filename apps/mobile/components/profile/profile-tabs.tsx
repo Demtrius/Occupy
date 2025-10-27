@@ -10,13 +10,13 @@ import {
 	useListUserPostsQuery,
 } from "@/hooks";
 import type { Booking, Clique, Post, Review } from "@/types";
-import type { User } from "@/types/user";
+import type { UserProfile } from "@/types/users";
 import { BookingCard } from "../cards/booking-card";
 import { CliqueCard } from "../cards/clique-card";
 import { PostCard } from "../cards/post-card";
 
 interface ProfileTabsProps {
-	user: User | null | undefined;
+	user: UserProfile | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
 }
