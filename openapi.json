@@ -2773,12 +2773,6 @@
 								},
 								"example": {
 									"uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
-									"fields": {
-										"key": "media/2024/04/02/b19fd.png",
-										"Content-Type": "image/png",
-										"policy": "eyJleHBpcmVzIjoiMjAyNC0wNC0wMlQxNTowMDowMFoi...",
-										"signature": "abc123"
-									},
 									"expiresIn": 900
 								}
 							}
@@ -5930,15 +5924,10 @@
 			"MediaPresignResponse": {
 				"properties": {
 					"uploadUrl": { "type": "string", "title": "Uploadurl" },
-					"fields": {
-						"additionalProperties": { "type": "string" },
-						"type": "object",
-						"title": "Fields"
-					},
 					"expiresIn": { "type": "integer", "title": "Expiresin" }
 				},
 				"type": "object",
-				"required": ["uploadUrl", "fields", "expiresIn"],
+				"required": ["uploadUrl", "expiresIn"],
 				"title": "MediaPresignResponse"
 			},
 			"MediaRegisterResponse": {

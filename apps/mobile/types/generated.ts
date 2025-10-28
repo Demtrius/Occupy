@@ -1821,10 +1821,6 @@ export interface components {
         readonly MediaPresignResponse: {
             /** Uploadurl */
             readonly uploadUrl: string;
-            /** Fields */
-            readonly fields: {
-                readonly [key: string]: string;
-            };
             /** Expiresin */
             readonly expiresIn: number;
         };
@@ -4791,12 +4787,6 @@ export interface operations {
                     /**
                      * @example {
                      *       "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
-                     *       "fields": {
-                     *         "key": "media/2024/04/02/b19fd.png",
-                     *         "Content-Type": "image/png",
-                     *         "policy": "eyJleHBpcmVzIjoiMjAyNC0wNC0wMlQxNTowMDowMFoi...",
-                     *         "signature": "abc123"
-                     *       },
                      *       "expiresIn": 900
                      *     }
                      */
