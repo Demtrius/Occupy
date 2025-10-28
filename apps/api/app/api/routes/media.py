@@ -6,7 +6,7 @@ from ...api.deps import get_db, require_active_user
 from ...api.openapi_helpers import error_responses, secured
 from ...core.errors import Validation
 from ...models.user import User
-from ...schemas.media import MediaCreate
+from ...schemas.media import MediaCreate, MediaPresignResponse, MediaRegisterResponse
 from ...services.media import generate_presigned_upload, register_media
 
 router = APIRouter(prefix="/api/v1/media", tags=["Media"])
@@ -17,25 +17,19 @@ router = APIRouter(prefix="/api/v1/media", tags=["Media"])
     operation_id="MediaUploadsPresign",
     summary="Generate presigned upload",
     description="Return a presigned URL and required form fields for direct uploads.",
-    response_model=dict,
+    response_model=MediaPresignResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
         201: {
             "description": "Presign generated",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
-                        "fields": {
-                            "key": "media/2024/04/02/b19fd.png",
-                            "Content-Type": "image/png",
-                            "policy": "eyJleHBpcmVzIjoiMjAyNC0wNC0wMlQxNTowMDowMFoi...",
-                            "signature": "abc123",
-                        },
-                        "expiresIn": 900,
-                    }
+        "content": {
+            "application/json": {
+                "example": {
+                    "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
+                    "expiresIn": 900,
                 }
-            },
+            }
+        },
         },
         **error_responses(400, 401, 422),
     },
@@ -71,7 +65,7 @@ async def presign_upload(
     operation_id="MediaRegister",
     summary="Register uploaded media",
     description="Persist uploaded media metadata after a successful presigned upload.",
-    response_model=dict[str, str],
+    response_model=MediaRegisterResponse,
     status_code=status.HTTP_201_CREATED,
     responses={
         201: {

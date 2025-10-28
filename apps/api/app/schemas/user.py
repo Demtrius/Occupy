@@ -71,3 +71,8 @@ class Follow(BaseSchema):
     status: FollowStatus
     created_at: datetime
     user: UserFollow
+
+
+class FollowingStatus(BaseSchema):
+    is_following: bool
+    is_follow_requested: bool

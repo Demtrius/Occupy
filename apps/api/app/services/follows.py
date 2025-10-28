@@ -1,7 +1,12 @@
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.pagination import apply_datetime_cursor, encode_datetime_cursor, slice_results, CursorEntity
+from ..core.pagination import (
+    apply_datetime_cursor,
+    encode_datetime_cursor,
+    slice_results,
+    CursorEntity,
+)
 from ..models.enums import FollowStatus
 from ..models.user import Follow, User
 from ..schemas.user import Follow as FollowSchema, UserFollow as UserFollowSchema
@@ -13,14 +18,16 @@ def _to_schema(follow: Follow) -> FollowSchema:
 
 
 def _user_to_schema(user: User) -> UserFollowSchema:
-    return UserFollowSchema.model_validate({
-        'id': user.id,
-        'username': user.username,
-        'full_name': user.full_name,
-        'profile_image_url': user.profile_image_url,
-        'is_business_page': user.is_business_page,
-        'bio': user.bio,
-    })
+    return UserFollowSchema.model_validate(
+        {
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "profile_image_url": user.profile_image_url,
+            "is_business_page": user.is_business_page,
+            "bio": user.bio,
+        }
+    )
 
 
 async def follow_user(
@@ -91,7 +98,7 @@ async def follow_user(
         "followee_user_id": follow.followee_user_id,
         "status": follow.status,
         "created_at": follow.created_at,
-                "user": _user_to_schema(followee),
+        "user": _user_to_schema(followee),
     }
     return FollowSchema.model_validate(follow_dict)
 
@@ -149,7 +156,7 @@ async def approve_follow(
         "followee_user_id": follow.followee_user_id,
         "status": follow.status,
         "created_at": follow.created_at,
-            "user": _user_to_schema(follower_user),
+        "user": _user_to_schema(follower_user),
     }
     return FollowSchema.model_validate(follow_dict)
 
@@ -223,7 +230,7 @@ async def block_user(
         "followee_user_id": block.followee_user_id,
         "status": block.status,
         "created_at": block.created_at,
-            "user": _user_to_schema(blocked_user),
+        "user": _user_to_schema(blocked_user),
     }
     return FollowSchema.model_validate(follow_dict)
 
@@ -258,7 +265,9 @@ async def get_followers(
     follows = follow_rows[:limit]
     next_cursor = None
     if len(follow_rows) > limit:
-        next_cursor = encode_datetime_cursor(follow_rows[limit - 1].created_at, follow_rows[limit - 1].id)
+        next_cursor = encode_datetime_cursor(
+            follow_rows[limit - 1].created_at, follow_rows[limit - 1].id
+        )
 
     if not follows:
         return [], next_cursor
@@ -303,7 +312,9 @@ async def get_following(
     follows = follow_rows[:limit]
     next_cursor = None
     if len(follow_rows) > limit:
-        next_cursor = encode_datetime_cursor(follow_rows[limit - 1].created_at, follow_rows[limit - 1].id)
+        next_cursor = encode_datetime_cursor(
+            follow_rows[limit - 1].created_at, follow_rows[limit - 1].id
+        )
 
     if not follows:
         return [], next_cursor
@@ -348,3 +359,19 @@ async def count_following(db: AsyncSession, user_id: str) -> int:
     )
     result = await db.scalar(stmt)
     return result or 0
+
+
+async def get_following_status(
+    db: AsyncSession, follower_id: str, followee_id: str
+) -> dict[str, bool]:
+    stmt = select(Follow).where(
+        Follow.follower_user_id == follower_id,
+        Follow.followee_user_id == followee_id,
+    )
+    follow = await db.scalar(stmt)
+    if not follow:
+        return {"is_following": False, "is_follow_requested": False}
+    return {
+        "is_following": follow.status == FollowStatus.ACCEPTED,
+        "is_follow_requested": follow.status == FollowStatus.PENDING,
+    }

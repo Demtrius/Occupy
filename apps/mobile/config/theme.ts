@@ -66,7 +66,7 @@ const baseTheme = {
 	textVariants: {
 		defaults: {
 			fontSize: 16,
-			color: "foreground",
+			color: "primary-foreground",
 		},
 		header: {
 			fontSize: 24,

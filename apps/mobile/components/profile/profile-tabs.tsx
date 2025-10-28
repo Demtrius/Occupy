@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { TabsHeader } from "@/components/ui/tabs-header";
 import {
+	useFollowStatusQuery,
 	useListCliqueReviewsQuery,
 	useListMyBookingsQuery,
 	useListUserCliquesQuery,
@@ -46,6 +47,8 @@ export function ProfileTabs({
 		activeTab === "reviews" && !isLoading,
 	); // Note: This should be for user's owned cliques
 
+	const { data } = useFollowStatusQuery(user?.id);
+
 	if (isLoading || !user) {
 		return (
 			<Box padding="l">
@@ -60,9 +63,9 @@ export function ProfileTabs({
 		);
 	}
 
-	//TODO: Implement following check
 	// Check if profile is private and not accessible
-	const isPrivateAndNotAccessible = user.isPrivateAccount && !isOwnProfile; //&& !user.isFollowing;
+	const isPrivateAndNotAccessible =
+		user.isPrivateAccount && !isOwnProfile && !data?.isFollowing;
 
 	const tabs: Array<{ key: TabType; label: string; show: boolean }> = [
 		{

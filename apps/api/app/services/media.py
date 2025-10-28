@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -73,9 +73,7 @@ def generate_presigned_upload(
     expires = timedelta(hours=1)
     upload_url = client.presigned_put_object(bucket, object_name, expires=expires)
     return {
-        "method": "PUT",
         "upload_url": upload_url,
-        "object_name": object_name,
         "expires_in": int(expires.total_seconds()),
     }
 
@@ -89,11 +87,16 @@ def _get_minio_client() -> tuple[Minio, str, str]:
         raise ValueError("MinIO configuration is incomplete")
 
     parsed = urlparse(endpoint)
-    secure = parsed.scheme == "https"
-    netloc = parsed.netloc or parsed.path
-    base_path = parsed.path.strip("/")
+    if parsed.scheme in ("http", "https"):
+        secure = parsed.scheme == "https"
+        netloc = parsed.netloc
+        base_path = parsed.path.strip("/")
+    else:
+        # No valid scheme, treat endpoint as host:port
+        secure = False
+        netloc = endpoint
+        base_path = ""
     base_prefix = f"{base_path}/" if base_path else ""
-
     client = Minio(
         netloc,
         access_key=access_key,

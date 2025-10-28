@@ -4,23 +4,25 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { Box } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
+import { useFollowMutation, useFollowStatusQuery } from "@/hooks";
+import { showToast } from "@/stores/toast-store";
 import type { User } from "@/types";
 
 interface ProfileActionsProps {
 	user: User | null | undefined;
 	isOwnProfile: boolean;
 	isLoading?: boolean;
-	onFollowPress?: () => void;
 }
 
 export function ProfileActions({
 	user,
 	isOwnProfile,
 	isLoading,
-	onFollowPress,
 }: ProfileActionsProps) {
 	const router = useRouter();
 	const theme = useTheme<Theme>();
+	const followMutation = useFollowMutation();
+	const { data } = useFollowStatusQuery(user?.id);
 
 	if (isLoading || !user) {
 		return (
@@ -51,15 +53,34 @@ export function ProfileActions({
 		);
 	}
 
-	//TODO: implement follow/unfollow logic
 	// Other user's profile: Follow/Unfollow button
-	const isFollowing = false; //user.isFollowing;
-	const isFollowRequested = false; //user.isFollowRequested;
+	const handleFollowPress = async () => {
+		if (!user?.id) return;
+		try {
+			await followMutation.mutateAsync({
+				params: { path: { userId: user.id } },
+			});
+			// Toggle state optimistically
+			showToast({
+				type: "success",
+				message: data?.isFollowing ? "Unfollowed" : "Followed",
+			});
+		} catch (error: any) {
+			showToast({
+				type: "error",
+				message: error.message || "Failed to update follow status",
+			});
+		}
+	};
 
 	return (
 		<Box paddingHorizontal="l" marginBottom="l">
-			<Button onPress={onFollowPress} disabled={isFollowRequested}>
-				{isFollowRequested ? "Requested" : isFollowing ? "Unfollow" : "Follow"}
+			<Button onPress={handleFollowPress} disabled={followMutation.isPending}>
+				{followMutation.isPending
+					? "Loading..."
+					: data?.isFollowing
+						? "Unfollow"
+						: "Follow"}
 			</Button>
 		</Box>
 	);

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { useFollowStatusQuery } from "@/hooks";
 import type { User } from "@/types";
 
 interface ProfileHeaderProps {
@@ -14,6 +15,8 @@ export function ProfileHeader({
 	isLoading,
 	isOwnProfile = false,
 }: ProfileHeaderProps) {
+	const { data } = useFollowStatusQuery(user?.id);
+
 	if (isLoading || !user) {
 		return (
 			<Box alignItems="center" paddingTop="l">
@@ -36,9 +39,9 @@ export function ProfileHeader({
 		);
 	}
 
-	//TODO: Implement following check
 	// Check if profile is private and not accessible
-	const isPrivateAndNotAccessible = user.isPrivateAccount && !isOwnProfile; //&& !user.isFollowing;
+	const isPrivateAndNotAccessible =
+		user.isPrivateAccount && !isOwnProfile && !data?.isFollowing;
 
 	return (
 		<Box alignItems="center" paddingTop="l" paddingHorizontal="l" rowGap="s">
@@ -107,31 +110,6 @@ export function ProfileHeader({
 					</Text>
 				</Box>
 			)}
-
-			{/* TODO: Implement Occupations */}
-			{/* Occupations - only show if not private or accessible */}
-			{/*{!isPrivateAndNotAccessible &&
-				user.occupations &&
-				user.occupations.length > 0 && (
-					<Box
-						flexDirection="row"
-						flexWrap="wrap"
-						justifyContent="center"
-						gap="s"
-					>
-						{user.occupations.slice(0, 3).map((occupation) => (
-							<Box
-								key={occupation.id}
-								backgroundColor="muted"
-								paddingHorizontal="s"
-								paddingVertical="xs"
-								borderRadius="s"
-							>
-								<Text variant="caption">{occupation.name}</Text>
-							</Box>
-						))}
-					</Box>
-				)}*/}
 		</Box>
 	);
 }

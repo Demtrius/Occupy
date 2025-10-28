@@ -9,9 +9,7 @@ export function Button({
 }: React.ComponentProps<typeof RestyleButton> & React.PropsWithChildren) {
 	return (
 		<RestyleButton disabled={disabled} variant={variant} {...rest}>
-			<Text variant="body" fontWeight="500">
-				{children}
-			</Text>
+			<Text fontWeight="500">{children}</Text>
 		</RestyleButton>
 	);
 }

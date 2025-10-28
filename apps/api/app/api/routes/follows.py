@@ -17,12 +17,14 @@ from ...models.user import User
 from ...schemas import CursorPageFollows
 from ...schemas import Follow as FollowSchema
 from ...schemas.base import BaseSchema
+from ...schemas.user import FollowingStatus
 from ...services.follows import (
     approve_follow,
     block_user,
     follow_user,
     get_followers,
     get_following,
+    get_following_status,
     reject_follow,
     unblock_user,
     unfollow_user,
@@ -166,7 +168,7 @@ async def remove_follower(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_followers(
-    userId: Annotated[UUID, Path(alias="userId")],
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     cursor: Optional[str] = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -181,7 +183,7 @@ async def list_followers(
     db: AsyncSession = Depends(get_db),
 ):
     limit = min(max(limit, 1), 100)
-    followers, next_cursor = await get_followers(db, str(userId), cursor, limit)
+    followers, next_cursor = await get_followers(db, str(user_id), cursor, limit)
     return CursorPageFollows(items=followers, next_cursor=next_cursor)
 
 
@@ -215,6 +217,26 @@ async def list_following(
     limit = min(max(limit, 1), 100)
     following, next_cursor = await get_following(db, str(userId), cursor, limit)
     return CursorPageFollows(items=following, next_cursor=next_cursor)
+
+
+@router.get(
+    "/status",
+    operation_id="UsersFollowingStatus",
+    summary="Get follow status",
+    description="Check if the current user is following the specified user and if a follow request is pending.",
+    response_model=FollowingStatus,
+    responses={
+        200: {"description": "Follow status"},
+        **error_responses(401, 404),
+    },
+    openapi_extra=secured(),
+)
+async def get_status(
+    user_id: Annotated[UUID, Path(alias="userId")],
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_following_status(db, str(current_user.id), str(user_id))
 
 
 @router.post(

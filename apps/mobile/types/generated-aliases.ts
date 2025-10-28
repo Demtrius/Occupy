@@ -13,6 +13,7 @@ export type UserUpdate = components["schemas"]["UserUpdate"];
 // Follow types
 export type Follow = components["schemas"]["Follow"];
 export type FollowStatus = components["schemas"]["FollowStatus"];
+export type FollowingStatus = components["schemas"]["FollowingStatus"];
 
 // Clique types
 export type Clique = components["schemas"]["Clique"];

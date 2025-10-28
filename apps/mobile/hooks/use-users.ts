@@ -33,8 +33,21 @@ export function useFollowMutation() {
 	});
 }
 
-// Note: Unfollow is not implemented in the OpenAPI spec
-// export function useUnfollowMutation() { ... }
+export function useUnfollowMutation() {
+	const queryClient = useQueryClient();
+	return $api.useMutation(
+		"delete",
+		"/api/v1/users/{userId}/follow/followers/{followerId}",
+		{
+			onSuccess: (data, variables) => {
+				const userId = variables.params.path.userId;
+				// Invalidate user queries to refresh follow status
+				queryClient.invalidateQueries({ queryKey: ["users", userId] });
+				queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+			},
+		},
+	);
+}
 export function useBlockMutation() {
 	const queryClient = useQueryClient();
 	return $api.useMutation("post", "/api/v1/users/{userId}/follow/block", {
@@ -150,5 +163,16 @@ export function useListFollowingQuery(
 			query: { cursor, limit },
 		},
 		enabled: !!tokens?.accessToken && !!userId,
+	});
+}
+
+export function useFollowStatusQuery(userId: string | undefined) {
+	const { tokens } = useAuthStore();
+	return $api.useQuery("get", "/api/v1/users/{userId}/follow/status", {
+		params: {
+			path: { userId: userId! },
+		},
+		enabled: !!tokens?.accessToken && !!userId,
+		retry: false,
 	});
 }

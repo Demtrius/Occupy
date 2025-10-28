@@ -1,9 +1,10 @@
 import { arktypeResolver } from "@hookform/resolvers/arktype";
 import { type } from "arktype";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ScrollView } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorScreen } from "@/components/ui/error-screen";
@@ -18,6 +19,8 @@ import {
 	useCreateOccupationMutation,
 	useListOccupationsQuery,
 	useMeQuery,
+	usePresignUploadMutation,
+	useRegisterUploadedMutation,
 	useUpdateUserMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
@@ -25,12 +28,12 @@ import { showToast } from "@/stores/toast-store";
 import type { Occupation } from "@/types";
 
 const schema = type({
-	fullName: "string | null | undefined",
-	bio: "string | null | undefined",
-	profileImageUrl: "string | null | undefined",
-	isPrivateAccount: "boolean | undefined",
-	isBusinessPage: "boolean | undefined",
-	occupations: "string[] | undefined",
+	fullName: "string | null",
+	bio: "string | null",
+	profileImageUrl: "string | null",
+	isPrivateAccount: "boolean",
+	isBusinessPage: "boolean",
+	occupations: "string[]",
 });
 
 type UserProfileUpdateForm = typeof schema.infer;
@@ -42,6 +45,9 @@ export default function EditProfilePage() {
 	const updateOccupationsMutation = useUpdateUserOccupationsMutation();
 	const createOccupationMutation = useCreateOccupationMutation();
 	const occupationsQuery = useListOccupationsQuery();
+	const presignMutation = usePresignUploadMutation();
+	const registerMutation = useRegisterUploadedMutation();
+	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
 	const form = useForm<UserProfileUpdateForm>({
 		resolver: arktypeResolver(schema),
@@ -58,14 +64,88 @@ export default function EditProfilePage() {
 	const { control, handleSubmit, reset, watch, setValue, getValues } = form;
 	const isBusinessPage = watch("isBusinessPage");
 
+	const pickImage = async () => {
+		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (status !== "granted") {
+			showToast({
+				type: "error",
+				message: "Permission to access media library is required",
+			});
+			return;
+		}
+
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 0.8,
+		});
+
+		if (!result.canceled && result.assets[0]) {
+			setSelectedImage(result.assets[0].uri);
+		}
+	};
+
+	const uploadImage = async (uri: string): Promise<string | null> => {
+		try {
+			const response = await fetch(uri);
+			const blob = await response.blob();
+			const fileType = blob.type || "image/jpeg";
+
+			const { uploadUrl } = await presignMutation.mutateAsync({
+				params: {
+					query: {
+						mime: fileType,
+						sizeBytes: blob.size,
+						purpose: "profile",
+					},
+				},
+			});
+
+			await fetch(uploadUrl, {
+				method: "PUT",
+				body: blob,
+				headers: {
+					"Content-Type": fileType,
+				},
+			});
+
+			const finalUrl = uploadUrl.split("?")[0];
+
+			if (!finalUrl) {
+				showToast({
+					type: "error",
+					message: "Failed to upload image",
+				});
+				return null;
+			}
+
+			await registerMutation.mutateAsync({
+				body: {
+					url: finalUrl,
+					mime: fileType,
+					sizeBytes: blob.size,
+				},
+			});
+
+			return finalUrl;
+		} catch (error: any) {
+			showToast({
+				type: "error",
+				message: error.message || "Failed to upload image",
+			});
+			return null;
+		}
+	};
+
 	useEffect(() => {
 		if (userQuery.data) {
 			reset({
-				fullName: userQuery.data.fullName || "",
-				bio: userQuery.data.bio || "",
-				isPrivateAccount: userQuery.data.isPrivateAccount || false,
-				profileImageUrl: userQuery.data.profileImageUrl || "",
-				isBusinessPage: userQuery.data.isBusinessPage || false,
+				fullName: userQuery.data.fullName,
+				bio: userQuery.data.bio,
+				isPrivateAccount: userQuery.data.isPrivateAccount,
+				profileImageUrl: userQuery.data.profileImageUrl,
+				isBusinessPage: userQuery.data.isBusinessPage,
 				occupations: [],
 			});
 		}
@@ -73,8 +153,20 @@ export default function EditProfilePage() {
 
 	const onSubmit = async (data: UserProfileUpdateForm) => {
 		try {
+			let profileImageUrl = data.profileImageUrl;
+
+			// Upload new image if selected
+			if (selectedImage) {
+				const uploadedUrl = await uploadImage(selectedImage);
+				if (uploadedUrl) {
+					profileImageUrl = uploadedUrl;
+				} else {
+					return; // Don't proceed if upload failed
+				}
+			}
+
 			// Update user profile (exclude isBusinessPage since it's not editable)
-			const { isBusinessPage: _, ...updateData } = data;
+			const { isBusinessPage: _, ...updateData } = { ...data, profileImageUrl };
 			await updateMutation.mutateAsync({ body: updateData });
 
 			// Update occupations if user is a business page
@@ -112,15 +204,22 @@ export default function EditProfilePage() {
 				contentContainerStyle={{ padding: 16 }}
 			>
 				<Box alignItems="center" marginBottom="l">
-					<Avatar
-						size={100}
-						source={
-							userQuery.data?.profileImageUrl
-								? { uri: userQuery.data.profileImageUrl }
-								: undefined
-						}
-						fallback={userQuery.data?.username?.[0]?.toUpperCase()}
-					/>
+					<Pressable onPress={pickImage}>
+						<Avatar
+							size={100}
+							source={
+								selectedImage
+									? { uri: selectedImage }
+									: userQuery.data?.profileImageUrl
+										? { uri: userQuery.data.profileImageUrl }
+										: undefined
+							}
+							fallback={userQuery.data?.username?.[0]?.toUpperCase()}
+						/>
+					</Pressable>
+					<Text variant="caption" color="muted-foreground" marginTop="s">
+						Tap to change profile picture
+					</Text>
 				</Box>
 
 				<FormField
