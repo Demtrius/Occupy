@@ -2081,7 +2081,7 @@
 									"announcement": {
 										"summary": "Publish announcement",
 										"value": {
-											"content": "\u2728 Spring product launch this Friday at 5pm!",
+											"content": "✨ Spring product launch this Friday at 5pm!",
 											"status": "posted"
 										}
 									}
@@ -2100,7 +2100,7 @@
 									"id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
 									"cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
 									"authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-									"content": "\u2728 Spring product launch this Friday at 5pm!",
+									"content": "✨ Spring product launch this Friday at 5pm!",
 									"status": "posted",
 									"likesCount": 0,
 									"commentsCount": 0,
@@ -6078,6 +6078,18 @@
 						"format": "uuid",
 						"title": "Authoruserid"
 					},
+					"author": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/PostAuthorSummary" },
+							{ "type": "null" }
+						]
+					},
+					"clique": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/PostCliqueSummary" },
+							{ "type": "null" }
+						]
+					},
 					"deletedAt": {
 						"anyOf": [
 							{ "type": "string", "format": "date-time" },
@@ -6121,6 +6133,33 @@
 					"updatedAt"
 				],
 				"title": "Post"
+			},
+			"PostAuthorSummary": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"username": { "type": "string", "title": "Username" },
+					"fullName": { "type": "string", "title": "Fullname" },
+					"profileImageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Profileimageurl"
+					}
+				},
+				"type": "object",
+				"required": ["id", "username", "fullName"],
+				"title": "PostAuthorSummary"
+			},
+			"PostCliqueSummary": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"imageUrl": {
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
+						"title": "Imageurl"
+					}
+				},
+				"type": "object",
+				"required": ["id", "name"],
+				"title": "PostCliqueSummary"
 			},
 			"PostCreate": {
 				"properties": {

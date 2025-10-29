@@ -12,9 +12,14 @@ from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.clique import Clique, CliqueMember
 from ..models.enums import FollowStatus, MembershipStatus, PostStatus, Privacy
 from ..models.post import Comment, Post, PostLike
-from ..models.user import Follow
-from ..schemas.post import Comment as CommentSchema
-from ..schemas.post import CommentCreate, Post as PostSchema
+from ..models.user import Follow, User
+from ..schemas.post import (
+    Comment as CommentSchema,
+    CommentCreate,
+    Post as PostSchema,
+    PostAuthorSummary,
+    PostCliqueSummary,
+)
 
 
 async def create_post(
@@ -61,7 +66,7 @@ async def get_clique_posts(
     result = await db.execute(stmt)
     rows = result.scalars().unique().all()
     posts, next_cursor = slice_results(rows, limit)
-    hydrated = [await _hydrate_post(db, post, current_user_id) for post in posts]
+    hydrated = await _hydrate_posts(db, posts, current_user_id)
     return hydrated, next_cursor
 
 
@@ -100,7 +105,7 @@ async def get_user_posts(
     result = await db.execute(stmt)
     rows = result.scalars().unique().all()
     posts, next_cursor = slice_results(rows, limit)
-    hydrated = [await _hydrate_post(db, post, current_user_id) for post in posts]
+    hydrated = await _hydrate_posts(db, posts, current_user_id)
     return hydrated, next_cursor
 
 
@@ -145,7 +150,7 @@ async def get_feed_posts(
     result = await db.execute(stmt)
     rows = result.scalars().unique().all()
     posts, next_cursor = slice_results(rows, limit)
-    hydrated = [await _hydrate_post(db, post, current_user_id) for post in posts]
+    hydrated = await _hydrate_posts(db, posts, current_user_id)
     return hydrated, next_cursor
 
 
@@ -276,13 +281,67 @@ async def _hydrate_post(
     post: Post,
     current_user_id: str,
 ) -> PostSchema:
-    likes_count, comments_count = await _aggregate_counts(db, [post.id])
-    liked_ids = await _liked_post_ids(db, [post.id], current_user_id)
-    schema = PostSchema.model_validate(post)
-    schema.likes_count = likes_count.get(post.id, 0)
-    schema.comments_count = comments_count.get(post.id, 0)
-    schema.liked_by_me = post.id in liked_ids
-    return schema
+    hydrated = await _hydrate_posts(db, [post], current_user_id)
+    return hydrated[0]
+
+
+async def _hydrate_posts(
+    db: AsyncSession,
+    posts: Iterable[Post],
+    current_user_id: str,
+) -> list[PostSchema]:
+    post_list = list(posts)
+    if not post_list:
+        return []
+
+    post_ids = [post.id for post in post_list]
+    author_ids = {post.author_user_id for post in post_list}
+    clique_ids = {post.clique_id for post in post_list}
+
+    likes_count, comments_count = await _aggregate_counts(db, post_ids)
+    liked_ids = await _liked_post_ids(db, post_ids, current_user_id)
+    authors = await _fetch_users(db, author_ids)
+    cliques = await _fetch_cliques(db, clique_ids)
+
+    hydrated: list[PostSchema] = []
+    for post in post_list:
+        schema = PostSchema.model_validate(post)
+        schema.likes_count = likes_count.get(post.id, 0)
+        schema.comments_count = comments_count.get(post.id, 0)
+        schema.liked_by_me = post.id in liked_ids
+
+        author = authors.get(post.author_user_id)
+        schema.author = PostAuthorSummary.model_validate(author) if author else None
+
+        clique = cliques.get(post.clique_id)
+        schema.clique = PostCliqueSummary.model_validate(clique) if clique else None
+
+        hydrated.append(schema)
+    return hydrated
+
+
+async def _fetch_users(
+    db: AsyncSession,
+    user_ids: Iterable[UUID],
+) -> dict[UUID, User]:
+    ids = list(user_ids)
+    if not ids:
+        return {}
+    stmt = select(User).where(User.id.in_(ids))
+    result = await db.execute(stmt)
+    return {user.id: user for user in result.scalars().all()}
+
+
+async def _fetch_cliques(
+    db: AsyncSession,
+    clique_ids: Iterable[UUID],
+) -> dict[UUID, Clique]:
+    ids = list(clique_ids)
+    if not ids:
+        return {}
+    stmt = select(Clique).where(Clique.id.in_(ids))
+    result = await db.execute(stmt)
+    return {clique.id: clique for clique in result.scalars().all()}
 
 
 async def _aggregate_counts(

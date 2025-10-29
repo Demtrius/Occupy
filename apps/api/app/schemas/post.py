@@ -7,6 +7,19 @@ from app.schemas.base import BaseSchema
 from ..models.enums import ContentFormat, PostStatus
 
 
+class PostAuthorSummary(BaseSchema):
+    id: UUID
+    username: str
+    full_name: str
+    profile_image_url: Optional[str] = None
+
+
+class PostCliqueSummary(BaseSchema):
+    id: UUID
+    name: str
+    image_url: Optional[str] = None
+
+
 class PostBase(BaseSchema):
     content_format: ContentFormat = ContentFormat.MARKDOWN
     content: str
@@ -26,6 +39,8 @@ class Post(PostBase):
     id: UUID
     clique_id: UUID
     author_user_id: UUID
+    author: Optional[PostAuthorSummary] = None
+    clique: Optional[PostCliqueSummary] = None
     deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
