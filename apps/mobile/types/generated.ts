@@ -1819,8 +1819,16 @@ export interface components {
         };
         /** MediaPresignResponse */
         readonly MediaPresignResponse: {
+            /**
+             * Method
+             * @default PUT
+             * @constant
+             */
+            readonly method: "PUT";
             /** Uploadurl */
             readonly uploadUrl: string;
+            /** Publicurl */
+            readonly publicUrl: string;
             /** Expiresin */
             readonly expiresIn: number;
         };
@@ -4786,7 +4794,9 @@ export interface operations {
                 content: {
                     /**
                      * @example {
+                     *       "method": "PUT",
                      *       "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
+                     *       "publicUrl": "https://cdn.example.com/bucket/uploads",
                      *       "expiresIn": 900
                      *     }
                      */

@@ -2081,7 +2081,7 @@
 									"announcement": {
 										"summary": "Publish announcement",
 										"value": {
-											"content": "✨ Spring product launch this Friday at 5pm!",
+											"content": "\u2728 Spring product launch this Friday at 5pm!",
 											"status": "posted"
 										}
 									}
@@ -2100,7 +2100,7 @@
 									"id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
 									"cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
 									"authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-									"content": "✨ Spring product launch this Friday at 5pm!",
+									"content": "\u2728 Spring product launch this Friday at 5pm!",
 									"status": "posted",
 									"likesCount": 0,
 									"commentsCount": 0,
@@ -2772,7 +2772,9 @@
 									"$ref": "#/components/schemas/MediaPresignResponse"
 								},
 								"example": {
+									"method": "PUT",
 									"uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
+									"publicUrl": "https://cdn.example.com/bucket/uploads",
 									"expiresIn": 900
 								}
 							}
@@ -5923,11 +5925,18 @@
 			},
 			"MediaPresignResponse": {
 				"properties": {
+					"method": {
+						"type": "string",
+						"const": "PUT",
+						"title": "Method",
+						"default": "PUT"
+					},
 					"uploadUrl": { "type": "string", "title": "Uploadurl" },
+					"publicUrl": { "type": "string", "title": "Publicurl" },
 					"expiresIn": { "type": "integer", "title": "Expiresin" }
 				},
 				"type": "object",
-				"required": ["uploadUrl", "expiresIn"],
+				"required": ["uploadUrl", "publicUrl", "expiresIn"],
 				"title": "MediaPresignResponse"
 			},
 			"MediaRegisterResponse": {

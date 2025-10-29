@@ -30,8 +30,7 @@ export default function FollowingPage() {
 		);
 	}
 
-	const followingUsers =
-		followingQuery.data?.items.map((follow) => follow.user) || [];
+	const followingUsers = followingQuery.items.map((follow) => follow.user);
 
 	return (
 		<Screen noTopPadding>

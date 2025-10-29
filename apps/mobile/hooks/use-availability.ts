@@ -1,41 +1,71 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { $api } from "@/lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { RequestOptions } from "openapi-fetch";
+import { $api, ensureData } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
+import type { operations } from "@/types/generated";
+
+type CreateAvailabilityVariables =
+	RequestOptions<operations["AvailabilityCreate"]>;
+type UpdateAvailabilityVariables =
+	RequestOptions<operations["AvailabilityUpdateById"]>;
+type DeleteAvailabilityVariables =
+	RequestOptions<operations["AvailabilityDeleteById"]>;
+
+const availabilityKeys = {
+	all: ["availability"] as const,
+	clique: (cliqueId: string) => ["availability", cliqueId] as const,
+};
 
 export function useCreateAvailabilityMutation() {
 	const queryClient = useQueryClient();
-	return $api.useMutation("post", "/api/v1/availability", {
-		onSuccess: (data, variables) => {
+	return useMutation({
+		mutationFn: async (variables: CreateAvailabilityVariables) =>
+			ensureData(await $api.POST("/api/v1/availability", variables)),
+		onSuccess: () => {
 			// Invalidate availability queries
-			queryClient.invalidateQueries({ queryKey: ["availability"] });
+			queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
 		},
 	});
 }
 
 export function useListCliqueAvailabilityQuery(cliqueId: string | undefined) {
 	const { tokens } = useAuthStore();
-	return $api.useQuery("get", "/api/v1/availability/{cliqueId}", {
-		params: {
-			path: { cliqueId: cliqueId! },
-		},
-		enabled: !!tokens?.accessToken && !!cliqueId,
+	return useQuery({
+		queryKey: availabilityKeys.clique(cliqueId ?? ""),
+		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId),
+		queryFn: async () =>
+			ensureData(
+				await $api.GET("/api/v1/availability/{cliqueId}", {
+					params: {
+						path: { cliqueId: cliqueId! },
+					},
+				}),
+			),
 	});
 }
 
 export function useUpdateAvailabilityMutation() {
 	const queryClient = useQueryClient();
-	return $api.useMutation("put", "/api/v1/availability/{availabilityId}", {
+	return useMutation({
+		mutationFn: async (variables: UpdateAvailabilityVariables) =>
+			ensureData(
+				await $api.PUT("/api/v1/availability/{availabilityId}", variables),
+			),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["availability"] });
+			queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
 		},
 	});
 }
 
 export function useDeleteAvailabilityMutation() {
 	const queryClient = useQueryClient();
-	return $api.useMutation("delete", "/api/v1/availability/{availabilityId}", {
+	return useMutation({
+		mutationFn: async (variables: DeleteAvailabilityVariables) =>
+			ensureData(
+				await $api.DELETE("/api/v1/availability/{availabilityId}", variables),
+			),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["availability"] });
+			queryClient.invalidateQueries({ queryKey: availabilityKeys.all });
 		},
 	});
 }

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -68,17 +68,22 @@ def generate_presigned_upload(
     _validate_media(mime, size_bytes)
 
     sanitized_purpose = _sanitize_purpose(purpose)
-    client, bucket, base_path = _get_minio_client()
+    _, presign_client, bucket, base_path = _get_minio_client()
     object_name = f"{base_path}{sanitized_purpose}/{uuid4().hex}"
     expires = timedelta(hours=1)
-    upload_url = client.presigned_put_object(bucket, object_name, expires=expires)
+    upload_url = presign_client.presigned_put_object(
+        bucket, object_name, expires=expires
+    )
+    final_url = upload_url.split("?", 1)[0]
     return {
+        "method": "PUT",
         "upload_url": upload_url,
+        "public_url": final_url,
         "expires_in": int(expires.total_seconds()),
     }
 
 
-def _get_minio_client() -> tuple[Minio, str, str]:
+def _get_minio_client() -> tuple[Minio, Minio, str, str]:
     endpoint = os.environ.get("MINIO_ENDPOINT")
     access_key = os.environ.get("MINIO_ACCESS_KEY")
     secret_key = os.environ.get("MINIO_SECRET_KEY")
@@ -86,13 +91,36 @@ def _get_minio_client() -> tuple[Minio, str, str]:
     if not all([endpoint, access_key, secret_key, bucket]):
         raise ValueError("MinIO configuration is incomplete")
 
+    client, base_prefix = _build_minio_client(endpoint, access_key, secret_key)
+
+    if not client.bucket_exists(bucket):
+        client.make_bucket(bucket)
+
+    public_endpoint = os.environ.get("MINIO_PUBLIC_ENDPOINT")
+    if public_endpoint:
+        presign_client, _ = _build_minio_client(public_endpoint, access_key, secret_key)
+        # Avoid region lookup against public endpoint which might be unreachable
+        try:
+            internal_region = client._get_region(bucket)  # type: ignore[attr-defined]
+            if hasattr(presign_client, "_region_map"):
+                presign_client._region_map[bucket] = internal_region  # type: ignore[attr-defined]
+        except Exception:
+            pass
+    else:
+        presign_client = client
+
+    return client, presign_client, bucket, base_prefix
+
+
+def _build_minio_client(
+    endpoint: str, access_key: str, secret_key: str
+) -> tuple[Minio, str]:
     parsed = urlparse(endpoint)
     if parsed.scheme in ("http", "https"):
         secure = parsed.scheme == "https"
         netloc = parsed.netloc
         base_path = parsed.path.strip("/")
     else:
-        # No valid scheme, treat endpoint as host:port
         secure = False
         netloc = endpoint
         base_path = ""
@@ -103,9 +131,7 @@ def _get_minio_client() -> tuple[Minio, str, str]:
         secret_key=secret_key,
         secure=secure,
     )
-    if not client.bucket_exists(bucket):
-        client.make_bucket(bucket)
-    return client, bucket, base_prefix
+    return client, base_prefix
 
 
 def _sanitize_purpose(purpose: str) -> str:

@@ -12,12 +12,11 @@ type FeedFilter = "all" | "followings" | "cliques";
 
 export default function Page() {
 	const [filter, setFilter] = useState<FeedFilter>("all");
-	const { data, refetch, isLoading, isRefetching } = useFeedPosts({ filter });
-
-	const posts = data?.items ?? [];
+	const feedQuery = useFeedPosts({ filter });
+	const posts = feedQuery.items;
 
 	const onRefresh = () => {
-		refetch();
+		feedQuery.refetch();
 	};
 
 	const tabs = [
@@ -26,7 +25,7 @@ export default function Page() {
 		{ key: "cliques" as const, label: "Cliques" },
 	];
 
-	if (isLoading) {
+	if (feedQuery.isLoading) {
 		return <LoadingScreen />;
 	}
 
@@ -36,7 +35,10 @@ export default function Page() {
 			<ScrollView
 				showsVerticalScrollIndicator={false}
 				refreshControl={
-					<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
+					<RefreshControl
+						refreshing={feedQuery.isRefetching}
+						onRefresh={onRefresh}
+					/>
 				}
 			>
 				<Box padding="s">

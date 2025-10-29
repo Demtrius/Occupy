@@ -92,25 +92,41 @@ export default function EditProfilePage() {
 			const blob = await response.blob();
 			const fileType = blob.type || "image/jpeg";
 
-			const { uploadUrl } = await presignMutation.mutateAsync({
-				params: {
-					query: {
-						mime: fileType,
-						sizeBytes: blob.size,
-						purpose: "profile",
+			const presignData = await presignMutation.mutateAsync({
+					params: {
+						query: {
+							mime: fileType,
+							sizeBytes: blob.size,
+							purpose: "profile",
+						},
 					},
-				},
-			});
+				});
+
+			const uploadUrl =
+				presignData.uploadUrl ??
+				(presignData as { upload_url?: string }).upload_url;
+			const publicUrl =
+				presignData.publicUrl ??
+				(presignData as { public_url?: string }).public_url;
+			const httpMethod = presignData.method ?? "PUT";
+
+			if (!uploadUrl) {
+				showToast({
+					type: "error",
+					message: "Failed to upload image",
+				});
+				return null;
+			}
 
 			await fetch(uploadUrl, {
-				method: "PUT",
+				method: httpMethod,
 				body: blob,
 				headers: {
 					"Content-Type": fileType,
 				},
 			});
 
-			const finalUrl = uploadUrl.split("?")[0];
+			const finalUrl = publicUrl ?? uploadUrl.split("?")[0];
 
 			if (!finalUrl) {
 				showToast({

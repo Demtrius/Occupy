@@ -18,7 +18,8 @@ async def test_presign_and_register_media(client, db_session, make_token):
     assert presign_response.status_code == 201
     upload = presign_response.json()
     assert upload["method"] == "PUT"
-    assert upload["upload_url"].startswith("http")
+    assert upload["uploadUrl"].startswith("http")
+    assert upload["publicUrl"].startswith("http")
 
     register_response = await client.post(
         "/api/v1/media",

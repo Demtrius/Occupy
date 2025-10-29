@@ -242,6 +242,7 @@ def _configure_environment(
     os.environ["MINIO_SECRET_KEY"] = minio_settings.secret_key
     os.environ["MINIO_BUCKET"] = minio_settings.bucket
     os.environ["MINIO_USE_SSL"] = "false"
+    os.environ["MINIO_PUBLIC_ENDPOINT"] = minio_settings.endpoint
     os.environ.setdefault("JWT_SECRET", "test-secret")
 
 

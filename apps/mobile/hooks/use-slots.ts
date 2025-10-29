@@ -1,4 +1,5 @@
-import { $api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { $api, ensureData } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useListAvailableSlotsQuery(
@@ -8,11 +9,22 @@ export function useListAvailableSlotsQuery(
 	to: string,
 ) {
 	const { tokens } = useAuthStore();
-	return $api.useQuery("get", "/api/v1/cliques/{cliqueId}/slots", {
-		params: {
-			path: { cliqueId: cliqueId! },
-			query: { serviceId, from, to },
-		},
-		enabled: !!tokens?.accessToken && !!cliqueId,
+	return useQuery({
+		queryKey: ["slots", cliqueId ?? "", serviceId, from, to],
+		enabled:
+			Boolean(tokens?.accessToken) &&
+			Boolean(cliqueId) &&
+			Boolean(serviceId) &&
+			Boolean(from) &&
+			Boolean(to),
+		queryFn: async () =>
+			ensureData(
+				await $api.GET("/api/v1/cliques/{cliqueId}/slots", {
+					params: {
+						path: { cliqueId: cliqueId! },
+						query: { serviceId, from, to },
+					},
+				}),
+			),
 	});
 }

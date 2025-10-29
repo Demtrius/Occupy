@@ -1,5 +1,4 @@
 import createFetchClient from "openapi-fetch";
-import createClient from "openapi-react-query";
 import { API_BASE_URL } from "@/config/env";
 import { useAuthStore } from "@/stores/auth-store";
 import type { paths } from "@/types/generated";
@@ -13,7 +12,7 @@ async function refreshToken(
 	if (!oldRefresh) return null;
 
 	const fetchClient = createFetchClient<paths>({ baseUrl: API_BASE_URL });
-	const { data, error: _ } = await fetchClient.POST("/api/v1/auth/refresh", {
+	const { data } = await fetchClient.POST("/api/v1/auth/refresh", {
 		body: { refreshToken: oldRefresh },
 	});
 
@@ -87,5 +86,20 @@ fetchClient.use({
 	},
 });
 
-// Create the react-query client
-export const $api = createClient(fetchClient);
+export const $api = fetchClient;
+
+type FetchResult<TData> = {
+	data?: TData;
+	error?: unknown;
+};
+
+export function ensureData<TData>(result: FetchResult<TData>): TData {
+	if (result.error) {
+		// Surface API error payloads that slipped through middleware.
+		throw result.error;
+	}
+	if (typeof result.data === "undefined") {
+		throw new Error("Received empty response payload");
+	}
+	return result.data;
+}

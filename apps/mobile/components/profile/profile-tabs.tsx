@@ -134,7 +134,7 @@ export function ProfileTabs({
 					);
 				}
 
-				const posts = postsQuery.data?.items || [];
+				const posts = postsQuery.items;
 				if (posts.length === 0) {
 					return <EmptyState message="No posts yet" />;
 				}
@@ -178,7 +178,7 @@ export function ProfileTabs({
 					);
 				}
 
-				const cliques = cliquesQuery.data?.items || [];
+				const cliques = cliquesQuery.items;
 				if (cliques.length === 0) {
 					return <EmptyState message="No cliques yet" />;
 				}
@@ -222,7 +222,7 @@ export function ProfileTabs({
 					);
 				}
 
-				const reviews = reviewsQuery.data?.items || [];
+				const reviews = reviewsQuery.items;
 				if (reviews.length === 0) {
 					return <EmptyState message="No reviews yet" />;
 				}
@@ -292,7 +292,7 @@ export function ProfileTabs({
 					);
 				}
 
-				const bookings = bookingsQuery.data?.items || [];
+				const bookings = bookingsQuery.items;
 				if (bookings.length === 0) {
 					return <EmptyState message="No bookings yet" />;
 				}

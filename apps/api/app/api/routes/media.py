@@ -22,14 +22,16 @@ router = APIRouter(prefix="/api/v1/media", tags=["Media"])
     responses={
         201: {
             "description": "Presign generated",
-        "content": {
-            "application/json": {
-                "example": {
-                    "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
-                    "expiresIn": 900,
+            "content": {
+                "application/json": {
+                    "example": {
+                        "method": "PUT",
+                        "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
+                        "publicUrl": "https://cdn.example.com/bucket/uploads",
+                        "expiresIn": 900,
+                    }
                 }
-            }
-        },
+            },
         },
         **error_responses(400, 401, 422),
     },
@@ -106,4 +108,4 @@ async def register_uploaded(
         data.size_bytes,
         data.meta,
     )
-    return {"mediaId": str(media.id)}
+    return {"media_id": str(media.id)}
