@@ -37,6 +37,11 @@ export type MediaCreate = components["schemas"]["MediaCreate"];
 
 // Booking types
 export type Booking = components["schemas"]["Booking"];
+export type BookingServiceSummary =
+	components["schemas"]["BookingServiceSummary"];
+export type BookingCliqueSummary =
+	components["schemas"]["BookingCliqueSummary"];
+export type BookingUserSummary = components["schemas"]["BookingUserSummary"];
 export type BookingCreate = components["schemas"]["BookingCreate"];
 export type BookingReschedule = components["schemas"]["BookingReschedule"];
 export type BookingStatus = components["schemas"]["BookingStatus"];

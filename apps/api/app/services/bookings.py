@@ -1,5 +1,6 @@
 import hashlib
 import json
+from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
@@ -13,6 +14,13 @@ from ..models.booking import Booking
 from ..models.clique import Clique
 from ..models.enums import BookingStatus, CancelledBy
 from ..models.service import Service
+from ..models.user import User
+from ..schemas.booking import (
+    Booking as BookingSchema,
+    BookingCliqueSummary,
+    BookingServiceSummary,
+    BookingUserSummary,
+)
 
 
 async def create_booking(
@@ -122,6 +130,73 @@ async def get_clique_bookings(
     result = await db.execute(stmt)
     rows = result.scalars().all()
     return slice_results(rows, limit)
+
+
+async def hydrate_bookings(
+    db: AsyncSession,
+    bookings: Iterable[Booking],
+) -> list[BookingSchema]:
+    booking_list = list(bookings)
+    if not booking_list:
+        return []
+
+    service_ids = {booking.service_id for booking in booking_list}
+    user_ids = {booking.user_id for booking in booking_list}
+    clique_ids = {booking.clique_id for booking in booking_list}
+
+    services_stmt = select(Service).where(Service.id.in_(service_ids))
+    services_result = await db.execute(services_stmt)
+    services_map = {service.id: service for service in services_result.scalars().all()}
+
+    users_stmt = select(User).where(User.id.in_(user_ids))
+    users_result = await db.execute(users_stmt)
+    users_map = {user.id: user for user in users_result.scalars().all()}
+
+    cliques_stmt = select(Clique).where(Clique.id.in_(clique_ids))
+    cliques_result = await db.execute(cliques_stmt)
+    cliques_map = {clique.id: clique for clique in cliques_result.scalars().all()}
+
+    schemas: list[BookingSchema] = []
+    for booking in booking_list:
+        schema = BookingSchema.model_validate(booking)
+
+        service = services_map.get(booking.service_id)
+        if service:
+            schema.service = BookingServiceSummary.model_validate(
+                {
+                    "id": service.id,
+                    "title": service.title,
+                    "duration_minutes": service.duration_minutes,
+                    "price_minor": service.price_minor,
+                    "currency": service.currency,
+                }
+            )
+
+        clique = cliques_map.get(booking.clique_id)
+        if clique:
+            schema.clique = BookingCliqueSummary.model_validate(
+                {
+                    "id": clique.id,
+                    "name": clique.name,
+                    "image_url": clique.image_url,
+                    "timezone": clique.timezone,
+                }
+            )
+
+        user = users_map.get(booking.user_id)
+        if user:
+            schema.user = BookingUserSummary.model_validate(
+                {
+                    "id": user.id,
+                    "full_name": user.full_name,
+                    "username": user.username,
+                    "profile_image_url": user.profile_image_url,
+                }
+            )
+
+        schemas.append(schema)
+
+    return schemas
 
 
 async def confirm_booking(

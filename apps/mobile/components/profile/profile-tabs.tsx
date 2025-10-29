@@ -1,8 +1,15 @@
+import { useTheme } from "@shopify/restyle";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView } from "react-native";
+import { ActivityIndicator, FlatList } from "react-native";
+import { BookingCard } from "@/components/cards/booking-card";
+import { CliqueCard } from "@/components/cards/clique-card";
+import { PostCard } from "@/components/cards/post-card";
+import { ReviewCard } from "@/components/cards/review-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { TabsHeader } from "@/components/ui/tabs-header";
+import type { Theme } from "@/config/theme";
 import {
 	useFollowStatusQuery,
 	useListCliqueReviewsQuery,
@@ -11,9 +18,6 @@ import {
 	useListUserPostsQuery,
 } from "@/hooks";
 import type { Booking, Clique, Post, Review, User } from "@/types";
-import { BookingCard } from "../cards/booking-card";
-import { CliqueCard } from "../cards/clique-card";
-import { PostCard } from "../cards/post-card";
 
 interface ProfileTabsProps {
 	user: User | null | undefined;
@@ -21,16 +25,22 @@ interface ProfileTabsProps {
 	isLoading?: boolean;
 }
 
-type TabType = "posts" | "cliques" | "reviews" | "bookings";
+enum TabType {
+	Posts = "posts",
+	Cliques = "cliques",
+	Reviews = "reviews",
+	Bookings = "bookings",
+}
 
 export function ProfileTabs({
 	user,
 	isOwnProfile,
 	isLoading,
 }: ProfileTabsProps) {
-	const [activeTab, setActiveTab] = useState<TabType>("posts");
+	const theme = useTheme<Theme>();
+	const router = useRouter();
+	const [activeTab, setActiveTab] = useState<TabType>(TabType.Posts);
 
-	// Data queries
 	const postsQuery = useListUserPostsQuery(
 		user?.id,
 		activeTab === "posts" && !isLoading,
@@ -45,7 +55,7 @@ export function ProfileTabs({
 	const reviewsQuery = useListCliqueReviewsQuery(
 		user?.id,
 		activeTab === "reviews" && !isLoading,
-	); // Note: This should be for user's owned cliques
+	);
 
 	const { data } = useFollowStatusQuery(user?.id);
 
@@ -63,28 +73,48 @@ export function ProfileTabs({
 		);
 	}
 
-	// Check if profile is private and not accessible
 	const isPrivateAndNotAccessible =
 		user.isPrivateAccount && !isOwnProfile && !data?.isFollowing;
 
 	const tabs: Array<{ key: TabType; label: string; show: boolean }> = [
+		{ key: TabType.Posts, label: "Posts", show: !isPrivateAndNotAccessible },
 		{
-			key: "posts" as TabType,
-			label: "Posts",
-			show: !isPrivateAndNotAccessible,
-		},
-		{
-			key: "cliques" as TabType,
+			key: TabType.Cliques,
 			label: "Cliques",
 			show: !isPrivateAndNotAccessible,
 		},
 		{
-			key: "reviews" as TabType,
+			key: TabType.Reviews,
 			label: "Reviews",
 			show: user.isBusinessPage && !isPrivateAndNotAccessible,
 		},
-		{ key: "bookings" as TabType, label: "Bookings", show: isOwnProfile },
+		{ key: TabType.Bookings, label: "Bookings", show: isOwnProfile },
 	].filter((tab) => tab.show);
+
+	const handleNavigateToClique = (id: string) => {
+		router.push({ pathname: "/cliques/[id]", params: { id } });
+	};
+
+	const renderPostItem = ({ item }: { item: Post }) => <PostCard post={item} />;
+
+	const renderCliqueItem = ({ item }: { item: Clique }) => (
+		<CliqueCard clique={item} onPress={() => handleNavigateToClique(item.id)} />
+	);
+
+	const renderReviewItem = ({ item }: { item: Review }) => (
+		<ReviewCard review={item} />
+	);
+
+	const renderBookingItem = ({ item }: { item: Booking }) => (
+		<BookingCard booking={item} />
+	);
+
+	const renderListFooter = (isFetching: boolean) =>
+		isFetching ? (
+			<Box paddingVertical="m" alignItems="center">
+				<ActivityIndicator />
+			</Box>
+		) : null;
 
 	const renderTabContent = () => {
 		if (isPrivateAndNotAccessible) {
@@ -106,7 +136,7 @@ export function ProfileTabs({
 		}
 
 		switch (activeTab) {
-			case "posts": {
+			case TabType.Posts: {
 				if (postsQuery.isLoading) {
 					return (
 						<Box padding="s">
@@ -135,22 +165,38 @@ export function ProfileTabs({
 				}
 
 				const posts = postsQuery.items;
-				if (posts.length === 0) {
-					return <EmptyState message="No posts yet" />;
-				}
-
 				return (
-					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="s">
-							{posts.map((post: Post) => (
-								<PostCard key={post.id} post={post} />
-							))}
-						</Box>
-					</ScrollView>
+					<FlatList
+						key="tab-posts"
+						data={posts}
+						renderItem={renderPostItem}
+						keyExtractor={(item) => item.id}
+						onEndReached={
+							postsQuery.hasNextPage
+								? () => {
+										if (!postsQuery.isFetchingNextPage) {
+											postsQuery.fetchNextPage();
+										}
+									}
+								: undefined
+						}
+						onEndReachedThreshold={0.5}
+						refreshing={postsQuery.isRefetching}
+						onRefresh={postsQuery.refetch}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							padding: theme.spacing.s,
+							flexGrow: posts.length === 0 ? 1 : undefined,
+						}}
+						ListEmptyComponent={<EmptyState message="No posts yet" />}
+						ListFooterComponent={renderListFooter(
+							Boolean(postsQuery.isFetchingNextPage),
+						)}
+					/>
 				);
 			}
 
-			case "cliques": {
+			case TabType.Cliques: {
 				if (cliquesQuery.isLoading) {
 					return (
 						<Box padding="s">
@@ -179,22 +225,38 @@ export function ProfileTabs({
 				}
 
 				const cliques = cliquesQuery.items;
-				if (cliques.length === 0) {
-					return <EmptyState message="No cliques yet" />;
-				}
-
 				return (
-					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="s">
-							{cliques.map((clique: Clique) => (
-								<CliqueCard key={clique.id} clique={clique} />
-							))}
-						</Box>
-					</ScrollView>
+					<FlatList
+						key="tab-cliques"
+						data={cliques}
+						renderItem={renderCliqueItem}
+						keyExtractor={(item) => item.id}
+						onEndReached={
+							cliquesQuery.hasNextPage
+								? () => {
+										if (!cliquesQuery.isFetchingNextPage) {
+											cliquesQuery.fetchNextPage();
+										}
+									}
+								: undefined
+						}
+						onEndReachedThreshold={0.5}
+						refreshing={cliquesQuery.isRefetching}
+						onRefresh={cliquesQuery.refetch}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							padding: theme.spacing.s,
+							flexGrow: cliques.length === 0 ? 1 : undefined,
+						}}
+						ListEmptyComponent={<EmptyState message="No cliques yet" />}
+						ListFooterComponent={renderListFooter(
+							Boolean(cliquesQuery.isFetchingNextPage),
+						)}
+					/>
 				);
 			}
 
-			case "reviews": {
+			case TabType.Reviews: {
 				if (reviewsQuery.isLoading) {
 					return (
 						<Box padding="s">
@@ -223,48 +285,38 @@ export function ProfileTabs({
 				}
 
 				const reviews = reviewsQuery.items;
-				if (reviews.length === 0) {
-					return <EmptyState message="No reviews yet" />;
-				}
-
 				return (
-					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="s">
-							{reviews.map((review: Review) => (
-								<Box
-									key={review.id}
-									backgroundColor="card"
-									borderRadius="m"
-									padding="m"
-									marginBottom="s"
-									borderWidth={1}
-									borderColor="border"
-								>
-									<Box flexDirection="row" alignItems="center" marginBottom="s">
-										<Text variant="body" fontWeight="600">
-											⭐ {review.rating}/5
-										</Text>
-										<Text
-											variant="caption"
-											color="muted-foreground"
-											marginLeft="s"
-										>
-											{new Date(review.createdAt).toLocaleDateString()}
-										</Text>
-									</Box>
-									{review.comment && (
-										<Text variant="body" marginBottom="s">
-											{review.comment}
-										</Text>
-									)}
-								</Box>
-							))}
-						</Box>
-					</ScrollView>
+					<FlatList
+						key="tab-reviews"
+						data={reviews}
+						renderItem={renderReviewItem}
+						keyExtractor={(item) => item.id}
+						onEndReached={
+							reviewsQuery.hasNextPage
+								? () => {
+										if (!reviewsQuery.isFetchingNextPage) {
+											reviewsQuery.fetchNextPage();
+										}
+									}
+								: undefined
+						}
+						onEndReachedThreshold={0.5}
+						refreshing={reviewsQuery.isRefetching}
+						onRefresh={reviewsQuery.refetch}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							padding: theme.spacing.s,
+							flexGrow: reviews.length === 0 ? 1 : undefined,
+						}}
+						ListEmptyComponent={<EmptyState message="No reviews yet" />}
+						ListFooterComponent={renderListFooter(
+							Boolean(reviewsQuery.isFetchingNextPage),
+						)}
+					/>
 				);
 			}
 
-			case "bookings": {
+			case TabType.Bookings: {
 				if (bookingsQuery.isLoading) {
 					return (
 						<Box padding="s">
@@ -293,18 +345,34 @@ export function ProfileTabs({
 				}
 
 				const bookings = bookingsQuery.items;
-				if (bookings.length === 0) {
-					return <EmptyState message="No bookings yet" />;
-				}
-
 				return (
-					<ScrollView showsVerticalScrollIndicator={false}>
-						<Box padding="s">
-							{bookings.map((booking: Booking) => (
-								<BookingCard key={booking.id} booking={booking} />
-							))}
-						</Box>
-					</ScrollView>
+					<FlatList
+						key="tab-bookings"
+						data={bookings}
+						renderItem={renderBookingItem}
+						keyExtractor={(item) => item.id}
+						onEndReached={
+							bookingsQuery.hasNextPage
+								? () => {
+										if (!bookingsQuery.isFetchingNextPage) {
+											bookingsQuery.fetchNextPage();
+										}
+									}
+								: undefined
+						}
+						onEndReachedThreshold={0.5}
+						refreshing={bookingsQuery.isRefetching}
+						onRefresh={bookingsQuery.refetch}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							padding: theme.spacing.s,
+							flexGrow: bookings.length === 0 ? 1 : undefined,
+						}}
+						ListEmptyComponent={<EmptyState message="No bookings yet" />}
+						ListFooterComponent={renderListFooter(
+							Boolean(bookingsQuery.isFetchingNextPage),
+						)}
+					/>
 				);
 			}
 
@@ -314,15 +382,13 @@ export function ProfileTabs({
 	};
 
 	return (
-		<Box>
+		<Box flex={1}>
 			<TabsHeader
 				tabs={tabs.map(({ key, label }) => ({ key, label }))}
 				activeTab={activeTab}
 				onTabChange={setActiveTab}
 			/>
-
-			{/* Tab Content */}
-			{renderTabContent()}
+			<Box flex={1}>{renderTabContent()}</Box>
 		</Box>
 	);
 }

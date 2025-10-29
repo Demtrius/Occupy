@@ -1,7 +1,7 @@
+import { useTheme } from "@shopify/restyle";
+import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList } from "react-native";
-import { useRouter } from "expo-router";
-import { useTheme } from "@shopify/restyle";
 import { CliqueCard } from "@/components/cards/clique-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/loading-screen";

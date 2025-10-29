@@ -29,6 +29,7 @@ from ...services.bookings import (
     create_booking,
     get_clique_bookings,
     get_user_bookings,
+    hydrate_bookings,
     reschedule_booking,
 )
 from ...services.cliques import get_clique_by_id
@@ -151,7 +152,8 @@ async def create(
         )
     except ValueError as exc:
         raise _map_booking_error(exc)
-    return BookingSchema.model_validate(booking)
+    [hydrated] = await hydrate_bookings(db, [booking])
+    return hydrated
 
 
 @router.patch(
@@ -203,7 +205,8 @@ async def reschedule_booking_route(
         raise _map_booking_error(exc)
     if booking is None:
         raise NotFound()
-    return BookingSchema.model_validate(booking)
+    [hydrated] = await hydrate_bookings(db, [booking])
+    return hydrated
 
 
 @router.get(
@@ -232,7 +235,7 @@ async def list_my_bookings(
         )
     except ValueError as exc:
         raise _map_booking_error(exc)
-    items = [BookingSchema.model_validate(booking) for booking in bookings]
+    items = await hydrate_bookings(db, bookings)
     return CursorPageBookings(items=items, next_cursor=next_cursor)
 
 
@@ -269,7 +272,7 @@ async def list_clique_bookings(
         )
     except ValueError as exc:
         raise _map_booking_error(exc)
-    items = [BookingSchema.model_validate(booking) for booking in bookings]
+    items = await hydrate_bookings(db, bookings)
     return CursorPageBookings(items=items, next_cursor=next_cursor)
 
 
@@ -296,7 +299,8 @@ async def confirm(
         raise _map_booking_error(exc)
     if booking is None:
         raise NotFound()
-    return BookingSchema.model_validate(booking)
+    [hydrated] = await hydrate_bookings(db, [booking])
+    return hydrated
 
 
 @router.post(
@@ -336,4 +340,5 @@ async def cancel(
         raise _map_booking_error(exc)
     if booking is None:
         raise NotFound()
-    return BookingSchema.model_validate(booking)
+    [hydrated] = await hydrate_bookings(db, [booking])
+    return hydrated

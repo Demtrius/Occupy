@@ -239,7 +239,7 @@ export default function EditProfilePage() {
 					label="Full Name"
 					render={({ value, onChange, onBlur }) => (
 						<Input
-							value={value}
+							value={value ?? undefined}
 							onChangeText={onChange}
 							onBlur={onBlur}
 							placeholder="Enter your full name"
@@ -253,7 +253,7 @@ export default function EditProfilePage() {
 					label="Bio"
 					render={({ value, onChange, onBlur }) => (
 						<Input
-							value={value}
+							value={value ?? undefined}
 							onChangeText={onChange}
 							onBlur={onBlur}
 							placeholder="Tell us about yourself"

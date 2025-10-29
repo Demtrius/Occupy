@@ -2,73 +2,105 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import type { Booking } from "@/types";
+import type { Booking, BookingStatus } from "@/types";
 
 interface BookingCardProps {
 	booking: Booking;
 }
 
+function formatCurrency(valueMinor: number, currency: string) {
+	const amount = valueMinor / 100;
+	return `${currency} ${amount.toFixed(2)}`;
+}
+
 export function BookingCard({ booking }: BookingCardProps) {
 	const theme = useTheme<Theme>();
 	const startDate = new Date(booking.startTs);
-	const _endDate = new Date(booking.endTs);
+	const endDate = new Date(booking.endTs);
 
-	const formatDate = (date: Date) => {
-		return (
-			date.toLocaleDateString() +
-			" " +
-			date.toLocaleTimeString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-			})
-		);
-	};
+	const serviceTitle = booking.service?.title ?? "Service";
+	const cliqueName = booking.clique?.name ?? undefined;
+	const durationMinutes =
+		booking.service?.durationMinutes ??
+		Math.max(Math.round((endDate.getTime() - startDate.getTime()) / 60000), 0);
+	const priceMinor = booking.service?.priceMinor ?? null;
+	const currency = booking.service?.currency ?? "EUR";
+	const statusLabel =
+		booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
 
-	const getStatusColor = (status: Booking["status"]) => {
+	const formatDate = (date: Date) =>
+		`${date.toLocaleDateString()} ${date.toLocaleTimeString([], {
+			hour: "2-digit",
+			minute: "2-digit",
+		})}`;
+
+	const getStatusBadgeColors = (
+		status: BookingStatus,
+	): {
+		background: keyof Theme["colors"];
+		text: keyof Theme["colors"];
+	} => {
 		switch (status) {
 			case "pending":
-				return "primary";
 			case "confirmed":
-				return "primary";
+				return {
+					background: "primary",
+					text: "primary-foreground",
+				};
 			case "completed":
-				return "secondary";
+				return {
+					background: "secondary",
+					text: "secondary-foreground",
+				};
 			case "cancelled":
-				return "destructive";
+				return {
+					background: "destructive",
+					text: "primary-foreground",
+				};
 			default:
-				return "muted";
+				return {
+					background: "muted",
+					text: "muted-foreground",
+				};
 		}
 	};
 
+	const badgeColors = getStatusBadgeColors(booking.status);
+
 	return (
 		<Card variant="elevated" marginBottom="m">
-			{/* Booking Header */}
 			<Box
 				flexDirection="row"
 				justifyContent="space-between"
 				alignItems="flex-start"
 				marginBottom="s"
 			>
-				<Box flex={1}>
+				<Box flex={1} marginRight="s">
 					<Text variant="body" fontWeight="600" numberOfLines={1}>
-						Service
+						{serviceTitle}
 					</Text>
-					<Text variant="caption" color="muted-foreground" numberOfLines={1}>
-						Clique
-					</Text>
+					{cliqueName ? (
+						<Text variant="caption" color="muted-foreground" numberOfLines={1}>
+							{cliqueName}
+						</Text>
+					) : null}
 				</Box>
 				<Box
-					backgroundColor={getStatusColor(booking.status)}
+					backgroundColor={badgeColors.background}
 					paddingHorizontal="s"
 					paddingVertical="xs"
 					borderRadius="s"
 				>
-					<Text variant="caption" color="primary-foreground" fontWeight="500">
-						{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+					<Text
+						variant="caption"
+						style={{ color: badgeColors.text }}
+						fontWeight="500"
+					>
+						{statusLabel}
 					</Text>
 				</Box>
 			</Box>
 
-			{/* Booking Time */}
 			<Box marginBottom="s">
 				<Box flexDirection="row" alignItems="center" marginBottom="xs">
 					<Ionicons
@@ -87,24 +119,24 @@ export function BookingCard({ booking }: BookingCardProps) {
 						color={theme.colors["muted-foreground"]}
 					/>
 					<Text variant="caption" color="muted-foreground" marginLeft="xs">
-						60 minutes
+						{`${durationMinutes} minutes`}
 					</Text>
 				</Box>
 			</Box>
 
-			{/* Price */}
-			<Text variant="body" fontWeight="600" color="primary">
-				€50.00
-			</Text>
+			{priceMinor !== null ? (
+				<Text variant="body" fontWeight="600" color="primary">
+					{formatCurrency(priceMinor, currency)}
+				</Text>
+			) : null}
 
-			{/* Notes */}
-			{booking.note && (
+			{booking.note ? (
 				<Box marginTop="s" padding="s" backgroundColor="muted" borderRadius="s">
 					<Text variant="caption" fontStyle="italic">
-						"{booking.note}"
+						“{booking.note}”
 					</Text>
 				</Box>
-			)}
+			) : null}
 		</Card>
 	);
 }

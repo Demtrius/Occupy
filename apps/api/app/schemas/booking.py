@@ -25,6 +25,28 @@ class BookingUpdate(BaseSchema):
     note: Optional[str] = None
 
 
+class BookingServiceSummary(BaseSchema):
+    id: UUID
+    title: str
+    duration_minutes: int
+    price_minor: Optional[int] = None
+    currency: str
+
+
+class BookingCliqueSummary(BaseSchema):
+    id: UUID
+    name: str
+    image_url: Optional[str] = None
+    timezone: str
+
+
+class BookingUserSummary(BaseSchema):
+    id: UUID
+    full_name: str
+    username: str
+    profile_image_url: Optional[str] = None
+
+
 class Booking(BaseSchema):
     id: UUID
     service_id: UUID
@@ -39,3 +61,6 @@ class Booking(BaseSchema):
     idempotency_key: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+    service: Optional[BookingServiceSummary] = None
+    clique: Optional[BookingCliqueSummary] = None
+    user: Optional[BookingUserSummary] = None
