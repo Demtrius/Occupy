@@ -25,6 +25,8 @@ export type CliqueInviteCreate = components["schemas"]["CliqueInviteCreate"];
 
 // Post types
 export type Post = components["schemas"]["Post"];
+export type PostAuthorSummary = components["schemas"]["PostAuthorSummary"];
+export type PostCliqueSummary = components["schemas"]["PostCliqueSummary"];
 export type PostCreate = components["schemas"]["PostCreate"];
 export type PostUpdate = components["schemas"]["PostUpdate"];
 export type Comment = components["schemas"]["Comment"];
