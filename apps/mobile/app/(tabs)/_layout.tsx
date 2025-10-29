@@ -22,45 +22,60 @@ export default function TabsLayout() {
 				name="feed"
 				options={{
 					title: "Feed",
-					tabBarIcon: ({ color, size }) => (
-						<Ionicons name="home-outline" color={color} size={size} />
-					),
+					tabBarIcon: ({ color, size, focused }) =>
+						focused ? (
+							<Ionicons name="home" color={color} size={size} />
+						) : (
+							<Ionicons name="home-outline" color={color} size={size} />
+						),
 				}}
 			/>
 			<Tabs.Screen
 				name="search"
 				options={{
 					title: "Search",
-					tabBarIcon: ({ color, size }) => (
-						<Ionicons name="search-outline" color={color} size={size} />
-					),
+					tabBarIcon: ({ color, size, focused }) =>
+						focused ? (
+							<Ionicons name="search" color={color} size={size} />
+						) : (
+							<Ionicons name="search-outline" color={color} size={size} />
+						),
 				}}
 			/>
 			<Tabs.Screen
 				name="cliques"
 				options={{
 					title: "Cliques",
-					tabBarIcon: ({ color, size }) => (
-						<Ionicons name="people-outline" color={color} size={size} />
-					),
+					tabBarIcon: ({ color, size, focused }) =>
+						focused ? (
+							<Ionicons name="people" color={color} size={size} />
+						) : (
+							<Ionicons name="people-outline" color={color} size={size} />
+						),
 				}}
 			/>
 			<Tabs.Screen
 				name="messages"
 				options={{
 					title: "Messages",
-					tabBarIcon: ({ color, size }) => (
-						<Ionicons name="chatbubble-outline" color={color} size={size} />
-					),
+					tabBarIcon: ({ color, size, focused }) =>
+						focused ? (
+							<Ionicons name="chatbubble" color={color} size={size} />
+						) : (
+							<Ionicons name="chatbubble-outline" color={color} size={size} />
+						),
 				}}
 			/>
 			<Tabs.Screen
 				name="profile"
 				options={{
 					title: "Profile",
-					tabBarIcon: ({ color, size }) => (
-						<Ionicons name="person-outline" color={color} size={size} />
-					),
+					tabBarIcon: ({ color, size, focused }) =>
+						focused ? (
+							<Ionicons name="person" color={color} size={size} />
+						) : (
+							<Ionicons name="person-outline" color={color} size={size} />
+						),
 				}}
 			/>
 		</Tabs>

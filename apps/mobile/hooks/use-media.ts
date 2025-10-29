@@ -9,9 +9,7 @@ type RegisterVariables = RequestOptions<operations["MediaRegister"]>;
 export function usePresignUploadMutation() {
 	return useMutation({
 		mutationFn: async (variables: PresignVariables) =>
-			ensureData(
-				await $api.POST("/api/v1/media/uploads/presign", variables),
-			),
+			ensureData(await $api.POST("/api/v1/media/uploads/presign", variables)),
 	});
 }
 

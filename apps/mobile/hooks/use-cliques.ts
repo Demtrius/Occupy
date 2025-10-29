@@ -22,7 +22,9 @@ type UpdateCliqueVariables = RequestOptions<operations["CliquesUpdateById"]>;
 type DeleteCliqueVariables = RequestOptions<operations["CliquesDeleteById"]>;
 type JoinCliqueVariables = RequestOptions<operations["CliquesJoin"]>;
 type LeaveCliqueVariables = RequestOptions<operations["CliquesLeave"]>;
-type ApproveMemberVariables = RequestOptions<operations["CliquesMembersApprove"]>;
+type ApproveMemberVariables = RequestOptions<
+	operations["CliquesMembersApprove"]
+>;
 type RejectMemberVariables = RequestOptions<operations["CliquesMembersReject"]>;
 type CreateInviteVariables = RequestOptions<operations["CliquesInvites"]>;
 
@@ -49,7 +51,9 @@ export function useCreateCliqueMutation() {
 			ensureData(await $api.POST("/api/v1/cliques", variables)),
 		onSuccess: (clique) => {
 			if (clique?.id) {
-				queryClient.invalidateQueries({ queryKey: cliqueKeys.detail(clique.id) });
+				queryClient.invalidateQueries({
+					queryKey: cliqueKeys.detail(clique.id),
+				});
 			}
 			queryClient.invalidateQueries({ queryKey: cliqueKeys.all, exact: false });
 		},
@@ -78,7 +82,9 @@ export function useUpdateCliqueMutation() {
 		onSuccess: (clique, variables) => {
 			const cliqueId = variables.params?.path?.cliqueId ?? clique?.id;
 			if (cliqueId) {
-				queryClient.invalidateQueries({ queryKey: cliqueKeys.detail(cliqueId) });
+				queryClient.invalidateQueries({
+					queryKey: cliqueKeys.detail(cliqueId),
+				});
 			}
 			queryClient.invalidateQueries({ queryKey: cliqueKeys.all, exact: false });
 		},
@@ -97,7 +103,9 @@ export function useDeleteCliqueMutation() {
 		onSuccess: (_data, variables) => {
 			const cliqueId = variables.params?.path?.cliqueId;
 			if (cliqueId) {
-				queryClient.invalidateQueries({ queryKey: cliqueKeys.detail(cliqueId) });
+				queryClient.invalidateQueries({
+					queryKey: cliqueKeys.detail(cliqueId),
+				});
 			}
 			queryClient.invalidateQueries({ queryKey: cliqueKeys.all, exact: false });
 		},
@@ -112,7 +120,9 @@ export function useJoinCliqueMutation() {
 		onSuccess: (_member, variables) => {
 			const cliqueId = variables.params?.path?.cliqueId;
 			if (cliqueId) {
-				queryClient.invalidateQueries({ queryKey: cliqueKeys.detail(cliqueId) });
+				queryClient.invalidateQueries({
+					queryKey: cliqueKeys.detail(cliqueId),
+				});
 				queryClient.invalidateQueries({
 					queryKey: cliqueKeys.membersBase(cliqueId),
 					exact: false,
@@ -123,7 +133,10 @@ export function useJoinCliqueMutation() {
 				});
 			}
 			queryClient.invalidateQueries({ queryKey: cliqueKeys.all, exact: false });
-			queryClient.invalidateQueries({ queryKey: ["cliques", "user"], exact: false });
+			queryClient.invalidateQueries({
+				queryKey: ["cliques", "user"],
+				exact: false,
+			});
 		},
 	});
 }
@@ -137,16 +150,21 @@ export function useLeaveCliqueMutation() {
 			),
 		onSuccess: (_data, variables) => {
 			const cliqueId = variables.params?.path?.cliqueId;
-		if (cliqueId) {
-			queryClient.invalidateQueries({ queryKey: cliqueKeys.detail(cliqueId) });
+			if (cliqueId) {
+				queryClient.invalidateQueries({
+					queryKey: cliqueKeys.detail(cliqueId),
+				});
+				queryClient.invalidateQueries({
+					queryKey: cliqueKeys.membersBase(cliqueId),
+					exact: false,
+				});
+			}
+			queryClient.invalidateQueries({ queryKey: cliqueKeys.all, exact: false });
 			queryClient.invalidateQueries({
-				queryKey: cliqueKeys.membersBase(cliqueId),
+				queryKey: ["cliques", "user"],
 				exact: false,
 			});
-		}
-		queryClient.invalidateQueries({ queryKey: cliqueKeys.all, exact: false });
-		queryClient.invalidateQueries({ queryKey: ["cliques", "user"], exact: false });
-	},
+		},
 	});
 }
 

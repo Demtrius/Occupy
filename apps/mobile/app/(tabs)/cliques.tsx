@@ -33,7 +33,8 @@ export default function Page() {
 	const refetch =
 		filter === "all" ? allCliquesQuery.refetch : myCliquesQuery.refetch;
 
-	const cliques = filter === "all" ? allCliquesQuery.items : myCliquesQuery.items;
+	const cliques =
+		filter === "all" ? allCliquesQuery.items : myCliquesQuery.items;
 
 	const onRefresh = () => {
 		refetch();

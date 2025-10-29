@@ -31,7 +31,7 @@ export default function Page() {
 
 	return (
 		<Screen>
-			<Box padding="s" paddingBottom="s">
+			<Box paddingHorizontal="s" paddingBottom="s" paddingTop="m">
 				<SearchInput
 					placeholder="Search users, occupations, cliques..."
 					value={query}

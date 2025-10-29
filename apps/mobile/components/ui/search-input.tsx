@@ -44,7 +44,7 @@ export function SearchInput({
 					paddingHorizontal: 0,
 					paddingVertical: 0,
 					minHeight: "auto",
-					height: 22,
+					height: 26,
 					color: theme.colors.foreground,
 				}}
 				{...props}

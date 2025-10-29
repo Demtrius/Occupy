@@ -10,8 +10,9 @@ import type { components, operations } from "@/types/generated";
 import { withCursorHelpers } from "./utils";
 
 type CreateBookingVariables = RequestOptions<operations["BookingsCreate"]>;
-type RescheduleBookingVariables =
-	RequestOptions<operations["BookingsReschedule"]>;
+type RescheduleBookingVariables = RequestOptions<
+	operations["BookingsReschedule"]
+>;
 type ConfirmBookingVariables = RequestOptions<operations["BookingsConfirm"]>;
 type CancelBookingVariables = RequestOptions<operations["BookingsCancel"]>;
 
@@ -46,15 +47,14 @@ export function useRescheduleBookingMutation() {
 	return useMutation({
 		mutationFn: async (variables: RescheduleBookingVariables) =>
 			ensureData(
-				await $api.PATCH(
-					"/api/v1/bookings/{bookingId}/reschedule",
-					variables,
-				),
+				await $api.PATCH("/api/v1/bookings/{bookingId}/reschedule", variables),
 			),
 		onSuccess: (_data, variables) => {
 			const bookingId = variables.params?.path?.bookingId;
 			if (bookingId) {
-				queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
+				queryClient.invalidateQueries({
+					queryKey: bookingKeys.detail(bookingId),
+				});
 			}
 			queryClient.invalidateQueries({
 				queryKey: bookingKeys.all,
@@ -125,7 +125,9 @@ export function useConfirmBookingMutation() {
 		onSuccess: (_data, variables) => {
 			const bookingId = variables.params?.path?.bookingId;
 			if (bookingId) {
-				queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
+				queryClient.invalidateQueries({
+					queryKey: bookingKeys.detail(bookingId),
+				});
 			}
 			queryClient.invalidateQueries({
 				queryKey: bookingKeys.all,
@@ -145,7 +147,9 @@ export function useCancelBookingMutation() {
 		onSuccess: (_data, variables) => {
 			const bookingId = variables.params?.path?.bookingId;
 			if (bookingId) {
-				queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
+				queryClient.invalidateQueries({
+					queryKey: bookingKeys.detail(bookingId),
+				});
 			}
 			queryClient.invalidateQueries({
 				queryKey: bookingKeys.all,

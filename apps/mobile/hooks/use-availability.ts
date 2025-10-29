@@ -4,12 +4,15 @@ import { $api, ensureData } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import type { operations } from "@/types/generated";
 
-type CreateAvailabilityVariables =
-	RequestOptions<operations["AvailabilityCreate"]>;
-type UpdateAvailabilityVariables =
-	RequestOptions<operations["AvailabilityUpdateById"]>;
-type DeleteAvailabilityVariables =
-	RequestOptions<operations["AvailabilityDeleteById"]>;
+type CreateAvailabilityVariables = RequestOptions<
+	operations["AvailabilityCreate"]
+>;
+type UpdateAvailabilityVariables = RequestOptions<
+	operations["AvailabilityUpdateById"]
+>;
+type DeleteAvailabilityVariables = RequestOptions<
+	operations["AvailabilityDeleteById"]
+>;
 
 const availabilityKeys = {
 	all: ["availability"] as const,

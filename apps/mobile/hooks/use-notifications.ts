@@ -35,10 +35,16 @@ export function useMarkNotificationReadMutation() {
 	return useMutation<Notification, unknown, MarkReadVariables>({
 		mutationFn: async (variables) =>
 			ensureData(
-				await $api.PUT("/api/v1/notifications/{notificationId}/read", variables),
+				await $api.PUT(
+					"/api/v1/notifications/{notificationId}/read",
+					variables,
+				),
 			),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: notificationKeys.all, exact: false });
+			queryClient.invalidateQueries({
+				queryKey: notificationKeys.all,
+				exact: false,
+			});
 		},
 	});
 }
@@ -49,7 +55,10 @@ export function useMarkAllReadMutation() {
 		mutationFn: async (variables) =>
 			ensureData(await $api.PUT("/api/v1/notifications/read-all", variables)),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: notificationKeys.all, exact: false });
+			queryClient.invalidateQueries({
+				queryKey: notificationKeys.all,
+				exact: false,
+			});
 		},
 	});
 }

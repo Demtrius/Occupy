@@ -4,6843 +4,6843 @@
  */
 
 export interface paths {
-    readonly "/api/v1/auth/register": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Register new user
-         * @description Create a user account and return signed access and refresh tokens.
-         */
-        readonly post: operations["AuthRegister"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/auth/login": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Login with email or username
-         * @description Validate credentials and issue new access and refresh tokens.
-         */
-        readonly post: operations["AuthLogin"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/auth/refresh": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Refresh access token
-         * @description Exchange a valid refresh token for a new access + refresh pair.
-         */
-        readonly post: operations["AuthRefresh"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/auth/logout": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Revoke refresh token
-         * @description Invalidate an issued refresh token for the current user.
-         */
-        readonly post: operations["AuthLogout"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/me": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Get current user
-         * @description Return the profile for the authenticated user.
-         */
-        readonly get: operations["UsersMe"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        /**
-         * Update current user
-         * @description Patch the profile fields for the authenticated user.
-         */
-        readonly patch: operations["UsersUpdateMe"];
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Search users
-         * @description Paginated user search supporting text query, occupation filter, and sort.
-         */
-        readonly get: operations["Users"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Get user by id
-         * @description Retrieve another user's profile respecting blocking and privacy.
-         */
-        readonly get: operations["UsersById"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Follow user
-         * @description Send a follow request or follow immediately if the account is public.
-         */
-        readonly post: operations["UsersFollow"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/approve": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Approve follow request
-         * @description Accept a pending follow request from another user.
-         */
-        readonly post: operations["UsersFollowApprove"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/reject": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Reject follow request
-         * @description Decline a pending follow request.
-         */
-        readonly post: operations["UsersFollowReject"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/followers/{followerId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        readonly post?: never;
-        /**
-         * Remove follower
-         * @description Remove a follower from your audience.
-         */
-        readonly delete: operations["UsersDeleteFollowerById"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/followers": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List followers
-         * @description Paginated list of followers for the specified user.
-         */
-        readonly get: operations["UsersFollowFollowers"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/following": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List following
-         * @description Paginated list of accounts the specified user follows.
-         */
-        readonly get: operations["UsersFollowFollowing"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/status": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Get follow status
-         * @description Check if the current user is following the specified user and if a follow request is pending.
-         */
-        readonly get: operations["UsersFollowingStatus"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/users/{userId}/follow/block": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Block user
-         * @description Block another user; any follow relationship is converted to a block.
-         */
-        readonly post: operations["UsersFollowBlock"];
-        /**
-         * Unblock user
-         * @description Remove a previously created block.
-         */
-        readonly delete: operations["UsersFollowUnblock"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/feed": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * View clique feed
-         * @description Paginated feed of posts from cliques the user belongs to.
-         */
-        readonly get: operations["CliquesFeed"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List all cliques
-         * @description Paginated list of all cliques visible to the current user (public or member).
-         */
-        readonly get: operations["Cliques"];
-        readonly put?: never;
-        /**
-         * Create clique
-         * @description Business pages create cliques to organize services and bookings.
-         */
-        readonly post: operations["CliquesCreate"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Get clique
-         * @description Retrieve the public profile for a clique, with visibility rules applied.
-         */
-        readonly get: operations["CliquesById"];
-        readonly put?: never;
-        readonly post?: never;
-        /**
-         * Delete clique
-         * @description Clique owners can permanently delete their clique.
-         */
-        readonly delete: operations["CliquesDeleteById"];
-        readonly options?: never;
-        readonly head?: never;
-        /**
-         * Update clique
-         * @description Clique owners can edit name, imagery, privacy, and cancellation policy.
-         */
-        readonly patch: operations["CliquesUpdateById"];
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/join": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Request to join clique
-         * @description Join a clique using an invite token when required.
-         */
-        readonly post: operations["CliquesJoin"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/members/me": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        readonly post?: never;
-        /**
-         * Leave clique
-         * @description Members can leave a clique they previously joined.
-         */
-        readonly delete: operations["CliquesLeave"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/members": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List clique members
-         * @description Paginated list of members with role and status.
-         */
-        readonly get: operations["CliquesMembers"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/members/pending": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List pending membership requests
-         * @description View join requests awaiting moderation by the clique owner.
-         */
-        readonly get: operations["CliquesMembersPending"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/members/{memberId}/approve": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Approve membership request
-         * @description Clique owners approve pending members.
-         */
-        readonly post: operations["CliquesMembersApprove"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/members/{memberId}/reject": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Reject membership request
-         * @description Decline a pending membership request.
-         */
-        readonly post: operations["CliquesMembersReject"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/user/{userId}/cliques": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List user cliques
-         * @description Paginated cliques owned by a user visible to the current user, respecting privacy settings.
-         */
-        readonly get: operations["CliquesUser"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/invites": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Create invite link
-         * @description Clique owners create invite tokens for members to join.
-         */
-        readonly post: operations["CliquesInvites"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/feed": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Get feed posts
-         * @description Paginated feed of posts visible to the current user, with optional filter for followings or cliques.
-         */
-        readonly get: operations["PostsFeed"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/cliques/{cliqueId}/posts": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List clique posts
-         * @description Paginated posts visible to the current user, including engagement metadata.
-         */
-        readonly get: operations["PostsCliquesPosts"];
-        readonly put?: never;
-        /**
-         * Create post in clique
-         * @description Clique owners create posts to share updates with members.
-         */
-        readonly post: operations["PostsCreateCliquesPosts"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/user/{userId}/posts": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List user posts
-         * @description Paginated posts by a user visible to the current user, respecting privacy settings.
-         */
-        readonly get: operations["PostsUserPosts"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/{postId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Get post
-         * @description Retrieve a post with reactions and visibility checks applied.
-         */
-        readonly get: operations["PostsById"];
-        readonly put?: never;
-        readonly post?: never;
-        /**
-         * Delete post
-         * @description Delete a post as the author or clique owner.
-         */
-        readonly delete: operations["PostsDeleteById"];
-        readonly options?: never;
-        readonly head?: never;
-        /**
-         * Update post
-         * @description Post authors or clique owners can edit content or status.
-         */
-        readonly patch: operations["PostsUpdateById"];
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/{postId}/like": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Like post
-         * @description Toggle the current user's like on the specified post.
-         */
-        readonly post: operations["PostsLike"];
-        /**
-         * Unlike post
-         * @description Remove the user's like from the post.
-         */
-        readonly delete: operations["PostsUnlike"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/{postId}/comments": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Create comment
-         * @description Add a comment to a visible post.
-         */
-        readonly post: operations["PostsCreateComments"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/posts/comments/{commentId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        readonly post?: never;
-        /**
-         * Delete comment
-         * @description Delete a comment authored by the user or managed by the clique owner.
-         */
-        readonly delete: operations["PostsDeleteCommentsById"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/media/uploads/presign": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Generate presigned upload
-         * @description Return a presigned URL and required form fields for direct uploads.
-         */
-        readonly post: operations["MediaUploadsPresign"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/media": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Register uploaded media
-         * @description Persist uploaded media metadata after a successful presigned upload.
-         */
-        readonly post: operations["MediaRegister"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/bookings": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Create booking
-         * @description Book a service for a specific start time. Idempotent per `idempotency_key`.
-         */
-        readonly post: operations["BookingsCreate"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/bookings/{bookingId}/reschedule": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        /**
-         * Reschedule booking
-         * @description Move a pending booking to a new start time.
-         */
-        readonly patch: operations["BookingsReschedule"];
-        readonly trace?: never;
-    };
-    readonly "/api/v1/bookings/me": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List my bookings
-         * @description Paginated bookings made by the authenticated user.
-         */
-        readonly get: operations["BookingsMe"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/bookings/cliques/{cliqueId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List clique bookings
-         * @description Paginated bookings for a clique. Only the owner can access.
-         */
-        readonly get: operations["BookingsCliques"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/bookings/{bookingId}/confirm": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Confirm booking
-         * @description Clique owner confirms a pending booking.
-         */
-        readonly post: operations["BookingsConfirm"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/bookings/{bookingId}/cancel": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Cancel booking
-         * @description Cancel a booking as the owner or the customer. Optional reason required for owners.
-         */
-        readonly post: operations["BookingsCancel"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/reviews/bookings/{bookingId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Review completed booking
-         * @description Customers leave a rating and optional comment for a completed booking.
-         */
-        readonly post: operations["ReviewsBookings"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/reviews/cliques/{cliqueId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List clique reviews
-         * @description Paginated reviews left for services hosted by the clique.
-         */
-        readonly get: operations["ReviewsCliques"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/notifications": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List notifications
-         * @description Return notifications for the current user ordered by recency.
-         */
-        readonly get: operations["Notifications"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/notifications/{notificationId}/read": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        /**
-         * Mark notification read
-         * @description Mark a single notification as read and return the updated record.
-         */
-        readonly put: operations["NotificationsRead"];
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/notifications/read-all": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        /**
-         * Mark all notifications read
-         * @description Mark every unread notification for the current user as read.
-         */
-        readonly put: operations["NotificationsReadAll"];
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/search": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Unified search
-         * @description Search across users, occupations, and cliques with a single query.
-         */
-        readonly get: operations["Search"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/chats": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List chats
-         * @description Return chats the current user participates in, sorted by recent activity.
-         */
-        readonly get: operations["Chats"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/messages/{chatId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List chat messages
-         * @description Return the latest messages in a chat the user participates in.
-         */
-        readonly get: operations["MessagesByChatId"];
-        readonly put?: never;
-        /**
-         * Send message
-         * @description Send a message in a chat between a client and a business.
-         */
-        readonly post: operations["MessagesCreateByChatId"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/messages/{messageId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        readonly post?: never;
-        /**
-         * Delete message
-         * @description Delete a message sent by the current user.
-         */
-        readonly delete: operations["MessagesDeleteById"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/occupations": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List occupations
-         * @description Return top occupations in the catalog ordered by usage.
-         */
-        readonly get: operations["Occupations"];
-        readonly put?: never;
-        /**
-         * Create occupation
-         * @description Create a new occupation in the catalog.
-         */
-        readonly post: operations["OccupationsCreate"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/occupations/search": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Search occupations
-         * @description Search occupation taxonomy by name prefix.
-         */
-        readonly get: operations["OccupationsSearch"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/occupations/user": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        /**
-         * Update my occupations
-         * @description Replace the authenticated user's occupation list.
-         */
-        readonly put: operations["OccupationsUser"];
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/occupations/clique/{cliqueId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        /**
-         * Update clique occupations
-         * @description Clique owners set the occupations associated with their business.
-         */
-        readonly put: operations["OccupationsCliqueUpdate"];
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/services": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Create service
-         * @description Clique owners define a bookable service with pricing metadata.
-         */
-        readonly post: operations["ServicesCreate"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/services/{cliqueId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List clique services
-         * @description Return services configured for a clique, optionally only active ones.
-         */
-        readonly get: operations["ServicesByCliqueId"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/services/{serviceId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        /**
-         * Update service
-         * @description Modify details of a service owned by the clique.
-         */
-        readonly put: operations["ServicesUpdateById"];
-        readonly post?: never;
-        /**
-         * Delete service
-         * @description Remove a service definition owned by the clique.
-         */
-        readonly delete: operations["ServicesDeleteById"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/availability": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        readonly put?: never;
-        /**
-         * Create availability window
-         * @description Clique owners define recurring or single-day availability windows.
-         */
-        readonly post: operations["AvailabilityCreate"];
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/availability/{cliqueId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List clique availability
-         * @description Return available booking windows visible to the current user.
-         */
-        readonly get: operations["AvailabilityByCliqueId"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/availability/{availabilityId}": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly get?: never;
-        /**
-         * Update availability window
-         * @description Modify the timing or cadence of an availability window.
-         */
-        readonly put: operations["AvailabilityUpdateById"];
-        readonly post?: never;
-        /**
-         * Delete availability window
-         * @description Remove an availability window owned by the clique.
-         */
-        readonly delete: operations["AvailabilityDeleteById"];
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/cliques/{cliqueId}/slots": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * List available slots
-         * @description Return available start/end timestamps for a service within the requested window.
-         */
-        readonly get: operations["CliquesSlots"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
-    readonly "/api/v1/health": {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        /**
-         * Health check
-         * @description Simple liveness probe.
-         */
-        readonly get: operations["HealthCheck"];
-        readonly put?: never;
-        readonly post?: never;
-        readonly delete?: never;
-        readonly options?: never;
-        readonly head?: never;
-        readonly patch?: never;
-        readonly trace?: never;
-    };
+	readonly "/api/v1/auth/register": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Register new user
+		 * @description Create a user account and return signed access and refresh tokens.
+		 */
+		readonly post: operations["AuthRegister"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/auth/login": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Login with email or username
+		 * @description Validate credentials and issue new access and refresh tokens.
+		 */
+		readonly post: operations["AuthLogin"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/auth/refresh": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Refresh access token
+		 * @description Exchange a valid refresh token for a new access + refresh pair.
+		 */
+		readonly post: operations["AuthRefresh"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/auth/logout": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Revoke refresh token
+		 * @description Invalidate an issued refresh token for the current user.
+		 */
+		readonly post: operations["AuthLogout"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/me": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Get current user
+		 * @description Return the profile for the authenticated user.
+		 */
+		readonly get: operations["UsersMe"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		/**
+		 * Update current user
+		 * @description Patch the profile fields for the authenticated user.
+		 */
+		readonly patch: operations["UsersUpdateMe"];
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Search users
+		 * @description Paginated user search supporting text query, occupation filter, and sort.
+		 */
+		readonly get: operations["Users"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Get user by id
+		 * @description Retrieve another user's profile respecting blocking and privacy.
+		 */
+		readonly get: operations["UsersById"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Follow user
+		 * @description Send a follow request or follow immediately if the account is public.
+		 */
+		readonly post: operations["UsersFollow"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/approve": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Approve follow request
+		 * @description Accept a pending follow request from another user.
+		 */
+		readonly post: operations["UsersFollowApprove"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/reject": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Reject follow request
+		 * @description Decline a pending follow request.
+		 */
+		readonly post: operations["UsersFollowReject"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/followers/{followerId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		readonly post?: never;
+		/**
+		 * Remove follower
+		 * @description Remove a follower from your audience.
+		 */
+		readonly delete: operations["UsersDeleteFollowerById"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/followers": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List followers
+		 * @description Paginated list of followers for the specified user.
+		 */
+		readonly get: operations["UsersFollowFollowers"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/following": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List following
+		 * @description Paginated list of accounts the specified user follows.
+		 */
+		readonly get: operations["UsersFollowFollowing"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/status": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Get follow status
+		 * @description Check if the current user is following the specified user and if a follow request is pending.
+		 */
+		readonly get: operations["UsersFollowingStatus"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/users/{userId}/follow/block": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Block user
+		 * @description Block another user; any follow relationship is converted to a block.
+		 */
+		readonly post: operations["UsersFollowBlock"];
+		/**
+		 * Unblock user
+		 * @description Remove a previously created block.
+		 */
+		readonly delete: operations["UsersFollowUnblock"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/feed": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * View clique feed
+		 * @description Paginated feed of posts from cliques the user belongs to.
+		 */
+		readonly get: operations["CliquesFeed"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List all cliques
+		 * @description Paginated list of all cliques visible to the current user (public or member).
+		 */
+		readonly get: operations["Cliques"];
+		readonly put?: never;
+		/**
+		 * Create clique
+		 * @description Business pages create cliques to organize services and bookings.
+		 */
+		readonly post: operations["CliquesCreate"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Get clique
+		 * @description Retrieve the public profile for a clique, with visibility rules applied.
+		 */
+		readonly get: operations["CliquesById"];
+		readonly put?: never;
+		readonly post?: never;
+		/**
+		 * Delete clique
+		 * @description Clique owners can permanently delete their clique.
+		 */
+		readonly delete: operations["CliquesDeleteById"];
+		readonly options?: never;
+		readonly head?: never;
+		/**
+		 * Update clique
+		 * @description Clique owners can edit name, imagery, privacy, and cancellation policy.
+		 */
+		readonly patch: operations["CliquesUpdateById"];
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/join": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Request to join clique
+		 * @description Join a clique using an invite token when required.
+		 */
+		readonly post: operations["CliquesJoin"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/members/me": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		readonly post?: never;
+		/**
+		 * Leave clique
+		 * @description Members can leave a clique they previously joined.
+		 */
+		readonly delete: operations["CliquesLeave"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/members": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List clique members
+		 * @description Paginated list of members with role and status.
+		 */
+		readonly get: operations["CliquesMembers"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/members/pending": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List pending membership requests
+		 * @description View join requests awaiting moderation by the clique owner.
+		 */
+		readonly get: operations["CliquesMembersPending"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/members/{memberId}/approve": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Approve membership request
+		 * @description Clique owners approve pending members.
+		 */
+		readonly post: operations["CliquesMembersApprove"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/members/{memberId}/reject": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Reject membership request
+		 * @description Decline a pending membership request.
+		 */
+		readonly post: operations["CliquesMembersReject"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/user/{userId}/cliques": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List user cliques
+		 * @description Paginated cliques owned by a user visible to the current user, respecting privacy settings.
+		 */
+		readonly get: operations["CliquesUser"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/invites": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Create invite link
+		 * @description Clique owners create invite tokens for members to join.
+		 */
+		readonly post: operations["CliquesInvites"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/feed": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Get feed posts
+		 * @description Paginated feed of posts visible to the current user, with optional filter for followings or cliques.
+		 */
+		readonly get: operations["PostsFeed"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/cliques/{cliqueId}/posts": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List clique posts
+		 * @description Paginated posts visible to the current user, including engagement metadata.
+		 */
+		readonly get: operations["PostsCliquesPosts"];
+		readonly put?: never;
+		/**
+		 * Create post in clique
+		 * @description Clique owners create posts to share updates with members.
+		 */
+		readonly post: operations["PostsCreateCliquesPosts"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/user/{userId}/posts": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List user posts
+		 * @description Paginated posts by a user visible to the current user, respecting privacy settings.
+		 */
+		readonly get: operations["PostsUserPosts"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/{postId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Get post
+		 * @description Retrieve a post with reactions and visibility checks applied.
+		 */
+		readonly get: operations["PostsById"];
+		readonly put?: never;
+		readonly post?: never;
+		/**
+		 * Delete post
+		 * @description Delete a post as the author or clique owner.
+		 */
+		readonly delete: operations["PostsDeleteById"];
+		readonly options?: never;
+		readonly head?: never;
+		/**
+		 * Update post
+		 * @description Post authors or clique owners can edit content or status.
+		 */
+		readonly patch: operations["PostsUpdateById"];
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/{postId}/like": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Like post
+		 * @description Toggle the current user's like on the specified post.
+		 */
+		readonly post: operations["PostsLike"];
+		/**
+		 * Unlike post
+		 * @description Remove the user's like from the post.
+		 */
+		readonly delete: operations["PostsUnlike"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/{postId}/comments": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Create comment
+		 * @description Add a comment to a visible post.
+		 */
+		readonly post: operations["PostsCreateComments"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/posts/comments/{commentId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		readonly post?: never;
+		/**
+		 * Delete comment
+		 * @description Delete a comment authored by the user or managed by the clique owner.
+		 */
+		readonly delete: operations["PostsDeleteCommentsById"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/media/uploads/presign": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Generate presigned upload
+		 * @description Return a presigned URL and required form fields for direct uploads.
+		 */
+		readonly post: operations["MediaUploadsPresign"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/media": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Register uploaded media
+		 * @description Persist uploaded media metadata after a successful presigned upload.
+		 */
+		readonly post: operations["MediaRegister"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/bookings": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Create booking
+		 * @description Book a service for a specific start time. Idempotent per `idempotency_key`.
+		 */
+		readonly post: operations["BookingsCreate"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/bookings/{bookingId}/reschedule": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		/**
+		 * Reschedule booking
+		 * @description Move a pending booking to a new start time.
+		 */
+		readonly patch: operations["BookingsReschedule"];
+		readonly trace?: never;
+	};
+	readonly "/api/v1/bookings/me": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List my bookings
+		 * @description Paginated bookings made by the authenticated user.
+		 */
+		readonly get: operations["BookingsMe"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/bookings/cliques/{cliqueId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List clique bookings
+		 * @description Paginated bookings for a clique. Only the owner can access.
+		 */
+		readonly get: operations["BookingsCliques"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/bookings/{bookingId}/confirm": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Confirm booking
+		 * @description Clique owner confirms a pending booking.
+		 */
+		readonly post: operations["BookingsConfirm"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/bookings/{bookingId}/cancel": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Cancel booking
+		 * @description Cancel a booking as the owner or the customer. Optional reason required for owners.
+		 */
+		readonly post: operations["BookingsCancel"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/reviews/bookings/{bookingId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Review completed booking
+		 * @description Customers leave a rating and optional comment for a completed booking.
+		 */
+		readonly post: operations["ReviewsBookings"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/reviews/cliques/{cliqueId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List clique reviews
+		 * @description Paginated reviews left for services hosted by the clique.
+		 */
+		readonly get: operations["ReviewsCliques"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/notifications": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List notifications
+		 * @description Return notifications for the current user ordered by recency.
+		 */
+		readonly get: operations["Notifications"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/notifications/{notificationId}/read": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		/**
+		 * Mark notification read
+		 * @description Mark a single notification as read and return the updated record.
+		 */
+		readonly put: operations["NotificationsRead"];
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/notifications/read-all": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		/**
+		 * Mark all notifications read
+		 * @description Mark every unread notification for the current user as read.
+		 */
+		readonly put: operations["NotificationsReadAll"];
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/search": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Unified search
+		 * @description Search across users, occupations, and cliques with a single query.
+		 */
+		readonly get: operations["Search"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/chats": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List chats
+		 * @description Return chats the current user participates in, sorted by recent activity.
+		 */
+		readonly get: operations["Chats"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/messages/{chatId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List chat messages
+		 * @description Return the latest messages in a chat the user participates in.
+		 */
+		readonly get: operations["MessagesByChatId"];
+		readonly put?: never;
+		/**
+		 * Send message
+		 * @description Send a message in a chat between a client and a business.
+		 */
+		readonly post: operations["MessagesCreateByChatId"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/messages/{messageId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		readonly post?: never;
+		/**
+		 * Delete message
+		 * @description Delete a message sent by the current user.
+		 */
+		readonly delete: operations["MessagesDeleteById"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/occupations": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List occupations
+		 * @description Return top occupations in the catalog ordered by usage.
+		 */
+		readonly get: operations["Occupations"];
+		readonly put?: never;
+		/**
+		 * Create occupation
+		 * @description Create a new occupation in the catalog.
+		 */
+		readonly post: operations["OccupationsCreate"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/occupations/search": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Search occupations
+		 * @description Search occupation taxonomy by name prefix.
+		 */
+		readonly get: operations["OccupationsSearch"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/occupations/user": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		/**
+		 * Update my occupations
+		 * @description Replace the authenticated user's occupation list.
+		 */
+		readonly put: operations["OccupationsUser"];
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/occupations/clique/{cliqueId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		/**
+		 * Update clique occupations
+		 * @description Clique owners set the occupations associated with their business.
+		 */
+		readonly put: operations["OccupationsCliqueUpdate"];
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/services": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Create service
+		 * @description Clique owners define a bookable service with pricing metadata.
+		 */
+		readonly post: operations["ServicesCreate"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/services/{cliqueId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List clique services
+		 * @description Return services configured for a clique, optionally only active ones.
+		 */
+		readonly get: operations["ServicesByCliqueId"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/services/{serviceId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		/**
+		 * Update service
+		 * @description Modify details of a service owned by the clique.
+		 */
+		readonly put: operations["ServicesUpdateById"];
+		readonly post?: never;
+		/**
+		 * Delete service
+		 * @description Remove a service definition owned by the clique.
+		 */
+		readonly delete: operations["ServicesDeleteById"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/availability": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		readonly put?: never;
+		/**
+		 * Create availability window
+		 * @description Clique owners define recurring or single-day availability windows.
+		 */
+		readonly post: operations["AvailabilityCreate"];
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/availability/{cliqueId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List clique availability
+		 * @description Return available booking windows visible to the current user.
+		 */
+		readonly get: operations["AvailabilityByCliqueId"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/availability/{availabilityId}": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly get?: never;
+		/**
+		 * Update availability window
+		 * @description Modify the timing or cadence of an availability window.
+		 */
+		readonly put: operations["AvailabilityUpdateById"];
+		readonly post?: never;
+		/**
+		 * Delete availability window
+		 * @description Remove an availability window owned by the clique.
+		 */
+		readonly delete: operations["AvailabilityDeleteById"];
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/cliques/{cliqueId}/slots": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * List available slots
+		 * @description Return available start/end timestamps for a service within the requested window.
+		 */
+		readonly get: operations["CliquesSlots"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
+	readonly "/api/v1/health": {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		/**
+		 * Health check
+		 * @description Simple liveness probe.
+		 */
+		readonly get: operations["HealthCheck"];
+		readonly put?: never;
+		readonly post?: never;
+		readonly delete?: never;
+		readonly options?: never;
+		readonly head?: never;
+		readonly patch?: never;
+		readonly trace?: never;
+	};
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** Availability */
-        readonly Availability: {
-            /** Isrecurring */
-            readonly isRecurring: boolean;
-            /** Date */
-            readonly date?: string | null;
-            /** Dayofweek */
-            readonly dayOfWeek?: number | null;
-            /**
-             * Starttime
-             * Format: time
-             */
-            readonly startTime: string;
-            /**
-             * Endtime
-             * Format: time
-             */
-            readonly endTime: string;
-            /** Validfrom */
-            readonly validFrom?: string | null;
-            /** Validuntil */
-            readonly validUntil?: string | null;
-            /** Timezone */
-            readonly timezone: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Cliqueid
-             * Format: uuid
-             */
-            readonly cliqueId: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-        };
-        /** AvailabilityCreate */
-        readonly AvailabilityCreate: {
-            /** Isrecurring */
-            readonly isRecurring: boolean;
-            /** Date */
-            readonly date?: string | null;
-            /** Dayofweek */
-            readonly dayOfWeek?: number | null;
-            /**
-             * Starttime
-             * Format: time
-             */
-            readonly startTime: string;
-            /**
-             * Endtime
-             * Format: time
-             */
-            readonly endTime: string;
-            /** Validfrom */
-            readonly validFrom?: string | null;
-            /** Validuntil */
-            readonly validUntil?: string | null;
-            /** Timezone */
-            readonly timezone: string;
-        };
-        /** AvailabilityUpdate */
-        readonly AvailabilityUpdate: {
-            /** Isrecurring */
-            readonly isRecurring?: boolean | null;
-            /** Date */
-            readonly date?: string | null;
-            /** Dayofweek */
-            readonly dayOfWeek?: number | null;
-            /** Starttime */
-            readonly startTime?: string | null;
-            /** Endtime */
-            readonly endTime?: string | null;
-            /** Validfrom */
-            readonly validFrom?: string | null;
-            /** Validuntil */
-            readonly validUntil?: string | null;
-            /** Timezone */
-            readonly timezone?: string | null;
-        };
-        /** Booking */
-        readonly Booking: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Serviceid
-             * Format: uuid
-             */
-            readonly serviceId: string;
-            /**
-             * Cliqueid
-             * Format: uuid
-             */
-            readonly cliqueId: string;
-            /**
-             * Userid
-             * Format: uuid
-             */
-            readonly userId: string;
-            /**
-             * Startts
-             * Format: date-time
-             */
-            readonly startTs: string;
-            /**
-             * Endts
-             * Format: date-time
-             */
-            readonly endTs: string;
-            readonly status: components["schemas"]["BookingStatus"];
-            readonly cancelledBy?: components["schemas"]["CancelledBy"] | null;
-            /** Cancellationreason */
-            readonly cancellationReason?: string | null;
-            /** Note */
-            readonly note?: string | null;
-            /** Idempotencykey */
-            readonly idempotencyKey?: string | null;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-        };
-        /** BookingCreate */
-        readonly BookingCreate: {
-            /**
-             * Serviceid
-             * Format: uuid
-             */
-            readonly serviceId: string;
-            /**
-             * Startts
-             * Format: date-time
-             */
-            readonly startTs: string;
-            /** Note */
-            readonly note?: string | null;
-            /** Idempotencykey */
-            readonly idempotencyKey?: string | null;
-        };
-        /** BookingReschedule */
-        readonly BookingReschedule: {
-            /**
-             * Startts
-             * Format: date-time
-             */
-            readonly startTs: string;
-        };
-        /**
-         * BookingStatus
-         * @enum {string}
-         */
-        readonly BookingStatus: BookingStatus;
-        /**
-         * CancelledBy
-         * @enum {string}
-         */
-        readonly CancelledBy: CancelledBy;
-        /** Chat */
-        readonly Chat: {
-            /**
-             * Businessuserid
-             * Format: uuid
-             */
-            readonly businessUserId: string;
-            /**
-             * Clientuserid
-             * Format: uuid
-             */
-            readonly clientUserId: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-        };
-        /** Clique */
-        readonly Clique: {
-            /** Name */
-            readonly name: string;
-            /** Description */
-            readonly description?: string | null;
-            /** Imageurl */
-            readonly imageUrl?: string | null;
-            /** @default public */
-            readonly privacy: components["schemas"]["Privacy"];
-            /** Timezone */
-            readonly timezone: string;
-            /**
-             * Cancellationcutoffhours
-             * @default 24
-             */
-            readonly cancellationCutoffHours: number;
-            /** Occupationids */
-            readonly occupationIds?: readonly string[];
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Owneruserid
-             * Format: uuid
-             */
-            readonly ownerUserId: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-        };
-        /** CliqueCreate */
-        readonly CliqueCreate: {
-            /** Name */
-            readonly name: string;
-            /** Description */
-            readonly description?: string | null;
-            /** Imageurl */
-            readonly imageUrl?: string | null;
-            /** @default public */
-            readonly privacy: components["schemas"]["Privacy"];
-            /** Timezone */
-            readonly timezone: string;
-            /**
-             * Cancellationcutoffhours
-             * @default 24
-             */
-            readonly cancellationCutoffHours: number;
-            /** Occupationids */
-            readonly occupationIds?: readonly string[];
-        };
-        /** CliqueInvite */
-        readonly CliqueInvite: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Cliqueid
-             * Format: uuid
-             */
-            readonly cliqueId: string;
-            /** Token */
-            readonly token: string;
-            /** Expiresat */
-            readonly expiresAt?: string | null;
-            /** Maxuses */
-            readonly maxUses?: number | null;
-            /** Uses */
-            readonly uses: number;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-        };
-        /** CliqueInviteCreate */
-        readonly CliqueInviteCreate: {
-            /** Expiresat */
-            readonly expiresAt?: string | null;
-            /** Maxuses */
-            readonly maxUses?: number | null;
-        };
-        /** CliqueMember */
-        readonly CliqueMember: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Cliqueid
-             * Format: uuid
-             */
-            readonly cliqueId: string;
-            /**
-             * Userid
-             * Format: uuid
-             */
-            readonly userId: string;
-            readonly role: components["schemas"]["Role"];
-            readonly status: components["schemas"]["MembershipStatus"];
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-        };
-        /** CliqueUpdate */
-        readonly CliqueUpdate: {
-            /** Name */
-            readonly name?: string | null;
-            /** Description */
-            readonly description?: string | null;
-            /** Imageurl */
-            readonly imageUrl?: string | null;
-            readonly privacy?: components["schemas"]["Privacy"] | null;
-            /** Timezone */
-            readonly timezone?: string | null;
-            /** Cancellationcutoffhours */
-            readonly cancellationCutoffHours?: number | null;
-            /** Occupationids */
-            readonly occupationIds?: readonly string[] | null;
-        };
-        /** Comment */
-        readonly Comment: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Postid
-             * Format: uuid
-             */
-            readonly postId: string;
-            /**
-             * Userid
-             * Format: uuid
-             */
-            readonly userId: string;
-            /** Body */
-            readonly body: string;
-            /** Parentcommentid */
-            readonly parentCommentId?: string | null;
-            /** Deletedat */
-            readonly deletedAt?: string | null;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-        };
-        /** CommentCreate */
-        readonly CommentCreate: {
-            /** Body */
-            readonly body: string;
-            /** Parentcommentid */
-            readonly parentCommentId?: string | null;
-        };
-        /**
-         * ContentFormat
-         * @enum {string}
-         */
-        readonly ContentFormat: ContentFormat;
-        /** CursorPageBookings */
-        readonly CursorPageBookings: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["Booking"][];
-        };
-        /** CursorPageCliqueMembers */
-        readonly CursorPageCliqueMembers: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["CliqueMember"][];
-        };
-        /** CursorPageCliques */
-        readonly CursorPageCliques: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["Clique"][];
-        };
-        /** CursorPageFollows */
-        readonly CursorPageFollows: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["Follow"][];
-        };
-        /** CursorPagePosts */
-        readonly CursorPagePosts: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["Post"][];
-        };
-        /** CursorPageReviews */
-        readonly CursorPageReviews: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["Review"][];
-        };
-        /** CursorPageUsers */
-        readonly CursorPageUsers: {
-            /** Nextcursor */
-            readonly nextCursor?: string | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-            /** Items */
-            readonly items: readonly components["schemas"]["User"][];
-        };
-        /** Follow */
-        readonly Follow: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Followeruserid
-             * Format: uuid
-             */
-            readonly followerUserId: string;
-            /**
-             * Followeeuserid
-             * Format: uuid
-             */
-            readonly followeeUserId: string;
-            readonly status: components["schemas"]["FollowStatus"];
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            readonly user: components["schemas"]["UserFollow"];
-        };
-        /**
-         * FollowStatus
-         * @enum {string}
-         */
-        readonly FollowStatus: FollowStatus;
-        /** FollowingStatus */
-        readonly FollowingStatus: {
-            /** Isfollowing */
-            readonly isFollowing: boolean;
-            /** Isfollowrequested */
-            readonly isFollowRequested: boolean;
-        };
-        /** HTTPValidationError */
-        readonly HTTPValidationError: {
-            /** Detail */
-            readonly detail?: readonly components["schemas"]["ValidationError"][];
-        };
-        /** LoginRequest */
-        readonly LoginRequest: {
-            /** Emailorusername */
-            readonly emailOrUsername: string;
-            /** Password */
-            readonly password: string;
-        };
-        /** MediaCreate */
-        readonly MediaCreate: {
-            /** Url */
-            readonly url: string;
-            /** Mime */
-            readonly mime?: string | null;
-            /** Sizebytes */
-            readonly sizeBytes?: number | null;
-            /** Meta */
-            readonly meta?: {
-                readonly [key: string]: unknown;
-            } | null;
-        };
-        /** MediaPresignResponse */
-        readonly MediaPresignResponse: {
-            /**
-             * Method
-             * @default PUT
-             * @constant
-             */
-            readonly method: "PUT";
-            /** Uploadurl */
-            readonly uploadUrl: string;
-            /** Publicurl */
-            readonly publicUrl: string;
-            /** Expiresin */
-            readonly expiresIn: number;
-        };
-        /** MediaRegisterResponse */
-        readonly MediaRegisterResponse: {
-            /** Mediaid */
-            readonly mediaId: string;
-        };
-        /**
-         * MembershipStatus
-         * @enum {string}
-         */
-        readonly MembershipStatus: MembershipStatus;
-        /** Message */
-        readonly Message: {
-            /** Body */
-            readonly body?: string | null;
-            /** Mediaid */
-            readonly mediaId?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Chatid
-             * Format: uuid
-             */
-            readonly chatId: string;
-            /**
-             * Senderuserid
-             * Format: uuid
-             */
-            readonly senderUserId: string;
-            /**
-             * Sentat
-             * Format: date-time
-             */
-            readonly sentAt: string;
-        };
-        /** MessageCreate */
-        readonly MessageCreate: {
-            /** Body */
-            readonly body?: string | null;
-            /** Mediaid */
-            readonly mediaId?: string | null;
-        };
-        /** Notification */
-        readonly Notification: {
-            readonly type: components["schemas"]["NotificationType"];
-            /** Payload */
-            readonly payload: {
-                readonly [key: string]: unknown;
-            };
-            /**
-             * Isread
-             * @default false
-             */
-            readonly isRead: boolean;
-            /** Readat */
-            readonly readAt?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Userid
-             * Format: uuid
-             */
-            readonly userId: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-        };
-        /**
-         * NotificationType
-         * @enum {string}
-         */
-        readonly NotificationType: NotificationType;
-        /** Occupation */
-        readonly Occupation: {
-            /** Name */
-            readonly name: string;
-            /** Slug */
-            readonly slug: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-        };
-        /** OccupationCreate */
-        readonly OccupationCreate: {
-            /** Name */
-            readonly name: string;
-        };
-        /** Post */
-        readonly Post: {
-            /** @default markdown */
-            readonly contentFormat: components["schemas"]["ContentFormat"];
-            /** Content */
-            readonly content: string;
-            /** @default draft */
-            readonly status: components["schemas"]["PostStatus"];
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Cliqueid
-             * Format: uuid
-             */
-            readonly cliqueId: string;
-            /**
-             * Authoruserid
-             * Format: uuid
-             */
-            readonly authorUserId: string;
-            /** Deletedat */
-            readonly deletedAt?: string | null;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-            /**
-             * Likescount
-             * @default 0
-             */
-            readonly likesCount: number;
-            /**
-             * Commentscount
-             * @default 0
-             */
-            readonly commentsCount: number;
-            /**
-             * Likedbyme
-             * @default false
-             */
-            readonly likedByMe: boolean;
-        };
-        /** PostCreate */
-        readonly PostCreate: {
-            /** @default markdown */
-            readonly contentFormat: components["schemas"]["ContentFormat"];
-            /** Content */
-            readonly content: string;
-            /** @default draft */
-            readonly status: components["schemas"]["PostStatus"];
-        };
-        /**
-         * PostStatus
-         * @enum {string}
-         */
-        readonly PostStatus: PostStatus;
-        /** PostUpdate */
-        readonly PostUpdate: {
-            /** Content */
-            readonly content?: string | null;
-            readonly status?: components["schemas"]["PostStatus"] | null;
-        };
-        /**
-         * Privacy
-         * @enum {string}
-         */
-        readonly Privacy: Privacy;
-        /** RefreshRequest */
-        readonly RefreshRequest: {
-            /** Refreshtoken */
-            readonly refreshToken: string;
-        };
-        /** Review */
-        readonly Review: {
-            /** Rating */
-            readonly rating: number;
-            /** Comment */
-            readonly comment?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Bookingid
-             * Format: uuid
-             */
-            readonly bookingId: string;
-            /**
-             * Rateruserid
-             * Format: uuid
-             */
-            readonly raterUserId: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-        };
-        /** ReviewCreate */
-        readonly ReviewCreate: {
-            /** Rating */
-            readonly rating: number;
-            /** Comment */
-            readonly comment?: string | null;
-        };
-        /**
-         * Role
-         * @enum {string}
-         */
-        readonly Role: Role;
-        /** SearchResult */
-        readonly SearchResult: {
-            /** Users */
-            readonly users: readonly components["schemas"]["User"][];
-            /** Occupations */
-            readonly occupations: readonly components["schemas"]["Occupation"][];
-            /** Cliques */
-            readonly cliques: readonly components["schemas"]["Clique"][];
-        };
-        /** Service */
-        readonly Service: {
-            /** Title */
-            readonly title: string;
-            /** Description */
-            readonly description?: string | null;
-            /** Priceminor */
-            readonly priceMinor?: number | null;
-            /**
-             * Currency
-             * @default EUR
-             */
-            readonly currency: string;
-            /** Durationminutes */
-            readonly durationMinutes: number;
-            /**
-             * Bufferminutes
-             * @default 0
-             */
-            readonly bufferMinutes: number;
-            /**
-             * Isactive
-             * @default true
-             */
-            readonly isActive: boolean;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Cliqueid
-             * Format: uuid
-             */
-            readonly cliqueId: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-        };
-        /** ServiceCreate */
-        readonly ServiceCreate: {
-            /** Title */
-            readonly title: string;
-            /** Description */
-            readonly description?: string | null;
-            /** Priceminor */
-            readonly priceMinor?: number | null;
-            /**
-             * Currency
-             * @default EUR
-             */
-            readonly currency: string;
-            /** Durationminutes */
-            readonly durationMinutes: number;
-            /**
-             * Bufferminutes
-             * @default 0
-             */
-            readonly bufferMinutes: number;
-            /**
-             * Isactive
-             * @default true
-             */
-            readonly isActive: boolean;
-        };
-        /** ServiceUpdate */
-        readonly ServiceUpdate: {
-            /** Title */
-            readonly title?: string | null;
-            /** Description */
-            readonly description?: string | null;
-            /** Priceminor */
-            readonly priceMinor?: number | null;
-            /** Durationminutes */
-            readonly durationMinutes?: number | null;
-            /** Bufferminutes */
-            readonly bufferMinutes?: number | null;
-            /** Isactive */
-            readonly isActive?: boolean | null;
-        };
-        /** TokenRead */
-        readonly TokenRead: {
-            /** Accesstoken */
-            readonly accessToken: string;
-            /** Refreshtoken */
-            readonly refreshToken: string;
-            readonly user: components["schemas"]["User"];
-        };
-        /** User */
-        readonly User: {
-            /**
-             * Email
-             * Format: email
-             */
-            readonly email: string;
-            /** Username */
-            readonly username: string;
-            /** Fullname */
-            readonly fullName: string;
-            /** Bio */
-            readonly bio?: string | null;
-            /** Profileimageurl */
-            readonly profileImageUrl?: string | null;
-            /**
-             * Isadmin
-             * @default false
-             */
-            readonly isAdmin: boolean;
-            /**
-             * Isactive
-             * @default true
-             */
-            readonly isActive: boolean;
-            /**
-             * Isprivateaccount
-             * @default false
-             */
-            readonly isPrivateAccount: boolean;
-            /**
-             * Isbusinesspage
-             * @default false
-             */
-            readonly isBusinessPage: boolean;
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            readonly createdAt: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            readonly updatedAt: string;
-            /** Followerscount */
-            readonly followersCount: number;
-            /** Followingcount */
-            readonly followingCount: number;
-        };
-        /** UserCreate */
-        readonly UserCreate: {
-            /**
-             * Email
-             * Format: email
-             */
-            readonly email: string;
-            /** Username */
-            readonly username: string;
-            /** Fullname */
-            readonly fullName: string;
-            /** Bio */
-            readonly bio?: string | null;
-            /** Profileimageurl */
-            readonly profileImageUrl?: string | null;
-            /**
-             * Isadmin
-             * @default false
-             */
-            readonly isAdmin: boolean;
-            /**
-             * Isactive
-             * @default true
-             */
-            readonly isActive: boolean;
-            /**
-             * Isprivateaccount
-             * @default false
-             */
-            readonly isPrivateAccount: boolean;
-            /**
-             * Isbusinesspage
-             * @default false
-             */
-            readonly isBusinessPage: boolean;
-            /** Password */
-            readonly password: string;
-        };
-        /** UserFollow */
-        readonly UserFollow: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            readonly id: string;
-            /** Username */
-            readonly username: string;
-            /** Fullname */
-            readonly fullName: string;
-            /** Profileimageurl */
-            readonly profileImageUrl?: string | null;
-            /** Isbusinesspage */
-            readonly isBusinessPage: boolean;
-            /** Bio */
-            readonly bio?: string | null;
-        };
-        /** UserUpdate */
-        readonly UserUpdate: {
-            /** Fullname */
-            readonly fullName?: string | null;
-            /** Bio */
-            readonly bio?: string | null;
-            /** Profileimageurl */
-            readonly profileImageUrl?: string | null;
-            /** Isprivateaccount */
-            readonly isPrivateAccount?: boolean | null;
-        };
-        /** ValidationError */
-        readonly ValidationError: {
-            /** Location */
-            readonly loc: readonly (string | number)[];
-            /** Message */
-            readonly msg: string;
-            /** Error Type */
-            readonly type: string;
-        };
-        readonly ErrorEnvelope: {
-            readonly error: {
-                /** @example validation_error */
-                readonly code: string;
-                /** @example Invalid parent comment */
-                readonly message: string;
-                /** @example {} */
-                readonly details: {
-                    readonly [key: string]: unknown;
-                };
-            };
-        };
-    };
-    responses: never;
-    parameters: {
-        /** @description Opaque pagination cursor from previous response `nextCursor`. */
-        readonly CursorParam: string;
-        /** @description Max items to return (default 20, max 100). */
-        readonly LimitParam: number;
-    };
-    requestBodies: never;
-    headers: {
-        /** @description Request limit for the window. */
-        readonly "X-RateLimit-Limit": number;
-        /** @description Requests left in the window. */
-        readonly "X-RateLimit-Remaining": number;
-        /** @description Seconds until reset. */
-        readonly "X-RateLimit-Reset": number;
-    };
-    pathItems: never;
+	schemas: {
+		/** Availability */
+		readonly Availability: {
+			/** Isrecurring */
+			readonly isRecurring: boolean;
+			/** Date */
+			readonly date?: string | null;
+			/** Dayofweek */
+			readonly dayOfWeek?: number | null;
+			/**
+			 * Starttime
+			 * Format: time
+			 */
+			readonly startTime: string;
+			/**
+			 * Endtime
+			 * Format: time
+			 */
+			readonly endTime: string;
+			/** Validfrom */
+			readonly validFrom?: string | null;
+			/** Validuntil */
+			readonly validUntil?: string | null;
+			/** Timezone */
+			readonly timezone: string;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Cliqueid
+			 * Format: uuid
+			 */
+			readonly cliqueId: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+		};
+		/** AvailabilityCreate */
+		readonly AvailabilityCreate: {
+			/** Isrecurring */
+			readonly isRecurring: boolean;
+			/** Date */
+			readonly date?: string | null;
+			/** Dayofweek */
+			readonly dayOfWeek?: number | null;
+			/**
+			 * Starttime
+			 * Format: time
+			 */
+			readonly startTime: string;
+			/**
+			 * Endtime
+			 * Format: time
+			 */
+			readonly endTime: string;
+			/** Validfrom */
+			readonly validFrom?: string | null;
+			/** Validuntil */
+			readonly validUntil?: string | null;
+			/** Timezone */
+			readonly timezone: string;
+		};
+		/** AvailabilityUpdate */
+		readonly AvailabilityUpdate: {
+			/** Isrecurring */
+			readonly isRecurring?: boolean | null;
+			/** Date */
+			readonly date?: string | null;
+			/** Dayofweek */
+			readonly dayOfWeek?: number | null;
+			/** Starttime */
+			readonly startTime?: string | null;
+			/** Endtime */
+			readonly endTime?: string | null;
+			/** Validfrom */
+			readonly validFrom?: string | null;
+			/** Validuntil */
+			readonly validUntil?: string | null;
+			/** Timezone */
+			readonly timezone?: string | null;
+		};
+		/** Booking */
+		readonly Booking: {
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Serviceid
+			 * Format: uuid
+			 */
+			readonly serviceId: string;
+			/**
+			 * Cliqueid
+			 * Format: uuid
+			 */
+			readonly cliqueId: string;
+			/**
+			 * Userid
+			 * Format: uuid
+			 */
+			readonly userId: string;
+			/**
+			 * Startts
+			 * Format: date-time
+			 */
+			readonly startTs: string;
+			/**
+			 * Endts
+			 * Format: date-time
+			 */
+			readonly endTs: string;
+			readonly status: components["schemas"]["BookingStatus"];
+			readonly cancelledBy?: components["schemas"]["CancelledBy"] | null;
+			/** Cancellationreason */
+			readonly cancellationReason?: string | null;
+			/** Note */
+			readonly note?: string | null;
+			/** Idempotencykey */
+			readonly idempotencyKey?: string | null;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+		};
+		/** BookingCreate */
+		readonly BookingCreate: {
+			/**
+			 * Serviceid
+			 * Format: uuid
+			 */
+			readonly serviceId: string;
+			/**
+			 * Startts
+			 * Format: date-time
+			 */
+			readonly startTs: string;
+			/** Note */
+			readonly note?: string | null;
+			/** Idempotencykey */
+			readonly idempotencyKey?: string | null;
+		};
+		/** BookingReschedule */
+		readonly BookingReschedule: {
+			/**
+			 * Startts
+			 * Format: date-time
+			 */
+			readonly startTs: string;
+		};
+		/**
+		 * BookingStatus
+		 * @enum {string}
+		 */
+		readonly BookingStatus: BookingStatus;
+		/**
+		 * CancelledBy
+		 * @enum {string}
+		 */
+		readonly CancelledBy: CancelledBy;
+		/** Chat */
+		readonly Chat: {
+			/**
+			 * Businessuserid
+			 * Format: uuid
+			 */
+			readonly businessUserId: string;
+			/**
+			 * Clientuserid
+			 * Format: uuid
+			 */
+			readonly clientUserId: string;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+		};
+		/** Clique */
+		readonly Clique: {
+			/** Name */
+			readonly name: string;
+			/** Description */
+			readonly description?: string | null;
+			/** Imageurl */
+			readonly imageUrl?: string | null;
+			/** @default public */
+			readonly privacy: components["schemas"]["Privacy"];
+			/** Timezone */
+			readonly timezone: string;
+			/**
+			 * Cancellationcutoffhours
+			 * @default 24
+			 */
+			readonly cancellationCutoffHours: number;
+			/** Occupationids */
+			readonly occupationIds?: readonly string[];
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Owneruserid
+			 * Format: uuid
+			 */
+			readonly ownerUserId: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+		};
+		/** CliqueCreate */
+		readonly CliqueCreate: {
+			/** Name */
+			readonly name: string;
+			/** Description */
+			readonly description?: string | null;
+			/** Imageurl */
+			readonly imageUrl?: string | null;
+			/** @default public */
+			readonly privacy: components["schemas"]["Privacy"];
+			/** Timezone */
+			readonly timezone: string;
+			/**
+			 * Cancellationcutoffhours
+			 * @default 24
+			 */
+			readonly cancellationCutoffHours: number;
+			/** Occupationids */
+			readonly occupationIds?: readonly string[];
+		};
+		/** CliqueInvite */
+		readonly CliqueInvite: {
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Cliqueid
+			 * Format: uuid
+			 */
+			readonly cliqueId: string;
+			/** Token */
+			readonly token: string;
+			/** Expiresat */
+			readonly expiresAt?: string | null;
+			/** Maxuses */
+			readonly maxUses?: number | null;
+			/** Uses */
+			readonly uses: number;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+		};
+		/** CliqueInviteCreate */
+		readonly CliqueInviteCreate: {
+			/** Expiresat */
+			readonly expiresAt?: string | null;
+			/** Maxuses */
+			readonly maxUses?: number | null;
+		};
+		/** CliqueMember */
+		readonly CliqueMember: {
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Cliqueid
+			 * Format: uuid
+			 */
+			readonly cliqueId: string;
+			/**
+			 * Userid
+			 * Format: uuid
+			 */
+			readonly userId: string;
+			readonly role: components["schemas"]["Role"];
+			readonly status: components["schemas"]["MembershipStatus"];
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+		};
+		/** CliqueUpdate */
+		readonly CliqueUpdate: {
+			/** Name */
+			readonly name?: string | null;
+			/** Description */
+			readonly description?: string | null;
+			/** Imageurl */
+			readonly imageUrl?: string | null;
+			readonly privacy?: components["schemas"]["Privacy"] | null;
+			/** Timezone */
+			readonly timezone?: string | null;
+			/** Cancellationcutoffhours */
+			readonly cancellationCutoffHours?: number | null;
+			/** Occupationids */
+			readonly occupationIds?: readonly string[] | null;
+		};
+		/** Comment */
+		readonly Comment: {
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Postid
+			 * Format: uuid
+			 */
+			readonly postId: string;
+			/**
+			 * Userid
+			 * Format: uuid
+			 */
+			readonly userId: string;
+			/** Body */
+			readonly body: string;
+			/** Parentcommentid */
+			readonly parentCommentId?: string | null;
+			/** Deletedat */
+			readonly deletedAt?: string | null;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+		};
+		/** CommentCreate */
+		readonly CommentCreate: {
+			/** Body */
+			readonly body: string;
+			/** Parentcommentid */
+			readonly parentCommentId?: string | null;
+		};
+		/**
+		 * ContentFormat
+		 * @enum {string}
+		 */
+		readonly ContentFormat: ContentFormat;
+		/** CursorPageBookings */
+		readonly CursorPageBookings: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["Booking"][];
+		};
+		/** CursorPageCliqueMembers */
+		readonly CursorPageCliqueMembers: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["CliqueMember"][];
+		};
+		/** CursorPageCliques */
+		readonly CursorPageCliques: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["Clique"][];
+		};
+		/** CursorPageFollows */
+		readonly CursorPageFollows: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["Follow"][];
+		};
+		/** CursorPagePosts */
+		readonly CursorPagePosts: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["Post"][];
+		};
+		/** CursorPageReviews */
+		readonly CursorPageReviews: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["Review"][];
+		};
+		/** CursorPageUsers */
+		readonly CursorPageUsers: {
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+			/** Items */
+			readonly items: readonly components["schemas"]["User"][];
+		};
+		/** Follow */
+		readonly Follow: {
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Followeruserid
+			 * Format: uuid
+			 */
+			readonly followerUserId: string;
+			/**
+			 * Followeeuserid
+			 * Format: uuid
+			 */
+			readonly followeeUserId: string;
+			readonly status: components["schemas"]["FollowStatus"];
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			readonly user: components["schemas"]["UserFollow"];
+		};
+		/**
+		 * FollowStatus
+		 * @enum {string}
+		 */
+		readonly FollowStatus: FollowStatus;
+		/** FollowingStatus */
+		readonly FollowingStatus: {
+			/** Isfollowing */
+			readonly isFollowing: boolean;
+			/** Isfollowrequested */
+			readonly isFollowRequested: boolean;
+		};
+		/** HTTPValidationError */
+		readonly HTTPValidationError: {
+			/** Detail */
+			readonly detail?: readonly components["schemas"]["ValidationError"][];
+		};
+		/** LoginRequest */
+		readonly LoginRequest: {
+			/** Emailorusername */
+			readonly emailOrUsername: string;
+			/** Password */
+			readonly password: string;
+		};
+		/** MediaCreate */
+		readonly MediaCreate: {
+			/** Url */
+			readonly url: string;
+			/** Mime */
+			readonly mime?: string | null;
+			/** Sizebytes */
+			readonly sizeBytes?: number | null;
+			/** Meta */
+			readonly meta?: {
+				readonly [key: string]: unknown;
+			} | null;
+		};
+		/** MediaPresignResponse */
+		readonly MediaPresignResponse: {
+			/**
+			 * Method
+			 * @default PUT
+			 * @constant
+			 */
+			readonly method: "PUT";
+			/** Uploadurl */
+			readonly uploadUrl: string;
+			/** Publicurl */
+			readonly publicUrl: string;
+			/** Expiresin */
+			readonly expiresIn: number;
+		};
+		/** MediaRegisterResponse */
+		readonly MediaRegisterResponse: {
+			/** Mediaid */
+			readonly mediaId: string;
+		};
+		/**
+		 * MembershipStatus
+		 * @enum {string}
+		 */
+		readonly MembershipStatus: MembershipStatus;
+		/** Message */
+		readonly Message: {
+			/** Body */
+			readonly body?: string | null;
+			/** Mediaid */
+			readonly mediaId?: string | null;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Chatid
+			 * Format: uuid
+			 */
+			readonly chatId: string;
+			/**
+			 * Senderuserid
+			 * Format: uuid
+			 */
+			readonly senderUserId: string;
+			/**
+			 * Sentat
+			 * Format: date-time
+			 */
+			readonly sentAt: string;
+		};
+		/** MessageCreate */
+		readonly MessageCreate: {
+			/** Body */
+			readonly body?: string | null;
+			/** Mediaid */
+			readonly mediaId?: string | null;
+		};
+		/** Notification */
+		readonly Notification: {
+			readonly type: components["schemas"]["NotificationType"];
+			/** Payload */
+			readonly payload: {
+				readonly [key: string]: unknown;
+			};
+			/**
+			 * Isread
+			 * @default false
+			 */
+			readonly isRead: boolean;
+			/** Readat */
+			readonly readAt?: string | null;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Userid
+			 * Format: uuid
+			 */
+			readonly userId: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+		};
+		/**
+		 * NotificationType
+		 * @enum {string}
+		 */
+		readonly NotificationType: NotificationType;
+		/** Occupation */
+		readonly Occupation: {
+			/** Name */
+			readonly name: string;
+			/** Slug */
+			readonly slug: string;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+		};
+		/** OccupationCreate */
+		readonly OccupationCreate: {
+			/** Name */
+			readonly name: string;
+		};
+		/** Post */
+		readonly Post: {
+			/** @default markdown */
+			readonly contentFormat: components["schemas"]["ContentFormat"];
+			/** Content */
+			readonly content: string;
+			/** @default draft */
+			readonly status: components["schemas"]["PostStatus"];
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Cliqueid
+			 * Format: uuid
+			 */
+			readonly cliqueId: string;
+			/**
+			 * Authoruserid
+			 * Format: uuid
+			 */
+			readonly authorUserId: string;
+			/** Deletedat */
+			readonly deletedAt?: string | null;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+			/**
+			 * Likescount
+			 * @default 0
+			 */
+			readonly likesCount: number;
+			/**
+			 * Commentscount
+			 * @default 0
+			 */
+			readonly commentsCount: number;
+			/**
+			 * Likedbyme
+			 * @default false
+			 */
+			readonly likedByMe: boolean;
+		};
+		/** PostCreate */
+		readonly PostCreate: {
+			/** @default markdown */
+			readonly contentFormat: components["schemas"]["ContentFormat"];
+			/** Content */
+			readonly content: string;
+			/** @default draft */
+			readonly status: components["schemas"]["PostStatus"];
+		};
+		/**
+		 * PostStatus
+		 * @enum {string}
+		 */
+		readonly PostStatus: PostStatus;
+		/** PostUpdate */
+		readonly PostUpdate: {
+			/** Content */
+			readonly content?: string | null;
+			readonly status?: components["schemas"]["PostStatus"] | null;
+		};
+		/**
+		 * Privacy
+		 * @enum {string}
+		 */
+		readonly Privacy: Privacy;
+		/** RefreshRequest */
+		readonly RefreshRequest: {
+			/** Refreshtoken */
+			readonly refreshToken: string;
+		};
+		/** Review */
+		readonly Review: {
+			/** Rating */
+			readonly rating: number;
+			/** Comment */
+			readonly comment?: string | null;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Bookingid
+			 * Format: uuid
+			 */
+			readonly bookingId: string;
+			/**
+			 * Rateruserid
+			 * Format: uuid
+			 */
+			readonly raterUserId: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+		};
+		/** ReviewCreate */
+		readonly ReviewCreate: {
+			/** Rating */
+			readonly rating: number;
+			/** Comment */
+			readonly comment?: string | null;
+		};
+		/**
+		 * Role
+		 * @enum {string}
+		 */
+		readonly Role: Role;
+		/** SearchResult */
+		readonly SearchResult: {
+			/** Users */
+			readonly users: readonly components["schemas"]["User"][];
+			/** Occupations */
+			readonly occupations: readonly components["schemas"]["Occupation"][];
+			/** Cliques */
+			readonly cliques: readonly components["schemas"]["Clique"][];
+		};
+		/** Service */
+		readonly Service: {
+			/** Title */
+			readonly title: string;
+			/** Description */
+			readonly description?: string | null;
+			/** Priceminor */
+			readonly priceMinor?: number | null;
+			/**
+			 * Currency
+			 * @default EUR
+			 */
+			readonly currency: string;
+			/** Durationminutes */
+			readonly durationMinutes: number;
+			/**
+			 * Bufferminutes
+			 * @default 0
+			 */
+			readonly bufferMinutes: number;
+			/**
+			 * Isactive
+			 * @default true
+			 */
+			readonly isActive: boolean;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Cliqueid
+			 * Format: uuid
+			 */
+			readonly cliqueId: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+		};
+		/** ServiceCreate */
+		readonly ServiceCreate: {
+			/** Title */
+			readonly title: string;
+			/** Description */
+			readonly description?: string | null;
+			/** Priceminor */
+			readonly priceMinor?: number | null;
+			/**
+			 * Currency
+			 * @default EUR
+			 */
+			readonly currency: string;
+			/** Durationminutes */
+			readonly durationMinutes: number;
+			/**
+			 * Bufferminutes
+			 * @default 0
+			 */
+			readonly bufferMinutes: number;
+			/**
+			 * Isactive
+			 * @default true
+			 */
+			readonly isActive: boolean;
+		};
+		/** ServiceUpdate */
+		readonly ServiceUpdate: {
+			/** Title */
+			readonly title?: string | null;
+			/** Description */
+			readonly description?: string | null;
+			/** Priceminor */
+			readonly priceMinor?: number | null;
+			/** Durationminutes */
+			readonly durationMinutes?: number | null;
+			/** Bufferminutes */
+			readonly bufferMinutes?: number | null;
+			/** Isactive */
+			readonly isActive?: boolean | null;
+		};
+		/** TokenRead */
+		readonly TokenRead: {
+			/** Accesstoken */
+			readonly accessToken: string;
+			/** Refreshtoken */
+			readonly refreshToken: string;
+			readonly user: components["schemas"]["User"];
+		};
+		/** User */
+		readonly User: {
+			/**
+			 * Email
+			 * Format: email
+			 */
+			readonly email: string;
+			/** Username */
+			readonly username: string;
+			/** Fullname */
+			readonly fullName: string;
+			/** Bio */
+			readonly bio?: string | null;
+			/** Profileimageurl */
+			readonly profileImageUrl?: string | null;
+			/**
+			 * Isadmin
+			 * @default false
+			 */
+			readonly isAdmin: boolean;
+			/**
+			 * Isactive
+			 * @default true
+			 */
+			readonly isActive: boolean;
+			/**
+			 * Isprivateaccount
+			 * @default false
+			 */
+			readonly isPrivateAccount: boolean;
+			/**
+			 * Isbusinesspage
+			 * @default false
+			 */
+			readonly isBusinessPage: boolean;
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/**
+			 * Createdat
+			 * Format: date-time
+			 */
+			readonly createdAt: string;
+			/**
+			 * Updatedat
+			 * Format: date-time
+			 */
+			readonly updatedAt: string;
+			/** Followerscount */
+			readonly followersCount: number;
+			/** Followingcount */
+			readonly followingCount: number;
+		};
+		/** UserCreate */
+		readonly UserCreate: {
+			/**
+			 * Email
+			 * Format: email
+			 */
+			readonly email: string;
+			/** Username */
+			readonly username: string;
+			/** Fullname */
+			readonly fullName: string;
+			/** Bio */
+			readonly bio?: string | null;
+			/** Profileimageurl */
+			readonly profileImageUrl?: string | null;
+			/**
+			 * Isadmin
+			 * @default false
+			 */
+			readonly isAdmin: boolean;
+			/**
+			 * Isactive
+			 * @default true
+			 */
+			readonly isActive: boolean;
+			/**
+			 * Isprivateaccount
+			 * @default false
+			 */
+			readonly isPrivateAccount: boolean;
+			/**
+			 * Isbusinesspage
+			 * @default false
+			 */
+			readonly isBusinessPage: boolean;
+			/** Password */
+			readonly password: string;
+		};
+		/** UserFollow */
+		readonly UserFollow: {
+			/**
+			 * Id
+			 * Format: uuid
+			 */
+			readonly id: string;
+			/** Username */
+			readonly username: string;
+			/** Fullname */
+			readonly fullName: string;
+			/** Profileimageurl */
+			readonly profileImageUrl?: string | null;
+			/** Isbusinesspage */
+			readonly isBusinessPage: boolean;
+			/** Bio */
+			readonly bio?: string | null;
+		};
+		/** UserUpdate */
+		readonly UserUpdate: {
+			/** Fullname */
+			readonly fullName?: string | null;
+			/** Bio */
+			readonly bio?: string | null;
+			/** Profileimageurl */
+			readonly profileImageUrl?: string | null;
+			/** Isprivateaccount */
+			readonly isPrivateAccount?: boolean | null;
+		};
+		/** ValidationError */
+		readonly ValidationError: {
+			/** Location */
+			readonly loc: readonly (string | number)[];
+			/** Message */
+			readonly msg: string;
+			/** Error Type */
+			readonly type: string;
+		};
+		readonly ErrorEnvelope: {
+			readonly error: {
+				/** @example validation_error */
+				readonly code: string;
+				/** @example Invalid parent comment */
+				readonly message: string;
+				/** @example {} */
+				readonly details: {
+					readonly [key: string]: unknown;
+				};
+			};
+		};
+	};
+	responses: never;
+	parameters: {
+		/** @description Opaque pagination cursor from previous response `nextCursor`. */
+		readonly CursorParam: string;
+		/** @description Max items to return (default 20, max 100). */
+		readonly LimitParam: number;
+	};
+	requestBodies: never;
+	headers: {
+		/** @description Request limit for the window. */
+		readonly "X-RateLimit-Limit": number;
+		/** @description Requests left in the window. */
+		readonly "X-RateLimit-Remaining": number;
+		/** @description Seconds until reset. */
+		readonly "X-RateLimit-Reset": number;
+	};
+	pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    readonly AuthRegister: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["UserCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Registration successful */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                     *       "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                     *       "user": {
-                     *         "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
-                     *         "email": "founder@example.com",
-                     *         "username": "clique_founder",
-                     *         "fullName": "Clique Founder",
-                     *         "bio": "Owner of Clique Salon",
-                     *         "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
-                     *         "isAdmin": false,
-                     *         "isActive": true,
-                     *         "isPrivateAccount": false,
-                     *         "isBusinessPage": true,
-                     *         "createdAt": "2024-03-01T09:00:00Z",
-                     *         "updatedAt": "2024-03-01T09:00:00Z"
-                     *       }
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["TokenRead"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            readonly 409: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            readonly 503: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly AuthLogin: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        readonly responses: {
-            /** @description Authenticated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                     *       "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                     *       "user": {
-                     *         "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
-                     *         "email": "founder@example.com",
-                     *         "username": "clique_founder",
-                     *         "fullName": "Clique Founder",
-                     *         "bio": "Owner of Clique Salon",
-                     *         "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
-                     *         "isAdmin": false,
-                     *         "isActive": true,
-                     *         "isPrivateAccount": false,
-                     *         "isBusinessPage": true,
-                     *         "createdAt": "2024-03-01T09:00:00Z",
-                     *         "updatedAt": "2024-03-01T09:00:00Z"
-                     *       }
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["TokenRead"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            readonly 503: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly AuthRefresh: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["RefreshRequest"];
-            };
-        };
-        readonly responses: {
-            /** @description Tokens refreshed */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["TokenRead"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            readonly 503: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly AuthLogout: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["RefreshRequest"];
-            };
-        };
-        readonly responses: {
-            /** @description Refresh token revoked */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "Logged out"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Service Unavailable */
-            readonly 503: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly UsersMe: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Current user profile */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly UsersUpdateMe: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["UserUpdate"];
-            };
-        };
-        readonly responses: {
-            /** @description Updated profile */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly Users: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Free-text search across usernames and bios. */
-                readonly q?: string;
-                /** @description Filter to users tagged with a specific occupation. */
-                readonly occupationId?: string | null;
-                /** @description Sort expression in the form `field:direction`. */
-                readonly sort?: string;
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Users page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageUsers"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly UsersById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description User profile */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["User"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly UsersFollow: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Follow request sent */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Follow"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowApprove: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Follow approved */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Follow"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowReject: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Follow rejected */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": "rejected"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly UsersDeleteFollowerById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-                readonly followerId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Follower removed */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": "removed"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowFollowers: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Followers page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageFollows"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowFollowing: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Following page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageFollows"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowingStatus: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Follow status */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["FollowingStatus"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowBlock: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description User blocked */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Follow"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly UsersFollowUnblock: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description User unblocked */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": "unblocked"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesFeed: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Feed page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPagePosts"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly Cliques: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Cliques page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageCliques"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesCreate: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["CliqueCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Clique created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Clique"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly CliquesById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Clique profile */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": {
-                        readonly [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesDeleteById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Clique deleted */
-            readonly 204: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesUpdateById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["CliqueUpdate"];
-            };
-        };
-        readonly responses: {
-            /** @description Clique updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Clique"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly CliquesJoin: {
-        readonly parameters: {
-            readonly query?: {
-                readonly inviteToken?: string | null;
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Join request recorded */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CliqueMember"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly CliquesLeave: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Left clique */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": "left"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesMembers: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Members page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageCliqueMembers"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesMembersPending: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Pending members */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageCliqueMembers"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesMembersApprove: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-                readonly memberId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Membership approved */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CliqueMember"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly CliquesMembersReject: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-                readonly memberId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Membership rejected */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "status": "rejected"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly CliquesUser: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description User cliques page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageCliques"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesInvites: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["CliqueInviteCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Invite created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CliqueInvite"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly PostsFeed: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques. */
-                readonly filter?: string | null;
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Feed posts page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPagePosts"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsCliquesPosts: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Posts page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPagePosts"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsCreateCliquesPosts: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["PostCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Post created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                     *       "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
-                     *       "authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                     *       "content": "✨ Spring product launch this Friday at 5pm!",
-                     *       "status": "posted",
-                     *       "likesCount": 0,
-                     *       "commentsCount": 0,
-                     *       "likedByMe": false,
-                     *       "createdAt": "2024-04-01T12:00:00Z",
-                     *       "updatedAt": "2024-04-01T12:00:00Z"
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Post"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly PostsUserPosts: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly userId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description User posts page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPagePosts"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly postId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Post detail */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Post"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsDeleteById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly postId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Post deleted */
-            readonly 204: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsUpdateById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly postId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["PostUpdate"];
-            };
-        };
-        readonly responses: {
-            /** @description Post updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Post"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly PostsLike: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly postId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Post with updated reactions */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                     *       "likesCount": 12,
-                     *       "commentsCount": 3,
-                     *       "likedByMe": true
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Post"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsUnlike: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly postId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Post with updated reactions */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                     *       "likesCount": 11,
-                     *       "commentsCount": 3,
-                     *       "likedByMe": false
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Post"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly PostsCreateComments: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly postId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["CommentCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Comment created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
-                     *       "postId": "7415722e-4e4f-4f8b-8c44-2924f905a712",
-                     *       "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                     *       "content": "Can't wait to see the new collection!",
-                     *       "createdAt": "2024-04-01T13:00:00Z"
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Comment"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly PostsDeleteCommentsById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly commentId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Comment deleted */
-            readonly 204: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly MediaUploadsPresign: {
-        readonly parameters: {
-            readonly query: {
-                /** @description MIME type of the file to be uploaded. */
-                readonly mime: string;
-                /** @description Planned upload size in bytes. */
-                readonly sizeBytes: number;
-                /** @description Purpose of the media (e.g. `profile`, `gallery`, `attachment`). */
-                readonly purpose: string;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Presign generated */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "method": "PUT",
-                     *       "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
-                     *       "publicUrl": "https://cdn.example.com/bucket/uploads",
-                     *       "expiresIn": 900
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["MediaPresignResponse"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly MediaRegister: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["MediaCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Media registered */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "mediaId": "28c77070-40a9-4478-b6a6-319d1490d0dd"
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["MediaRegisterResponse"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly BookingsCreate: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["BookingCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Booking created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
-                     *       "serviceId": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
-                     *       "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
-                     *       "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
-                     *       "startTs": "2024-04-02T14:00:00Z",
-                     *       "endTs": "2024-04-02T15:00:00Z",
-                     *       "status": "pending",
-                     *       "note": "Please prepare the studio for a product shoot.",
-                     *       "idempotencyKey": "booking-20240402",
-                     *       "createdAt": "2024-04-01T10:00:00Z",
-                     *       "updatedAt": "2024-04-01T10:00:00Z"
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Booking"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            readonly 409: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly BookingsReschedule: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly bookingId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["BookingReschedule"];
-            };
-        };
-        readonly responses: {
-            /** @description Booking rescheduled */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
-                     *       "startTs": "2024-04-03T16:00:00Z",
-                     *       "endTs": "2024-04-03T17:00:00Z",
-                     *       "status": "pending"
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Booking"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            readonly 409: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly BookingsMe: {
-        readonly parameters: {
-            readonly query?: {
-                readonly status?: string | null;
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Bookings page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageBookings"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly BookingsCliques: {
-        readonly parameters: {
-            readonly query?: {
-                readonly status?: string | null;
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Bookings page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageBookings"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly BookingsConfirm: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly bookingId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Booking confirmed */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Booking"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            readonly 409: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly BookingsCancel: {
-        readonly parameters: {
-            readonly query?: {
-                readonly reason?: string | null;
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly bookingId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Booking cancelled */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
-                     *       "status": "cancelled",
-                     *       "cancellationReason": "Client unavailable"
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["Booking"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Conflict */
-            readonly 409: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly ReviewsBookings: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly bookingId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["ReviewCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Review created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "id": "9dd1b664-9e45-4e1c-8343-cfb819a6f5ce"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly ReviewsCliques: {
-        readonly parameters: {
-            readonly query?: {
-                /** @description Opaque pagination cursor from previous response `nextCursor`. */
-                readonly cursor?: components["parameters"]["CursorParam"];
-                /** @description Max items to return (default 20, max 100). */
-                readonly limit?: components["parameters"]["LimitParam"];
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Reviews page */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["CursorPageReviews"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly Notifications: {
-        readonly parameters: {
-            readonly query?: {
-                readonly limit?: number;
-                readonly offset?: number;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Notifications list */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Notification"][];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly NotificationsRead: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly notificationId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Notification updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Notification"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly NotificationsReadAll: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description All notifications marked read */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "Marked 12 notifications as read"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly Search: {
-        readonly parameters: {
-            readonly query: {
-                /** @description Search term applied to users, occupations, and cliques. */
-                readonly q: string;
-                /** @description Maximum number of results per collection. */
-                readonly limit?: number;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Search results */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "users": [
-                     *         {
-                     *           "id": "d0a93f94-9fab-41a2-964d-8f6a78524c1d",
-                     *           "username": "clique_founder",
-                     *           "fullName": "Clique Founder"
-                     *         }
-                     *       ],
-                     *       "occupations": [
-                     *         {
-                     *           "id": "9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
-                     *           "name": "Photographer"
-                     *         }
-                     *       ],
-                     *       "cliques": [
-                     *         {
-                     *           "id": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
-                     *           "name": "Clique Studio",
-                     *           "privacy": "private",
-                     *           "imageUrl": "https://cdn.example.com/cliques/studio.png"
-                     *         }
-                     *       ]
-                     *     }
-                     */
-                    readonly "application/json": components["schemas"]["SearchResult"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly Chats: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Chats list */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Chat"][];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly MessagesByChatId: {
-        readonly parameters: {
-            readonly query?: {
-                readonly limit?: number;
-                readonly offset?: number;
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly chatId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Messages list */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Message"][];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly MessagesCreateByChatId: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly chatId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["MessageCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Message sent */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Message"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly MessagesDeleteById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly messageId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Message deleted */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "Message deleted"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly Occupations: {
-        readonly parameters: {
-            readonly query?: {
-                readonly limit?: number;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Occupations list */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Occupation"][];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly OccupationsCreate: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["OccupationCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Successful Response */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Occupation"];
-                };
-            };
-            /** @description Occupation created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly OccupationsSearch: {
-        readonly parameters: {
-            readonly query: {
-                readonly q: string;
-                readonly limit?: number;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Search results */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Occupation"][];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly OccupationsUser: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": readonly string[];
-            };
-        };
-        readonly responses: {
-            /** @description Occupations updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "User occupations updated"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly OccupationsCliqueUpdate: {
-        readonly parameters: {
-            readonly query: {
-                readonly clique_id: string;
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": readonly string[];
-            };
-        };
-        readonly responses: {
-            /** @description Clique occupations updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "Clique occupations updated"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly ServicesCreate: {
-        readonly parameters: {
-            readonly query: {
-                readonly cliqueId: string;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["ServiceCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Service created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Service"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly ServicesByCliqueId: {
-        readonly parameters: {
-            readonly query?: {
-                readonly activeOnly?: boolean;
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Services list */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Service"][];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly ServicesUpdateById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly serviceId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["ServiceUpdate"];
-            };
-        };
-        readonly responses: {
-            /** @description Service updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Service"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly ServicesDeleteById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly serviceId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Service deleted */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "Service deleted"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly AvailabilityCreate: {
-        readonly parameters: {
-            readonly query: {
-                readonly cliqueId: string;
-            };
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["AvailabilityCreate"];
-            };
-        };
-        readonly responses: {
-            /** @description Availability created */
-            readonly 201: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Availability"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly AvailabilityByCliqueId: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Availability windows */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": readonly components["schemas"]["Availability"][];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly AvailabilityUpdateById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly availabilityId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody: {
-            readonly content: {
-                readonly "application/json": components["schemas"]["AvailabilityUpdate"];
-            };
-        };
-        readonly responses: {
-            /** @description Availability updated */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["Availability"];
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly AvailabilityDeleteById: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path: {
-                readonly availabilityId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Availability deleted */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "message": "Availability deleted"
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Forbidden */
-            readonly 403: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not Found */
-            readonly 404: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation Error */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    readonly CliquesSlots: {
-        readonly parameters: {
-            readonly query: {
-                /** @description Service identifier to compute slots for. */
-                readonly serviceId: string;
-                /** @description Inclusive ISO 8601 start datetime (timezone-aware). */
-                readonly from: string;
-                /** @description Exclusive ISO 8601 end datetime (timezone-aware). */
-                readonly to: string;
-            };
-            readonly header?: never;
-            readonly path: {
-                readonly cliqueId: string;
-            };
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Computed availability slots */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "slots": [
-                     *         {
-                     *           "start_ts": "2024-04-02T14:00:00+00:00",
-                     *           "end_ts": "2024-04-02T15:00:00+00:00"
-                     *         }
-                     *       ]
-                     *     }
-                     */
-                    readonly "application/json": {
-                        readonly [key: string]: readonly {
-                            readonly [key: string]: string;
-                        }[];
-                    };
-                };
-            };
-            /** @description Bad Request */
-            readonly 400: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unauthorized */
-            readonly 401: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Unprocessable Content */
-            readonly 422: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    readonly HealthCheck: {
-        readonly parameters: {
-            readonly query?: never;
-            readonly header?: never;
-            readonly path?: never;
-            readonly cookie?: never;
-        };
-        readonly requestBody?: never;
-        readonly responses: {
-            /** @description Successful Response */
-            readonly 200: {
-                headers: {
-                    readonly [name: string]: unknown;
-                };
-                content: {
-                    readonly "application/json": {
-                        readonly [key: string]: string;
-                    };
-                };
-            };
-        };
-    };
+	readonly AuthRegister: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["UserCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Registration successful */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+					 *       "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+					 *       "user": {
+					 *         "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
+					 *         "email": "founder@example.com",
+					 *         "username": "clique_founder",
+					 *         "fullName": "Clique Founder",
+					 *         "bio": "Owner of Clique Salon",
+					 *         "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+					 *         "isAdmin": false,
+					 *         "isActive": true,
+					 *         "isPrivateAccount": false,
+					 *         "isBusinessPage": true,
+					 *         "createdAt": "2024-03-01T09:00:00Z",
+					 *         "updatedAt": "2024-03-01T09:00:00Z"
+					 *       }
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["TokenRead"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Conflict */
+			readonly 409: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Service Unavailable */
+			readonly 503: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly AuthLogin: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["LoginRequest"];
+			};
+		};
+		readonly responses: {
+			/** @description Authenticated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+					 *       "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+					 *       "user": {
+					 *         "id": "7e3aab18-ec8d-49b7-b1da-e04591c8d9f8",
+					 *         "email": "founder@example.com",
+					 *         "username": "clique_founder",
+					 *         "fullName": "Clique Founder",
+					 *         "bio": "Owner of Clique Salon",
+					 *         "profileImageUrl": "https://cdn.example.com/profiles/clique_founder.png",
+					 *         "isAdmin": false,
+					 *         "isActive": true,
+					 *         "isPrivateAccount": false,
+					 *         "isBusinessPage": true,
+					 *         "createdAt": "2024-03-01T09:00:00Z",
+					 *         "updatedAt": "2024-03-01T09:00:00Z"
+					 *       }
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["TokenRead"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Service Unavailable */
+			readonly 503: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly AuthRefresh: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["RefreshRequest"];
+			};
+		};
+		readonly responses: {
+			/** @description Tokens refreshed */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["TokenRead"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Service Unavailable */
+			readonly 503: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly AuthLogout: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["RefreshRequest"];
+			};
+		};
+		readonly responses: {
+			/** @description Refresh token revoked */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "Logged out"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Service Unavailable */
+			readonly 503: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly UsersMe: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Current user profile */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly UsersUpdateMe: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["UserUpdate"];
+			};
+		};
+		readonly responses: {
+			/** @description Updated profile */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly Users: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Free-text search across usernames and bios. */
+				readonly q?: string;
+				/** @description Filter to users tagged with a specific occupation. */
+				readonly occupationId?: string | null;
+				/** @description Sort expression in the form `field:direction`. */
+				readonly sort?: string;
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Users page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageUsers"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly UsersById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description User profile */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["User"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly UsersFollow: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Follow request sent */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Follow"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowApprove: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Follow approved */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Follow"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowReject: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Follow rejected */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "status": "rejected"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly UsersDeleteFollowerById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+				readonly followerId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Follower removed */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "status": "removed"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowFollowers: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Followers page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageFollows"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowFollowing: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Following page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageFollows"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowingStatus: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Follow status */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["FollowingStatus"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowBlock: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description User blocked */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Follow"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly UsersFollowUnblock: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description User unblocked */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "status": "unblocked"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesFeed: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Feed page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPagePosts"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly Cliques: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Cliques page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageCliques"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesCreate: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["CliqueCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Clique created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Clique"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly CliquesById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Clique profile */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": {
+						readonly [key: string]: unknown;
+					};
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesDeleteById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Clique deleted */
+			readonly 204: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesUpdateById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["CliqueUpdate"];
+			};
+		};
+		readonly responses: {
+			/** @description Clique updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Clique"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly CliquesJoin: {
+		readonly parameters: {
+			readonly query?: {
+				readonly inviteToken?: string | null;
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Join request recorded */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CliqueMember"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly CliquesLeave: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Left clique */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "status": "left"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesMembers: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Members page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageCliqueMembers"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesMembersPending: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Pending members */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageCliqueMembers"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesMembersApprove: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+				readonly memberId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Membership approved */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CliqueMember"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly CliquesMembersReject: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+				readonly memberId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Membership rejected */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "status": "rejected"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly CliquesUser: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description User cliques page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageCliques"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesInvites: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["CliqueInviteCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Invite created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CliqueInvite"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly PostsFeed: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Filter type: 'followings' or 'cliques'. Default shows posts from public cliques or user's cliques. */
+				readonly filter?: string | null;
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Feed posts page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPagePosts"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsCliquesPosts: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Posts page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPagePosts"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsCreateCliquesPosts: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["PostCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Post created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+					 *       "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+					 *       "authorUserId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+					 *       "content": "✨ Spring product launch this Friday at 5pm!",
+					 *       "status": "posted",
+					 *       "likesCount": 0,
+					 *       "commentsCount": 0,
+					 *       "likedByMe": false,
+					 *       "createdAt": "2024-04-01T12:00:00Z",
+					 *       "updatedAt": "2024-04-01T12:00:00Z"
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Post"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly PostsUserPosts: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly userId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description User posts page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPagePosts"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly postId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Post detail */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Post"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsDeleteById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly postId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Post deleted */
+			readonly 204: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsUpdateById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly postId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["PostUpdate"];
+			};
+		};
+		readonly responses: {
+			/** @description Post updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Post"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly PostsLike: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly postId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Post with updated reactions */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+					 *       "likesCount": 12,
+					 *       "commentsCount": 3,
+					 *       "likedByMe": true
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Post"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsUnlike: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly postId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Post with updated reactions */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+					 *       "likesCount": 11,
+					 *       "commentsCount": 3,
+					 *       "likedByMe": false
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Post"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly PostsCreateComments: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly postId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["CommentCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Comment created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "b1d38d06-5801-4b69-90c6-74c4950c333a",
+					 *       "postId": "7415722e-4e4f-4f8b-8c44-2924f905a712",
+					 *       "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+					 *       "content": "Can't wait to see the new collection!",
+					 *       "createdAt": "2024-04-01T13:00:00Z"
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Comment"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly PostsDeleteCommentsById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly commentId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Comment deleted */
+			readonly 204: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly MediaUploadsPresign: {
+		readonly parameters: {
+			readonly query: {
+				/** @description MIME type of the file to be uploaded. */
+				readonly mime: string;
+				/** @description Planned upload size in bytes. */
+				readonly sizeBytes: number;
+				/** @description Purpose of the media (e.g. `profile`, `gallery`, `attachment`). */
+				readonly purpose: string;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Presign generated */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "method": "PUT",
+					 *       "uploadUrl": "https://s3.amazonaws.com/bucket/uploads",
+					 *       "publicUrl": "https://cdn.example.com/bucket/uploads",
+					 *       "expiresIn": 900
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["MediaPresignResponse"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly MediaRegister: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["MediaCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Media registered */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "mediaId": "28c77070-40a9-4478-b6a6-319d1490d0dd"
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["MediaRegisterResponse"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly BookingsCreate: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["BookingCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Booking created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+					 *       "serviceId": "51f3dcc5-0f02-4dfe-944c-7c76cf5302b9",
+					 *       "cliqueId": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+					 *       "userId": "93d52d58-eac4-4e74-a69d-6410a1de0970",
+					 *       "startTs": "2024-04-02T14:00:00Z",
+					 *       "endTs": "2024-04-02T15:00:00Z",
+					 *       "status": "pending",
+					 *       "note": "Please prepare the studio for a product shoot.",
+					 *       "idempotencyKey": "booking-20240402",
+					 *       "createdAt": "2024-04-01T10:00:00Z",
+					 *       "updatedAt": "2024-04-01T10:00:00Z"
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Booking"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Conflict */
+			readonly 409: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly BookingsReschedule: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly bookingId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["BookingReschedule"];
+			};
+		};
+		readonly responses: {
+			/** @description Booking rescheduled */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+					 *       "startTs": "2024-04-03T16:00:00Z",
+					 *       "endTs": "2024-04-03T17:00:00Z",
+					 *       "status": "pending"
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Booking"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Conflict */
+			readonly 409: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly BookingsMe: {
+		readonly parameters: {
+			readonly query?: {
+				readonly status?: string | null;
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Bookings page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageBookings"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly BookingsCliques: {
+		readonly parameters: {
+			readonly query?: {
+				readonly status?: string | null;
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Bookings page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageBookings"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly BookingsConfirm: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly bookingId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Booking confirmed */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Booking"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Conflict */
+			readonly 409: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly BookingsCancel: {
+		readonly parameters: {
+			readonly query?: {
+				readonly reason?: string | null;
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly bookingId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Booking cancelled */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+					 *       "status": "cancelled",
+					 *       "cancellationReason": "Client unavailable"
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["Booking"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Conflict */
+			readonly 409: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly ReviewsBookings: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly bookingId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["ReviewCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Review created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "id": "9dd1b664-9e45-4e1c-8343-cfb819a6f5ce"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly ReviewsCliques: {
+		readonly parameters: {
+			readonly query?: {
+				/** @description Opaque pagination cursor from previous response `nextCursor`. */
+				readonly cursor?: components["parameters"]["CursorParam"];
+				/** @description Max items to return (default 20, max 100). */
+				readonly limit?: components["parameters"]["LimitParam"];
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Reviews page */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["CursorPageReviews"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly Notifications: {
+		readonly parameters: {
+			readonly query?: {
+				readonly limit?: number;
+				readonly offset?: number;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Notifications list */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Notification"][];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly NotificationsRead: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly notificationId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Notification updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Notification"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly NotificationsReadAll: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description All notifications marked read */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "Marked 12 notifications as read"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly Search: {
+		readonly parameters: {
+			readonly query: {
+				/** @description Search term applied to users, occupations, and cliques. */
+				readonly q: string;
+				/** @description Maximum number of results per collection. */
+				readonly limit?: number;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Search results */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "users": [
+					 *         {
+					 *           "id": "d0a93f94-9fab-41a2-964d-8f6a78524c1d",
+					 *           "username": "clique_founder",
+					 *           "fullName": "Clique Founder"
+					 *         }
+					 *       ],
+					 *       "occupations": [
+					 *         {
+					 *           "id": "9b07c852-0cf4-4d05-857f-46bd7d4b52c5",
+					 *           "name": "Photographer"
+					 *         }
+					 *       ],
+					 *       "cliques": [
+					 *         {
+					 *           "id": "257c6140-3ab2-4e74-bac6-41b4ed9f8f2e",
+					 *           "name": "Clique Studio",
+					 *           "privacy": "private",
+					 *           "imageUrl": "https://cdn.example.com/cliques/studio.png"
+					 *         }
+					 *       ]
+					 *     }
+					 */
+					readonly "application/json": components["schemas"]["SearchResult"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly Chats: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Chats list */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Chat"][];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly MessagesByChatId: {
+		readonly parameters: {
+			readonly query?: {
+				readonly limit?: number;
+				readonly offset?: number;
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly chatId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Messages list */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Message"][];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly MessagesCreateByChatId: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly chatId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["MessageCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Message sent */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Message"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly MessagesDeleteById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly messageId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Message deleted */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "Message deleted"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly Occupations: {
+		readonly parameters: {
+			readonly query?: {
+				readonly limit?: number;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Occupations list */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Occupation"][];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly OccupationsCreate: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["OccupationCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Successful Response */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Occupation"];
+				};
+			};
+			/** @description Occupation created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content?: never;
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly OccupationsSearch: {
+		readonly parameters: {
+			readonly query: {
+				readonly q: string;
+				readonly limit?: number;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Search results */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Occupation"][];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly OccupationsUser: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": readonly string[];
+			};
+		};
+		readonly responses: {
+			/** @description Occupations updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "User occupations updated"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly OccupationsCliqueUpdate: {
+		readonly parameters: {
+			readonly query: {
+				readonly clique_id: string;
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": readonly string[];
+			};
+		};
+		readonly responses: {
+			/** @description Clique occupations updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "Clique occupations updated"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly ServicesCreate: {
+		readonly parameters: {
+			readonly query: {
+				readonly cliqueId: string;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["ServiceCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Service created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Service"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly ServicesByCliqueId: {
+		readonly parameters: {
+			readonly query?: {
+				readonly activeOnly?: boolean;
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Services list */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Service"][];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly ServicesUpdateById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly serviceId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["ServiceUpdate"];
+			};
+		};
+		readonly responses: {
+			/** @description Service updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Service"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly ServicesDeleteById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly serviceId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Service deleted */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "Service deleted"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly AvailabilityCreate: {
+		readonly parameters: {
+			readonly query: {
+				readonly cliqueId: string;
+			};
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["AvailabilityCreate"];
+			};
+		};
+		readonly responses: {
+			/** @description Availability created */
+			readonly 201: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Availability"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly AvailabilityByCliqueId: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Availability windows */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": readonly components["schemas"]["Availability"][];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly AvailabilityUpdateById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly availabilityId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody: {
+			readonly content: {
+				readonly "application/json": components["schemas"]["AvailabilityUpdate"];
+			};
+		};
+		readonly responses: {
+			/** @description Availability updated */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["Availability"];
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly AvailabilityDeleteById: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path: {
+				readonly availabilityId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Availability deleted */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "message": "Availability deleted"
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Forbidden */
+			readonly 403: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Not Found */
+			readonly 404: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Validation Error */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["HTTPValidationError"];
+				};
+			};
+		};
+	};
+	readonly CliquesSlots: {
+		readonly parameters: {
+			readonly query: {
+				/** @description Service identifier to compute slots for. */
+				readonly serviceId: string;
+				/** @description Inclusive ISO 8601 start datetime (timezone-aware). */
+				readonly from: string;
+				/** @description Exclusive ISO 8601 end datetime (timezone-aware). */
+				readonly to: string;
+			};
+			readonly header?: never;
+			readonly path: {
+				readonly cliqueId: string;
+			};
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Computed availability slots */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					/**
+					 * @example {
+					 *       "slots": [
+					 *         {
+					 *           "start_ts": "2024-04-02T14:00:00+00:00",
+					 *           "end_ts": "2024-04-02T15:00:00+00:00"
+					 *         }
+					 *       ]
+					 *     }
+					 */
+					readonly "application/json": {
+						readonly [key: string]: readonly {
+							readonly [key: string]: string;
+						}[];
+					};
+				};
+			};
+			/** @description Bad Request */
+			readonly 400: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unauthorized */
+			readonly 401: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+			/** @description Unprocessable Content */
+			readonly 422: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": components["schemas"]["ErrorEnvelope"];
+				};
+			};
+		};
+	};
+	readonly HealthCheck: {
+		readonly parameters: {
+			readonly query?: never;
+			readonly header?: never;
+			readonly path?: never;
+			readonly cookie?: never;
+		};
+		readonly requestBody?: never;
+		readonly responses: {
+			/** @description Successful Response */
+			readonly 200: {
+				headers: {
+					readonly [name: string]: unknown;
+				};
+				content: {
+					readonly "application/json": {
+						readonly [key: string]: string;
+					};
+				};
+			};
+		};
+	};
 }
 export enum BookingStatus {
-    pending = "pending",
-    confirmed = "confirmed",
-    completed = "completed",
-    cancelled = "cancelled"
+	pending = "pending",
+	confirmed = "confirmed",
+	completed = "completed",
+	cancelled = "cancelled",
 }
 export enum CancelledBy {
-    owner = "owner",
-    client = "client"
+	owner = "owner",
+	client = "client",
 }
 export enum ContentFormat {
-    markdown = "markdown"
+	markdown = "markdown",
 }
 export enum FollowStatus {
-    pending = "pending",
-    accepted = "accepted",
-    blocked = "blocked"
+	pending = "pending",
+	accepted = "accepted",
+	blocked = "blocked",
 }
 export enum MembershipStatus {
-    joined = "joined",
-    pending = "pending",
-    banned = "banned"
+	joined = "joined",
+	pending = "pending",
+	banned = "banned",
 }
 export enum NotificationType {
-    like = "like",
-    comment = "comment",
-    follow = "follow",
-    booking_request = "booking_request",
-    booking_confirmed = "booking_confirmed",
-    booking_cancelled = "booking_cancelled",
-    review = "review",
-    system = "system",
-    message = "message"
+	like = "like",
+	comment = "comment",
+	follow = "follow",
+	booking_request = "booking_request",
+	booking_confirmed = "booking_confirmed",
+	booking_cancelled = "booking_cancelled",
+	review = "review",
+	system = "system",
+	message = "message",
 }
 export enum PostStatus {
-    draft = "draft",
-    posted = "posted",
-    archived = "archived"
+	draft = "draft",
+	posted = "posted",
+	archived = "archived",
 }
 export enum Privacy {
-    public = "public",
-    private = "private"
+	public = "public",
+	private = "private",
 }
 export enum Role {
-    owner = "owner",
-    member = "member"
+	owner = "owner",
+	member = "member",
 }
 export enum ApiPaths {
-    AuthRegister = "/api/v1/auth/register",
-    AuthLogin = "/api/v1/auth/login",
-    AuthRefresh = "/api/v1/auth/refresh",
-    AuthLogout = "/api/v1/auth/logout",
-    UsersMe = "/api/v1/users/me",
-    UsersUpdateMe = "/api/v1/users/me",
-    Users = "/api/v1/users",
-    UsersById = "/api/v1/users/{userId}",
-    UsersFollow = "/api/v1/users/{userId}/follow",
-    UsersFollowApprove = "/api/v1/users/{userId}/follow/approve",
-    UsersFollowReject = "/api/v1/users/{userId}/follow/reject",
-    UsersDeleteFollowerById = "/api/v1/users/{userId}/follow/followers/{followerId}",
-    UsersFollowFollowers = "/api/v1/users/{userId}/follow/followers",
-    UsersFollowFollowing = "/api/v1/users/{userId}/follow/following",
-    UsersFollowingStatus = "/api/v1/users/{userId}/follow/status",
-    UsersFollowBlock = "/api/v1/users/{userId}/follow/block",
-    UsersFollowUnblock = "/api/v1/users/{userId}/follow/block",
-    CliquesFeed = "/api/v1/cliques/feed",
-    Cliques = "/api/v1/cliques",
-    CliquesCreate = "/api/v1/cliques",
-    CliquesById = "/api/v1/cliques/{cliqueId}",
-    CliquesUpdateById = "/api/v1/cliques/{cliqueId}",
-    CliquesDeleteById = "/api/v1/cliques/{cliqueId}",
-    CliquesJoin = "/api/v1/cliques/{cliqueId}/join",
-    CliquesLeave = "/api/v1/cliques/{cliqueId}/members/me",
-    CliquesMembers = "/api/v1/cliques/{cliqueId}/members",
-    CliquesMembersPending = "/api/v1/cliques/{cliqueId}/members/pending",
-    CliquesMembersApprove = "/api/v1/cliques/{cliqueId}/members/{memberId}/approve",
-    CliquesMembersReject = "/api/v1/cliques/{cliqueId}/members/{memberId}/reject",
-    CliquesUser = "/api/v1/cliques/user/{userId}/cliques",
-    CliquesInvites = "/api/v1/cliques/{cliqueId}/invites",
-    PostsFeed = "/api/v1/posts/feed",
-    PostsCreateCliquesPosts = "/api/v1/posts/cliques/{cliqueId}/posts",
-    PostsCliquesPosts = "/api/v1/posts/cliques/{cliqueId}/posts",
-    PostsUserPosts = "/api/v1/posts/user/{userId}/posts",
-    PostsById = "/api/v1/posts/{postId}",
-    PostsUpdateById = "/api/v1/posts/{postId}",
-    PostsDeleteById = "/api/v1/posts/{postId}",
-    PostsLike = "/api/v1/posts/{postId}/like",
-    PostsUnlike = "/api/v1/posts/{postId}/like",
-    PostsCreateComments = "/api/v1/posts/{postId}/comments",
-    PostsDeleteCommentsById = "/api/v1/posts/comments/{commentId}",
-    MediaUploadsPresign = "/api/v1/media/uploads/presign",
-    MediaRegister = "/api/v1/media",
-    BookingsCreate = "/api/v1/bookings",
-    BookingsReschedule = "/api/v1/bookings/{bookingId}/reschedule",
-    BookingsMe = "/api/v1/bookings/me",
-    BookingsCliques = "/api/v1/bookings/cliques/{cliqueId}",
-    BookingsConfirm = "/api/v1/bookings/{bookingId}/confirm",
-    BookingsCancel = "/api/v1/bookings/{bookingId}/cancel",
-    ReviewsBookings = "/api/v1/reviews/bookings/{bookingId}",
-    ReviewsCliques = "/api/v1/reviews/cliques/{cliqueId}",
-    Notifications = "/api/v1/notifications",
-    NotificationsRead = "/api/v1/notifications/{notificationId}/read",
-    NotificationsReadAll = "/api/v1/notifications/read-all",
-    Search = "/api/v1/search",
-    Chats = "/api/v1/chats",
-    MessagesByChatId = "/api/v1/messages/{chatId}",
-    MessagesCreateByChatId = "/api/v1/messages/{chatId}",
-    MessagesDeleteById = "/api/v1/messages/{messageId}",
-    Occupations = "/api/v1/occupations",
-    OccupationsCreate = "/api/v1/occupations",
-    OccupationsSearch = "/api/v1/occupations/search",
-    OccupationsUser = "/api/v1/occupations/user",
-    OccupationsCliqueUpdate = "/api/v1/occupations/clique/{cliqueId}",
-    ServicesCreate = "/api/v1/services",
-    ServicesByCliqueId = "/api/v1/services/{cliqueId}",
-    ServicesUpdateById = "/api/v1/services/{serviceId}",
-    ServicesDeleteById = "/api/v1/services/{serviceId}",
-    AvailabilityCreate = "/api/v1/availability",
-    AvailabilityByCliqueId = "/api/v1/availability/{cliqueId}",
-    AvailabilityUpdateById = "/api/v1/availability/{availabilityId}",
-    AvailabilityDeleteById = "/api/v1/availability/{availabilityId}",
-    CliquesSlots = "/api/v1/cliques/{cliqueId}/slots",
-    HealthCheck = "/api/v1/health"
+	AuthRegister = "/api/v1/auth/register",
+	AuthLogin = "/api/v1/auth/login",
+	AuthRefresh = "/api/v1/auth/refresh",
+	AuthLogout = "/api/v1/auth/logout",
+	UsersMe = "/api/v1/users/me",
+	UsersUpdateMe = "/api/v1/users/me",
+	Users = "/api/v1/users",
+	UsersById = "/api/v1/users/{userId}",
+	UsersFollow = "/api/v1/users/{userId}/follow",
+	UsersFollowApprove = "/api/v1/users/{userId}/follow/approve",
+	UsersFollowReject = "/api/v1/users/{userId}/follow/reject",
+	UsersDeleteFollowerById = "/api/v1/users/{userId}/follow/followers/{followerId}",
+	UsersFollowFollowers = "/api/v1/users/{userId}/follow/followers",
+	UsersFollowFollowing = "/api/v1/users/{userId}/follow/following",
+	UsersFollowingStatus = "/api/v1/users/{userId}/follow/status",
+	UsersFollowBlock = "/api/v1/users/{userId}/follow/block",
+	UsersFollowUnblock = "/api/v1/users/{userId}/follow/block",
+	CliquesFeed = "/api/v1/cliques/feed",
+	Cliques = "/api/v1/cliques",
+	CliquesCreate = "/api/v1/cliques",
+	CliquesById = "/api/v1/cliques/{cliqueId}",
+	CliquesUpdateById = "/api/v1/cliques/{cliqueId}",
+	CliquesDeleteById = "/api/v1/cliques/{cliqueId}",
+	CliquesJoin = "/api/v1/cliques/{cliqueId}/join",
+	CliquesLeave = "/api/v1/cliques/{cliqueId}/members/me",
+	CliquesMembers = "/api/v1/cliques/{cliqueId}/members",
+	CliquesMembersPending = "/api/v1/cliques/{cliqueId}/members/pending",
+	CliquesMembersApprove = "/api/v1/cliques/{cliqueId}/members/{memberId}/approve",
+	CliquesMembersReject = "/api/v1/cliques/{cliqueId}/members/{memberId}/reject",
+	CliquesUser = "/api/v1/cliques/user/{userId}/cliques",
+	CliquesInvites = "/api/v1/cliques/{cliqueId}/invites",
+	PostsFeed = "/api/v1/posts/feed",
+	PostsCreateCliquesPosts = "/api/v1/posts/cliques/{cliqueId}/posts",
+	PostsCliquesPosts = "/api/v1/posts/cliques/{cliqueId}/posts",
+	PostsUserPosts = "/api/v1/posts/user/{userId}/posts",
+	PostsById = "/api/v1/posts/{postId}",
+	PostsUpdateById = "/api/v1/posts/{postId}",
+	PostsDeleteById = "/api/v1/posts/{postId}",
+	PostsLike = "/api/v1/posts/{postId}/like",
+	PostsUnlike = "/api/v1/posts/{postId}/like",
+	PostsCreateComments = "/api/v1/posts/{postId}/comments",
+	PostsDeleteCommentsById = "/api/v1/posts/comments/{commentId}",
+	MediaUploadsPresign = "/api/v1/media/uploads/presign",
+	MediaRegister = "/api/v1/media",
+	BookingsCreate = "/api/v1/bookings",
+	BookingsReschedule = "/api/v1/bookings/{bookingId}/reschedule",
+	BookingsMe = "/api/v1/bookings/me",
+	BookingsCliques = "/api/v1/bookings/cliques/{cliqueId}",
+	BookingsConfirm = "/api/v1/bookings/{bookingId}/confirm",
+	BookingsCancel = "/api/v1/bookings/{bookingId}/cancel",
+	ReviewsBookings = "/api/v1/reviews/bookings/{bookingId}",
+	ReviewsCliques = "/api/v1/reviews/cliques/{cliqueId}",
+	Notifications = "/api/v1/notifications",
+	NotificationsRead = "/api/v1/notifications/{notificationId}/read",
+	NotificationsReadAll = "/api/v1/notifications/read-all",
+	Search = "/api/v1/search",
+	Chats = "/api/v1/chats",
+	MessagesByChatId = "/api/v1/messages/{chatId}",
+	MessagesCreateByChatId = "/api/v1/messages/{chatId}",
+	MessagesDeleteById = "/api/v1/messages/{messageId}",
+	Occupations = "/api/v1/occupations",
+	OccupationsCreate = "/api/v1/occupations",
+	OccupationsSearch = "/api/v1/occupations/search",
+	OccupationsUser = "/api/v1/occupations/user",
+	OccupationsCliqueUpdate = "/api/v1/occupations/clique/{cliqueId}",
+	ServicesCreate = "/api/v1/services",
+	ServicesByCliqueId = "/api/v1/services/{cliqueId}",
+	ServicesUpdateById = "/api/v1/services/{serviceId}",
+	ServicesDeleteById = "/api/v1/services/{serviceId}",
+	AvailabilityCreate = "/api/v1/availability",
+	AvailabilityByCliqueId = "/api/v1/availability/{cliqueId}",
+	AvailabilityUpdateById = "/api/v1/availability/{availabilityId}",
+	AvailabilityDeleteById = "/api/v1/availability/{availabilityId}",
+	CliquesSlots = "/api/v1/cliques/{cliqueId}/slots",
+	HealthCheck = "/api/v1/health",
 }

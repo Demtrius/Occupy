@@ -4,12 +4,15 @@ import { $api, ensureData } from "@/lib/api";
 import type { components, operations } from "@/types/generated";
 
 type Occupation = components["schemas"]["Occupation"];
-type CreateOccupationVariables =
-	RequestOptions<operations["OccupationsCreate"]>;
-type UpdateUserOccupationsVariables =
-	RequestOptions<operations["OccupationsUser"]>;
-type UpdateCliqueOccupationsVariables =
-	RequestOptions<operations["OccupationsCliqueUpdate"]>;
+type CreateOccupationVariables = RequestOptions<
+	operations["OccupationsCreate"]
+>;
+type UpdateUserOccupationsVariables = RequestOptions<
+	operations["OccupationsUser"]
+>;
+type UpdateCliqueOccupationsVariables = RequestOptions<
+	operations["OccupationsCliqueUpdate"]
+>;
 
 const occupationKeys = {
 	all: ["occupations", "all"] as const,
@@ -48,16 +51,21 @@ export function useSearchOccupationsQuery(q: string, limit = 20) {
 
 export function useUpdateUserOccupationsMutation() {
 	const queryClient = useQueryClient();
-	return useMutation<Record<string, string>, unknown, UpdateUserOccupationsVariables>(
-		{
-			mutationFn: async (variables) =>
-				ensureData(await $api.PUT("/api/v1/occupations/user", variables)),
-			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ["users", "me"] });
-				queryClient.invalidateQueries({ queryKey: occupationKeys.all, exact: false });
-			},
+	return useMutation<
+		Record<string, string>,
+		unknown,
+		UpdateUserOccupationsVariables
+	>({
+		mutationFn: async (variables) =>
+			ensureData(await $api.PUT("/api/v1/occupations/user", variables)),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+			queryClient.invalidateQueries({
+				queryKey: occupationKeys.all,
+				exact: false,
+			});
 		},
-	);
+	});
 }
 
 export function useCreateOccupationMutation() {
@@ -66,7 +74,10 @@ export function useCreateOccupationMutation() {
 		mutationFn: async (variables) =>
 			ensureData(await $api.POST("/api/v1/occupations", variables)),
 		onSuccess: (occupation) => {
-			queryClient.invalidateQueries({ queryKey: occupationKeys.all, exact: false });
+			queryClient.invalidateQueries({
+				queryKey: occupationKeys.all,
+				exact: false,
+			});
 			return occupation;
 		},
 	});
@@ -74,7 +85,11 @@ export function useCreateOccupationMutation() {
 
 export function useUpdateCliqueOccupationsMutation() {
 	const queryClient = useQueryClient();
-	return useMutation<Record<string, string>, unknown, UpdateCliqueOccupationsVariables>({
+	return useMutation<
+		Record<string, string>,
+		unknown,
+		UpdateCliqueOccupationsVariables
+	>({
 		mutationFn: async (variables) =>
 			ensureData(
 				await $api.PUT("/api/v1/occupations/clique/{cliqueId}", variables),
@@ -82,7 +97,9 @@ export function useUpdateCliqueOccupationsMutation() {
 		onSuccess: (_data, variables) => {
 			const cliqueId = variables.params?.path?.cliqueId;
 			if (cliqueId) {
-				queryClient.invalidateQueries({ queryKey: ["cliques", "detail", cliqueId] });
+				queryClient.invalidateQueries({
+					queryKey: ["cliques", "detail", cliqueId],
+				});
 			}
 		},
 	});

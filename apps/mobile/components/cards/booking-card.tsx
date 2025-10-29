@@ -62,7 +62,7 @@ export function BookingCard({ booking }: BookingCardProps) {
 					paddingVertical="xs"
 					borderRadius="s"
 				>
-					<Text variant="caption" color="card-foreground" fontWeight="500">
+					<Text variant="caption" color="primary-foreground" fontWeight="500">
 						{booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
 					</Text>
 				</Box>

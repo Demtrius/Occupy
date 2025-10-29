@@ -22,15 +22,17 @@ interface UseFeedPostsOptions {
 	limit?: number;
 }
 
-type CreatePostVariables =
-	RequestOptions<operations["PostsCreateCliquesPosts"]>;
+type CreatePostVariables = RequestOptions<
+	operations["PostsCreateCliquesPosts"]
+>;
 type UpdatePostVariables = RequestOptions<operations["PostsUpdateById"]>;
 type DeletePostVariables = RequestOptions<operations["PostsDeleteById"]>;
 type LikePostVariables = RequestOptions<operations["PostsLike"]>;
 type UnlikePostVariables = RequestOptions<operations["PostsUnlike"]>;
 type CreateCommentVariables = RequestOptions<operations["PostsCreateComments"]>;
-type DeleteCommentVariables =
-	RequestOptions<operations["PostsDeleteCommentsById"]>;
+type DeleteCommentVariables = RequestOptions<
+	operations["PostsDeleteCommentsById"]
+>;
 
 export function useCreatePostMutation() {
 	const queryClient = useQueryClient();
@@ -53,10 +55,15 @@ export function useCreatePostMutation() {
 					exact: false,
 				});
 			}
-			queryClient.invalidateQueries({ queryKey: ["posts", "feed"], exact: false });
+			queryClient.invalidateQueries({
+				queryKey: ["posts", "feed"],
+				exact: false,
+			});
 			queryClient.invalidateQueries({ queryKey: ["posts"], exact: false });
 			if (post?.id) {
-				queryClient.invalidateQueries({ queryKey: ["posts", "detail", post.id] });
+				queryClient.invalidateQueries({
+					queryKey: ["posts", "detail", post.id],
+				});
 			}
 		},
 	});
@@ -86,7 +93,9 @@ export function useUpdatePostMutation() {
 		onSuccess: (post, variables) => {
 			const postId = variables.params?.path?.postId ?? post?.id;
 			if (postId) {
-				queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] });
+				queryClient.invalidateQueries({
+					queryKey: ["posts", "detail", postId],
+				});
 			}
 			if (post?.cliqueId) {
 				queryClient.invalidateQueries({
@@ -100,7 +109,10 @@ export function useUpdatePostMutation() {
 					exact: false,
 				});
 			}
-			queryClient.invalidateQueries({ queryKey: ["posts", "feed"], exact: false });
+			queryClient.invalidateQueries({
+				queryKey: ["posts", "feed"],
+				exact: false,
+			});
 		},
 	});
 }
@@ -117,10 +129,15 @@ export function useDeletePostMutation() {
 		onSuccess: (_data, variables) => {
 			const postId = variables.params?.path?.postId;
 			if (postId) {
-				queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] });
+				queryClient.invalidateQueries({
+					queryKey: ["posts", "detail", postId],
+				});
 			}
 			queryClient.invalidateQueries({ queryKey: ["posts"], exact: false });
-			queryClient.invalidateQueries({ queryKey: ["posts", "feed"], exact: false });
+			queryClient.invalidateQueries({
+				queryKey: ["posts", "feed"],
+				exact: false,
+			});
 		},
 	});
 }
@@ -133,7 +150,9 @@ export function useLikePostMutation() {
 		onSuccess: (post, variables) => {
 			const postId = variables.params?.path?.postId ?? post?.id;
 			if (postId) {
-				queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] });
+				queryClient.invalidateQueries({
+					queryKey: ["posts", "detail", postId],
+				});
 			}
 		},
 	});
@@ -147,7 +166,9 @@ export function useUnlikePostMutation() {
 		onSuccess: (post, variables) => {
 			const postId = variables.params?.path?.postId ?? post?.id;
 			if (postId) {
-				queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] });
+				queryClient.invalidateQueries({
+					queryKey: ["posts", "detail", postId],
+				});
 			}
 		},
 	});
@@ -157,13 +178,13 @@ export function useCreateCommentMutation() {
 	const queryClient = useQueryClient();
 	return useMutation<Comment, unknown, CreateCommentVariables>({
 		mutationFn: async (variables) =>
-			ensureData(
-				await $api.POST("/api/v1/posts/{postId}/comments", variables),
-			),
+			ensureData(await $api.POST("/api/v1/posts/{postId}/comments", variables)),
 		onSuccess: (_comment, variables) => {
 			const postId = variables.params?.path?.postId;
 			if (postId) {
-				queryClient.invalidateQueries({ queryKey: ["posts", "detail", postId] });
+				queryClient.invalidateQueries({
+					queryKey: ["posts", "detail", postId],
+				});
 			}
 		},
 	});

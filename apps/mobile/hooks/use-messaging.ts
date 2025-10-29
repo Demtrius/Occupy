@@ -7,7 +7,9 @@ import type { components, operations } from "@/types/generated";
 type Chat = components["schemas"]["Chat"];
 type Message = components["schemas"]["Message"];
 
-type SendMessageVariables = RequestOptions<operations["MessagesCreateByChatId"]>;
+type SendMessageVariables = RequestOptions<
+	operations["MessagesCreateByChatId"]
+>;
 type DeleteMessageVariables = RequestOptions<operations["MessagesDeleteById"]>;
 
 const messageKeys = {
@@ -21,8 +23,7 @@ export function useListChatsQuery() {
 	return useQuery({
 		queryKey: messageKeys.chats,
 		enabled: Boolean(tokens?.accessToken),
-		queryFn: async () =>
-			ensureData(await $api.GET("/api/v1/chats")),
+		queryFn: async () => ensureData(await $api.GET("/api/v1/chats")),
 	});
 }
 
@@ -51,9 +52,7 @@ export function useSendMessageMutation() {
 	const queryClient = useQueryClient();
 	return useMutation<Message, unknown, SendMessageVariables>({
 		mutationFn: async (variables) =>
-			ensureData(
-				await $api.POST("/api/v1/messages/{chatId}", variables),
-			),
+			ensureData(await $api.POST("/api/v1/messages/{chatId}", variables)),
 		onSuccess: (_message, variables) => {
 			const chatId = variables.params?.path?.chatId;
 			if (chatId) {
@@ -70,9 +69,7 @@ export function useDeleteMessageMutation() {
 	const queryClient = useQueryClient();
 	return useMutation<Record<string, string>, unknown, DeleteMessageVariables>({
 		mutationFn: async (variables) =>
-			ensureData(
-				await $api.DELETE("/api/v1/messages/{messageId}", variables),
-			),
+			ensureData(await $api.DELETE("/api/v1/messages/{messageId}", variables)),
 		onSuccess: (_data, variables) => {
 			const messageId = variables.params?.path?.messageId;
 			if (messageId) {

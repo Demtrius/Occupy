@@ -78,9 +78,7 @@ export function useFollowMutation() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (variables: FollowVariables) =>
-			ensureData(
-				await $api.POST("/api/v1/users/{userId}/follow", variables),
-			),
+			ensureData(await $api.POST("/api/v1/users/{userId}/follow", variables)),
 		onSuccess: (_data, variables) => {
 			const userId = variables.params?.path?.userId;
 			if (!userId) return;
@@ -132,10 +130,7 @@ export function useBlockMutation() {
 	return useMutation({
 		mutationFn: async (variables: FollowBlockVariables) =>
 			ensureData(
-				await $api.POST(
-					"/api/v1/users/{userId}/follow/block",
-					variables,
-				),
+				await $api.POST("/api/v1/users/{userId}/follow/block", variables),
 			),
 		onSuccess: (_data, variables) => {
 			const userId = variables.params?.path?.userId;
@@ -152,10 +147,7 @@ export function useUnblockMutation() {
 	return useMutation({
 		mutationFn: async (variables: FollowUnblockVariables) =>
 			ensureData(
-				await $api.DELETE(
-					"/api/v1/users/{userId}/follow/block",
-					variables,
-				),
+				await $api.DELETE("/api/v1/users/{userId}/follow/block", variables),
 			),
 		onSuccess: (_data, variables) => {
 			const userId = variables.params?.path?.userId;
@@ -198,10 +190,7 @@ export function useApproveFollowMutation() {
 	return useMutation({
 		mutationFn: async (variables: FollowApproveVariables) =>
 			ensureData(
-				await $api.POST(
-					"/api/v1/users/{userId}/follow/approve",
-					variables,
-				),
+				await $api.POST("/api/v1/users/{userId}/follow/approve", variables),
 			),
 		onSuccess: (_data, variables) => {
 			const userId = variables.params?.path?.userId;
@@ -222,10 +211,7 @@ export function useRejectFollowMutation() {
 	return useMutation({
 		mutationFn: async (variables: FollowRejectVariables) =>
 			ensureData(
-				await $api.POST(
-					"/api/v1/users/{userId}/follow/reject",
-					variables,
-				),
+				await $api.POST("/api/v1/users/{userId}/follow/reject", variables),
 			),
 		onSuccess: (_data, variables) => {
 			const userId = variables.params?.path?.userId;

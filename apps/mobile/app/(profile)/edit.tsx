@@ -93,14 +93,14 @@ export default function EditProfilePage() {
 			const fileType = blob.type || "image/jpeg";
 
 			const presignData = await presignMutation.mutateAsync({
-					params: {
-						query: {
-							mime: fileType,
-							sizeBytes: blob.size,
-							purpose: "profile",
-						},
+				params: {
+					query: {
+						mime: fileType,
+						sizeBytes: blob.size,
+						purpose: "profile",
 					},
-				});
+				},
+			});
 
 			const uploadUrl =
 				presignData.uploadUrl ??

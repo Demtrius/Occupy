@@ -24,9 +24,14 @@ export function useCreateServiceMutation() {
 			const cliqueId =
 				variables.params?.query?.cliqueId ?? service?.cliqueId ?? null;
 			if (cliqueId) {
-				queryClient.invalidateQueries({ queryKey: serviceKeys.clique(cliqueId) });
+				queryClient.invalidateQueries({
+					queryKey: serviceKeys.clique(cliqueId),
+				});
 			}
-			queryClient.invalidateQueries({ queryKey: serviceKeys.all, exact: false });
+			queryClient.invalidateQueries({
+				queryKey: serviceKeys.all,
+				exact: false,
+			});
 		},
 	});
 }
@@ -55,17 +60,22 @@ export function useUpdateServiceMutation() {
 	const queryClient = useQueryClient();
 	return useMutation<Service, unknown, UpdateServiceVariables>({
 		mutationFn: async (variables: UpdateServiceVariables) =>
-			ensureData(
-				await $api.PUT("/api/v1/services/{serviceId}", variables),
-			),
+			ensureData(await $api.PUT("/api/v1/services/{serviceId}", variables)),
 		onSuccess: (service) => {
 			if (service?.cliqueId) {
-				queryClient.invalidateQueries({ queryKey: serviceKeys.clique(service.cliqueId) });
+				queryClient.invalidateQueries({
+					queryKey: serviceKeys.clique(service.cliqueId),
+				});
 			}
 			if (service?.id) {
-				queryClient.invalidateQueries({ queryKey: serviceKeys.detail(service.id) });
+				queryClient.invalidateQueries({
+					queryKey: serviceKeys.detail(service.id),
+				});
 			}
-			queryClient.invalidateQueries({ queryKey: serviceKeys.all, exact: false });
+			queryClient.invalidateQueries({
+				queryKey: serviceKeys.all,
+				exact: false,
+			});
 		},
 	});
 }
@@ -74,15 +84,18 @@ export function useDeleteServiceMutation() {
 	const queryClient = useQueryClient();
 	return useMutation<Record<string, string>, unknown, DeleteServiceVariables>({
 		mutationFn: async (variables: DeleteServiceVariables) =>
-			ensureData(
-				await $api.DELETE("/api/v1/services/{serviceId}", variables),
-			),
+			ensureData(await $api.DELETE("/api/v1/services/{serviceId}", variables)),
 		onSuccess: (_data, variables) => {
 			const serviceId = variables.params?.path?.serviceId;
 			if (serviceId) {
-				queryClient.invalidateQueries({ queryKey: serviceKeys.detail(serviceId) });
+				queryClient.invalidateQueries({
+					queryKey: serviceKeys.detail(serviceId),
+				});
 			}
-			queryClient.invalidateQueries({ queryKey: serviceKeys.all, exact: false });
+			queryClient.invalidateQueries({
+				queryKey: serviceKeys.all,
+				exact: false,
+			});
 		},
 	});
 }
