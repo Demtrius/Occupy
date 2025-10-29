@@ -22,8 +22,6 @@ type SearchUsersParams = NonNullable<
 	RequestOptions<operations["Users"]>["params"]
 >["query"];
 
-type FollowStatusVariables = RequestOptions<operations["UsersFollowingStatus"]>;
-
 type Follow = components["schemas"]["Follow"];
 type FollowersPage = components["schemas"]["CursorPageFollows"];
 type FollowingPage = components["schemas"]["CursorPageFollows"];
@@ -65,12 +63,16 @@ export function useUserQuery(userId: string | undefined) {
 		queryKey: userKeys.detail(userId ?? ""),
 		enabled: Boolean(tokens?.accessToken) && Boolean(userId),
 		retry: false,
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!userId) {
+				throw new Error("userId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/users/{userId}", {
-					params: { path: { userId: userId! } },
+					params: { path: { userId } },
 				}),
-			),
+			);
+		},
 	});
 }
 
@@ -254,11 +256,14 @@ export function useListFollowersQuery(userId: string | undefined, limit = 20) {
 		enabled: Boolean(tokens?.accessToken) && Boolean(userId),
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!userId) {
+				throw new Error("userId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/users/{userId}/follow/followers", {
 					params: {
-						path: { userId: userId! },
+						path: { userId },
 						query: { cursor, limit },
 					},
 				}),
@@ -276,11 +281,14 @@ export function useListFollowingQuery(userId: string | undefined, limit = 20) {
 		enabled: Boolean(tokens?.accessToken) && Boolean(userId),
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!userId) {
+				throw new Error("userId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/users/{userId}/follow/following", {
 					params: {
-						path: { userId: userId! },
+						path: { userId },
 						query: { cursor, limit },
 					},
 				}),
@@ -297,11 +305,15 @@ export function useFollowStatusQuery(userId: string | undefined) {
 		queryKey: userKeys.status(userId ?? ""),
 		enabled: Boolean(tokens?.accessToken) && Boolean(userId),
 		retry: false,
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!userId) {
+				throw new Error("userId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/users/{userId}/follow/status", {
-					params: { path: { userId: userId! } },
+					params: { path: { userId } },
 				}),
-			),
+			);
+		},
 	});
 }

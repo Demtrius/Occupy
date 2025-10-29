@@ -1,14 +1,14 @@
+import { useTheme } from "@shopify/restyle";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, FlatList } from "react-native";
-import { useTheme } from "@shopify/restyle";
 import { PostCard } from "@/components/cards/post-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import { TabsHeader } from "@/components/ui/tabs-header";
-import { useFeedPosts } from "@/hooks";
 import type { Theme } from "@/config/theme";
+import { useFeedPosts } from "@/hooks";
 import type { Post } from "@/types";
 
 type FeedFilter = "all" | "followings" | "cliques";

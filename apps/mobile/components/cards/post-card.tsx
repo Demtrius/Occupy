@@ -1,17 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
 import { useRouter } from "expo-router";
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from "react";
-import { Pressable, type GestureResponderEvent } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { type GestureResponderEvent, Pressable } from "react-native";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import { useLikePostMutation, useUnlikePostMutation } from "@/hooks";
+import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { Post } from "@/types";
 
@@ -88,9 +84,7 @@ export function PostCard({ post }: PostCardProps) {
 						params: { path: { postId: post.id } },
 					});
 					setIsLiked(false);
-					setLikesCount((prev) =>
-						updated?.likesCount ?? Math.max(prev - 1, 0),
-					);
+					setLikesCount((prev) => updated?.likesCount ?? Math.max(prev - 1, 0));
 				} else {
 					const updated = await likeMutation.mutateAsync({
 						params: { path: { postId: post.id } },
@@ -98,21 +92,14 @@ export function PostCard({ post }: PostCardProps) {
 					setIsLiked(true);
 					setLikesCount((prev) => updated?.likesCount ?? prev + 1);
 				}
-			} catch (error: any) {
+			} catch (error: unknown) {
 				showToast({
 					type: "error",
-					message: error?.message ?? "Failed to update like",
+					message: getErrorMessage(error, "Failed to update like"),
 				});
 			}
 		},
-		[
-			isLiked,
-			isMutating,
-			likeMutation,
-			post.id,
-			showToast,
-			unlikeMutation,
-		],
+		[isLiked, isMutating, likeMutation, post.id, unlikeMutation],
 	);
 
 	return (
@@ -246,11 +233,7 @@ export function PostCard({ post }: PostCardProps) {
 								{likesCount}
 							</Text>
 						</Pressable>
-						<Box
-							flexDirection="row"
-							alignItems="center"
-							marginLeft="m"
-						>
+						<Box flexDirection="row" alignItems="center" marginLeft="m">
 							<Ionicons
 								name="chatbubble-outline"
 								size={18}

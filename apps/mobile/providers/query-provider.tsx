@@ -12,8 +12,16 @@ import { AppState, Platform } from "react-native";
 const client = new QueryClient({
 	defaultOptions: {
 		queries: {
-			retry: (failureCount, err: any) =>
-				err?.status === 401 ? false : failureCount < 2,
+			retry: (failureCount, error: unknown) => {
+				const status =
+					typeof error === "object" && error !== null && "status" in error
+						? (error as { status?: unknown }).status
+						: undefined;
+				if (typeof status === "number" && status === 401) {
+					return false;
+				}
+				return failureCount < 2;
+			},
 			staleTime: 30_000,
 			gcTime: 300_000,
 		},

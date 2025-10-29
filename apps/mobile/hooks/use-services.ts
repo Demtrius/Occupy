@@ -44,15 +44,19 @@ export function useListCliqueServicesQuery(
 	return useQuery({
 		queryKey: serviceKeys.clique(cliqueId ?? ""),
 		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId),
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/services/{cliqueId}", {
 					params: {
-						path: { cliqueId: cliqueId! },
+						path: { cliqueId },
 						query: { activeOnly },
 					},
 				}),
-			),
+			);
+		},
 	});
 }
 

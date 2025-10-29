@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Box } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import { useFollowMutation, useFollowStatusQuery } from "@/hooks";
+import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { User } from "@/types";
 
@@ -65,10 +66,10 @@ export function ProfileActions({
 				type: "success",
 				message: data?.isFollowing ? "Unfollowed" : "Followed",
 			});
-		} catch (error: any) {
+		} catch (error: unknown) {
 			showToast({
 				type: "error",
-				message: error.message || "Failed to update follow status",
+				message: getErrorMessage(error, "Failed to update follow status"),
 			});
 		}
 	};

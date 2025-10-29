@@ -4,7 +4,6 @@ import { $api, ensureData } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import type { components, operations } from "@/types/generated";
 
-type Chat = components["schemas"]["Chat"];
 type Message = components["schemas"]["Message"];
 
 type SendMessageVariables = RequestOptions<
@@ -36,15 +35,19 @@ export function useListMessagesQuery(
 	return useQuery({
 		queryKey: messageKeys.chat(chatId ?? "", limit, offset),
 		enabled: Boolean(tokens?.accessToken) && Boolean(chatId),
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!chatId) {
+				throw new Error("chatId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/messages/{chatId}", {
 					params: {
-						path: { chatId: chatId! },
+						path: { chatId },
 						query: { limit, offset },
 					},
 				}),
-			),
+			);
+		},
 	});
 }
 

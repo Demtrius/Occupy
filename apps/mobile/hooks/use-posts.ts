@@ -74,14 +74,18 @@ export function useGetPostQuery(postId: string | undefined) {
 	return useQuery({
 		queryKey: ["posts", "detail", postId ?? ""],
 		enabled: Boolean(tokens?.accessToken) && Boolean(postId),
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!postId) {
+				throw new Error("postId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/posts/{postId}", {
 					params: {
-						path: { postId: postId! },
+						path: { postId },
 					},
 				}),
-			),
+			);
+		},
 	});
 }
 
@@ -202,7 +206,7 @@ export function useDeleteCommentMutation() {
 				throw result.error;
 			}
 		},
-		onSuccess: (_data, variables) => {
+		onSuccess: (_data, _variables) => {
 			queryClient.invalidateQueries({ queryKey: ["posts"], exact: false });
 		},
 	});
@@ -249,11 +253,14 @@ export function useListCliquePostsQuery(
 		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId),
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/posts/cliques/{cliqueId}/posts", {
 					params: {
-						path: { cliqueId: cliqueId! },
+						path: { cliqueId },
 						query: { cursor, limit },
 					},
 				}),
@@ -276,11 +283,14 @@ export function useListUserPostsQuery(
 		enabled: Boolean(tokens?.accessToken) && Boolean(userId) && enabled,
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!userId) {
+				throw new Error("userId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/posts/user/{userId}/posts", {
 					params: {
-						path: { userId: userId! },
+						path: { userId },
 						query: { cursor, limit },
 					},
 				}),

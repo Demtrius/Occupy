@@ -24,6 +24,7 @@ import {
 	useUpdateUserMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
+import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { Occupation } from "@/types";
 
@@ -87,22 +88,22 @@ export default function EditProfilePage() {
 	};
 
 	const uploadImage = async (uri: string): Promise<string | null> => {
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const fileType = blob.type || "image/jpeg";
+		try {
+			const response = await fetch(uri);
+			const blob = await response.blob();
+			const fileType = blob.type || "image/jpeg";
 
-      const presignData = await presignMutation.mutateAsync({
-        params: {
-          query: {
-            mime: fileType,
-            sizeBytes: blob.size,
-            purpose: "profile",
-          },
-        },
-      });
+			const presignData = await presignMutation.mutateAsync({
+				params: {
+					query: {
+						mime: fileType,
+						sizeBytes: blob.size,
+						purpose: "profile",
+					},
+				},
+			});
 
-      const { uploadUrl, publicUrl, method } = presignData;
+			const { uploadUrl, publicUrl, method } = presignData;
 
 			if (!uploadUrl) {
 				showToast({
@@ -139,10 +140,10 @@ export default function EditProfilePage() {
 			});
 
 			return finalUrl;
-		} catch (error: any) {
+		} catch (error: unknown) {
 			showToast({
 				type: "error",
-				message: error.message || "Failed to upload image",
+				message: getErrorMessage(error, "Failed to upload image"),
 			});
 			return null;
 		}
@@ -186,10 +187,10 @@ export default function EditProfilePage() {
 
 			showToast({ type: "success", message: "Profile updated successfully" });
 			router.back();
-		} catch (error: any) {
+		} catch (error: unknown) {
 			showToast({
 				type: "error",
-				message: error.message || "Failed to update profile",
+				message: getErrorMessage(error, "Failed to update profile"),
 			});
 		}
 	};
@@ -325,7 +326,7 @@ export default function EditProfilePage() {
 												message: `Created and selected "${newOccupation.name}"`,
 											});
 										}
-									} catch (error) {
+									} catch (_error) {
 										showToast({
 											type: "error",
 											message: "Failed to create occupation. Please try again.",

@@ -1,8 +1,9 @@
 import type React from "react";
 import {
-	type Control,
 	Controller,
+	type ControllerRenderProps,
 	type FieldError,
+	type FieldPath,
 	type FieldValues,
 	type UseControllerProps,
 } from "react-hook-form";
@@ -11,26 +12,29 @@ import { FormMessage } from "./form-message";
 import { Label } from "./label";
 import { Box } from "./restyle-components";
 
-export function FormField<T extends FieldValues>({
+export function FormField<
+	TFieldValues extends FieldValues,
+	TName extends FieldPath<TFieldValues>,
+>({
 	name,
 	control,
 	label,
 	description,
 	render,
-}: UseControllerProps<T> & {
+}: UseControllerProps<TFieldValues, TName> & {
 	label?: string;
 	description?: string;
 	render: (args: {
-		value: any;
-		onChange: (v: any) => void;
-		onBlur: () => void;
+		value: ControllerRenderProps<TFieldValues, TName>["value"];
+		onChange: ControllerRenderProps<TFieldValues, TName>["onChange"];
+		onBlur: ControllerRenderProps<TFieldValues, TName>["onBlur"];
 		error?: FieldError;
 	}) => React.ReactNode;
 }) {
 	return (
-		<Controller
-			name={name as any}
-			control={control as Control<T>}
+		<Controller<TFieldValues, TName>
+			name={name}
+			control={control}
 			render={({
 				field: { value, onChange, onBlur },
 				fieldState: { error },

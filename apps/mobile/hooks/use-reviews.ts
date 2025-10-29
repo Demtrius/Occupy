@@ -42,11 +42,14 @@ export function useListCliqueReviewsQuery(
 		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId) && enabled,
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/reviews/cliques/{cliqueId}", {
 					params: {
-						path: { cliqueId: cliqueId! },
+						path: { cliqueId },
 						query: { cursor, limit },
 					},
 				}),

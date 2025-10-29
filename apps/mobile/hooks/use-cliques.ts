@@ -65,12 +65,16 @@ export function useGetCliqueQuery(cliqueId: string | undefined) {
 	return useQuery({
 		queryKey: cliqueKeys.detail(cliqueId ?? ""),
 		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId),
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/cliques/{cliqueId}", {
-					params: { path: { cliqueId: cliqueId! } },
+					params: { path: { cliqueId } },
 				}),
-			),
+			);
+		},
 	});
 }
 
@@ -178,11 +182,14 @@ export function useListCliqueMembersQuery(
 		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId),
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/cliques/{cliqueId}/members", {
 					params: {
-						path: { cliqueId: cliqueId! },
+						path: { cliqueId },
 						query: { cursor, limit },
 					},
 				}),
@@ -204,11 +211,14 @@ export function useListPendingMembersQuery(
 		enabled: Boolean(tokens?.accessToken) && Boolean(cliqueId),
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/cliques/{cliqueId}/members/pending", {
 					params: {
-						path: { cliqueId: cliqueId! },
+						path: { cliqueId },
 						query: { cursor, limit },
 					},
 				}),
@@ -281,11 +291,14 @@ export function useListUserCliquesQuery(
 		enabled: Boolean(tokens?.accessToken) && Boolean(userId) && enabled,
 		initialPageParam: undefined as string | undefined,
 		queryFn: async ({ pageParam }) => {
+			if (!userId) {
+				throw new Error("userId is required");
+			}
 			const cursor = typeof pageParam === "string" ? pageParam : undefined;
 			return ensureData(
 				await $api.GET("/api/v1/cliques/user/{userId}/cliques", {
 					params: {
-						path: { userId: userId! },
+						path: { userId },
 						query: { cursor, limit },
 					},
 				}),

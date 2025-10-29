@@ -17,14 +17,18 @@ export function useListAvailableSlotsQuery(
 			Boolean(serviceId) &&
 			Boolean(from) &&
 			Boolean(to),
-		queryFn: async () =>
-			ensureData(
+		queryFn: async () => {
+			if (!cliqueId) {
+				throw new Error("cliqueId is required");
+			}
+			return ensureData(
 				await $api.GET("/api/v1/cliques/{cliqueId}/slots", {
 					params: {
-						path: { cliqueId: cliqueId! },
+						path: { cliqueId },
 						query: { serviceId, from, to },
 					},
 				}),
-			),
+			);
+		},
 	});
 }

@@ -1,16 +1,27 @@
+import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 
-export function handleResponseError(error: any, config: any) {
-	const errorData = error.response?.data as
-		| { error?: { code?: string; message?: string } }
-		| undefined;
-	const code = errorData?.error?.code || "unknown_error";
-	const message =
-		errorData?.error?.message ||
-		`Request failed with status ${error.response?.status || "unknown"}`;
+type ErrorResponsePayload = {
+	response?: {
+		data?: { error?: { code?: string; message?: string } };
+		status?: number;
+	};
+	error?: unknown;
+};
 
-	// Map error codes to user-friendly messages
-	const friendlyMessage = getFriendlyErrorMessage(code, message);
+export function handleResponseError(
+	payload: ErrorResponsePayload,
+	_config?: unknown,
+) {
+	const { response } = payload;
+	const code = response?.data?.error?.code ?? "unknown_error";
+	const fallbackMessage =
+		response?.data?.error?.message ??
+		(response?.status
+			? `Request failed with status ${response.status}`
+			: getErrorMessage(payload.error, "Request failed"));
+
+	const friendlyMessage = getFriendlyErrorMessage(code, fallbackMessage);
 
 	showToast({
 		type: "error",

@@ -19,6 +19,7 @@ import {
 	useRegisterMutation,
 	useUpdateUserOccupationsMutation,
 } from "@/hooks";
+import { getErrorCode, getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { Occupation } from "@/types";
 
@@ -114,7 +115,7 @@ export default function Register() {
 										message: "Business account created successfully",
 									});
 								},
-								onError: (error: any) => {
+								onError: (_error: unknown) => {
 									showToast({
 										type: "info",
 										message:
@@ -130,10 +131,12 @@ export default function Register() {
 						});
 					}
 				},
-				onError: (error: any) => {
+				onError: (error: unknown) => {
+					const message = getErrorMessage(error, "Failed to create account");
+					const code = getErrorCode(error);
 					showToast({
 						type: "error",
-						message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
+						message: code ? `${message} (${code})` : message,
 					});
 				},
 			},
@@ -271,7 +274,7 @@ export default function Register() {
 													message: `Created and selected "${newOccupation.name}"`,
 												});
 											}
-										} catch (error) {
+										} catch (_error) {
 											showToast({
 												type: "error",
 												message:

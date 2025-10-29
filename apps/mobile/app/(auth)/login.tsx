@@ -12,6 +12,7 @@ import { Box, Text } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import type { Theme } from "@/config/theme";
 import { useLoginMutation } from "@/hooks";
+import { getErrorCode, getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 
 const schema = type({
@@ -36,11 +37,12 @@ export default function Login() {
 				onSuccess: () => {
 					showToast({ type: "success", message: "Logged in successfully" });
 				},
-				onError: (error: any) => {
-					console.log(error);
+				onError: (error: unknown) => {
+					const message = getErrorMessage(error, "Failed to log in");
+					const code = getErrorCode(error);
 					showToast({
 						type: "error",
-						message: `${error.message}${error.code ? ` (${error.code})` : ""}`,
+						message: code ? `${message} (${code})` : message,
 					});
 				},
 			},
