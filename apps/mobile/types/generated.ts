@@ -1537,6 +1537,11 @@ export interface components {
              * Format: date-time
              */
             readonly updatedAt: string;
+            /**
+             * Memberscount
+             * @default 0
+             */
+            readonly membersCount: number;
         };
         /** CliqueCreate */
         readonly CliqueCreate: {

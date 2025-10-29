@@ -62,3 +62,4 @@ class Clique(CliqueBase):
     owner_user_id: UUID
     created_at: datetime
     updated_at: datetime
+    members_count: int = 0

@@ -62,6 +62,8 @@ async def create_clique(
     owner: User,
     *,
     name: Optional[str] = None,
+    description: Optional[str] = None,
+    image_url: Optional[str] = None,
     privacy: Privacy = Privacy.PUBLIC,
     timezone: str = "UTC",
     cancellation_cutoff_hours: int = 24,
@@ -69,7 +71,8 @@ async def create_clique(
     clique = Clique(
         owner_user_id=owner.id,
         name=name or fake.company(),
-        description=fake.bs(),
+        description=description or fake.bs(),
+        image_url=image_url or fake.image_url(),
         privacy=privacy,
         timezone=timezone,
         cancellation_cutoff_hours=cancellation_cutoff_hours,

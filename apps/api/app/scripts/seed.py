@@ -139,6 +139,10 @@ async def seed() -> None:
             "Accountant",
             "Marketing Specialist",
             "Event Planner",
+            "Baker",
+            "Makeup Artist",
+            "Nutritionist",
+            "Content Creator",
         ]
         for name in occupation_names:
             # Check if occupation already exists
@@ -150,12 +154,78 @@ async def seed() -> None:
                 occupation = await create_occupation(session, name=name)
             occupations.append(occupation)
 
-        # Create cliques for business users
+        # Clique templates for seed data
+        clique_templates = [
+            {
+                "name": "Sweet Delights Bakery",
+                "description": "Hand-crafted pastries, custom cakes, and weekend baking classes.",
+                "image_url": "https://images.unsplash.com/photo-1546793665-c74683f339c1",
+                "occupations": ["Chef", "Baker", "Event Planner"],
+            },
+            {
+                "name": "Luxe Lounge Salon",
+                "description": "Full-service salon offering color, styling, and bridal looks.",
+                "image_url": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+                "occupations": [
+                    "Hair Stylist",
+                    "Makeup Artist",
+                    "Marketing Specialist",
+                ],
+            },
+            {
+                "name": "Peak Performance Coaching",
+                "description": "Personal training plans, nutrition guidance, and accountability sessions.",
+                "image_url": "https://images.unsplash.com/photo-1546483875-ad9014c88eba",
+                "occupations": [
+                    "Personal Trainer",
+                    "Nutritionist",
+                    "Marketing Specialist",
+                ],
+            },
+            {
+                "name": "Pixel Perfect Studio",
+                "description": "Photography, retouching, and creative direction for brands.",
+                "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+                "occupations": ["Photographer", "Graphic Designer", "Content Creator"],
+            },
+        ]
+
+        # Create cliques for business users with curated metadata
         cliques = []
         business_users = [u for u in users if u.is_business_page]
-        for bu in business_users:
-            clique = await create_clique(session, bu)
+        for index, bu in enumerate(business_users):
+            template = clique_templates[index % len(clique_templates)]
+            clique = await create_clique(
+                session,
+                bu,
+                name=template["name"],
+                description=template["description"],
+                image_url=template["image_url"],
+            )
             cliques.append(clique)
+
+            for occupation_name in template["occupations"]:
+                occupation = next(
+                    (occ for occ in occupations if occ.name == occupation_name),
+                    None,
+                )
+                if occupation is None:
+                    occupation = await create_occupation(session, name=occupation_name)
+                    occupations.append(occupation)
+
+                existing = await session.execute(
+                    select(CliqueOccupation).where(
+                        CliqueOccupation.clique_id == clique.id,
+                        CliqueOccupation.occupation_id == occupation.id,
+                    )
+                )
+                if existing.scalar_one_or_none() is None:
+                    session.add(
+                        CliqueOccupation(
+                            clique_id=clique.id,
+                            occupation_id=occupation.id,
+                        )
+                    )
 
         clique1 = cliques[0]
         clique2 = cliques[1]
@@ -169,71 +239,14 @@ async def seed() -> None:
                 existing = await session.execute(
                     select(UserOccupation).where(
                         UserOccupation.user_id == user.id,
-                        UserOccupation.occupation_id == occupation.id
+                        UserOccupation.occupation_id == occupation.id,
                     )
                 )
                 if existing.scalar_one_or_none() is None:
-                    user_occupation = UserOccupation(user_id=user.id, occupation_id=occupation.id)
+                    user_occupation = UserOccupation(
+                        user_id=user.id, occupation_id=occupation.id
+                    )
                     session.add(user_occupation)
-
-        # Assign occupations to cliques (business-relevant occupations)
-        # Clique 1: Baking/Cooking related
-        baking_occupations = [occ for occ in occupations if "Chef" in occ.name or "Baker" in occ.name]
-        if baking_occupations:
-            for occupation in baking_occupations:
-                # Check if clique occupation already exists
-                existing = await session.execute(
-                    select(CliqueOccupation).where(
-                        CliqueOccupation.clique_id == clique1.id,
-                        CliqueOccupation.occupation_id == occupation.id
-                    )
-                )
-                if existing.scalar_one_or_none() is None:
-                    clique_occupation = CliqueOccupation(clique_id=clique1.id, occupation_id=occupation.id)
-                    session.add(clique_occupation)
-        else:
-            # Fallback to general creative occupations
-            creative_occupations = [occ for occ in occupations if occ.name in ["Artist", "Graphic Designer", "Event Planner"]]
-            for occupation in creative_occupations:
-                # Check if clique occupation already exists
-                existing = await session.execute(
-                    select(CliqueOccupation).where(
-                        CliqueOccupation.clique_id == clique1.id,
-                        CliqueOccupation.occupation_id == occupation.id
-                    )
-                )
-                if existing.scalar_one_or_none() is None:
-                    clique_occupation = CliqueOccupation(clique_id=clique1.id, occupation_id=occupation.id)
-                    session.add(clique_occupation)
-
-        # Clique 2: Beauty/Salon related
-        beauty_occupations = [occ for occ in occupations if "Hair" in occ.name or "Stylist" in occ.name]
-        if beauty_occupations:
-            for occupation in beauty_occupations:
-                # Check if clique occupation already exists
-                existing = await session.execute(
-                    select(CliqueOccupation).where(
-                        CliqueOccupation.clique_id == clique2.id,
-                        CliqueOccupation.occupation_id == occupation.id
-                    )
-                )
-                if existing.scalar_one_or_none() is None:
-                    clique_occupation = CliqueOccupation(clique_id=clique2.id, occupation_id=occupation.id)
-                    session.add(clique_occupation)
-        else:
-            # Fallback to service occupations
-            service_occupations = [occ for occ in occupations if occ.name in ["Personal Trainer", "Event Planner"]]
-            for occupation in service_occupations:
-                # Check if clique occupation already exists
-                existing = await session.execute(
-                    select(CliqueOccupation).where(
-                        CliqueOccupation.clique_id == clique2.id,
-                        CliqueOccupation.occupation_id == occupation.id
-                    )
-                )
-                if existing.scalar_one_or_none() is None:
-                    clique_occupation = CliqueOccupation(clique_id=clique2.id, occupation_id=occupation.id)
-                    session.add(clique_occupation)
 
         # Add members to cliques
         # Owners are already members, add some regular users as members
@@ -241,15 +254,19 @@ async def seed() -> None:
         for clique in cliques:
             # Add 2-4 random regular users as members
             num_members = random.randint(2, 4)
-            potential_members = [u for u in regular_users if u.id != clique.owner_user_id]
-            selected_members = random.sample(potential_members, min(num_members, len(potential_members)))
+            potential_members = [
+                u for u in regular_users if u.id != clique.owner_user_id
+            ]
+            selected_members = random.sample(
+                potential_members, min(num_members, len(potential_members))
+            )
 
             for member in selected_members:
                 # Check if already a member (shouldn't be, but safety check)
                 existing = await session.execute(
                     select(CliqueMember).where(
                         CliqueMember.clique_id == clique.id,
-                        CliqueMember.user_id == member.id
+                        CliqueMember.user_id == member.id,
                     )
                 )
                 if existing.scalar_one_or_none() is None:
@@ -257,7 +274,7 @@ async def seed() -> None:
                         clique_id=clique.id,
                         user_id=member.id,
                         role=Role.MEMBER,
-                        status=MembershipStatus.JOINED
+                        status=MembershipStatus.JOINED,
                     )
                     session.add(clique_member)
 
@@ -369,7 +386,7 @@ async def seed() -> None:
                 existing = await session.execute(
                     select(Follow).where(
                         Follow.follower_user_id == follower.id,
-                        Follow.followee_user_id == followee.id
+                        Follow.followee_user_id == followee.id,
                     )
                 )
                 if existing.scalar_one_or_none() is None:

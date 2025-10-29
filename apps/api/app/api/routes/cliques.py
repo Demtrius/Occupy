@@ -57,6 +57,7 @@ from ...services.cliques import (
     leave_clique,
     reject_member,
     update_clique_details,
+    hydrate_cliques,
 )
 from ...services.cliques import (
     delete_clique as delete_clique_service,
@@ -128,7 +129,7 @@ async def list_cliques(
     cliques, next_cursor = await get_all_cliques(
         db, str(current_user.id), cursor, limit
     )
-    items = [CliqueSchema.model_validate(clique) for clique in cliques]
+    items = await hydrate_cliques(db, cliques)
     return CursorPageCliques(items=items, next_cursor=next_cursor)
 
 
@@ -175,7 +176,8 @@ async def create(
         str(current_user.id),
         data,
     )
-    return CliqueSchema.model_validate(clique)
+    hydrated = await hydrate_cliques(db, [clique])
+    return hydrated[0]
 
 
 @router.get(
@@ -232,7 +234,8 @@ async def update_clique(
         clique = await update_clique_details(db, str(clique_id), data)
     except ValueError:
         raise NotFound()
-    return CliqueSchema.model_validate(clique)
+    hydrated = await hydrate_cliques(db, [clique])
+    return hydrated[0]
 
 
 @router.delete(
@@ -448,7 +451,7 @@ async def list_user_cliques_route(
     cliques, next_cursor = await get_user_cliques(
         db, str(user_id), str(current_user.id), cursor, limit
     )
-    items = [CliqueSchema.model_validate(clique) for clique in cliques]
+    items = await hydrate_cliques(db, cliques)
     return CursorPageCliques(items=items, next_cursor=next_cursor)
 
 

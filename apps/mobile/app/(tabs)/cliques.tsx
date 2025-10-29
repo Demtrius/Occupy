@@ -1,21 +1,27 @@
-import { useState } from "react";
-import { RefreshControl, ScrollView } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, FlatList } from "react-native";
+import { useRouter } from "expo-router";
+import { useTheme } from "@shopify/restyle";
 import { CliqueCard } from "@/components/cards/clique-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import { TabsHeader } from "@/components/ui/tabs-header";
+import type { Theme } from "@/config/theme";
 import { useMeQuery } from "@/hooks";
 import {
 	useListCliquesQuery,
 	useListUserCliquesQuery,
 } from "@/hooks/use-cliques";
+import type { Clique } from "@/types";
 
 type CliquesFilter = "all" | "my";
 
 export default function Page() {
+	const theme = useTheme<Theme>();
 	const [filter, setFilter] = useState<CliquesFilter>("all");
+	const router = useRouter();
 	const { data: currentUser } = useMeQuery();
 
 	const allCliquesQuery = useListCliquesQuery();
@@ -24,21 +30,66 @@ export default function Page() {
 		filter === "my",
 	);
 
-	const isLoading =
-		filter === "all" ? allCliquesQuery.isLoading : myCliquesQuery.isLoading;
-	const isRefetching =
-		filter === "all"
-			? allCliquesQuery.isRefetching
-			: myCliquesQuery.isRefetching;
-	const refetch =
-		filter === "all" ? allCliquesQuery.refetch : myCliquesQuery.refetch;
+	const activeQuery = filter === "all" ? allCliquesQuery : myCliquesQuery;
+	const {
+		items: cliques,
+		isLoading,
+		isRefetching,
+		refetch,
+		hasNextPage,
+		fetchNextPage,
+		isFetchingNextPage,
+	} = activeQuery;
 
-	const cliques =
-		filter === "all" ? allCliquesQuery.items : myCliquesQuery.items;
-
-	const onRefresh = () => {
+	const onRefresh = useCallback(() => {
 		refetch();
-	};
+	}, [refetch]);
+
+	const handleLoadMore = useCallback(() => {
+		if (!hasNextPage || isFetchingNextPage) {
+			return;
+		}
+		fetchNextPage();
+	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+	const renderItem = useCallback(
+		({ item }: { item: Clique }) => (
+			<CliqueCard
+				clique={item}
+				onPress={() =>
+					router.push({ pathname: "/cliques/[id]", params: { id: item.id } })
+				}
+			/>
+		),
+		[router],
+	);
+
+	const keyExtractor = useCallback((item: Clique) => item.id, []);
+
+	const listEmptyComponent = useMemo(
+		() => (
+			<Box flex={1} justifyContent="center" paddingVertical="l">
+				<EmptyState
+					message={
+						filter === "all"
+							? "No cliques available"
+							: "You are not a member of any cliques yet"
+					}
+				/>
+			</Box>
+		),
+		[filter],
+	);
+
+	const listFooterComponent = useMemo(
+		() =>
+			isFetchingNextPage ? (
+				<Box paddingVertical="m" alignItems="center">
+					<ActivityIndicator />
+				</Box>
+			) : null,
+		[isFetchingNextPage],
+	);
 
 	const tabs = [
 		{ key: "all" as const, label: "All" },
@@ -52,29 +103,22 @@ export default function Page() {
 	return (
 		<Screen>
 			<TabsHeader tabs={tabs} activeTab={filter} onTabChange={setFilter} />
-			<ScrollView
+			<FlatList
+				data={cliques}
+				keyExtractor={keyExtractor}
+				renderItem={renderItem}
+				onEndReached={handleLoadMore}
+				onEndReachedThreshold={0.5}
+				refreshing={isRefetching}
+				onRefresh={onRefresh}
 				showsVerticalScrollIndicator={false}
-				refreshControl={
-					<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />
-				}
-			>
-				<Box padding="s">
-					{/* Cliques List */}
-					{cliques.length === 0 ? (
-						<EmptyState
-							message={
-								filter === "all"
-									? "No cliques available"
-									: "You are not a member of any cliques yet"
-							}
-						/>
-					) : (
-						cliques.map((clique) => (
-							<CliqueCard key={clique.id} clique={clique} />
-						))
-					)}
-				</Box>
-			</ScrollView>
+				contentContainerStyle={{
+					padding: theme.spacing.s,
+					flexGrow: cliques.length === 0 ? 1 : undefined,
+				}}
+				ListEmptyComponent={listEmptyComponent}
+				ListFooterComponent={listFooterComponent}
+			/>
 		</Screen>
 	);
 }

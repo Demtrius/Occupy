@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any, Sequence
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -97,6 +97,9 @@ async def get_clique_public(
             if membership:
                 is_owner_or_member = True
 
+    hydrated = await hydrate_cliques(db, [clique])
+    schema = hydrated[0] if hydrated else CliqueSchema.model_validate(clique)
+
     if clique.privacy == Privacy.PRIVATE and not is_owner_or_member:
         return {
             "id": str(clique.id),
@@ -105,10 +108,10 @@ async def get_clique_public(
             "privacy": clique.privacy.value,
             "imageUrl": clique.image_url,
             "timezone": clique.timezone,
+            "membersCount": schema.members_count,
         }
 
-    full_view = CliqueSchema.model_validate(clique)
-    return full_view.model_dump(mode="json", by_alias=True)
+    return schema.model_dump(mode="json", by_alias=True)
 
 
 async def join_clique(
@@ -258,6 +261,7 @@ async def get_user_cliques(
     else:
         # For other users, only show public cliques or cliques where current user is a member
         from sqlalchemy import or_
+
         stmt = select(Clique).where(
             Clique.owner_user_id == user_id,
             or_(
@@ -284,6 +288,7 @@ async def get_all_cliques(
     limit: int,
 ) -> tuple[list[Clique], str | None]:
     from sqlalchemy import or_
+
     stmt = select(Clique).where(
         or_(
             Clique.privacy == Privacy.PUBLIC,
@@ -300,6 +305,46 @@ async def get_all_cliques(
     result = await db.execute(stmt)
     rows = result.scalars().unique().all()
     return slice_results(rows, limit)
+
+
+async def hydrate_cliques(
+    db: AsyncSession,
+    cliques: Iterable[Clique],
+) -> list[CliqueSchema]:
+    clique_list = list(cliques)
+    if not clique_list:
+        return []
+
+    ids = [clique.id for clique in clique_list]
+    counts_stmt = (
+        select(CliqueMember.clique_id, func.count())
+        .where(
+            CliqueMember.clique_id.in_(ids),
+            CliqueMember.status == MembershipStatus.JOINED,
+        )
+        .group_by(CliqueMember.clique_id)
+    )
+    counts_result = await db.execute(counts_stmt)
+    counts = {row[0]: row[1] for row in counts_result.all()}
+
+    from ..models.user import CliqueOccupation
+
+    occupations_stmt = (
+        select(CliqueOccupation.clique_id, CliqueOccupation.occupation_id)
+        .where(CliqueOccupation.clique_id.in_(ids))
+    )
+    occupations_result = await db.execute(occupations_stmt)
+    occupation_map: dict[UUID, list[UUID]] = {}
+    for clique_id, occupation_id in occupations_result.all():
+        occupation_map.setdefault(clique_id, []).append(occupation_id)
+
+    schemas: list[CliqueSchema] = []
+    for clique in clique_list:
+        schema = CliqueSchema.model_validate(clique)
+        schema.members_count = counts.get(clique.id, 0)
+        schema.occupation_ids = list(occupation_map.get(clique.id, []))
+        schemas.append(schema)
+    return schemas
 
 
 async def update_clique_details(
