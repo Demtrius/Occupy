@@ -11,7 +11,10 @@ import type { components, operations } from "@/types/generated";
 import { withCursorHelpers } from "./utils";
 
 type FollowVariables = RequestOptions<operations["UsersFollow"]>;
-type UnfollowVariables = RequestOptions<operations["UsersDeleteFollowerById"]>;
+type UnfollowUserVariables = RequestOptions<operations["UsersUnfollow"]>;
+type RemoveFollowerVariables = RequestOptions<
+	operations["UsersDeleteFollowerById"]
+>;
 type FollowApproveVariables = RequestOptions<operations["UsersFollowApprove"]>;
 type FollowRejectVariables = RequestOptions<operations["UsersFollowReject"]>;
 type FollowBlockVariables = RequestOptions<operations["UsersFollowBlock"]>;
@@ -25,6 +28,7 @@ type SearchUsersParams = NonNullable<
 type Follow = components["schemas"]["Follow"];
 type FollowersPage = components["schemas"]["CursorPageFollows"];
 type FollowingPage = components["schemas"]["CursorPageFollows"];
+type UserSchema = components["schemas"]["User"];
 
 export const userKeys = {
 	all: ["users"] as const,
@@ -95,20 +99,24 @@ export function useFollowMutation() {
 				queryKey: userKeys.followingBase(userId),
 				exact: false,
 			});
+			const currentUser = queryClient.getQueryData<UserSchema | undefined>(
+				userKeys.me,
+			);
+			if (currentUser?.id) {
+				queryClient.invalidateQueries({
+					queryKey: userKeys.followingBase(currentUser.id),
+					exact: false,
+				});
+			}
 		},
 	});
 }
 
-export function useUnfollowMutation() {
+export function useUnfollowUserMutation() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (variables: UnfollowVariables) =>
-			ensureData(
-				await $api.DELETE(
-					"/api/v1/users/{userId}/follow/followers/{followerId}",
-					variables,
-				),
-			),
+		mutationFn: async (variables: UnfollowUserVariables) =>
+			ensureData(await $api.DELETE("/api/v1/users/{userId}/follow", variables)),
 		onSuccess: (_data, variables) => {
 			const userId = variables.params?.path?.userId;
 			if (!userId) return;
@@ -123,6 +131,15 @@ export function useUnfollowMutation() {
 				queryKey: userKeys.followingBase(userId),
 				exact: false,
 			});
+			const currentUser = queryClient.getQueryData<UserSchema | undefined>(
+				userKeys.me,
+			);
+			if (currentUser?.id) {
+				queryClient.invalidateQueries({
+					queryKey: userKeys.followingBase(currentUser.id),
+					exact: false,
+				});
+			}
 		},
 	});
 }
@@ -228,7 +245,7 @@ export function useRejectFollowMutation() {
 export function useRemoveFollowerMutation() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (variables: UnfollowVariables) =>
+		mutationFn: async (variables: RemoveFollowerVariables) =>
 			ensureData(
 				await $api.DELETE(
 					"/api/v1/users/{userId}/follow/followers/{followerId}",

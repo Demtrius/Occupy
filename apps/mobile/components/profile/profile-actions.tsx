@@ -4,7 +4,11 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { Box } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
-import { useFollowMutation, useFollowStatusQuery } from "@/hooks";
+import {
+	useFollowMutation,
+	useFollowStatusQuery,
+	useUnfollowUserMutation,
+} from "@/hooks";
 import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { User } from "@/types";
@@ -23,6 +27,7 @@ export function ProfileActions({
 	const router = useRouter();
 	const theme = useTheme<Theme>();
 	const followMutation = useFollowMutation();
+	const unfollowMutation = useUnfollowUserMutation();
 	const { data } = useFollowStatusQuery(user?.id);
 
 	if (isLoading || !user) {
@@ -58,14 +63,27 @@ export function ProfileActions({
 	const handleFollowPress = async () => {
 		if (!user?.id) return;
 		try {
-			await followMutation.mutateAsync({
-				params: { path: { userId: user.id } },
-			});
-			// Toggle state optimistically
-			showToast({
-				type: "success",
-				message: data?.isFollowing ? "Unfollowed" : "Followed",
-			});
+			if (data?.isFollowing || data?.isFollowRequested) {
+				await unfollowMutation.mutateAsync({
+					params: { path: { userId: user.id } },
+				});
+				showToast({
+					type: "success",
+					message: data?.isFollowing
+						? "Unfollowed"
+						: "Follow request cancelled",
+				});
+			} else {
+				await followMutation.mutateAsync({
+					params: { path: { userId: user.id } },
+				});
+				showToast({
+					type: "success",
+					message: user.isPrivateAccount
+						? "Follow request sent"
+						: "You are now following this user",
+				});
+			}
 		} catch (error: unknown) {
 			showToast({
 				type: "error",
@@ -74,14 +92,20 @@ export function ProfileActions({
 		}
 	};
 
+	const isMutationPending =
+		followMutation.isPending || unfollowMutation.isPending;
+
+	const buttonLabel = (() => {
+		if (isMutationPending) return "Loading...";
+		if (data?.isFollowing) return "Unfollow";
+		if (data?.isFollowRequested) return "Requested";
+		return "Follow";
+	})();
+
 	return (
 		<Box paddingHorizontal="l" marginBottom="l">
-			<Button onPress={handleFollowPress} disabled={followMutation.isPending}>
-				{followMutation.isPending
-					? "Loading..."
-					: data?.isFollowing
-						? "Unfollow"
-						: "Follow"}
+			<Button onPress={handleFollowPress} disabled={isMutationPending}>
+				{buttonLabel}
 			</Button>
 		</Box>
 	);

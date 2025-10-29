@@ -1,10 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import type { Theme } from "@/config/theme";
+import { useDoubleTap } from "@/hooks";
 
 export default function TabsLayout() {
 	const theme = useTheme<Theme>();
+	const router = useRouter();
+	const handleProfileDoubleTap = useDoubleTap(() => {
+		router.replace("/(tabs)/profile");
+	});
 
 	return (
 		<Tabs
@@ -77,6 +82,11 @@ export default function TabsLayout() {
 							<Ionicons name="person-outline" color={color} size={size} />
 						),
 				}}
+				listeners={() => ({
+					tabPress: () => {
+						handleProfileDoubleTap();
+					},
+				})}
 			/>
 		</Tabs>
 	);

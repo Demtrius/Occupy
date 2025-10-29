@@ -3,6 +3,7 @@ export * from "./use-availability";
 export * from "./use-bookings";
 export * from "./use-cliques";
 export * from "./use-debounce";
+export * from "./use-double-tap";
 export * from "./use-media";
 export * from "./use-messaging";
 export * from "./use-notifications";

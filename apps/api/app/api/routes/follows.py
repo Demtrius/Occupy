@@ -78,6 +78,32 @@ async def follow(
     return follow
 
 
+@router.delete(
+    "",
+    operation_id="UsersUnfollow",
+    summary="Unfollow user",
+    description="Stop following the specified user.",
+    response_model=dict[str, str],
+    responses={
+        200: {
+            "description": "Unfollowed",
+            "content": {"application/json": {"example": {"status": "unfollowed"}}},
+        },
+        **error_responses(401, 404),
+    },
+    openapi_extra=secured(),
+)
+async def unfollow_route(
+    user_id: Annotated[UUID, Path(alias="userId")],
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    success = await unfollow_user(db, str(current_user.id), str(user_id))
+    if not success:
+        raise NotFound()
+    return {"status": "unfollowed"}
+
+
 @router.post(
     "/approve",
     operation_id="UsersFollowApprove",
@@ -200,7 +226,7 @@ async def list_followers(
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_following(
-    userId: Annotated[UUID, Path(alias="userId")],
+    user_id: Annotated[UUID, Path(alias="userId")],
     current_user: User = Depends(require_active_user),
     cursor: Optional[str] = Query(
         None, include_in_schema=False, description="Opaque pagination cursor"
@@ -215,7 +241,7 @@ async def list_following(
     db: AsyncSession = Depends(get_db),
 ):
     limit = min(max(limit, 1), 100)
-    following, next_cursor = await get_following(db, str(userId), cursor, limit)
+    following, next_cursor = await get_following(db, str(user_id), cursor, limit)
     return CursorPageFollows(items=following, next_cursor=next_cursor)
 
 
