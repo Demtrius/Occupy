@@ -117,9 +117,11 @@ async def get_user_bookings(
 
 
 async def get_clique_bookings(
-    db: AsyncSession, clique_id: str, status: str | None, cursor: str | None, limit: int
+    db: AsyncSession, clique_id: str, status: str | None, cursor: str | None, limit: int, user_id: str | None = None
 ) -> tuple[list[Booking], str | None]:
     stmt = select(Booking).where(Booking.clique_id == clique_id)
+    if user_id:
+        stmt = stmt.where(Booking.user_id == user_id)
     if status:
         try:
             status_enum = BookingStatus(status)

@@ -1,13 +1,16 @@
+import { useTheme } from "@shopify/restyle";
 import { useState } from "react";
-import { ScrollView } from "react-native";
+import { ActivityIndicator, ScrollView } from "react-native";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
+import type { Theme } from "@/config/theme";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useListChatsQuery } from "@/hooks/use-messaging";
 
 export default function Page() {
+	const theme = useTheme<Theme>();
 	const [searchQuery, setSearchQuery] = useState("");
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const { data: chats, isLoading } = useListChatsQuery();
@@ -35,7 +38,9 @@ export default function Page() {
 			<ScrollView showsVerticalScrollIndicator={false}>
 				<Box padding="s">
 					{isLoading ? (
-						<EmptyState message="Loading conversations..." />
+						<Box alignItems="center" padding="xl">
+							<ActivityIndicator color={theme.colors.primary} />
+						</Box>
 					) : filteredChats.length > 0 ? (
 						filteredChats.map((chat) => (
 							<Box

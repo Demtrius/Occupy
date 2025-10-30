@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@shopify/restyle";
+import { type ColorProps, useTheme } from "@shopify/restyle";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { Booking, BookingStatus } from "@/types";
@@ -92,8 +92,8 @@ export function BookingCard({ booking }: BookingCardProps) {
 					borderRadius="s"
 				>
 					<Text
-						variant="caption"
-						style={{ color: badgeColors.text }}
+						style={{ fontSize: 14 }}
+						color={badgeColors.text}
 						fontWeight="500"
 					>
 						{statusLabel}

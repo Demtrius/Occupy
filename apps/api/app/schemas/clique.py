@@ -63,3 +63,4 @@ class Clique(CliqueBase):
     created_at: datetime
     updated_at: datetime
     members_count: int = 0
+    membership_status: Optional[MembershipStatus] = None

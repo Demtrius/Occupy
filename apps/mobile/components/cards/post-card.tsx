@@ -269,7 +269,6 @@ export function PostCard({
 						marginTop="m"
 						paddingTop="m"
 						paddingHorizontal={variant === "inline" ? "s" : undefined}
-						paddingBottom="s"
 						flexDirection="row"
 						alignItems="center"
 						borderTopColor="border"

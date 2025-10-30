@@ -117,12 +117,18 @@ async def test_bookings_route_flow(client, db_session, make_token, frozen_time):
     )
     assert list_clique_owner.status_code == 200
 
-    list_clique_forbidden = await client.get(
+    list_clique_customer = await client.get(
         f"/api/v1/bookings/cliques/{clique.id}",
         headers=auth_headers(make_token(customer)),
     )
-    assert list_clique_forbidden.status_code == 403
-    assert_error(list_clique_forbidden, "forbidden")
+    assert list_clique_customer.status_code == 200
+    customer_page = list_clique_customer.json()
+    assert_cursor_page(customer_page)
+    # Customer should see only their own bookings (2 items: one confirmed, one cancelled)
+    assert len(customer_page["items"]) == 2
+    booking_ids = {item["id"] for item in customer_page["items"]}
+    assert booking_id in booking_ids
+    assert second_id in booking_ids
 
 
 @pytest.mark.asyncio

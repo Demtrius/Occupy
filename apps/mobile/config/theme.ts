@@ -81,6 +81,11 @@ const baseTheme = {
 			fontWeight: "600",
 			color: "foreground",
 		},
+		"small-header": {
+			fontSize: 16,
+			fontWeight: "600",
+			color: "foreground",
+		},
 		body: {
 			fontSize: 16,
 			color: "foreground",
@@ -106,7 +111,14 @@ const baseTheme = {
 		primary: {},
 		secondary: {
 			backgroundColor: "secondary",
-			color: "secondary-foreground",
+			color: "foreground",
+		},
+		ghost: {
+			backgroundColor: "transparent",
+			color: "foreground",
+			minHeight: undefined,
+			paddingHorizontal: 0,
+			paddingVertical: 0,
 		},
 		icon: {
 			minWidth: 52,

@@ -243,11 +243,11 @@ async def list_my_bookings(
     "/cliques/{cliqueId}",
     operation_id="BookingsCliques",
     summary="List clique bookings",
-    description="Paginated bookings for a clique. Only the owner can access.",
+    description="Paginated bookings for a clique. Owners see all bookings; others see only their own.",
     response_model=CursorPageBookings,
     responses={
         200: {"description": "Bookings page"},
-        **error_responses(400, 401, 403, 404, 422),
+        **error_responses(400, 401, 404, 422),
     },
     openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
@@ -260,15 +260,16 @@ async def list_clique_bookings(
     clique = await get_clique_by_id(db, str(clique_id))
     if not clique:
         raise NotFound()
-    if clique.owner_user_id != current_user.id:
-        raise Forbidden()
+
+    is_owner = clique.owner_user_id == current_user.id
+    user_filter = None if is_owner else str(current_user.id)
 
     status_filter = params.status
     cursor = params.cursor
     limit = min(max(params.limit, 1), 100)
     try:
         bookings, next_cursor = await get_clique_bookings(
-            db, str(clique_id), status_filter, cursor, limit
+            db, str(clique_id), status_filter, cursor, limit, user_filter
         )
     except ValueError as exc:
         raise _map_booking_error(exc)

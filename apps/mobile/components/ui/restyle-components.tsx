@@ -75,7 +75,6 @@ export const Card = createRestyleComponent<
 			defaults: {
 				borderRadius: "l",
 				padding: "m",
-				paddingBottom: "s",
 				backgroundColor: "card",
 				borderWidth: 1,
 				borderColor: "border",

@@ -18,6 +18,12 @@ type ToastState = {
 export const useToastStore = create<ToastState>((set, get) => ({
 	toasts: [],
 	show: (t) => {
+		const existing = get().toasts.find(
+			(existingToast) =>
+				existingToast.title === t.title && existingToast.message === t.message,
+		);
+		if (existing) return;
+
 		const id = Math.random().toString(36).slice(2);
 		const toast: Toast = { id, duration: 2500, type: "info", ...t };
 		set({ toasts: [...get().toasts, toast] });

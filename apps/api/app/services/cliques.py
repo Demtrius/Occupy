@@ -82,20 +82,23 @@ async def get_clique_public(
     if not clique:
         return None
 
+    membership_status: MembershipStatus | None = None
     is_owner_or_member = False
     if requester_id:
         if str(clique.owner_user_id) == requester_id:
+            membership_status = MembershipStatus.JOINED
             is_owner_or_member = True
         else:
             membership = await db.scalar(
                 select(CliqueMember).where(
                     CliqueMember.clique_id == clique_id,
                     CliqueMember.user_id == requester_id,
-                    CliqueMember.status == MembershipStatus.JOINED,
                 )
             )
             if membership:
-                is_owner_or_member = True
+                membership_status = membership.status
+                if membership.status == MembershipStatus.JOINED:
+                    is_owner_or_member = True
 
     hydrated = await hydrate_cliques(db, [clique])
     schema = hydrated[0] if hydrated else CliqueSchema.model_validate(clique)
@@ -109,8 +112,10 @@ async def get_clique_public(
             "imageUrl": clique.image_url,
             "timezone": clique.timezone,
             "membersCount": schema.members_count,
+            "membershipStatus": membership_status.value if membership_status else None,
         }
 
+    schema.membership_status = membership_status
     return schema.model_dump(mode="json", by_alias=True)
 
 
@@ -255,9 +260,16 @@ async def get_user_cliques(
     cursor: str | None,
     limit: int,
 ) -> tuple[list[Clique], str | None]:
-    # If viewing own cliques, show all
+    # If viewing own cliques, show cliques where user is a member
     if user_id == current_user_id:
-        stmt = select(Clique).where(Clique.owner_user_id == user_id)
+        stmt = select(Clique).where(
+            Clique.id.in_(
+                select(CliqueMember.clique_id).where(
+                    CliqueMember.user_id == user_id,
+                    CliqueMember.status == MembershipStatus.JOINED,
+                )
+            )
+        )
     else:
         # For other users, only show public cliques or cliques where current user is a member
         from sqlalchemy import or_
@@ -329,10 +341,9 @@ async def hydrate_cliques(
 
     from ..models.user import CliqueOccupation
 
-    occupations_stmt = (
-        select(CliqueOccupation.clique_id, CliqueOccupation.occupation_id)
-        .where(CliqueOccupation.clique_id.in_(ids))
-    )
+    occupations_stmt = select(
+        CliqueOccupation.clique_id, CliqueOccupation.occupation_id
+    ).where(CliqueOccupation.clique_id.in_(ids))
     occupations_result = await db.execute(occupations_stmt)
     occupation_map: dict[UUID, list[UUID]] = {}
     for clique_id, occupation_id in occupations_result.all():

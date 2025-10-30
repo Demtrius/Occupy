@@ -69,6 +69,7 @@ export function useGetCliqueQuery(cliqueId: string | undefined) {
 			if (!cliqueId) {
 				throw new Error("cliqueId is required");
 			}
+
 			return ensureData(
 				await $api.GET("/api/v1/cliques/{cliqueId}", {
 					params: { path: { cliqueId } },

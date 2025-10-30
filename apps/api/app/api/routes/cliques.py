@@ -185,7 +185,7 @@ async def create(
     operation_id="CliquesById",
     summary="Get clique",
     description="Retrieve the public profile for a clique, with visibility rules applied.",
-    response_model=dict[str, Any],
+    response_model=CliqueSchema,
     responses={
         200: {"description": "Clique profile"},
         **error_responses(404),
@@ -432,7 +432,7 @@ async def reject_membership(
     "/user/{userId}/cliques",
     operation_id="CliquesUser",
     summary="List user cliques",
-    description="Paginated cliques owned by a user visible to the current user, respecting privacy settings.",
+    description="Paginated cliques the user is a member of, visible to the current user, respecting privacy settings.",
     response_model=CursorPageCliques,
     responses={
         200: {"description": "User cliques page"},
