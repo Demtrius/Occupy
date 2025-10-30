@@ -313,11 +313,7 @@ export default function PostDetailPage() {
 	return (
 		<Screen noTopPadding>
 			<KeyboardAvoidingView
-				style={{
-					flex: 1,
-					paddingTop: theme.spacing.m,
-					paddingHorizontal: theme.spacing.s,
-				}}
+				style={{ flex: 1 }}
 				behavior={Platform.OS === "ios" ? "padding" : undefined}
 				keyboardVerticalOffset={theme.spacing.xxl}
 			>
