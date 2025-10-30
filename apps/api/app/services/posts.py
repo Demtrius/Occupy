@@ -231,8 +231,6 @@ async def create_comment(
         parent = await db.get(Comment, parent_uuid)
         if not parent or parent.post_id != post_uuid or parent.deleted_at is not None:
             raise Validation("Invalid parent comment")
-        if parent.parent_comment_id is not None:
-            raise Validation("Only one-level replies allowed")
         parent_comment_id = parent_uuid
 
     comment = Comment(
