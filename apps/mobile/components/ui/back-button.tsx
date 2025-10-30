@@ -12,6 +12,7 @@ interface BackButtonProps {
 export function BackButton({ path }: BackButtonProps = {}) {
 	const router = useRouter();
 	const theme = useTheme<Theme>();
+	const isWeb = Platform.OS === "web";
 
 	const handlePress = path ? () => router.push(path) : () => router.back();
 
@@ -19,7 +20,9 @@ export function BackButton({ path }: BackButtonProps = {}) {
 		<Pressable
 			onPress={handlePress}
 			hitSlop={10}
-			style={{ paddingLeft: Platform.OS === "web" ? 10 : 0 }}
+			style={{
+				paddingLeft: isWeb ? 10 : 0,
+			}}
 		>
 			<Ionicons name="arrow-back" size={24} color={theme.colors.foreground} />
 		</Pressable>

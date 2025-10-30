@@ -30,6 +30,32 @@ from tests.factories import (
 
 fake = Faker()
 
+POST_MEDIA_URLS = [
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
+    "https://images.unsplash.com/photo-1546483875-ad9014c88eba",
+    "https://images.unsplash.com/photo-1546793665-c74683f339c1",
+    "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17",
+    "https://images.unsplash.com/photo-1501426026826-31c667bdf23d",
+    "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5",
+    "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518",
+    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1",
+]
+
+POST_MEDIA_CAPTIONS = [
+    "Behind the scenes at today's shoot",
+    "Fresh from the oven goodness",
+    "Capturing golden hour vibes",
+    "A sneak peek at our new collection",
+    "Teamwork makes the dream work",
+    "Studio lights and creative nights",
+    "Every detail matters",
+    "Weekend workshops in full swing",
+    "Fresh blooms for the storefront",
+    "Client transformations we love",
+]
+
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/clique"
 )
@@ -328,10 +354,28 @@ async def seed() -> None:
             posts.append(post)
 
             # Sometimes add media
-            if random.random() < 0.3:  # 30% chance
-                media = await create_media(session, owner=author)
-                post_media = PostMedia(post_id=post.id, media_id=media.id, position=0)
-                session.add(post_media)
+            if random.random() < 0.6:  # 60% chance include media
+                media_count = random.randint(1, 3)
+                selected_urls = random.sample(POST_MEDIA_URLS, media_count)
+                for position, url in enumerate(selected_urls):
+                    media = await create_media(session, owner=author)
+                    media.url = f"{url}?auto=format&fit=crop&w=1600&q=80"
+                    media.meta = {
+                        "source": "seed",
+                        "position": position,
+                        "width": 1600,
+                        "height": 900,
+                        "alt": random.choice(POST_MEDIA_CAPTIONS),
+                    }
+                    media.mime = "image/jpeg"
+                    media.size_bytes = random.randint(90_000, 450_000)
+                    session.add(media)
+                    post_media = PostMedia(
+                        post_id=post.id,
+                        media_id=media.id,
+                        position=position,
+                    )
+                    session.add(post_media)
 
         post1 = posts[0]
         post2 = posts[1]

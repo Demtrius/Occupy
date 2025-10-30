@@ -1,6 +1,7 @@
 import { createTheme } from "@shopify/restyle";
 
 const lightColors = {
+	transparent: "transparent",
 	background: "#ffffff",
 	foreground: "#09090b",
 	card: "#ffffff",
@@ -22,6 +23,7 @@ const lightColors = {
 } as const;
 
 const darkColors = {
+	transparent: "transparent",
 	background: "#09090b",
 	foreground: "#eff6ff",
 	card: "#09090b",
@@ -39,7 +41,7 @@ const darkColors = {
 	destructive: "#e7000b",
 	border: "#212124",
 	input: "#212124",
-	ring: "#404040",
+	ring: "#505050",
 } as const;
 
 const baseTheme = {
@@ -51,6 +53,7 @@ const baseTheme = {
 		l: 24,
 		xl: 32,
 		xxl: 48,
+		xxxl: 64,
 	},
 	breakpoints: {
 		phone: 0,
@@ -138,6 +141,18 @@ const baseTheme = {
 			shadowOpacity: 0.2,
 			shadowRadius: 8,
 			elevation: 5,
+		},
+		inline: {
+			borderTopWidth: 0,
+			borderBottomColor: "border",
+			paddingHorizontal: "s",
+			paddingVertical: undefined,
+			elevation: 4,
+			shadowColor: "ring",
+			shadowOffset: {
+				height: 6,
+			},
+			shadowRadius: 8,
 		},
 	},
 };

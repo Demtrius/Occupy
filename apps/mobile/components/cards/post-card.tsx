@@ -1,21 +1,29 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import type React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { type GestureResponderEvent, Pressable } from "react-native";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import { useLikePostMutation, useUnlikePostMutation } from "@/hooks";
+import { formatRelativeTimestamp } from "@/lib/date";
 import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { Post } from "@/types";
 
 interface PostCardProps {
 	post: Post;
+	isSelfRedirectable?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({
+	post,
+	variant = "elevated",
+	isSelfRedirectable = true,
+}: PostCardProps & React.ComponentProps<typeof Card>) {
 	const router = useRouter();
 	const theme = useTheme<Theme>();
 	const likeMutation = useLikePostMutation();
@@ -23,6 +31,15 @@ export function PostCard({ post }: PostCardProps) {
 
 	const [isLiked, setIsLiked] = useState(post.likedByMe);
 	const [likesCount, setLikesCount] = useState(post.likesCount);
+
+	const mediaItems = useMemo(() => {
+		const items = post.media ?? [];
+		return [...items].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+	}, [post.media]);
+
+	const primaryMedia = mediaItems[0];
+	const additionalMediaCount =
+		mediaItems.length > 1 ? mediaItems.length - 1 : 0;
 
 	useEffect(() => {
 		setIsLiked(post.likedByMe);
@@ -33,23 +50,28 @@ export function PostCard({ post }: PostCardProps) {
 	}, [post.likesCount]);
 
 	const timestampLabel = useMemo(
-		() => formatPostTimestamp(post.createdAt),
+		() =>
+			formatRelativeTimestamp(post.createdAt, {
+				hourDisplay: "short",
+			}),
 		[post.createdAt],
 	);
 
 	const isMutating = likeMutation.isPending || unlikeMutation.isPending;
 
 	const handleNavigateToPost = useCallback(() => {
+		if (!isSelfRedirectable) return;
+
 		router.push({ pathname: "/posts/[id]", params: { id: post.id } });
-	}, [post.id, router]);
+	}, [isSelfRedirectable, post.id, router]);
 
 	const handleCliquePress = useCallback(
 		(event: GestureResponderEvent) => {
 			event.stopPropagation();
+
 			const cliqueId = post.clique?.id ?? post.cliqueId;
-			if (!cliqueId) {
-				return;
-			}
+			if (!cliqueId) return;
+
 			router.push({
 				pathname: "/cliques/[id]",
 				params: { id: cliqueId },
@@ -61,10 +83,10 @@ export function PostCard({ post }: PostCardProps) {
 	const handleAuthorPress = useCallback(
 		(event: GestureResponderEvent) => {
 			event.stopPropagation();
+
 			const authorId = post.author?.id ?? post.authorUserId;
-			if (!authorId) {
-				return;
-			}
+			if (!authorId) return;
+
 			router.push({
 				pathname: "/(tabs)/profile",
 				params: { userId: authorId },
@@ -108,7 +130,7 @@ export function PostCard({ post }: PostCardProps) {
 				onPress={handleNavigateToPost}
 				style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
 			>
-				<Card variant="elevated">
+				<Card variant={variant}>
 					{/* Post Header */}
 					<Box
 						flexDirection="row"
@@ -201,13 +223,58 @@ export function PostCard({ post }: PostCardProps) {
 						</Text>
 					</Box>
 
+					{primaryMedia?.media?.url ? (
+						<Box marginBottom="m">
+							<Box
+								height={220}
+								borderRadius="l"
+								overflow="hidden"
+								backgroundColor="muted"
+							>
+								<Image
+									source={{ uri: primaryMedia.media.url }}
+									style={{ width: "100%", height: "100%" }}
+									contentFit="cover"
+								/>
+								{additionalMediaCount > 0 ? (
+									<Box
+										position="absolute"
+										paddingHorizontal="s"
+										paddingVertical="xs"
+										borderRadius="m"
+										style={{
+											backgroundColor: "rgba(0,0,0,0.55)",
+											right: theme.spacing.s,
+											top: theme.spacing.s,
+										}}
+									>
+										<Text
+											variant="caption"
+											color="primary-foreground"
+											fontWeight="600"
+										>
+											+{additionalMediaCount}
+										</Text>
+									</Box>
+								) : null}
+							</Box>
+						</Box>
+					) : null}
+
 					{/* Post Content */}
-					<Text variant="body" marginBottom="m">
-						{post.content}
-					</Text>
+					<Text variant="body">{post.content}</Text>
 
 					{/* Post Stats */}
-					<Box flexDirection="row" alignItems="center">
+					<Box
+						marginTop="m"
+						paddingTop="m"
+						paddingHorizontal={variant === "inline" ? "s" : undefined}
+						paddingBottom="s"
+						flexDirection="row"
+						alignItems="center"
+						borderTopColor="border"
+						borderTopWidth={1}
+					>
 						<Pressable
 							onPress={handleLikeToggle}
 							hitSlop={8}
@@ -248,30 +315,4 @@ export function PostCard({ post }: PostCardProps) {
 			</Pressable>
 		</Box>
 	);
-}
-
-function formatPostTimestamp(createdAt: string): string {
-	const created = new Date(createdAt);
-	if (Number.isNaN(created.getTime())) {
-		return "";
-	}
-
-	const now = new Date();
-	const diffMs = now.getTime() - created.getTime();
-	if (diffMs < 0) {
-		return created.toLocaleDateString();
-	}
-
-	const diffMinutes = Math.floor(diffMs / 60000);
-	if (diffMinutes < 60) {
-		const minutes = Math.max(diffMinutes, 1);
-		return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-	}
-
-	const diffHours = Math.floor(diffMinutes / 60);
-	if (diffHours < 24) {
-		return `${diffHours}h ago`;
-	}
-
-	return created.toLocaleDateString();
 }

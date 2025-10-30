@@ -1,4 +1,5 @@
 from typing import Any, Dict, Literal, Optional
+from uuid import UUID
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
@@ -13,8 +14,8 @@ class MediaCreate(BaseSchema):
 
 
 class Media(BaseSchema):
-    id: str
-    owner_user_id: str
+    id: UUID
+    owner_user_id: UUID
     url: str
     mime: Optional[str] = None
     size_bytes: Optional[int] = None

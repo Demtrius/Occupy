@@ -7785,6 +7785,16 @@
             "type": "string",
             "format": "date-time",
             "title": "Updatedat"
+          },
+          "author": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostAuthorSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -8203,6 +8213,65 @@
         ],
         "title": "LoginRequest"
       },
+      "Media": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "ownerUserId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Owneruserid"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "mime": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime"
+          },
+          "sizeBytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sizebytes"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ownerUserId",
+          "url"
+        ],
+        "title": "Media"
+      },
       "MediaCreate": {
         "properties": {
           "url": {
@@ -8575,6 +8644,20 @@
             "type": "boolean",
             "title": "Likedbyme",
             "default": false
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/PostMediaItem"
+            },
+            "type": "array",
+            "title": "Media"
+          },
+          "comments": {
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            },
+            "type": "array",
+            "title": "Comments"
           }
         },
         "type": "object",
@@ -8673,6 +8756,35 @@
           "content"
         ],
         "title": "PostCreate"
+      },
+      "PostMediaItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "mediaId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Mediaid"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position",
+            "default": 0
+          },
+          "media": {
+            "$ref": "#/components/schemas/Media"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mediaId",
+          "media"
+        ],
+        "title": "PostMediaItem"
       },
       "PostStatus": {
         "type": "string",

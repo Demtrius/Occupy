@@ -11,7 +11,8 @@ from ..core.errors import Validation
 from ..core.pagination import apply_datetime_cursor, slice_results
 from ..models.clique import Clique, CliqueMember
 from ..models.enums import FollowStatus, MembershipStatus, PostStatus, Privacy
-from ..models.post import Comment, Post, PostLike
+from ..models.media import Media
+from ..models.post import Comment, Post, PostLike, PostMedia
 from ..models.user import Follow, User
 from ..schemas.post import (
     Comment as CommentSchema,
@@ -19,7 +20,9 @@ from ..schemas.post import (
     Post as PostSchema,
     PostAuthorSummary,
     PostCliqueSummary,
+    PostMediaItem,
 )
+from ..schemas.media import Media as MediaSchema
 
 
 async def create_post(
@@ -47,7 +50,7 @@ async def get_post_by_id(
     post = await db.get(Post, post_id)
     if not post or post.deleted_at is not None:
         return None
-    return await _hydrate_post(db, post, current_user_id)
+    return await _hydrate_post(db, post, current_user_id, include_comments=True)
 
 
 async def get_clique_posts(
@@ -280,8 +283,11 @@ async def _hydrate_post(
     db: AsyncSession,
     post: Post,
     current_user_id: str,
+    include_comments: bool = False,
 ) -> PostSchema:
-    hydrated = await _hydrate_posts(db, [post], current_user_id)
+    hydrated = await _hydrate_posts(
+        db, [post], current_user_id, include_comments=include_comments
+    )
     return hydrated[0]
 
 
@@ -289,6 +295,7 @@ async def _hydrate_posts(
     db: AsyncSession,
     posts: Iterable[Post],
     current_user_id: str,
+    include_comments: bool = False,
 ) -> list[PostSchema]:
     post_list = list(posts)
     if not post_list:
@@ -298,17 +305,40 @@ async def _hydrate_posts(
     author_ids = {post.author_user_id for post in post_list}
     clique_ids = {post.clique_id for post in post_list}
 
+    comments_map: dict[UUID, list[Comment]] = {}
+    comment_user_ids: set[UUID] = set()
+    if include_comments:
+        comments_map = await _fetch_comments(db, post_ids)
+        for comment_list in comments_map.values():
+            comment_user_ids.update(comment.user_id for comment in comment_list)
+
     likes_count, comments_count = await _aggregate_counts(db, post_ids)
     liked_ids = await _liked_post_ids(db, post_ids, current_user_id)
-    authors = await _fetch_users(db, author_ids)
+    media_map = await _fetch_post_media(db, post_ids)
+    author_lookup_ids = author_ids | comment_user_ids
+    authors = await _fetch_users(db, author_lookup_ids)
     cliques = await _fetch_cliques(db, clique_ids)
 
     hydrated: list[PostSchema] = []
     for post in post_list:
-        schema = PostSchema.model_validate(post)
-        schema.likes_count = likes_count.get(post.id, 0)
-        schema.comments_count = comments_count.get(post.id, 0)
-        schema.liked_by_me = post.id in liked_ids
+        schema = PostSchema.model_validate(
+            {
+                "id": post.id,
+                "clique_id": post.clique_id,
+                "author_user_id": post.author_user_id,
+                "status": post.status,
+                "content_format": post.content_format,
+                "content": post.content,
+                "deleted_at": post.deleted_at,
+                "created_at": post.created_at,
+                "updated_at": post.updated_at,
+                "likes_count": likes_count.get(post.id, 0),
+                "comments_count": comments_count.get(post.id, 0),
+                "liked_by_me": post.id in liked_ids,
+                "media": [],
+                "comments": [],
+            }
+        )
 
         author = authors.get(post.author_user_id)
         schema.author = PostAuthorSummary.model_validate(author) if author else None
@@ -316,8 +346,70 @@ async def _hydrate_posts(
         clique = cliques.get(post.clique_id)
         schema.clique = PostCliqueSummary.model_validate(clique) if clique else None
 
+        media_items = media_map.get(post.id, [])
+        schema.media = [
+            PostMediaItem(
+                id=post_media.id,
+                media_id=post_media.media_id,
+                position=post_media.position,
+                media=MediaSchema.model_validate(media),
+            )
+            for post_media, media in media_items
+        ]
+
+        if include_comments:
+            comment_rows = comments_map.get(post.id, [])
+            schema.comments = []
+            for comment in comment_rows:
+                comment_schema = CommentSchema.model_validate(comment)
+                comment_author = authors.get(comment.user_id)
+                if comment_author:
+                    comment_schema.author = PostAuthorSummary.model_validate(
+                        comment_author
+                    )
+                schema.comments.append(comment_schema)
+
         hydrated.append(schema)
     return hydrated
+
+
+async def _fetch_post_media(
+    db: AsyncSession,
+    post_ids: Iterable[UUID],
+) -> dict[UUID, list[tuple[PostMedia, Media]]]:
+    ids = list(post_ids)
+    if not ids:
+        return {}
+    stmt = (
+        select(PostMedia, Media)
+        .join(Media, PostMedia.media_id == Media.id)
+        .where(PostMedia.post_id.in_(ids))
+        .order_by(PostMedia.post_id, PostMedia.position)
+    )
+    result = await db.execute(stmt)
+    media_map: dict[UUID, list[tuple[PostMedia, Media]]] = {}
+    for post_media, media in result.all():
+        media_map.setdefault(post_media.post_id, []).append((post_media, media))
+    return media_map
+
+
+async def _fetch_comments(
+    db: AsyncSession,
+    post_ids: Iterable[UUID],
+) -> dict[UUID, list[Comment]]:
+    ids = list(post_ids)
+    if not ids:
+        return {}
+    stmt = (
+        select(Comment)
+        .where(Comment.post_id.in_(ids), Comment.deleted_at.is_(None))
+        .order_by(Comment.post_id, Comment.created_at)
+    )
+    result = await db.execute(stmt)
+    comments_map: dict[UUID, list[Comment]] = {}
+    for comment in result.scalars().all():
+        comments_map.setdefault(comment.post_id, []).append(comment)
+    return comments_map
 
 
 async def _fetch_users(

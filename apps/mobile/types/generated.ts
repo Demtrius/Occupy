@@ -1721,6 +1721,7 @@ export interface components {
              * Format: date-time
              */
             readonly updatedAt: string;
+            readonly author?: components["schemas"]["PostAuthorSummary"] | null;
         };
         /** CommentCreate */
         readonly CommentCreate: {
@@ -1859,6 +1860,29 @@ export interface components {
             readonly emailOrUsername: string;
             /** Password */
             readonly password: string;
+        };
+        /** Media */
+        readonly Media: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Owneruserid
+             * Format: uuid
+             */
+            readonly ownerUserId: string;
+            /** Url */
+            readonly url: string;
+            /** Mime */
+            readonly mime?: string | null;
+            /** Sizebytes */
+            readonly sizeBytes?: number | null;
+            /** Meta */
+            readonly meta?: {
+                readonly [key: string]: unknown;
+            } | null;
         };
         /** MediaCreate */
         readonly MediaCreate: {
@@ -2036,6 +2060,10 @@ export interface components {
              * @default false
              */
             readonly likedByMe: boolean;
+            /** Media */
+            readonly media?: readonly components["schemas"]["PostMediaItem"][];
+            /** Comments */
+            readonly comments?: readonly components["schemas"]["Comment"][];
         };
         /** PostAuthorSummary */
         readonly PostAuthorSummary: {
@@ -2071,6 +2099,25 @@ export interface components {
             readonly content: string;
             /** @default draft */
             readonly status: components["schemas"]["PostStatus"];
+        };
+        /** PostMediaItem */
+        readonly PostMediaItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /**
+             * Mediaid
+             * Format: uuid
+             */
+            readonly mediaId: string;
+            /**
+             * Position
+             * @default 0
+             */
+            readonly position: number;
+            readonly media: components["schemas"]["Media"];
         };
         /**
          * PostStatus

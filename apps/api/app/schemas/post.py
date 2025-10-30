@@ -2,9 +2,12 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
+from pydantic import Field
+
 from app.schemas.base import BaseSchema
 
 from ..models.enums import ContentFormat, PostStatus
+from .media import Media
 
 
 class PostAuthorSummary(BaseSchema):
@@ -18,6 +21,13 @@ class PostCliqueSummary(BaseSchema):
     id: UUID
     name: str
     image_url: Optional[str] = None
+
+
+class PostMediaItem(BaseSchema):
+    id: UUID
+    media_id: UUID
+    position: int = 0
+    media: Media
 
 
 class PostBase(BaseSchema):
@@ -47,6 +57,8 @@ class Post(PostBase):
     likes_count: int = 0
     comments_count: int = 0
     liked_by_me: bool = False
+    media: list[PostMediaItem] = Field(default_factory=list)
+    comments: list["Comment"] = Field(default_factory=list)
 
 
 class Comment(BaseSchema):
@@ -58,8 +70,12 @@ class Comment(BaseSchema):
     deleted_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    author: Optional[PostAuthorSummary] = None
 
 
 class CommentCreate(BaseSchema):
     body: str
     parent_comment_id: Optional[UUID] = None
+
+
+Post.model_rebuild()

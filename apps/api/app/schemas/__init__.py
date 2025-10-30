@@ -54,6 +54,7 @@ from .post import (
     PostAuthorSummary,
     PostBase,
     PostCliqueSummary,
+    PostMediaItem,
     PostCreate,
     PostUpdate,
 )
@@ -122,6 +123,7 @@ __all__ = [
     "PostAuthorSummary",
     "PostBase",
     "PostCliqueSummary",
+    "PostMediaItem",
     "PostCreate",
     "PostUpdate",
     "Review",
