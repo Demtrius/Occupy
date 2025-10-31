@@ -26,6 +26,34 @@ async def test_chat_websocket_broadcast(app_fixture, db_session, make_token):
 
 
 @pytest.mark.asyncio
+async def test_chat_websocket_typing_events(app_fixture, db_session, make_token):
+    business = await create_user(db_session, is_business_page=True)
+    client_user = await create_user(db_session)
+    chat = await create_chat(db_session, business=business, client=client_user)
+    await db_session.commit()
+
+    business_token = make_token(business)
+    client_token = make_token(client_user)
+
+    with TestClient(app_fixture) as test_client:
+        # Business connects to WebSocket
+        with test_client.websocket_connect(f"/ws/chat/{chat.id}?token={business_token}") as business_ws:
+            # Client connects to WebSocket
+            with test_client.websocket_connect(f"/ws/chat/{chat.id}?token={client_token}") as client_ws:
+                # Client starts typing
+                client_ws.send_json({"type": "typing"})
+                message = business_ws.receive_json()
+                assert message["type"] == "typing"
+                assert message["user_id"] == str(client_user.id)
+
+                # Client stops typing
+                client_ws.send_json({"type": "stop_typing"})
+                message = business_ws.receive_json()
+                assert message["type"] == "stop_typing"
+                assert message["user_id"] == str(client_user.id)
+
+
+@pytest.mark.asyncio
 async def test_booking_websocket_requires_owner(app_fixture, db_session, make_token):
     owner = await create_user(db_session, is_business_page=True)
     clique = await create_clique(db_session, owner=owner)

@@ -300,13 +300,21 @@ async def create_chat(
     business: User,
     client: User,
 ) -> Chat:
-    chat = Chat(
+    from app.services.chats import create_chat as create_chat_service
+    from app.schemas.chat import ChatCreate
+
+    chat_data = ChatCreate(
         business_user_id=business.id,
         client_user_id=client.id,
     )
-    db.add(chat)
-    await db.flush()
-    return chat
+    chat_schema = await create_chat_service(db, chat_data)
+    # Since the service returns ChatSchema, but we need the Chat model
+    # Fetch the Chat from db
+    from app.models.chat import Chat
+    from sqlalchemy import select
+    stmt = select(Chat).where(Chat.id == chat_schema.id)
+    result = await db.execute(stmt)
+    return result.scalar_one()
 
 
 async def create_message(

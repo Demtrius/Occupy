@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Index, Text, func
+from sqlalchemy import DateTime, ForeignKey, Index, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -37,6 +37,10 @@ class Chat(Base):
     )
     messages: Mapped[list["Message"]] = relationship("Message", back_populates="chat")
 
+    __table_args__ = (
+        UniqueConstraint("business_user_id", "client_user_id", name="uq_business_client_chat"),
+    )
+
 
 class Message(Base):
     __tablename__ = "messages"
@@ -56,6 +60,9 @@ class Message(Base):
     )
     sent_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+    read_at: Mapped[Optional[DateTime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
 
     # Relationships

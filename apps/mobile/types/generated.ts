@@ -1004,6 +1004,26 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/api/v1/messages/read": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /**
+         * Mark messages as read
+         * @description Mark all unread messages in a chat as read for the current user.
+         */
+        readonly post: operations["MessagesMarkAsRead"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/messages/{chatId}": {
         readonly parameters: {
             readonly query?: never;
@@ -1862,6 +1882,11 @@ export interface components {
             /** Password */
             readonly password: string;
         };
+        /** MarkReadRequest */
+        readonly MarkReadRequest: {
+            /** Chat Id */
+            readonly chat_id: string;
+        };
         /** Media */
         readonly Media: {
             /**
@@ -1887,6 +1912,24 @@ export interface components {
         };
         /** MediaCreate */
         readonly MediaCreate: {
+            /** Url */
+            readonly url: string;
+            /** Mime */
+            readonly mime?: string | null;
+            /** Sizebytes */
+            readonly sizeBytes?: number | null;
+            /** Meta */
+            readonly meta?: {
+                readonly [key: string]: unknown;
+            } | null;
+        };
+        /** MediaInfo */
+        readonly MediaInfo: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
             /** Url */
             readonly url: string;
             /** Mime */
@@ -1949,6 +1992,9 @@ export interface components {
              * Format: date-time
              */
             readonly sentAt: string;
+            /** Readat */
+            readonly readAt?: string | null;
+            readonly media?: components["schemas"]["MediaInfo"] | null;
         };
         /** MessageCreate */
         readonly MessageCreate: {
@@ -5888,6 +5934,59 @@ export interface operations {
             };
         };
     };
+    readonly MessagesMarkAsRead: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["MarkReadRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Messages marked as read */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": {
+                        readonly [key: string]: number;
+                    };
+                };
+            };
+            /** @description Unauthorized */
+            readonly 401: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            readonly 404: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     readonly MessagesByChatId: {
         readonly parameters: {
             readonly query?: {
@@ -7003,6 +7102,7 @@ export enum ApiPaths {
     NotificationsReadAll = "/api/v1/notifications/read-all",
     Search = "/api/v1/search",
     Chats = "/api/v1/chats",
+    MessagesMarkAsRead = "/api/v1/messages/read",
     MessagesByChatId = "/api/v1/messages/{chatId}",
     MessagesCreateByChatId = "/api/v1/messages/{chatId}",
     MessagesDeleteById = "/api/v1/messages/{messageId}",

@@ -2,6 +2,7 @@ from typing import Annotated, List
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, Path, Query, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user
@@ -11,9 +12,36 @@ from ...models.user import User
 from ...schemas.chat import Message as MessageSchema
 from ...schemas.chat import MessageCreate
 from ...services.chats import get_chat_by_id
-from ...services.messages import delete_message, get_chat_messages, send_message
+from ...services.messages import delete_message, get_chat_messages, mark_messages_as_read, send_message
+
+
+class MarkReadRequest(BaseModel):
+    chat_id: str
 
 router = APIRouter(prefix="/api/v1/messages", tags=["Messaging"])
+
+
+@router.post(
+    "/read",
+    operation_id="MessagesMarkAsRead",
+    summary="Mark messages as read",
+    description="Mark all unread messages in a chat as read for the current user.",
+    response_model=dict[str, int],
+    responses={
+        200: {"description": "Messages marked as read"},
+        **error_responses(401, 404),
+    },
+    openapi_extra=secured(),
+)
+async def mark_read(
+    request: MarkReadRequest = Body(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_active_user),
+):
+    """Mark messages as read."""
+    chat_id = UUID(request.chat_id)
+    count = await mark_messages_as_read(db, chat_id, current_user.id)
+    return {"marked_read": count}
 
 
 @router.get(
@@ -105,9 +133,12 @@ async def remove_message(
     messageId: Annotated[UUID, Path(alias="messageId")],
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
-):
+ ):
     """Delete a message (only by sender)."""
     success = await delete_message(db, messageId, current_user.id)
     if not success:
         raise NotFound("Message not found or not authorized")
     return {"message": "Message deleted"}
+
+
+

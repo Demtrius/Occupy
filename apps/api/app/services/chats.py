@@ -10,7 +10,18 @@ from ..schemas.chat import ChatCreate
 
 
 async def create_chat(db: AsyncSession, chat_data: ChatCreate) -> ChatSchema:
-    """Create a new chat between business and client."""
+    """Create a new chat between business and client, or return existing."""
+    # Check if chat already exists
+    stmt = select(Chat).where(
+        Chat.business_user_id == chat_data.business_user_id,
+        Chat.client_user_id == chat_data.client_user_id,
+    )
+    result = await db.execute(stmt)
+    existing_chat = result.scalar_one_or_none()
+    if existing_chat:
+        return ChatSchema.model_validate(existing_chat)
+
+    # Create new chat
     chat = Chat(**chat_data.model_dump())
     db.add(chat)
     await db.commit()
