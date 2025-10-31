@@ -42,7 +42,7 @@ export function useOfflineQueue(chatId: string | undefined) {
 		const handleOffline = () => {
 			console.log("[OfflineQueue] Connection lost");
 			setIsOnline(false);
-			
+
 			// Clear any existing reconnect timeout
 			if (reconnectTimeoutRef.current) {
 				clearTimeout(reconnectTimeoutRef.current);
@@ -77,10 +77,10 @@ export function useOfflineQueue(chatId: string | undefined) {
 			try {
 				// Add exponential backoff delay for retries
 				if (queuedMessage.retryCount > 0) {
-					const delay = Math.min(1000 * Math.pow(2, queuedMessage.retryCount), 10000);
-					await new Promise(resolve => setTimeout(resolve, delay));
+					const delay = Math.min(1000 * 2 ** queuedMessage.retryCount, 10000);
+					await new Promise((resolve) => setTimeout(resolve, delay));
 				}
-				
+
 				await sendMutation.mutateAsync({
 					params: { path: { chatId: queuedMessage.chatId } },
 					body: {
@@ -94,11 +94,14 @@ export function useOfflineQueue(chatId: string | undefined) {
 					`[OfflineQueue] Failed to send queued message ${queuedMessage.id}:`,
 					error,
 				);
-				
+
 				const maxRetries = queuedMessage.maxRetries || 3;
 				// Re-queue with increased retry count if under max retries
 				if (queuedMessage.retryCount < maxRetries) {
-					const retryDelay = Math.min(1000 * Math.pow(2, queuedMessage.retryCount), 10000);
+					const retryDelay = Math.min(
+						1000 * 2 ** queuedMessage.retryCount,
+						10000,
+					);
 					setQueue((prev) => [
 						...prev,
 						{
@@ -109,7 +112,9 @@ export function useOfflineQueue(chatId: string | undefined) {
 						},
 					]);
 				} else {
-					console.warn(`[OfflineQueue] Max retries exceeded for message ${queuedMessage.id}, dropping message`);
+					console.warn(
+						`[OfflineQueue] Max retries exceeded for message ${queuedMessage.id}, dropping message`,
+					);
 				}
 			}
 		}

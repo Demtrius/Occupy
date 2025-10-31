@@ -1,4 +1,5 @@
 import { getErrorMessage } from "@/lib/error-utils";
+import { useAuthStore } from "@/stores/auth-store";
 import { showToast } from "@/stores/toast-store";
 
 type ErrorResponsePayload = {
@@ -28,6 +29,20 @@ export function handleResponseError(
 		title: "Error",
 		message: friendlyMessage,
 	});
+
+	// Auto-logout on authentication failures
+	if (
+		code === "invalid_refresh_token" ||
+		(code === "http_error" &&
+			response?.data?.error?.message?.includes("Invalid refresh token"))
+	) {
+		const { clear } = useAuthStore.getState();
+		clear(); // Clear invalid tokens
+		// Import router dynamically to avoid circular dependency
+		import("expo-router").then(({ router }) => {
+			router.replace("/(auth)/login");
+		});
+	}
 }
 
 function getFriendlyErrorMessage(code: string, defaultMessage: string): string {
@@ -39,6 +54,9 @@ function getFriendlyErrorMessage(code: string, defaultMessage: string): string {
 		case "email_already_exists":
 			return "An account with this email already exists. Please log in instead.";
 		case "token_expired":
+			return "Your session has expired. Please log in again.";
+		case "invalid_refresh_token":
+		case "http_error": // Backend sends this for invalid refresh token
 			return "Your session has expired. Please log in again.";
 		case "insufficient_permissions":
 			return "You don't have permission to perform this action.";

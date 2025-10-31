@@ -20,7 +20,7 @@ export function useRegisterUploadedMutation() {
 	});
 }
 
-// Note: Since there's no GET /api/v1/media/{id} endpoint, we'll need to 
+// Note: Since there's no GET /api/v1/media/{id} endpoint, we'll need to
 // either add it to the backend or include media info in the message response
 // For now, this is a placeholder that would need the backend endpoint
 export function useMediaQuery(mediaId: string | undefined | null) {
