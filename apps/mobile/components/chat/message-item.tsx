@@ -1,4 +1,5 @@
 import { useTheme } from "@shopify/restyle";
+import React from "react";
 import { Image, Pressable } from "react-native";
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Text } from "@/components/ui/restyle-components";
@@ -97,9 +98,9 @@ export const MessageItem = ({
 							{item.mediaId && item.media?.url ? (
 								<Box>
 									<Pressable
-										onPress={() =>
-											console.log("Image pressed:", item.media?.url)
-										}
+										onPress={() => {
+											// Image pressed handler
+										}}
 									>
 										<Image
 											source={{ uri: item.media.url }}
@@ -113,17 +114,17 @@ export const MessageItem = ({
 											resizeMode="cover"
 										/>
 									</Pressable>
-									{item.body && (
+									{item.body ? (
 										<Text color="primary-foreground" marginTop="s">
 											{item.body}
 										</Text>
-									)}
+									) : null}
 								</Box>
-							) : (
+							) : item.body ? (
 								<Text color="primary-foreground">{item.body}</Text>
-							)}
+							) : null}
 						</Box>
-						{isLatest && messageStatus && (
+						{isLatest && messageStatus ? (
 							<Text
 								variant="caption"
 								color="muted-foreground"
@@ -132,12 +133,12 @@ export const MessageItem = ({
 							>
 								{messageStatus}
 							</Text>
-						)}
+						) : null}
 					</Box>
 				</Box>
 			) : (
 				<Box flexDirection="row" alignItems="flex-end" maxWidth="80%">
-					{showAvatar && (
+					{showAvatar ? (
 						<Pressable
 							onPress={() =>
 								item.senderUserId && onAvatarPress(item.senderUserId)
@@ -156,7 +157,7 @@ export const MessageItem = ({
 								fallback={partner?.fullName?.[0]?.toUpperCase()}
 							/>
 						</Pressable>
-					)}
+					) : null}
 					<Box style={{ marginLeft: showAvatar ? theme.spacing.s : 40 }}>
 						<Box
 							backgroundColor="muted"
@@ -164,47 +165,68 @@ export const MessageItem = ({
 							borderRadius="l"
 							borderBottomLeftRadius="s"
 						>
-							{item.mediaId ? (
+							{item.mediaId && item.media?.url ? (
 								<Box>
-									{item.media?.url ? (
-										<Pressable
-											onPress={() =>
-												console.log("Image pressed:", item.media?.url)
-											}
-										>
-											<Image
-												source={{ uri: item.media.url }}
-												style={{
-													width: imageDimensions.width,
-													height: imageDimensions.height,
-													borderRadius: 12,
-													borderBottomLeftRadius: 4,
-													marginBottom: item.body ? 4 : 0,
-												}}
-												resizeMode="cover"
-											/>
-										</Pressable>
-									) : (
-										<Text color="foreground">📎 Image</Text>
-									)}
-									{item.body && (
+									<Pressable
+										onPress={() => {
+											// Image pressed handler
+										}}
+									>
+										<Image
+											source={{ uri: item.media.url }}
+											style={{
+												width: imageDimensions.width,
+												height: imageDimensions.height,
+												borderRadius: 12,
+												borderBottomLeftRadius: 4,
+												marginBottom: item.body ? 4 : 0,
+											}}
+											resizeMode="cover"
+										/>
+									</Pressable>
+									{item.body ? (
 										<Text color="foreground" marginTop="s">
 											{item.body}
 										</Text>
-									)}
+									) : null}
 								</Box>
-							) : (
+							) : item.body ? (
 								<Text color="foreground">{item.body}</Text>
-							)}
+							) : null}
 						</Box>
-						{isLatest && (
+						{isLatest ? (
 							<Text variant="caption" color="muted-foreground" marginTop="xs">
 								{item.readAt ? "Seen" : "Sent"}
 							</Text>
-						)}
+						) : null}
 					</Box>
 				</Box>
 			)}
 		</Box>
 	);
 };
+
+export const MessageItemMemo = React.memo(
+	MessageItem,
+	(prevProps, nextProps) => {
+		// Custom comparison function to optimize re-renders
+		const itemEqual =
+			prevProps.item.id === nextProps.item.id &&
+			prevProps.item.body === nextProps.item.body &&
+			prevProps.item.media?.url === nextProps.item.media?.url &&
+			prevProps.item.readAt === nextProps.item.readAt &&
+			prevProps.item.mediaId === nextProps.item.mediaId;
+
+		const propsEqual =
+			prevProps.isMe === nextProps.isMe &&
+			prevProps.index === nextProps.index &&
+			prevProps.screenWidth === nextProps.screenWidth &&
+			prevProps.sendingMessageIds.size === nextProps.sendingMessageIds.size &&
+			(prevProps.sendingMessageIds.size === 0 ||
+				Array.from(prevProps.sendingMessageIds).every((id) =>
+					nextProps.sendingMessageIds.has(id),
+				));
+
+		return itemEqual && propsEqual;
+	},
+);

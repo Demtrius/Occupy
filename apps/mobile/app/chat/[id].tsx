@@ -11,7 +11,7 @@ import {
 	Platform,
 	Pressable,
 } from "react-native";
-import { MessageItem } from "@/components/chat/message-item";
+import { MessageItemMemo } from "@/components/chat/message-item";
 import { Avatar } from "@/components/ui/avatar";
 import { BackButton } from "@/components/ui/back-button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +84,9 @@ export default function Page() {
 	const chatId = id as string;
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
 		useListMessagesQuery(chatId);
+
 	const messages = data?.pages.flat();
+
 	const { data: chats } = useListChatsQuery();
 	const { data: me } = useMeQuery();
 	const meIdRef = useRef<string | undefined>(me?.id?.toString());
@@ -95,29 +97,25 @@ export default function Page() {
 			meIdRef.current = me.id.toString();
 		}
 	}, [me?.id]);
-	const sendMutation = useSendMessageMutation();
 	const markReadMutation = useMarkMessagesReadMutation();
 	const presignMutation = usePresignUploadMutation();
 	const registerMutation = useRegisterUploadedMutation();
-	const { queueMessage, queue, isOnline, queuedCount } =
-		useOfflineQueue(chatId);
+	const { queueMessage, isOnline, queuedCount } = useOfflineQueue(chatId);
 	const [messageText, setMessageText] = useState("");
 	const [isTyping, setIsTyping] = useState(false);
 	const [isUploading, setIsUploading] = useState(false);
-	const [sendingMessageIds, setSendingMessageIds] = useState<Set<string>>(
+	const [sendingMessageIds, _setSendingMessageIds] = useState<Set<string>>(
 		new Set(),
 	);
 	const lastReadMessageRef = useRef<string | null>(null);
 	const prevTextRef = useRef("");
 	const typingTimeoutRef = useRef<number | null>(null);
-	const debouncedMessageText = useDebounce(messageText, 300);
 
 	// Track typing state to avoid unnecessary WebSocket calls
 	const isTypingRef = useRef(false);
 
 	// Get screen dimensions for image sizing
 	const { width: screenWidth } = Dimensions.get("window");
-	const maxImageWidth = screenWidth * 0.6; // 60% of screen width for images
 
 	const chat = chats?.find((c: Chat) => c.id === chatId);
 	const partnerId = me?.isBusinessPage
@@ -163,14 +161,14 @@ export default function Page() {
 				setIsTyping(false);
 			}
 		},
-		[chatId],
+		[],
 	);
 
-	const { send } = useWebSocket("chat", chatId, {
+	const { send, ws: chatWs } = useWebSocket("chat", chatId, {
 		onMessage: handleWebSocketMessage,
 	});
 
-	useWebSocket("user", me?.id, {});
+	const { ws: userWs } = useWebSocket("user", me?.id, {});
 
 	// Cleanup typing timeout on unmount
 	useEffect(() => {
@@ -190,7 +188,7 @@ export default function Page() {
 				markReadMutation.mutate({ body: { chat_id: chatId } });
 			}
 		}
-	}, [chatId, messages]);
+	}, [chatId, messages, markReadMutation.mutate]);
 
 	// Reset typing state when message is cleared
 	useEffect(() => {
@@ -222,7 +220,7 @@ export default function Page() {
 
 			// Launch image picker
 			const result = await ImagePicker.launchImageLibraryAsync({
-				mediaTypes: ImagePicker.MediaTypeOptions.Images,
+				mediaTypes: ["images"],
 				allowsEditing: true,
 				aspect: [4, 3],
 				quality: 0.8,
@@ -237,7 +235,6 @@ export default function Page() {
 				await uploadAndSendImage(asset);
 			}
 		} catch (error) {
-			console.error("Image picker error:", error);
 			Alert.alert("Error", "Failed to pick image. Please try again.");
 		}
 	};
@@ -293,7 +290,6 @@ export default function Page() {
 			// Step 4: Send message with media attachment using offline queue
 			queueMessage("", registerResult.mediaId);
 		} catch (error) {
-			console.error("Upload error:", error);
 			Alert.alert("Upload Failed", "Failed to upload image. Please try again.");
 		} finally {
 			setIsUploading(false);
@@ -309,7 +305,15 @@ export default function Page() {
 			>
 				<FlatList
 					data={messages}
-					keyExtractor={(item) => item.id}
+					keyExtractor={(item, index) => {
+						// Ensure unique keys by combining ID with index
+						if (!item.id) {
+							return `msg-${index}-${Math.random().toString(36).substr(2, 9)}`;
+						}
+						// Use combination of ID and index to prevent duplicates
+						return `${item.id}-${index}`;
+					}}
+					extraData={[sendingMessageIds, messages?.length]} // Force re-render when these change
 					onEndReached={() => {
 						if (hasNextPage && !isFetchingNextPage) {
 							fetchNextPage();
@@ -321,7 +325,7 @@ export default function Page() {
 						const isMe = item.senderUserId === me?.id;
 
 						return (
-							<MessageItem
+							<MessageItemMemo
 								item={item}
 								index={index}
 								messages={messages || []}

@@ -76,7 +76,7 @@ export function useSendMessageMutation() {
 			if (chatId) {
 				// Optimistically update the query data instead of invalidating
 				queryClient.setQueryData(
-					["messages", "chat", chatId, { limit: 50 }, undefined], // assuming default limit
+					["messages", "chat", chatId, { limit: 50 }, tokens?.accessToken], // using correct auth token
 					(oldData: any) => {
 						if (!oldData) return oldData;
 						const newPages = [...oldData.pages];
@@ -191,12 +191,12 @@ export function useMarkMessagesReadMutation() {
 				"chat",
 				chatId,
 				{ limit: 50 },
-				undefined,
+				tokens?.accessToken,
 			]);
 
 			// Optimistically update read status
 			queryClient.setQueryData(
-				["messages", "chat", chatId, { limit: 50 }, undefined],
+				["messages", "chat", chatId, { limit: 50 }, tokens?.accessToken],
 				(oldData: any) => {
 					if (!oldData || !oldData.pages) return oldData;
 					const now = new Date().toISOString();
@@ -242,7 +242,7 @@ export function useMarkMessagesReadMutation() {
 						"chat",
 						variables.body.chat_id,
 						{ limit: 50 },
-						undefined,
+						tokens?.accessToken,
 					],
 					context.previousData,
 				);

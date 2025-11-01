@@ -29,11 +29,11 @@ async def send_message(
     )
     db.add(message)
     await db.commit()
-    
+
     # Load media relationship if media_id exists
     if message.media_id:
         await db.refresh(message, ["media"])
-    
+
     # Build message schema with media info
     message_dict = {
         "id": message.id,
@@ -44,7 +44,7 @@ async def send_message(
         "sent_at": message.sent_at,
         "read_at": message.read_at,
     }
-    
+
     # Add media information if available
     if message.media:
         message_dict["media"] = {  # type: ignore
@@ -54,39 +54,58 @@ async def send_message(
             "size_bytes": message.media.size_bytes,
             "meta": message.media.meta,
         }
-    
+
     message_schema = MessageSchema.model_validate(message_dict)
-    
+
     # Broadcast
-    await manager.broadcast(str(chat_id), {
-        "type": "message.created",
-        "message": {
-            "id": str(message_schema.id),
-            "chat_id": str(message_schema.chat_id),
-            "sender_user_id": str(message_schema.sender_user_id),
-            "body": message_schema.body,
-            "media_id": str(message_schema.media_id) if message_schema.media_id else None,
-            "media": {
-                "id": message_schema.media.id,
-                "url": message_schema.media.url,
-                "mime": message_schema.media.mime,
-                "size_bytes": message_schema.media.size_bytes,
-                "meta": message_schema.media.meta,
-            } if message_schema.media else None,
-            "sent_at": message_schema.sent_at.isoformat() if message_schema.sent_at else None,
+    await manager.broadcast(
+        str(chat_id),
+        {
+            "type": "message.created",
+            "message": {
+                "id": str(message_schema.id),
+                "chat_id": str(message_schema.chat_id),
+                "sender_user_id": str(message_schema.sender_user_id),
+                "body": message_schema.body,
+                "media_id": (
+                    str(message_schema.media_id) if message_schema.media_id else None
+                ),
+                "media": (
+                    {
+                        "id": str(message_schema.media.id),
+                        "url": message_schema.media.url,
+                        "mime": message_schema.media.mime,
+                        "size_bytes": message_schema.media.size_bytes,
+                        "meta": message_schema.media.meta,
+                    }
+                    if message_schema.media
+                    else None
+                ),
+                "sent_at": (
+                    message_schema.sent_at.isoformat()
+                    if message_schema.sent_at
+                    else None
+                ),
+            },
         },
-    })
+    )
     # Also broadcast chat update to user rooms
     chat = await db.get(Chat, chat_id)
     if chat:
-        await manager.broadcast(f"user_{chat.business_user_id}", {
-            "type": "chat.updated",
-            "chat_id": str(chat_id),
-        })
-        await manager.broadcast(f"user_{chat.client_user_id}", {
-            "type": "chat.updated",
-            "chat_id": str(chat_id),
-        })
+        await manager.broadcast(
+            f"user_{chat.business_user_id}",
+            {
+                "type": "chat.updated",
+                "chat_id": str(chat_id),
+            },
+        )
+        await manager.broadcast(
+            f"user_{chat.client_user_id}",
+            {
+                "type": "chat.updated",
+                "chat_id": str(chat_id),
+            },
+        )
     return message_schema
 
 
@@ -104,7 +123,7 @@ async def get_chat_messages(
     )
     result = await db.execute(stmt)
     messages = result.scalars().all()
-    
+
     message_schemas = []
     for m in messages:
         message_dict = {
@@ -116,7 +135,7 @@ async def get_chat_messages(
             "sent_at": m.sent_at,
             "read_at": m.read_at,
         }
-        
+
         # Add media information if available
         if m.media:
             message_dict["media"] = {  # type: ignore
@@ -126,9 +145,9 @@ async def get_chat_messages(
                 "size_bytes": m.media.size_bytes,
                 "meta": m.media.meta,
             }
-        
+
         message_schemas.append(MessageSchema.model_validate(message_dict))
-    
+
     return message_schemas
 
 
@@ -155,10 +174,13 @@ async def delete_message(db: AsyncSession, message_id: UUID, user_id: UUID) -> b
     await db.delete(message)
     await db.commit()
     # Broadcast the message deletion
-    await manager.broadcast(str(message.chat_id), {
-        "type": "message.deleted",
-        "message_id": str(message_id),
-    })
+    await manager.broadcast(
+        str(message.chat_id),
+        {
+            "type": "message.deleted",
+            "message_id": str(message_id),
+        },
+    )
     return True
 
 
@@ -184,8 +206,11 @@ async def mark_messages_as_read(db: AsyncSession, chat_id: UUID, user_id: UUID) 
     result = await db.execute(stmt)
     await db.commit()
     # Broadcast that messages were read
-    await manager.broadcast(str(chat_id), {
-        "type": "messages.read",
-        "user_id": str(user_id),
-    })
+    await manager.broadcast(
+        str(chat_id),
+        {
+            "type": "messages.read",
+            "user_id": str(user_id),
+        },
+    )
     return result.rowcount  # type: ignore

@@ -34,7 +34,6 @@ async function refreshToken(
 		return null;
 	} catch (error) {
 		// Refresh failed - clear invalid tokens
-		console.error("[API] Token refresh failed:", error);
 		const { clear } = useAuthStore.getState();
 		await clear();
 		return null;

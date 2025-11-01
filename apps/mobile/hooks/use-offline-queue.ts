@@ -75,11 +75,10 @@ export function useOfflineQueue(chatId: string | undefined) {
 
 		for (const queuedMessage of messagesToSend) {
 			try {
-				// Add exponential backoff delay for retries
-				if (queuedMessage.retryCount > 0) {
-					const delay = Math.min(1000 * 2 ** queuedMessage.retryCount, 10000);
-					await new Promise((resolve) => setTimeout(resolve, delay));
-				}
+				await sendMutation.mutateAsync({
+					params: { path: { chatId: queuedMessage.chatId } },
+					body: { body: queuedMessage.body, mediaId: queuedMessage.mediaId },
+				});
 
 				await sendMutation.mutateAsync({
 					params: { path: { chatId: queuedMessage.chatId } },

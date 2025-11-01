@@ -21,7 +21,7 @@ class ConnectionManager:
         if room_id not in self.active_connections:
             self.active_connections[room_id] = []
         self.active_connections[room_id].append(websocket)
-        print(f"[WS] Connection added to room {room_id}. Total: {len(self.active_connections[room_id])}")
+        # Connection successfully added to room
 
     def disconnect(self, room_id: str, websocket: WebSocket):
         if room_id in self.active_connections:
@@ -39,10 +39,13 @@ class ConnectionManager:
             for connection in connections_to_send:
                 try:
                     # Check if connection is still open before sending
-                    if hasattr(connection, 'client_state') and connection.client_state.name != 'DISCONNECTED':
+                    if (
+                        hasattr(connection, "client_state")
+                        and connection.client_state.name != "DISCONNECTED"
+                    ):
                         await connection.send_json(message)
                 except Exception as send_error:
-                    print(f"[WS] Error sending to connection: {send_error}")
+                    # Connection error handled
                     # Remove failed connection from active connections
                     if connection in self.active_connections.get(room_id, []):
                         self.active_connections[room_id].remove(connection)
@@ -69,7 +72,7 @@ async def _handle_chat_websocket(
     if not chat:
         await websocket.close(code=1008)
         return
-    
+
     if user_id not in {
         str(chat.business_user_id),
         str(chat.client_user_id),
@@ -93,7 +96,9 @@ async def _handle_chat_websocket(
                 await manager.broadcast(chat_id, {"type": "typing", "user_id": user_id})
                 continue
             if message_type == "stop_typing":
-                await manager.broadcast(chat_id, {"type": "stop_typing", "user_id": user_id})
+                await manager.broadcast(
+                    chat_id, {"type": "stop_typing", "user_id": user_id}
+                )
                 continue
             if message_type == "message.delete":
                 await manager.broadcast(
@@ -157,13 +162,11 @@ async def user_websocket(
 ):
     """WebSocket for user-specific notifications."""
     try:
-        print(f"[WS] User WebSocket connection attempt - user_id: {user_id}, token: {token[:20]}...")
         # Authenticate user
         payload = decode_token(token)
         authenticated_user_id = payload.get("sub")
-        print(f"[WS] User WebSocket - authenticated_user_id: {authenticated_user_id}, requested_user_id: {user_id}")
         if not authenticated_user_id or authenticated_user_id != user_id:
-            print(f"[WS] User WebSocket auth failed, closing connection")
+            # User WebSocket auth failed, closing connection
             await websocket.close(code=1008)
             return
 

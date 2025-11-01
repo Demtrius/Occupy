@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable } from "react-native";
 import { Avatar } from "@/components/ui/avatar";
@@ -23,6 +24,19 @@ function ChatCard({
 		lastMessage &&
 		!(lastMessage as any).readAt &&
 		lastMessage.senderUserId !== me?.id;
+	// Format last message text for display
+	const getLastMessageText = () => {
+		if (!lastMessage) return "No messages yet";
+
+		// If message has media, show image indicator
+		if (lastMessage.mediaId) {
+			return lastMessage.body ? `Image: ${lastMessage.body}` : "Image";
+		}
+
+		// Otherwise show body text
+		return lastMessage.body || "No messages yet";
+	};
+
 	const timeText = lastMessage
 		? formatRelativeTimestamp(lastMessage.sentAt)
 		: "No messages";
@@ -52,9 +66,23 @@ function ChatCard({
 						<Text variant="body" fontWeight="600" numberOfLines={1}>
 							{partner?.fullName || "Loading..."}
 						</Text>
-						<Text variant="caption" color="muted-foreground" numberOfLines={1}>
-							{lastMessage?.body || "No messages yet"}
-						</Text>
+						<Box flexDirection="row" alignItems="center">
+							{lastMessage?.mediaId && (
+								<Ionicons
+									name="image"
+									size={14}
+									color="gray"
+									style={{ marginRight: 4 }}
+								/>
+							)}
+							<Text
+								variant="caption"
+								color="muted-foreground"
+								numberOfLines={1}
+							>
+								{getLastMessageText()}
+							</Text>
+						</Box>
 					</Box>
 					<Box alignItems="flex-end">
 						<Text variant="caption" color="muted-foreground">

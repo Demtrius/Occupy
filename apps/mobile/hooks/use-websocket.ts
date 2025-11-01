@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import { API_BASE_URL } from "@/config/env";
 import { useAuthStore } from "@/stores/auth-store";
+import { useMeQuery } from "./use-users";
 
 type WebSocketType = "chat" | "user";
 
@@ -22,6 +23,7 @@ export function useWebSocket(
 ) {
 	const { onMessage, onError, onClose, onOpen } = options;
 	const { tokens } = useAuthStore();
+	const { data: me } = useMeQuery();
 	const queryClient = useQueryClient();
 	const wsRef = useRef<WebSocket | null>(null);
 	const callbacksRef = useRef({ onMessage, onError, onClose, onOpen });
@@ -66,9 +68,7 @@ export function useWebSocket(
 
 		// Check if we already have an active connection for this room
 		if (activeConnections.has(connectionKey)) {
-			console.log(
-				`[WebSocket] Connection already exists for ${connectionKey}, skipping`,
-			);
+			// Connection already exists, skipping
 			return;
 		}
 
@@ -92,7 +92,6 @@ export function useWebSocket(
 		ws.onmessage = (event) => {
 			try {
 				const data = JSON.parse(event.data);
-				console.log(`[WebSocket] ${type} message:`, data.type, data);
 				if (type === "chat") {
 					if (data.type === "message.created") {
 						// Extract message and chat_id from nested structure
@@ -100,14 +99,14 @@ export function useWebSocket(
 						const chatId = message?.chat_id;
 
 						if (!chatId) {
-							console.error(
-								"[WebSocket] No chat_id in message.created event:",
-								data,
-							);
+							// No chat_id in message.created event
 							return;
 						}
 
-						console.log(`[WebSocket] Updating chat ${chatId} with new message`);
+						// Ignore messages from current user (they already have optimistic version)
+						if (message.sender_user_id === me?.id) {
+							return;
+						}
 
 						// Transform snake_case WebSocket fields to camelCase to match API schema
 						const transformedMessage = {
@@ -118,6 +117,7 @@ export function useWebSocket(
 							sentAt: message.sent_at, // Fix: snake_case to camelCase
 							readAt: message.read_at,
 							mediaId: message.media_id, // Fix: snake_case to camelCase
+							media: message.media, // Include full media object for images
 						};
 
 						// Update all possible query keys for this chat
@@ -127,14 +127,31 @@ export function useWebSocket(
 								exact: false,
 							},
 							(oldData: any) => {
-								console.log(
-									`[WebSocket] Updating query data:`,
-									oldData ? "found" : "not found",
-								);
 								if (!oldData || !oldData.pages) return oldData;
 								const newPages = [...oldData.pages];
-								// Add new message to the beginning of first page
-								newPages[0] = [transformedMessage, ...newPages[0]];
+
+								// Check if message with same mediaId already exists (more reliable than ID matching)
+								const existingMessage = newPages[0].find(
+									(msg: any) =>
+										msg.mediaId && msg.mediaId === transformedMessage.mediaId,
+								);
+
+								if (existingMessage) {
+									// Update existing message instead of adding duplicate
+									const updatedPages = newPages.map(
+										(page: any[], pageIndex: number) =>
+											page.map((msg: any) =>
+												msg.mediaId === transformedMessage.mediaId
+													? transformedMessage
+													: msg,
+											),
+									);
+									return { ...oldData, pages: updatedPages };
+								} else {
+									// Add new message to beginning of first page
+									newPages[0] = [transformedMessage, ...newPages[0]];
+								}
+
 								return { ...oldData, pages: newPages };
 							},
 						);
@@ -148,10 +165,6 @@ export function useWebSocket(
 						const messageId = message?.id;
 
 						if (!chatId || !messageId) {
-							console.error(
-								"[WebSocket] Missing chat_id or id in message.deleted event:",
-								data,
-							);
 							return;
 						}
 
@@ -175,8 +188,7 @@ export function useWebSocket(
 					} else if (data.type === "messages.read") {
 						// messages.read events indicate a user has read messages
 						// We need to update read status for all messages in all chats
-						// where this user is the recipient
-						console.log("WebSocket messages.read event:", data);
+						// where this user is recipient
 
 						// Update all message queries to mark messages as read
 						queryClient.setQueriesData(
@@ -235,12 +247,11 @@ export function useWebSocket(
 				}
 				callbacksRef.current.onMessage?.(data);
 			} catch (error) {
-				console.error("WebSocket message parse error:", error);
+				// WebSocket message parse error
 			}
 		};
 
 		ws.onerror = (error) => {
-			console.error(`${type} WebSocket error:`, error);
 			callbacksRef.current.onError?.(error);
 		};
 
@@ -272,7 +283,7 @@ export function useWebSocket(
 				try {
 					wsRef.current.send(JSON.stringify(data));
 				} catch (error) {
-					console.error(`[WebSocket] Send failed:`, error);
+					// WebSocket send failed
 				}
 			}
 		},

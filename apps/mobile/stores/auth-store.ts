@@ -28,21 +28,17 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
 	tokens: null,
 	hydrate: async () => {
 		const tokens = await loadTokens();
-		console.log("AuthStore: Hydrated", {
-			hasTokens: !!tokens,
-		});
+		// Auth store hydrated
 		set({ tokens });
 	},
 	setAuth: async (tokens) => {
 		await saveTokens(tokens);
-		console.log("AuthStore: Set auth", {
-			hasTokens: !!tokens,
-		});
+		// Auth store set
 		set({ tokens });
 	},
 	clear: async () => {
 		await saveTokens(null);
-		console.log("AuthStore: Cleared auth");
+		// Auth store cleared
 		set({ tokens: null });
 	},
 }));

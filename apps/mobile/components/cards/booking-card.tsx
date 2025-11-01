@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { type ColorProps, useTheme } from "@shopify/restyle";
+import { useTheme } from "@shopify/restyle";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { Booking, BookingStatus } from "@/types";
