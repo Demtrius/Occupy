@@ -7,11 +7,11 @@ import {
 	Alert,
 	Dimensions,
 	FlatList,
-	Image,
 	KeyboardAvoidingView,
 	Platform,
 	Pressable,
 } from "react-native";
+import { MessageItem } from "@/components/chat/message-item";
 import { Avatar } from "@/components/ui/avatar";
 import { BackButton } from "@/components/ui/back-button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +33,7 @@ import {
 import { useOfflineQueue } from "@/hooks/use-offline-queue";
 import { useMeQuery, useUserQuery } from "@/hooks/use-users";
 import { useWebSocket } from "@/hooks/use-websocket";
-import { formatRelativeTimestamp } from "@/lib/date";
-import type { Chat, Message } from "@/types";
+import type { Chat } from "@/types";
 
 // Chat header component
 function ChatHeader({
@@ -113,6 +112,9 @@ export default function Page() {
 	const typingTimeoutRef = useRef<number | null>(null);
 	const debouncedMessageText = useDebounce(messageText, 300);
 
+	// Track typing state to avoid unnecessary WebSocket calls
+	const isTypingRef = useRef(false);
+
 	// Get screen dimensions for image sizing
 	const { width: screenWidth } = Dimensions.get("window");
 	const maxImageWidth = screenWidth * 0.6; // 60% of screen width for images
@@ -176,6 +178,7 @@ export default function Page() {
 			if (typingTimeoutRef.current) {
 				clearTimeout(typingTimeoutRef.current);
 			}
+			isTypingRef.current = false;
 		};
 	}, []);
 
@@ -188,6 +191,13 @@ export default function Page() {
 			}
 		}
 	}, [chatId, messages]);
+
+	// Reset typing state when message is cleared
+	useEffect(() => {
+		if (messageText.length === 0 && isTypingRef.current) {
+			isTypingRef.current = false;
+		}
+	}, [messageText]);
 
 	const handleSend = () => {
 		if (!messageText.trim()) return;
@@ -290,25 +300,6 @@ export default function Page() {
 		}
 	};
 
-	// Function to determine if avatar should be shown
-	const shouldShowAvatar = (
-		item: Message,
-		index: number,
-		messages: Message[],
-	) => {
-		const isMe = item.senderUserId === me?.id;
-		if (isMe) return false; // Never show avatar for own messages
-
-		// Since FlatList is inverted, index 0 is newest message
-		// Show avatar if this is the newest message (index 0) or previous message is from different user
-		const isNewestMessage = index === 0;
-		const previousMessage = messages[index - 1];
-		const previousIsDifferentUser =
-			previousMessage && previousMessage.senderUserId !== item.senderUserId;
-
-		return isNewestMessage || previousIsDifferentUser;
-	};
-
 	return (
 		<Screen>
 			<ChatHeader partner={partner} onAvatarPress={handlePartnerAvatarPress} />
@@ -325,188 +316,21 @@ export default function Page() {
 						}
 					}}
 					onEndReachedThreshold={0.1}
+					contentContainerStyle={{ paddingHorizontal: theme.spacing.m }}
 					renderItem={({ item, index }) => {
 						const isMe = item.senderUserId === me?.id;
-						const isLatest = index === 0;
-						const showAvatar = shouldShowAvatar(item, index, messages || []);
-
-						// Determine message status
-						const getMessageStatus = () => {
-							if (!isMe) return null; // Don't show status for other people's messages
-
-							if (sendingMessageIds.has(item.id)) {
-								return "Sending...";
-							}
-
-							if (item.readAt) {
-								return "Seen";
-							}
-
-							return "Sent";
-						};
-
-						const messageStatus = getMessageStatus();
 
 						return (
-							<Box paddingHorizontal="s" paddingVertical="xs">
-								{isMe ? (
-									<Box alignSelf="flex-end" maxWidth="80%">
-										<Box
-											backgroundColor="primary"
-											padding={item.media?.url ? "xs" : "m"}
-											borderRadius="l"
-											borderBottomRightRadius="s"
-										>
-											{item.mediaId ? (
-												<Box>
-													{item.media?.url ? (
-														<Pressable
-															onPress={() => {
-																// TODO: Add full screen image viewer
-																console.log("Image pressed:", item.media?.url);
-															}}
-														>
-															<Image
-																source={{ uri: item.media.url }}
-																style={{
-																	width: Math.min(
-																		maxImageWidth,
-																		(item.media?.meta?.width as number) || 200,
-																	),
-																	height: item.media?.meta?.height
-																		? Math.min(
-																				maxImageWidth,
-																				item.media.meta.width as number,
-																			) *
-																			((item.media.meta.height as number) /
-																				(item.media.meta.width as number))
-																		: 200,
-																	borderRadius: 12,
-																	borderBottomRightRadius: 4,
-																	marginBottom: item.body ? 4 : 0,
-																}}
-																resizeMode="cover"
-															/>
-														</Pressable>
-													) : (
-														<Text color="primary-foreground">📎 Image</Text>
-													)}
-													{item.body && (
-														<Text color="primary-foreground" marginTop="s">
-															{item.body}
-														</Text>
-													)}
-												</Box>
-											) : (
-												<Text color="primary-foreground">{item.body}</Text>
-											)}
-										</Box>
-										{isLatest && messageStatus && (
-											<Text
-												variant="caption"
-												color="muted-foreground"
-												alignSelf="flex-end"
-												marginTop="xs"
-											>
-												{messageStatus}
-											</Text>
-										)}
-									</Box>
-								) : (
-									<Box flexDirection="row" alignItems="flex-end" maxWidth="80%">
-										{showAvatar && (
-											<Pressable
-												onPress={() =>
-													item.senderUserId &&
-													handleAvatarPress(item.senderUserId)
-												}
-												style={{ marginBottom: isLatest ? 20 : 0 }}
-											>
-												<Avatar
-													size={32}
-													source={
-														partner?.profileImageUrl
-															? { uri: partner.profileImageUrl }
-															: undefined
-													}
-													fallback={partner?.fullName?.[0]?.toUpperCase()}
-												/>
-											</Pressable>
-										)}
-										<Box
-											style={{
-												marginLeft: showAvatar ? 8 : theme.spacing.xl + 8,
-											}}
-										>
-											<Box
-												backgroundColor="muted"
-												padding={item.media?.url ? "xs" : "m"}
-												borderRadius="l"
-												borderBottomLeftRadius={showAvatar ? "s" : "l"}
-											>
-												{item.mediaId ? (
-													<Box>
-														{item.media?.url ? (
-															<Pressable
-																onPress={() => {
-																	// TODO: Add full screen image viewer
-																	console.log(
-																		"Image pressed:",
-																		item.media?.url,
-																	);
-																}}
-															>
-																<Image
-																	source={{ uri: item.media.url }}
-																	style={{
-																		width: Math.min(
-																			maxImageWidth,
-																			(item.media?.meta?.width as number) ||
-																				200,
-																		),
-																		height: item.media?.meta?.height
-																			? Math.min(
-																					maxImageWidth,
-																					item.media.meta.width as number,
-																				) *
-																				((item.media.meta.height as number) /
-																					(item.media.meta.width as number))
-																			: 200,
-																		borderRadius: 12,
-																		borderBottomLeftRadius: 4,
-																		marginBottom: item.body ? 4 : 0,
-																	}}
-																	resizeMode="cover"
-																/>
-															</Pressable>
-														) : (
-															<Text color="foreground">📎 Image</Text>
-														)}
-														{item.body && (
-															<Text color="foreground" marginTop="s">
-																{item.body}
-															</Text>
-														)}
-													</Box>
-												) : (
-													<Text color="foreground">{item.body}</Text>
-												)}
-											</Box>
-											{isLatest && (
-												<Text
-													variant="caption"
-													color="muted-foreground"
-													marginTop="xs"
-												>
-													{item.readAt
-														? "Seen"
-														: formatRelativeTimestamp(item.sentAt)}
-												</Text>
-											)}
-										</Box>
-									</Box>
-								)}
-							</Box>
+							<MessageItem
+								item={item}
+								index={index}
+								messages={messages || []}
+								isMe={isMe}
+								partner={partner}
+								sendingMessageIds={sendingMessageIds}
+								onAvatarPress={handleAvatarPress}
+								screenWidth={screenWidth}
+							/>
 						);
 					}}
 					inverted
@@ -570,17 +394,28 @@ export default function Page() {
 							value={messageText}
 							onChangeText={(text) => {
 								setMessageText(text);
-								const wasEmpty = !prevTextRef.current.trim();
-								prevTextRef.current = text;
-								if (text.trim() && wasEmpty) {
-									send({ type: "typing" });
-								} else if (!text.trim() && !wasEmpty) {
-									send({ type: "stop_typing" });
+
+								// Optimized typing detection - only check when needed
+								const hasText = text.length > 0;
+								const hadText = prevTextRef.current.length > 0;
+
+								// Only send typing events when state actually changes
+								if (hasText !== hadText) {
+									if (hasText && !isTypingRef.current) {
+										send({ type: "typing" });
+										isTypingRef.current = true;
+									} else if (!hasText && isTypingRef.current) {
+										send({ type: "stop_typing" });
+										isTypingRef.current = false;
+									}
 								}
+
+								prevTextRef.current = text;
 							}}
 							onBlur={() => {
-								if (messageText.trim()) {
+								if (messageText.length > 0 && isTypingRef.current) {
 									send({ type: "stop_typing" });
+									isTypingRef.current = false;
 								}
 							}}
 							placeholder="Type a message..."
