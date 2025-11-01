@@ -1,6 +1,7 @@
 import { useTheme } from "@shopify/restyle";
-import { useQueries } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView } from "react-native";
 import { ChatCard } from "@/components/cards/chat-card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,16 +17,51 @@ import { useAuthStore } from "@/stores/auth-store";
 
 export default function Page() {
 	const theme = useTheme<Theme>();
+	const queryClient = useQueryClient();
 	const [searchQuery, setSearchQuery] = useState("");
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const { data: chats, isLoading } = useListChatsQuery();
 	const { data: me } = useMeQuery();
 	const { tokens } = useAuthStore();
 
+	// Refresh chat list when tab becomes focused
+	useFocusEffect(
+		useCallback(() => {
+			// Invalidate chat list to ensure it's fresh when user returns
+			queryClient.invalidateQueries({
+				queryKey: ["messages", "chats", tokens?.accessToken],
+			});
+
+			// Invalidate last message queries to refresh chat list
+			queryClient.invalidateQueries({
+				queryKey: ["messages", "chat"],
+				exact: false,
+				predicate: (query) => {
+					// Only invalidate queries that fetch last messages (limit: 1, offset: 0)
+					const queryKey = query.queryKey;
+					return (
+						Array.isArray(queryKey) &&
+						queryKey[0] === "messages" &&
+						queryKey[1] === "chat" &&
+						queryKey[3]?.limit === 1 &&
+						queryKey[3]?.offset === 0 &&
+						queryKey[4] === tokens?.accessToken
+					);
+				},
+			});
+		}, [queryClient, tokens?.accessToken]),
+	);
+
 	const lastMessagesQueries = useQueries({
 		queries:
 			chats?.map((chat) => ({
-				queryKey: ["messages", "chat", chat.id, { limit: 1, offset: 0 }],
+				queryKey: [
+					"messages",
+					"chat",
+					chat.id,
+					{ limit: 1, offset: 0 },
+					tokens?.accessToken,
+				],
 				queryFn: async () =>
 					ensureData(
 						await $api.GET("/api/v1/messages/{chatId}", {
@@ -36,6 +72,8 @@ export default function Page() {
 						}),
 					),
 				enabled: Boolean(tokens?.accessToken),
+				staleTime: 30 * 1000, // 30 seconds
+				gcTime: 5 * 60 * 1000, // 5 minutes
 			})) || [],
 	});
 

@@ -38,7 +38,7 @@ focusManager.setEventListener((handleFocus) => {
 	return () => sub.remove();
 });
 
-export function QueryProvider({ children }: PropsWithChildren) {
+export default function QueryProvider({ children }: PropsWithChildren) {
 	return (
 		<QueryClientProvider client={client}>
 			{children}

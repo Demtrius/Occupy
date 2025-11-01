@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import { Platform } from "react-native";
+import { useCallback, useEffect, useRef } from "react";
 import { API_BASE_URL } from "@/config/env";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -27,6 +26,32 @@ export function useWebSocket(
 	const wsRef = useRef<WebSocket | null>(null);
 	const callbacksRef = useRef({ onMessage, onError, onClose, onOpen });
 	const connectionKeyRef = useRef<string | null>(null);
+
+	// Helper function to invalidate chat list queries (mirrors useSendMessageMutation)
+	const invalidateChatListQueries = useCallback(() => {
+		// Invalidate chat list to refresh chats order
+		queryClient.invalidateQueries({
+			queryKey: ["messages", "chats", tokens?.accessToken],
+		});
+
+		// Invalidate last message queries for all chats to refresh chat list
+		queryClient.invalidateQueries({
+			queryKey: ["messages", "chat"],
+			exact: false,
+			predicate: (query) => {
+				// Only invalidate queries that fetch last messages (limit: 1, offset: 0)
+				const queryKey = query.queryKey;
+				return (
+					Array.isArray(queryKey) &&
+					queryKey[0] === "messages" &&
+					queryKey[1] === "chat" &&
+					queryKey[3]?.limit === 1 &&
+					queryKey[3]?.offset === 0 &&
+					queryKey[4] === tokens?.accessToken
+				);
+			},
+		});
+	}, [queryClient, tokens?.accessToken]);
 
 	// Update callbacks ref without causing reconnection
 	useEffect(() => {
@@ -113,19 +138,9 @@ export function useWebSocket(
 								return { ...oldData, pages: newPages };
 							},
 						);
-						// Update chats list with latest message
-						queryClient.setQueriesData(
-							{
-								queryKey: ["messages", "chats"],
-								exact: false,
-							},
-							(oldData: any) => {
-								if (!oldData) return oldData;
-								return oldData.map((chat: any) =>
-									chat.id === chatId ? { ...chat, lastMessage: message } : chat,
-								);
-							},
-						);
+
+						// Invalidate chat list queries to refresh last messages display
+						invalidateChatListQueries();
 					} else if (data.type === "message.deleted") {
 						// Extract message info from nested structure
 						const message = data.message;
@@ -154,6 +169,9 @@ export function useWebSocket(
 								return { ...oldData, pages: newPages };
 							},
 						);
+
+						// Invalidate chat list queries to refresh after message deletion
+						invalidateChatListQueries();
 					} else if (data.type === "messages.read") {
 						// messages.read events indicate a user has read messages
 						// We need to update read status for all messages in all chats
@@ -174,7 +192,7 @@ export function useWebSocket(
 										// Mark as read if:
 										// 1. Message was sent by current user (they're reading someone else's message)
 										// 2. Or message was sent to current user (someone read their message)
-										// For now, we'll mark all messages in the chat as read
+										// For now, we'll mark all messages in chat as read
 										// This is a simplification - in reality we'd track which specific messages were read
 										const isFromCurrentUser = msg.senderUserId === data.user_id;
 										const isToCurrentUser = msg.senderUserId !== data.user_id;
@@ -190,6 +208,9 @@ export function useWebSocket(
 								return { ...oldData, pages: newPages };
 							},
 						);
+
+						// Invalidate chat list queries to refresh read status indicators
+						invalidateChatListQueries();
 					}
 					// typing events are handled in component
 				} else if (type === "user") {
@@ -207,6 +228,9 @@ export function useWebSocket(
 								);
 							},
 						);
+
+						// Invalidate chat list queries to refresh after chat update
+						invalidateChatListQueries();
 					}
 				}
 				callbacksRef.current.onMessage?.(data);
@@ -220,7 +244,7 @@ export function useWebSocket(
 			callbacksRef.current.onError?.(error);
 		};
 
-		ws.onclose = (event) => {
+		ws.onclose = () => {
 			wsRef.current = null;
 			// Remove from active connections
 			if (connectionKeyRef.current) {
@@ -239,7 +263,7 @@ export function useWebSocket(
 				activeConnections.delete(connectionKeyRef.current);
 			}
 		};
-	}, [id, tokens?.accessToken, type, queryClient]);
+	}, [id, tokens?.accessToken, type, queryClient, invalidateChatListQueries]);
 
 	return {
 		ws: wsRef.current,

@@ -67,6 +67,7 @@ export function useListMessagesQuery(chatId: string | undefined, limit = 50) {
 
 export function useSendMessageMutation() {
 	const queryClient = useQueryClient();
+	const { tokens } = useAuthStore();
 	return useMutation<Message, unknown, SendMessageVariables>({
 		mutationFn: async (variables) =>
 			ensureData(await $api.POST("/api/v1/messages/{chatId}", variables)),
@@ -83,6 +84,29 @@ export function useSendMessageMutation() {
 						return { ...oldData, pages: newPages };
 					},
 				);
+
+				// Invalidate chat list to refresh the chats order
+				queryClient.invalidateQueries({
+					queryKey: ["messages", "chats", tokens?.accessToken],
+				});
+
+				// Invalidate last message queries for all chats to refresh the chat list
+				queryClient.invalidateQueries({
+					queryKey: ["messages", "chat"],
+					exact: false,
+					predicate: (query) => {
+						// Only invalidate queries that fetch last messages (limit: 1, offset: 0)
+						const queryKey = query.queryKey;
+						return (
+							Array.isArray(queryKey) &&
+							queryKey[0] === "messages" &&
+							queryKey[1] === "chat" &&
+							queryKey[3]?.limit === 1 &&
+							queryKey[3]?.offset === 0 &&
+							queryKey[4] === tokens?.accessToken
+						);
+					},
+				});
 			}
 		},
 	});
@@ -129,7 +153,7 @@ export function useDeleteMessageMutation() {
 
 			return { previousData };
 		},
-		onError: (err, variables, context) => {
+		onError: (_err, _variables, context) => {
 			// Rollback on error
 			if (context?.previousData) {
 				context.previousData.forEach(([queryKey, data]: [any, any]) => {
@@ -144,6 +168,7 @@ type MarkReadVariables = { body: { chat_id: string } };
 
 export function useMarkMessagesReadMutation() {
 	const queryClient = useQueryClient();
+	const { tokens } = useAuthStore();
 	return useMutation<
 		{ marked_read: number },
 		unknown,
@@ -184,7 +209,31 @@ export function useMarkMessagesReadMutation() {
 
 			return { previousData };
 		},
-		onError: (err, variables, context) => {
+		onSuccess: () => {
+			// Invalidate chat list to refresh unread indicators
+			queryClient.invalidateQueries({
+				queryKey: ["messages", "chats", tokens?.accessToken],
+			});
+
+			// Invalidate last message queries to refresh read status in chat list
+			queryClient.invalidateQueries({
+				queryKey: ["messages", "chat"],
+				exact: false,
+				predicate: (query) => {
+					// Only invalidate queries that fetch last messages (limit: 1, offset: 0)
+					const queryKey = query.queryKey;
+					return (
+						Array.isArray(queryKey) &&
+						queryKey[0] === "messages" &&
+						queryKey[1] === "chat" &&
+						queryKey[3]?.limit === 1 &&
+						queryKey[3]?.offset === 0 &&
+						queryKey[4] === tokens?.accessToken
+					);
+				},
+			});
+		},
+		onError: (_err, variables, context) => {
 			// Rollback on error
 			if (context?.previousData) {
 				queryClient.setQueryData(
