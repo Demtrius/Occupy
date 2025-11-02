@@ -3,6 +3,7 @@ from .availability import (
     AvailabilityBase,
     AvailabilityCreate,
     AvailabilityUpdate,
+    CursorPageAvailability,
     Slot,
 )
 from .booking import (
@@ -84,6 +85,7 @@ __all__ = [
     "AvailabilityBase",
     "AvailabilityCreate",
     "AvailabilityUpdate",
+    "CursorPageAvailability",
     "Slot",
     "Booking",
     "BookingCliqueSummary",

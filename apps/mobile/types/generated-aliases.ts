@@ -64,6 +64,8 @@ export type ServiceCreate = components["schemas"]["ServiceCreate"];
 
 // Availability types
 export type Availability = components["schemas"]["Availability"];
+export type CursorPageAvailability =
+	components["schemas"]["CursorPageAvailability"];
 export type AvailabilityCreate = components["schemas"]["AvailabilityCreate"];
 export type AvailabilityUpdate = components["schemas"]["AvailabilityUpdate"];
 

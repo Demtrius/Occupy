@@ -1,12 +1,17 @@
-from typing import Annotated, List
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Path, status
+from fastapi import APIRouter, Body, Depends, Path, Query, status
 from pydantic import Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.deps import get_db, require_active_user, require_clique_owner
-from ...api.openapi_helpers import error_responses, secured
+from ...api.openapi_helpers import (
+    combine_openapi_extra,
+    error_responses,
+    pagination_parameters,
+    secured,
+)
 from ...core.errors import Forbidden, NotFound, Validation
 from ...models.availability import Availability
 from ...models.enums import Privacy
@@ -17,6 +22,7 @@ from ...schemas.availability import (
 from ...schemas.availability import (
     AvailabilityCreate,
     AvailabilityUpdate,
+    CursorPageAvailability,
 )
 from ...schemas.base import BaseSchema
 from ...services.availability import (
@@ -80,15 +86,27 @@ async def create_availability_endpoint(
     operation_id="AvailabilityByCliqueId",
     summary="List clique availability",
     description="Return available booking windows visible to the current user.",
-    response_model=List[AvailabilitySchema],
+    response_model=CursorPageAvailability,
     responses={
         200: {"description": "Availability windows"},
         **error_responses(401, 403, 404),
     },
-    openapi_extra=secured(),
+    openapi_extra=combine_openapi_extra(secured(), pagination_parameters()),
 )
 async def list_clique_availability(
     clique_id: Annotated[UUID, Path(alias="cliqueId")],
+    cursor: str | None = Query(
+        None,
+        include_in_schema=False,
+        description="Opaque pagination cursor",
+    ),
+    limit: int = Query(
+        20,
+        ge=1,
+        le=50,
+        include_in_schema=False,
+        description="Page size (default 20, max 50)",
+    ),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_active_user),
 ):
@@ -99,7 +117,10 @@ async def list_clique_availability(
         is_member = await is_member_of_clique(db, str(clique_id), str(current_user.id))
         if not is_member:
             raise Forbidden()
-    return await get_clique_availability(db, clique_id)
+    items, next_cursor = await get_clique_availability(
+        db, clique_id, cursor, limit
+    )
+    return CursorPageAvailability(items=items, next_cursor=next_cursor)
 
 
 @router.put(

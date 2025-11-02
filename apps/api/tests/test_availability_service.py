@@ -47,6 +47,8 @@ async def test_availability_validation_and_permissions(client, db_session, make_
         headers=auth_headers(make_token(owner)),
     )
     assert list_owner.status_code == 200
+    assert list_owner.json()["items"]
+    assert list_owner.json()["items"]
 
     list_forbidden = await client.get(
         f"/api/v1/availability/{clique.id}",
@@ -161,6 +163,7 @@ async def test_availability_route_for_private_clique(client, db_session, make_to
         headers=auth_headers(make_token(member)),
     )
     assert list_member.status_code == 200
+    assert list_member.json()["items"]
 
     list_outsider = await client.get(
         f"/api/v1/availability/{clique.id}",
@@ -230,3 +233,44 @@ async def test_partial_update_only_start_time_preserves_other_fields(
     assert record is not None
     assert record.start_time.hour == 8 and record.start_time.minute == 30
     assert record.end_time.hour == 10 and record.day_of_week is None
+
+
+@pytest.mark.asyncio
+async def test_availability_pagination(client, db_session, make_token):
+    owner = await create_user(db_session, is_business_page=True)
+    clique = await create_clique(db_session, owner=owner)
+    await db_session.commit()
+
+    base_start = time(9, 0)
+    for offset in range(3):
+        await create_availability(
+            db_session,
+            clique.id,
+            AvailabilityCreate(
+                is_recurring=False,
+                date=date.today(),
+                start_time=base_start.replace(hour=9 + offset),
+                end_time=base_start.replace(hour=10 + offset),
+                timezone="UTC",
+            ),
+        )
+
+    first_page = await client.get(
+        f"/api/v1/availability/{clique.id}",
+        params={"limit": 2},
+        headers=auth_headers(make_token(owner)),
+    )
+    assert first_page.status_code == 200
+    payload_one = first_page.json()
+    assert len(payload_one["items"]) == 2
+    assert payload_one["nextCursor"]
+
+    second_page = await client.get(
+        f"/api/v1/availability/{clique.id}",
+        params={"cursor": payload_one["nextCursor"], "limit": 2},
+        headers=auth_headers(make_token(owner)),
+    )
+    assert second_page.status_code == 200
+    payload_two = second_page.json()
+    assert len(payload_two["items"]) == 1
+    assert payload_two["nextCursor"] is None

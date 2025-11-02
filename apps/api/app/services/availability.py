@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import List
+from typing import List, Tuple
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.availability import Availability
+from ..core.pagination import apply_datetime_cursor, slice_results
 from ..schemas.availability import Availability as AvailabilitySchema
 from ..schemas.availability import AvailabilityCreate, AvailabilityUpdate
 
@@ -88,12 +89,15 @@ async def create_availability(
 
 
 async def get_clique_availability(
-    db: AsyncSession, clique_id: UUID
-) -> List[AvailabilitySchema]:
+    db: AsyncSession, clique_id: UUID, cursor: str | None, limit: int
+) -> Tuple[List[AvailabilitySchema], str | None]:
     stmt = select(Availability).where(Availability.clique_id == clique_id)
+    stmt = apply_datetime_cursor(stmt, Availability, cursor, limit)
     result = await db.execute(stmt)
-    availabilities = result.scalars().all()
-    return [AvailabilitySchema.model_validate(a) for a in availabilities]
+    rows = result.scalars().all()
+    items, next_cursor = slice_results(rows, limit)
+    availabilities = [AvailabilitySchema.model_validate(a) for a in items]
+    return availabilities, next_cursor
 
 
 async def update_availability(

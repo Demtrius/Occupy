@@ -1369,6 +1369,13 @@ export interface components {
 			 */
 			readonly updatedAt: string;
 		};
+		/** CursorPageAvailability */
+		readonly CursorPageAvailability: {
+			/** Items */
+			readonly items?: readonly components["schemas"]["Availability"][];
+			/** Nextcursor */
+			readonly nextCursor?: string | null;
+		};
 		/** AvailabilityCreate */
 		readonly AvailabilityCreate: {
 			/** Isrecurring */
@@ -6715,7 +6722,10 @@ export interface operations {
 	};
 	readonly AvailabilityByCliqueId: {
 		readonly parameters: {
-			readonly query?: never;
+			readonly query?: {
+				readonly cursor?: string;
+				readonly limit?: number;
+			};
 			readonly header?: never;
 			readonly path: {
 				readonly cliqueId: string;
@@ -6730,7 +6740,7 @@ export interface operations {
 					readonly [name: string]: unknown;
 				};
 				content: {
-					readonly "application/json": readonly components["schemas"]["Availability"][];
+					readonly "application/json": components["schemas"]["CursorPageAvailability"];
 				};
 			};
 			/** @description Unauthorized */

@@ -140,13 +140,14 @@ export default function CliqueDetailPage() {
 			case "services":
 				return (
 					<CliqueServicesTab
+						cliqueId={cliqueId}
 						services={(servicesQuery.data as Service[]) ?? []}
 						isOwner={isOwner}
-						onCreateService={() => {
-							showToast({
-								type: "info",
-								message: "Service creation coming soon",
-							});
+						defaultCurrency={
+							((servicesQuery.data as Service[]) ?? [])[0]?.currency
+						}
+						onServiceCreated={() => {
+							servicesQuery.refetch();
 						}}
 						isLoading={servicesQuery.isLoading}
 					/>
@@ -154,15 +155,23 @@ export default function CliqueDetailPage() {
 			case "availability":
 				return (
 					<CliqueAvailabilityTab
-						availability={(availabilityQuery.data as Availability[]) ?? []}
+						cliqueId={cliqueId}
+						availability={(availabilityQuery.items as Availability[]) ?? []}
 						isOwner={isOwner}
-						onCreateAvailability={() => {
-							showToast({
-								type: "info",
-								message: "Availability creation coming soon",
-							});
+						defaultTimezone={clique?.timezone}
+						onAvailabilityCreated={() => {
+							availabilityQuery.refetch();
 						}}
 						isLoading={availabilityQuery.isLoading}
+						onLoadMore={() => {
+							if (
+								availabilityQuery.hasNextPage &&
+								!availabilityQuery.isFetchingNextPage
+							) {
+								availabilityQuery.fetchNextPage();
+							}
+						}}
+						isFetchingMore={availabilityQuery.isFetchingNextPage}
 					/>
 				);
 			case "bookings":
@@ -222,7 +231,10 @@ export default function CliqueDetailPage() {
 		}
 	}, [
 		activeTab,
-		availabilityQuery.data,
+		availabilityQuery.items,
+		availabilityQuery.fetchNextPage,
+		availabilityQuery.hasNextPage,
+		availabilityQuery.isFetchingNextPage,
 		availabilityQuery.isLoading,
 		bookingsQuery.fetchNextPage,
 		bookingsQuery.hasNextPage,
@@ -247,6 +259,8 @@ export default function CliqueDetailPage() {
 		reviewsQuery.items,
 		servicesQuery.data,
 		servicesQuery.isLoading,
+		servicesQuery.refetch,
+		availabilityQuery.refetch,
 	]);
 
 	if (cliqueQuery.isLoading || !clique) {
