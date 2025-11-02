@@ -1,11 +1,15 @@
 import { useTheme } from "@shopify/restyle";
 import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList } from "react-native";
+import { ActivityIndicator, Alert, FlatList } from "react-native";
 import { AvailabilityCard } from "@/components/cards/availability-card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
+import { useDeleteAvailabilityMutation } from "@/hooks/use-availability";
+import { getErrorMessage } from "@/lib/error-utils";
+import { presentOverflowMenu } from "@/lib/overflow-menu";
+import { showToast } from "@/stores/toast-store";
 import type { Availability } from "@/types";
 import { CreateAvailabilityModal } from "./create-availability-modal";
 
@@ -15,6 +19,8 @@ interface CliqueAvailabilityTabProps {
 	isOwner: boolean;
 	defaultTimezone?: string | null;
 	onAvailabilityCreated?: (availability: Availability) => void;
+	onAvailabilityUpdated?: (availability: Availability) => void;
+	onAvailabilityDeleted?: (availabilityId: string) => void;
 	isLoading: boolean;
 	onLoadMore?: () => void;
 	isFetchingMore?: boolean;
@@ -26,19 +32,29 @@ export function CliqueAvailabilityTab({
 	isOwner,
 	defaultTimezone,
 	onAvailabilityCreated,
+	onAvailabilityUpdated,
+	onAvailabilityDeleted,
 	isLoading,
 	onLoadMore,
 	isFetchingMore,
 }: CliqueAvailabilityTabProps) {
 	const theme = useTheme<Theme>();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+	const [editingAvailability, setEditingAvailability] =
+		useState<Availability | null>(null);
+
+	const deleteAvailabilityMutation = useDeleteAvailabilityMutation();
 
 	const handleOpenModal = useCallback(() => {
+		setModalMode("create");
+		setEditingAvailability(null);
 		setIsModalOpen(true);
 	}, []);
 
 	const handleCloseModal = useCallback(() => {
 		setIsModalOpen(false);
+		setEditingAvailability(null);
 	}, []);
 
 	const handleCreated = useCallback(
@@ -48,17 +64,82 @@ export function CliqueAvailabilityTab({
 		[onAvailabilityCreated],
 	);
 
+	const handleUpdated = useCallback(
+		(slot: Availability) => {
+			onAvailabilityUpdated?.(slot);
+		},
+		[onAvailabilityUpdated],
+	);
+
+	const confirmDelete = useCallback(
+		(slot: Availability) => {
+			Alert.alert(
+				"Delete Availability",
+				"Are you sure you want to delete this availability slot?",
+				[
+					{ text: "Cancel", style: "cancel" },
+					{
+						text: "Delete",
+						style: "destructive",
+						onPress: async () => {
+							try {
+								await deleteAvailabilityMutation.mutateAsync({
+									params: {
+										path: { availabilityId: slot.id },
+									},
+								});
+								showToast({
+									type: "success",
+									message: "Availability deleted",
+								});
+								onAvailabilityDeleted?.(slot.id);
+							} catch (error: unknown) {
+								showToast({
+									type: "error",
+									message: getErrorMessage(
+										error,
+										"Failed to delete availability",
+									),
+								});
+							}
+						},
+					},
+				],
+			);
+		},
+		[deleteAvailabilityMutation, onAvailabilityDeleted],
+	);
+
+	const handleMenuPress = useCallback(
+		(slot: Availability) => {
+			presentOverflowMenu([
+				{
+					label: "Edit",
+					onPress: () => {
+						setModalMode("edit");
+						setEditingAvailability(slot);
+						setIsModalOpen(true);
+					},
+				},
+				{
+					label: "Delete",
+					destructive: true,
+					onPress: () => confirmDelete(slot),
+				},
+			]);
+		},
+		[confirmDelete],
+	);
+
 	const renderItem = useCallback(
 		({ item }: { item: Availability }) => (
 			<AvailabilityCard
 				availability={item}
 				isOwner={isOwner}
-				onMenuPress={() => {
-					// TODO: Add edit/delete actions
-				}}
+				onMenuPress={() => handleMenuPress(item)}
 			/>
 		),
-		[isOwner],
+		[handleMenuPress, isOwner],
 	);
 
 	const keyExtractor = useCallback((item: Availability) => item.id, []);
@@ -133,8 +214,11 @@ export function CliqueAvailabilityTab({
 					visible={isModalOpen}
 					cliqueId={cliqueId}
 					defaultTimezone={defaultTimezone}
+					mode={modalMode}
+					availability={editingAvailability}
 					onClose={handleCloseModal}
 					onCreated={handleCreated}
+					onUpdated={handleUpdated}
 				/>
 			) : null}
 		</>

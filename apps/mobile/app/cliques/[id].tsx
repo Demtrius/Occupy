@@ -149,6 +149,12 @@ export default function CliqueDetailPage() {
 						onServiceCreated={() => {
 							servicesQuery.refetch();
 						}}
+						onServiceUpdated={() => {
+							servicesQuery.refetch();
+						}}
+						onServiceDeleted={() => {
+							servicesQuery.refetch();
+						}}
 						isLoading={servicesQuery.isLoading}
 					/>
 				);
@@ -160,6 +166,12 @@ export default function CliqueDetailPage() {
 						isOwner={isOwner}
 						defaultTimezone={clique?.timezone}
 						onAvailabilityCreated={() => {
+							availabilityQuery.refetch();
+						}}
+						onAvailabilityUpdated={() => {
+							availabilityQuery.refetch();
+						}}
+						onAvailabilityDeleted={() => {
 							availabilityQuery.refetch();
 						}}
 						isLoading={availabilityQuery.isLoading}
@@ -198,7 +210,14 @@ export default function CliqueDetailPage() {
 						cliqueId={cliqueId}
 						posts={postsQuery.items as Post[]}
 						isMember={isMember || isOwner}
+						currentUserId={currentUserId}
 						onPostCreated={() => {
+							postsQuery.refetch();
+						}}
+						onPostUpdated={() => {
+							postsQuery.refetch();
+						}}
+						onPostDeleted={() => {
 							postsQuery.refetch();
 						}}
 						isLoading={postsQuery.isLoading}

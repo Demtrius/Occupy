@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
-import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { Availability } from "@/types";
@@ -65,9 +65,18 @@ export function AvailabilityCard({
 					) : null}
 				</Box>
 				{isOwner ? (
-					<TouchableOpacity onPress={onMenuPress} style={{ padding: 4 }}>
+					<Pressable
+						onPress={onMenuPress}
+						hitSlop={8}
+						style={({ pressed }) => [
+							{
+								padding: 4,
+								opacity: pressed ? 0.7 : 1,
+							},
+						]}
+					>
 						<Ionicons name="ellipsis-vertical" size={20} color="#666" />
-					</TouchableOpacity>
+					</Pressable>
 				) : null}
 			</Box>
 		</Card>

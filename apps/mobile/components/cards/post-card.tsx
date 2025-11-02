@@ -17,12 +17,16 @@ import type { Post } from "@/types";
 interface PostCardProps {
 	post: Post;
 	isSelfRedirectable?: boolean;
+	canEdit?: boolean;
+	onMenuPress?: () => void;
 }
 
 export function PostCard({
 	post,
 	variant = "elevated",
 	isSelfRedirectable = true,
+	canEdit = false,
+	onMenuPress,
 }: PostCardProps & React.ComponentProps<typeof Card>) {
 	const router = useRouter();
 	const theme = useTheme<Theme>();
@@ -163,25 +167,27 @@ export function PostCard({
 								</Text>
 							</Box>
 						</Pressable>
-						<Pressable
-							onPress={(event) => {
-								event.stopPropagation();
-								// TODO: Implement overflow menu actions.
-							}}
-							hitSlop={8}
-							style={({ pressed }) => [
-								{
-									opacity: pressed ? 0.6 : 1,
-									padding: theme.spacing.xs,
-								},
-							]}
-						>
-							<Ionicons
-								name="ellipsis-horizontal"
-								size={18}
-								color={theme.colors["muted-foreground"]}
-							/>
-						</Pressable>
+						{canEdit ? (
+							<Pressable
+								onPress={(event) => {
+									event.stopPropagation();
+									onMenuPress?.();
+								}}
+								hitSlop={8}
+								style={({ pressed }) => [
+									{
+										opacity: pressed ? 0.6 : 1,
+										padding: theme.spacing.xs,
+									},
+								]}
+							>
+								<Ionicons
+									name="ellipsis-horizontal"
+									size={18}
+									color={theme.colors["muted-foreground"]}
+								/>
+							</Pressable>
+						) : null}
 					</Box>
 
 					{/* Author Info */}

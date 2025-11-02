@@ -24,6 +24,7 @@ export function FormField<
 }: UseControllerProps<TFieldValues, TName> & {
 	label?: string;
 	description?: string;
+	flex?: number;
 	render: (args: {
 		value: ControllerRenderProps<TFieldValues, TName>["value"];
 		onChange: ControllerRenderProps<TFieldValues, TName>["onChange"];
@@ -39,7 +40,7 @@ export function FormField<
 				field: { value, onChange, onBlur },
 				fieldState: { error },
 			}) => (
-				<Box marginBottom="m">
+				<Box marginBottom="m" flexGrow={1}>
 					{label ? <Label>{label}</Label> : null}
 					{render({ value, onChange, onBlur, error })}
 					{error ? (
