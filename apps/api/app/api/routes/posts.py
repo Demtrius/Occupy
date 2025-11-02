@@ -125,14 +125,18 @@ async def create_post_route(
     clique = await get_clique_by_id(db, str(cliqueId))
     if not clique:
         raise NotFound()
-    if clique.owner_user_id != current_user.id:
-        raise Forbidden()
+    is_owner = clique.owner_user_id == current_user.id
+    if not is_owner:
+        is_member = await is_member_of_clique(db, str(cliqueId), str(current_user.id))
+        if not is_member:
+            raise Forbidden()
     post = await create_post(
         db,
         str(current_user.id),
         str(cliqueId),
         data.content,
         data.status or PostStatus.DRAFT,
+        [str(media_id) for media_id in data.media_ids] if data.media_ids else None,
     )
     return post
 

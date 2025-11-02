@@ -28,7 +28,11 @@ export function CliqueServicesTab({
 
 	const ListHeaderComponent = () =>
 		isOwner ? (
-			<Button variant="primary" onPress={onCreateService}>
+			<Button
+				variant="primary"
+				onPress={onCreateService}
+				style={{ marginBottom: theme.spacing.m }}
+			>
 				Create Service
 			</Button>
 		) : null;

@@ -2146,6 +2146,8 @@ export interface components {
 			readonly contentFormat: components["schemas"]["ContentFormat"];
 			/** Content */
 			readonly content: string;
+			/** Mediaids */
+			readonly mediaIds?: readonly string[];
 			/** @default draft */
 			readonly status: components["schemas"]["PostStatus"];
 		};

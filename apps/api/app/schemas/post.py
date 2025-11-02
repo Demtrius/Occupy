@@ -37,7 +37,7 @@ class PostBase(BaseSchema):
 
 
 class PostCreate(PostBase):
-    pass
+    media_ids: list[UUID] = Field(default_factory=list)
 
 
 class PostUpdate(BaseSchema):

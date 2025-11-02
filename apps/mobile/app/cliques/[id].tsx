@@ -186,13 +186,11 @@ export default function CliqueDetailPage() {
 			case "posts":
 				return (
 					<CliquePostsTab
+						cliqueId={cliqueId}
 						posts={postsQuery.items as Post[]}
 						isMember={isMember || isOwner}
-						onCreatePost={() => {
-							showToast({
-								type: "info",
-								message: "Post creation coming soon",
-							});
+						onPostCreated={() => {
+							postsQuery.refetch();
 						}}
 						isLoading={postsQuery.isLoading}
 						onEndReached={() => {
@@ -241,6 +239,7 @@ export default function CliqueDetailPage() {
 		postsQuery.isFetchingNextPage,
 		postsQuery.isLoading,
 		postsQuery.items,
+		postsQuery.refetch,
 		reviewsQuery.fetchNextPage,
 		reviewsQuery.hasNextPage,
 		reviewsQuery.isFetchingNextPage,

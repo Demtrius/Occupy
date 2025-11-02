@@ -25,7 +25,11 @@ export function CliqueAvailabilityTab({
 	return (
 		<Box padding="m" gap="m">
 			{isOwner && (
-				<Button variant="primary" onPress={onCreateAvailability}>
+				<Button
+					variant="primary"
+					onPress={onCreateAvailability}
+					style={{ marginBottom: theme.spacing.m }}
+				>
 					Create Availability
 				</Button>
 			)}

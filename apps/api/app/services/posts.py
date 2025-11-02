@@ -31,6 +31,7 @@ async def create_post(
     clique_id: str,
     content: str,
     status: PostStatus,
+    media_ids: Iterable[str] | None = None,
 ) -> PostSchema:
     post = Post(
         author_user_id=author_id,
@@ -39,6 +40,31 @@ async def create_post(
         status=status,
     )
     db.add(post)
+    await db.flush()
+
+    if media_ids:
+        seen: set[str] = set()
+        position = 0
+        for media_id in media_ids:
+            media_id_str = str(media_id)
+            if media_id_str in seen:
+                continue
+            seen.add(media_id_str)
+
+            media = await db.get(Media, media_id_str)
+            if not media or str(media.owner_user_id) != author_id:
+                await db.rollback()
+                raise Validation("Invalid media attachment")
+
+            db.add(
+                PostMedia(
+                    post_id=post.id,
+                    media_id=media_id_str,
+                    position=position,
+                )
+            )
+            position += 1
+
     await db.commit()
     await db.refresh(post)
     return await _hydrate_post(db, post, author_id)

@@ -10,20 +10,22 @@ from sqlalchemy import update
 
 from app.api.routes import posts as posts_routes
 from app.core.errors import Forbidden, NotFound, Validation
-from app.models.enums import PostStatus, Privacy
+from app.models.clique import CliqueMember
+from app.models.enums import MembershipStatus, PostStatus, Privacy, Role
 from app.models.post import Comment
 from app.schemas import CommentCreate
 from app.schemas.post import PostCreate, PostUpdate
 from tests.factories import (
     create_clique,
     create_comment,
+    create_media,
     create_post,
     create_user,
 )
 
 
 @pytest.mark.asyncio
-async def test_create_post_route_requires_owner(db_session):
+async def test_create_post_route_requires_membership(db_session):
     owner = await create_user(db_session, is_business_page=True)
     outsider = await create_user(db_session)
     clique = await create_clique(db_session, owner=owner)
@@ -34,6 +36,76 @@ async def test_create_post_route_requires_owner(db_session):
             clique.id,
             PostCreate(content="hello", status=PostStatus.POSTED),
             outsider,
+            db_session,
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_post_route_allows_member(db_session):
+    owner = await create_user(db_session, is_business_page=True)
+    member = await create_user(db_session)
+    clique = await create_clique(db_session, owner=owner)
+    db_session.add(
+        CliqueMember(
+            clique_id=clique.id,
+            user_id=member.id,
+            role=Role.MEMBER,
+            status=MembershipStatus.JOINED,
+        )
+    )
+    await db_session.commit()
+
+    post = await posts_routes.create_post_route(
+        clique.id,
+        PostCreate(content="hello", status=PostStatus.POSTED),
+        member,
+        db_session,
+    )
+
+    assert post.author_user_id == member.id
+    assert post.clique_id == clique.id
+
+
+@pytest.mark.asyncio
+async def test_create_post_route_attaches_media(db_session):
+    owner = await create_user(db_session, is_business_page=True)
+    clique = await create_clique(db_session, owner=owner)
+    media = await create_media(db_session, owner=owner)
+    await db_session.commit()
+
+    post = await posts_routes.create_post_route(
+        clique.id,
+        PostCreate(
+            content="Weekend schedule update",
+            status=PostStatus.POSTED,
+            media_ids=[media.id],
+        ),
+        owner,
+        db_session,
+    )
+
+    assert post.media
+    assert post.media[0].media_id == media.id
+    assert post.media[0].media.url
+
+
+@pytest.mark.asyncio
+async def test_create_post_route_rejects_foreign_media(db_session):
+    owner = await create_user(db_session, is_business_page=True)
+    other_user = await create_user(db_session)
+    clique = await create_clique(db_session, owner=owner)
+    media = await create_media(db_session, owner=other_user)
+    await db_session.commit()
+
+    with pytest.raises(Validation):
+        await posts_routes.create_post_route(
+            clique.id,
+            PostCreate(
+                content="Cannot reuse media",
+                status=PostStatus.POSTED,
+                media_ids=[media.id],
+            ),
+            owner,
             db_session,
         )
 
@@ -224,7 +296,9 @@ async def test_delete_comment_route_deleted_comment_not_found(db_session):
     post = await create_post(db_session, clique=clique, author=owner)
     comment = await create_comment(db_session, post=post, author=owner)
     await db_session.execute(
-        update(Comment).where(Comment.id == comment.id).values(deleted_at=datetime.now(timezone.utc))
+        update(Comment)
+        .where(Comment.id == comment.id)
+        .values(deleted_at=datetime.now(timezone.utc))
     )
     await db_session.refresh(comment)
     await db_session.commit()
