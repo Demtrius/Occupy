@@ -43,6 +43,7 @@ class PostCreate(PostBase):
 class PostUpdate(BaseSchema):
     content: Optional[str] = None
     status: Optional[PostStatus] = None
+    media_ids: Optional[list[UUID]] = None
 
 
 class Post(PostBase):

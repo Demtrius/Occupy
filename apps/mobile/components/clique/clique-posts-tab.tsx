@@ -124,8 +124,18 @@ export function CliquePostsTab({
 		({ item }: { item: Post }) => (
 			<PostCard
 				post={item}
-				canEdit={item.authorUserId === currentUserId}
-				onMenuPress={() => handleMenuPress(item)}
+				canEdit={
+					Boolean(currentUserId) &&
+					(item.authorUserId === currentUserId ||
+						item.author?.id === currentUserId)
+				}
+				onMenuPress={
+					currentUserId &&
+					(item.authorUserId === currentUserId ||
+						item.author?.id === currentUserId)
+						? () => handleMenuPress(item)
+						: undefined
+				}
 			/>
 		),
 		[currentUserId, handleMenuPress],

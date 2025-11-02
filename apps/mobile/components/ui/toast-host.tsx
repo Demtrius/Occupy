@@ -49,10 +49,12 @@ export function ToastHost() {
 							}
 						/>
 						<Box flex={1}>
-							<Text variant="body" fontWeight="500">
-								{t.title ?? ""}
-							</Text>
-							{t.message ? <Text variant="caption">{t.message}</Text> : null}
+							{t.title && (
+								<Text variant="body" fontWeight="500">
+									{t.title}
+								</Text>
+							)}
+							{t.message && <Text variant="caption">{t.message}</Text>}
 						</Box>
 					</Card>
 				</Box>

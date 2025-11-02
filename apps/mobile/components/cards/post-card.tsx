@@ -16,6 +16,7 @@ import type { Post } from "@/types";
 
 interface PostCardProps {
 	post: Post;
+	variant?: "elevated" | "inline";
 	isSelfRedirectable?: boolean;
 	canEdit?: boolean;
 	onMenuPress?: () => void;

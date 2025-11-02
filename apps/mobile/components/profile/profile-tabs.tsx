@@ -1,22 +1,28 @@
 import { useTheme } from "@shopify/restyle";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, FlatList } from "react-native";
+import { useCallback, useState } from "react";
+import { ActivityIndicator, Alert, FlatList } from "react-native";
 import { BookingCard } from "@/components/cards/booking-card";
 import { CliqueCard } from "@/components/cards/clique-card";
 import { PostCard } from "@/components/cards/post-card";
 import { ReviewCard } from "@/components/cards/review-card";
+import { CreatePostModal } from "@/components/clique/create-post-modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { TabsHeader } from "@/components/ui/tabs-header";
 import type { Theme } from "@/config/theme";
 import {
+	useDeletePostMutation,
 	useFollowStatusQuery,
 	useListCliqueReviewsQuery,
 	useListMyBookingsQuery,
 	useListUserCliquesQuery,
 	useListUserPostsQuery,
+	useMeQuery,
 } from "@/hooks";
+import { getErrorMessage } from "@/lib/error-utils";
+import { presentOverflowMenu } from "@/lib/overflow-menu";
+import { showToast } from "@/stores/toast-store";
 import type { Booking, Clique, Post, Review, User } from "@/types";
 
 interface ProfileTabsProps {
@@ -38,8 +44,14 @@ export function ProfileTabs({
 	isLoading,
 }: ProfileTabsProps) {
 	const theme = useTheme<Theme>();
+	const meQuery = useMeQuery();
+	const deletePostMutation = useDeletePostMutation();
+	const currentUserId = meQuery.data?.id;
 	const router = useRouter();
 	const [activeTab, setActiveTab] = useState<TabType>(TabType.Posts);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+	const [editingPost, setEditingPost] = useState<Post | null>(null);
 
 	const postsQuery = useListUserPostsQuery(
 		user?.id,
@@ -58,6 +70,72 @@ export function ProfileTabs({
 	);
 
 	const { data } = useFollowStatusQuery(user?.id);
+
+	const confirmDelete = useCallback(
+		(post: Post) => {
+			Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
+				{ text: "Cancel", style: "cancel" },
+				{
+					text: "Delete",
+					style: "destructive",
+					onPress: async () => {
+						try {
+							await deletePostMutation.mutateAsync({
+								params: { path: { postId: post.id } },
+							});
+							showToast({
+								type: "success",
+								message: "Post deleted",
+							});
+						} catch (error: unknown) {
+							showToast({
+								type: "error",
+								message: getErrorMessage(error, "Failed to delete post"),
+							});
+						}
+					},
+				},
+			]);
+		},
+		[deletePostMutation],
+	);
+
+	const handleMenuPress = useCallback(
+		(post: Post) => {
+			presentOverflowMenu([
+				{
+					label: "Edit",
+					onPress: () => {
+						setModalMode("edit");
+						setEditingPost(post);
+						setIsModalOpen(true);
+					},
+				},
+				{
+					label: "Delete",
+					destructive: true,
+					onPress: () => confirmDelete(post),
+				},
+			]);
+		},
+		[confirmDelete],
+	);
+
+	const handleCloseModal = useCallback(() => {
+		setIsModalOpen(false);
+		setEditingPost(null);
+	}, []);
+
+	const handlePostUpdated = useCallback(
+		(_post: Post) => {
+			showToast({
+				type: "success",
+				message: "Post updated",
+			});
+			postsQuery.refetch();
+		},
+		[postsQuery],
+	);
 
 	if (isLoading || !user) {
 		return (
@@ -95,7 +173,23 @@ export function ProfileTabs({
 		router.push({ pathname: "/cliques/[id]", params: { id } });
 	};
 
-	const renderPostItem = ({ item }: { item: Post }) => <PostCard post={item} />;
+	const renderPostItem = ({ item }: { item: Post }) => (
+		<PostCard
+			post={item}
+			canEdit={
+				Boolean(currentUserId) &&
+				(item.authorUserId === currentUserId ||
+					item.author?.id === currentUserId)
+			}
+			onMenuPress={
+				currentUserId &&
+				(item.authorUserId === currentUserId ||
+					item.author?.id === currentUserId)
+					? () => handleMenuPress(item)
+					: undefined
+			}
+		/>
+	);
 
 	const renderCliqueItem = ({ item }: { item: Clique }) => (
 		<CliqueCard clique={item} onPress={() => handleNavigateToClique(item.id)} />
@@ -389,6 +483,16 @@ export function ProfileTabs({
 				onTabChange={setActiveTab}
 			/>
 			<Box flex={1}>{renderTabContent()}</Box>
+			{editingPost?.cliqueId ? (
+				<CreatePostModal
+					visible={isModalOpen}
+					cliqueId={editingPost.cliqueId}
+					mode={modalMode}
+					post={editingPost}
+					onClose={handleCloseModal}
+					onUpdated={handlePostUpdated}
+				/>
+			) : null}
 		</Box>
 	);
 }

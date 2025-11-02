@@ -269,11 +269,18 @@ async def update_post_route(
 ):
     post = await _require_post(db, postId)
     await _ensure_post_owner_or_clique_owner(db, post, current_user)
-    updated = await update_post(db, str(postId), data.content, data.status)
+    media_ids = [str(media_id) for media_id in data.media_ids] if data.media_ids is not None else None
+    updated = await update_post(
+        db, 
+        str(postId), 
+        data.content, 
+        data.status, 
+        media_ids,
+        str(current_user.id)
+    )
     if not updated:
         raise NotFound()
-    refreshed = await get_post_by_id(db, str(postId), str(current_user.id))
-    return refreshed
+    return updated
 
 
 @router.delete(

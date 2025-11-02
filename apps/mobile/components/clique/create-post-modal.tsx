@@ -5,6 +5,7 @@ import {
 	type SelectedMedia,
 } from "@/components/clique/forms/post-form";
 import { AppModal } from "@/components/ui/modal";
+import { Box, Text } from "@/components/ui/restyle-components";
 import {
 	useCreatePostMutation,
 	useUpdatePostMutation,
@@ -66,6 +67,7 @@ export function CreatePostModal({
 						body: {
 							content: values.content,
 							status: post.status ?? PostStatus.posted,
+							mediaIds: values.mediaIds,
 						},
 					});
 					showToast({ type: "success", message: "Post updated" });
@@ -127,7 +129,7 @@ export function CreatePostModal({
 				onSubmit={handleSubmit}
 				isSubmitting={isSubmitting}
 				submitLabel={submitLabel}
-				allowMediaEditing={!isEditMode}
+				allowMediaEditing={true}
 			/>
 		</AppModal>
 	);

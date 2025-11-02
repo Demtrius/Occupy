@@ -2,6 +2,7 @@ import { useTheme } from "@shopify/restyle";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
+	Alert,
 	FlatList,
 	KeyboardAvoidingView,
 	type ListRenderItem,
@@ -9,6 +10,7 @@ import {
 	type TextInput,
 } from "react-native";
 import { PostCard } from "@/components/cards/post-card";
+import { CreatePostModal } from "@/components/clique/create-post-modal";
 import type { ReplyContextSummary } from "@/components/post/comment-composer";
 import { CommentComposer } from "@/components/post/comment-composer";
 import { CommentItem } from "@/components/post/comment-item";
@@ -17,14 +19,20 @@ import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import type { Theme } from "@/config/theme";
-import { useCreateCommentMutation, useGetPostQuery } from "@/hooks";
+import {
+	useCreateCommentMutation,
+	useDeletePostMutation,
+	useGetPostQuery,
+	useMeQuery,
+} from "@/hooks";
 import {
 	type FlattenedThreadComment,
 	useCommentThreads,
 } from "@/hooks/use-comment-threads";
 import { getErrorMessage } from "@/lib/error-utils";
+import { presentOverflowMenu } from "@/lib/overflow-menu";
 import { showToast } from "@/stores/toast-store";
-import type { Comment } from "@/types";
+import type { Comment, Post } from "@/types";
 
 interface ReplyContextState extends ReplyContextSummary {
 	commentId: string;
@@ -36,12 +44,18 @@ export default function PostDetailPage() {
 	const postId = id ?? "";
 	const theme = useTheme<Theme>();
 	const postQuery = useGetPostQuery(postId);
+	const meQuery = useMeQuery();
 	const createCommentMutation = useCreateCommentMutation();
+	const deletePostMutation = useDeletePostMutation();
 	const inputRef = useRef<TextInput | null>(null);
 	const [commentBody, setCommentBody] = useState("");
 	const [replyContext, setReplyContext] = useState<ReplyContextState | null>(
 		null,
 	);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+	const [editingPost, setEditingPost] = useState<Post | null>(null);
+	const currentUserId = meQuery.data?.id;
 
 	const {
 		comments: threadedComments,
@@ -124,6 +138,74 @@ export default function PostDetailPage() {
 		inputRef.current?.focus();
 	}, []);
 
+	const confirmDelete = useCallback(
+		(post: Post) => {
+			Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
+				{ text: "Cancel", style: "cancel" },
+				{
+					text: "Delete",
+					style: "destructive",
+					onPress: async () => {
+						try {
+							await deletePostMutation.mutateAsync({
+								params: { path: { postId: post.id } },
+							});
+							showToast({
+								type: "success",
+								message: "Post deleted",
+							});
+							// Navigate back after successful deletion
+							postQuery.refetch();
+						} catch (error: unknown) {
+							showToast({
+								type: "error",
+								message: getErrorMessage(error, "Failed to delete post"),
+							});
+						}
+					},
+				},
+			]);
+		},
+		[deletePostMutation, postQuery],
+	);
+
+	const handleMenuPress = useCallback(
+		(post: Post) => {
+			presentOverflowMenu([
+				{
+					label: "Edit",
+					onPress: () => {
+						setModalMode("edit");
+						setEditingPost(post);
+						setIsModalOpen(true);
+					},
+				},
+				{
+					label: "Delete",
+					destructive: true,
+					onPress: () => confirmDelete(post),
+				},
+			]);
+		},
+		[confirmDelete],
+	);
+
+	const handleCloseModal = useCallback(() => {
+		setIsModalOpen(false);
+		setEditingPost(null);
+	}, []);
+
+	const handlePostUpdated = useCallback(
+		(_post: Post) => {
+			showToast({
+				type: "success",
+				message: "Post updated",
+			});
+			postQuery.refetch();
+		},
+		[postQuery],
+	);
+
 	const onRetry = () => {
 		postQuery.refetch();
 	};
@@ -178,6 +260,18 @@ export default function PostDetailPage() {
 								post={postQuery.data}
 								variant="inline"
 								isSelfRedirectable={false}
+								canEdit={
+									Boolean(currentUserId) &&
+									(postQuery.data.authorUserId === currentUserId ||
+										postQuery.data.author?.id === currentUserId)
+								}
+								onMenuPress={
+									currentUserId &&
+									(postQuery.data.authorUserId === currentUserId ||
+										postQuery.data.author?.id === currentUserId)
+										? () => handleMenuPress(postQuery.data)
+										: undefined
+								}
 							/>
 						}
 						ListEmptyComponent={
@@ -207,6 +301,16 @@ export default function PostDetailPage() {
 					/>
 				</Box>
 			</KeyboardAvoidingView>
+			{editingPost?.cliqueId ? (
+				<CreatePostModal
+					visible={isModalOpen}
+					cliqueId={editingPost.cliqueId}
+					mode={modalMode}
+					post={editingPost}
+					onClose={handleCloseModal}
+					onUpdated={handlePostUpdated}
+				/>
+			) : null}
 		</Screen>
 	);
 }

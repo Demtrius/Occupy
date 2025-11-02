@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Iterable
 from uuid import UUID
 
@@ -184,23 +184,74 @@ async def get_feed_posts(
 
 
 async def update_post(
-    db: AsyncSession, post_id: str, content: str | None, status: PostStatus | None
-) -> Post | None:
+    db: AsyncSession, 
+    post_id: str, 
+    content: str | None, 
+    status: PostStatus | None,
+    media_ids: Iterable[str] | None = None,
+    author_id: str | None = None,
+) -> PostSchema | None:
     post = await db.get(Post, post_id)
-    if post:
-        if content is not None:
-            post.content = content
-        if status is not None:
-            post.status = status
-        await db.commit()
-        await db.refresh(post)
-    return post
+    if not post:
+        return None
+    
+    # Note: Authorization is handled at the route level
+    # This function can be called by either post author or clique owner
+    
+    if content is not None:
+        post.content = content
+    if status is not None:
+        post.status = status
+    
+    # Handle media updates
+    if media_ids is not None:
+        # Delete existing media associations
+        existing_media_result = await db.execute(
+            select(PostMedia).where(PostMedia.post_id == post.id)
+        )
+        existing_media = existing_media_result.scalars().all()
+        for media_item in existing_media:
+            await db.delete(media_item)
+        
+        # Add new media associations (even if empty array)
+        if media_ids:  # This handles the case where media_ids is an empty array []
+            seen: set[str] = set()
+            position = 0
+            for media_id in media_ids:
+                media_id_str = str(media_id)
+                if media_id_str in seen:
+                    continue
+                seen.add(media_id_str)
+
+                media = await db.get(Media, media_id_str)
+                if not media or str(media.owner_user_id) != str(post.author_user_id):
+                    await db.rollback()
+                    raise Validation("Invalid media attachment")
+
+                db.add(
+                    PostMedia(
+                        post_id=post.id,
+                        media_id=media_id_str,
+                        position=position,
+                    )
+                )
+                position += 1
+        # If media_ids is an empty array [], we've already deleted all existing media above
+        # and won't add any new ones, which is the correct behavior
+    
+    await db.commit()
+    await db.refresh(post)
+    print(f"🔍 Backend Debug - Post updated, refreshing post data")
+    result = await _hydrate_post(db, post, str(post.author_user_id))
+    print(f"🔍 Backend Debug - Hydrated post media count: {len(list(result.media))}")
+    print(f"🔍 Backend Debug - Hydrated post media IDs: {[m.media_id for m in result.media]}")
+    return result
 
 
 async def delete_post(db: AsyncSession, post_id: str) -> None:
     post = await db.get(Post, post_id)
     if post:
-        post.deleted_at = func.now()
+        post.deleted_at = func.now()  # type: ignore
         post.status = PostStatus.ARCHIVED
         await db.commit()
 
@@ -288,7 +339,7 @@ async def delete_comment(
         if not clique or str(clique.owner_user_id) != actor_user_id:
             raise PermissionError("Cannot delete comment")
 
-    comment.deleted_at = func.now()
+    comment.deleted_at = func.now()  # type: ignore
     await db.commit()
 
 
