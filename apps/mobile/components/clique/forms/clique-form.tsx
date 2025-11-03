@@ -14,14 +14,14 @@ import { OccupationSelect } from "@/components/ui/occupation-select";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { Switch } from "@/components/ui/switch";
 import type { Theme } from "@/config/theme";
-import type { Occupation } from "@/types";
-import { Privacy } from "@/types/generated";
 import {
 	usePresignUploadMutation,
 	useRegisterUploadedMutation,
 } from "@/hooks/use-media";
 import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
+import type { Occupation } from "@/types";
+import { Privacy } from "@/types/generated";
 
 const schema = type({
 	name: "string > 0",

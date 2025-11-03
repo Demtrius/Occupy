@@ -9,6 +9,7 @@ from ...api.deps import get_db, require_active_user
 from ...api.openapi_helpers import error_responses, secured
 from ...core.errors import Validation
 from ...models.user import User
+from ...schemas.slots import SlotResponse
 from ...services.slots import compute_slots
 
 router = APIRouter(prefix="/api/v1/cliques", tags=["Slots"])
@@ -30,7 +31,7 @@ def _parse_iso_dt(value: str, label: str) -> datetime:
     operation_id="CliquesSlots",
     summary="List available slots",
     description="Return available start/end timestamps for a service within the requested window.",
-    response_model=dict[str, list[dict[str, str]]],
+    response_model=SlotResponse,
     responses={
         200: {
             "description": "Computed availability slots",
@@ -52,7 +53,7 @@ def _parse_iso_dt(value: str, label: str) -> datetime:
     openapi_extra=secured(),
 )
 async def list_slots(
-    cliqueId: Annotated[UUID, Path(alias="cliqueId")],
+    clique_id: Annotated[UUID, Path(alias="cliqueId")],
     service_id: UUID = Query(
         ..., alias="serviceId", description="Service identifier to compute slots for."
     ),
@@ -76,7 +77,7 @@ async def list_slots(
     try:
         slots = await compute_slots(
             db,
-            str(cliqueId),
+            str(clique_id),
             str(service_id),
             start_dt,
             end_dt,

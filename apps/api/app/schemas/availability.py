@@ -42,13 +42,6 @@ class Availability(AvailabilityBase):
     updated_at: datetime
 
 
-class Slot(BaseSchema):
-    start_time: TimeType
-    end_time: TimeType
-    service_id: UUID
-    service_title: str
-
-
 class CursorPageAvailability(BaseSchema):
     items: list[Availability] = Field(default_factory=list)
     next_cursor: Optional[str] = None

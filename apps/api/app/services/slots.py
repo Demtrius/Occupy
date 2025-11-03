@@ -8,6 +8,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.slots import Slot
+
 from ..models.availability import Availability
 from ..models.booking import Booking
 from ..models.enums import BookingStatus
@@ -35,7 +37,7 @@ async def compute_slots(
     service_id: str,
     window_start: datetime,
     window_end: datetime,
-) -> List[dict[str, str]]:
+) -> List[Slot]:
     try:
         service_uuid = UUID(service_id)
         clique_uuid = UUID(clique_id)
@@ -85,7 +87,7 @@ async def compute_slots(
         .all()
     )
 
-    slots: List[dict[str, str]] = []
+    slots: List[Slot] = []
     date_start = window_start_utc.date()
     date_end = window_end_utc.date()
 
@@ -136,14 +138,15 @@ async def compute_slots(
                 )
                 if not has_conflict:
                     slots.append(
-                        {
-                            "start_ts": slot_start.isoformat(),
-                            "end_ts": slot_end.isoformat(),
-                        }
+                        Slot(
+                            start_ts=slot_start,
+                            end_ts=slot_end,
+                            service_id=service.id,
+                        )
                     )
                 slot_start = slot_end + buffer
 
             current_day += timedelta(days=1)
 
-    slots.sort(key=lambda item: item["start_ts"])
+    slots.sort(key=lambda item: item.start_ts)
     return slots

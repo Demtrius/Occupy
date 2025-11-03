@@ -1,12 +1,12 @@
 import { useTheme } from "@shopify/restyle";
 import { useRouter } from "expo-router";
-import { Alert, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert } from "react-native";
 import { UserCard } from "@/components/cards/user-card";
-import { Box, Text } from "@/components/ui/restyle-components";
 import { Button } from "@/components/ui/button";
-import { useMeQuery } from "@/hooks/use-users";
-import { useDeleteCliqueMutation } from "@/hooks/use-cliques";
+import { Box, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
+import { useDeleteCliqueMutation } from "@/hooks/use-cliques";
+import { useMeQuery } from "@/hooks/use-users";
 import type { Clique, User } from "@/types";
 
 interface CliqueAboutTabProps {

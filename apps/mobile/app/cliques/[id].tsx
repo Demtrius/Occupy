@@ -1,7 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
-import { CreateCliqueModal } from "@/components/clique/create-clique-modal";
 import { CliqueAboutTab } from "@/components/clique/clique-about-tab";
 import { CliqueAvailabilityTab } from "@/components/clique/clique-availability-tab";
 import { CliqueBookingsTab } from "@/components/clique/clique-bookings-tab";
@@ -9,6 +8,7 @@ import { CliqueHeader } from "@/components/clique/clique-header";
 import { CliquePostsTab } from "@/components/clique/clique-posts-tab";
 import { CliqueReviewsTab } from "@/components/clique/clique-reviews-tab";
 import { CliqueServicesTab } from "@/components/clique/clique-services-tab";
+import { CreateCliqueModal } from "@/components/clique/create-clique-modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Screen } from "@/components/ui/screen";

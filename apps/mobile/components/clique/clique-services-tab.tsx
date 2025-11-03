@@ -125,6 +125,7 @@ export function CliqueServicesTab({
 		({ item }: { item: Service }) => (
 			<ServiceCard
 				service={item}
+				cliqueId={cliqueId}
 				isOwner={isOwner}
 				onMenuPress={() => handleMenuPress(item)}
 			/>

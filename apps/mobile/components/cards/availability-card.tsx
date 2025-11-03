@@ -6,13 +6,13 @@ import type { Theme } from "@/config/theme";
 import type { Availability } from "@/types";
 
 const DAYS = [
-	"Sunday",
 	"Monday",
 	"Tuesday",
 	"Wednesday",
 	"Thursday",
 	"Friday",
 	"Saturday",
+	"Sunday",
 ];
 
 interface AvailabilityCardProps {

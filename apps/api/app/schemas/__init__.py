@@ -4,7 +4,6 @@ from .availability import (
     AvailabilityCreate,
     AvailabilityUpdate,
     CursorPageAvailability,
-    Slot,
 )
 from .booking import (
     Booking,
