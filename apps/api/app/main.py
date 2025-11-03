@@ -1,5 +1,8 @@
 import os
 
+import dramatiq
+import dramatiq.brokers.redis
+import redis
 from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,6 +50,11 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 auth_sessionmaker = async_session
 deps_sessionmaker = async_session
 auth.sessionmaker = async_session
+
+# Configure Dramatiq with Redis broker
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+redis_broker = dramatiq.brokers.redis.RedisBroker(url=REDIS_URL)
+dramatiq.set_broker(redis_broker)
 
 APP_TITLE = "Occupy API"
 APP_DESC = """

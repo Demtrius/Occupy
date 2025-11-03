@@ -1,11 +1,24 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
+import { useState } from "react";
+import { Alert } from "react-native";
+import { CancelBookingModal } from "@/components/booking/cancel-booking-modal";
+import { ConfirmBookingModal } from "@/components/booking/confirm-booking-modal";
+import { RescheduleBookingModal } from "@/components/booking/reschedule-booking-modal";
+import { Button } from "@/components/ui/button";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
 import type { Booking, BookingStatus } from "@/types";
 
 interface BookingCardProps {
 	booking: Booking;
+	currentUserId?: string;
+	isCliqueOwner?: boolean;
+	cliqueCancellationCutoffHours?: number;
+	onConfirm?: (bookingId: string) => void;
+	onCancel?: (bookingId: string, reason?: string) => void;
+	onReschedule?: (bookingId: string, newStartTime: Date) => void;
+	onReview?: (bookingId: string) => void;
 }
 
 function formatCurrency(valueMinor: number, currency: string) {
@@ -13,8 +26,22 @@ function formatCurrency(valueMinor: number, currency: string) {
 	return `${currency} ${amount.toFixed(2)}`;
 }
 
-export function BookingCard({ booking }: BookingCardProps) {
+export function BookingCard({
+	booking,
+	currentUserId,
+	isCliqueOwner,
+	cliqueCancellationCutoffHours = 24,
+	onConfirm,
+	onCancel,
+	onReschedule,
+	onReview,
+}: BookingCardProps) {
 	const theme = useTheme<Theme>();
+	const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+	const [cancelModalVisible, setCancelModalVisible] = useState(false);
+	const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
 	const startDate = new Date(booking.startTs);
 	const endDate = new Date(booking.endTs);
 
@@ -66,6 +93,52 @@ export function BookingCard({ booking }: BookingCardProps) {
 	};
 
 	const badgeColors = getStatusBadgeColors(booking.status);
+
+	// Calculate if modifications are allowed
+	const now = new Date();
+	const bookingStartTime = new Date(booking.startTs);
+	const cutoffTime = new Date(bookingStartTime);
+	cutoffTime.setHours(
+		cutoffTime.getHours() - (cliqueCancellationCutoffHours || 24),
+	);
+
+	const canModify = booking.status === "confirmed" && now < cutoffTime;
+	const isBooker = currentUserId === booking.userId;
+	const canConfirm = booking.status === "pending" && isCliqueOwner;
+	const canReview = booking.status === "completed" && isBooker;
+
+	const handleConfirm = () => {
+		setIsLoading(true);
+		onConfirm?.(booking.id);
+		setConfirmModalVisible(false);
+		setIsLoading(false);
+	};
+
+	const handleCancel = (reason: string) => {
+		setIsLoading(true);
+		onCancel?.(booking.id, reason);
+		setCancelModalVisible(false);
+		setIsLoading(false);
+	};
+
+	const handleReschedule = (newStartTime: Date) => {
+		setIsLoading(true);
+		onReschedule?.(booking.id, newStartTime);
+		setRescheduleModalVisible(false);
+		setIsLoading(false);
+	};
+
+	const handleReview = () => {
+		if (onReview) {
+			onReview(booking.id);
+		} else {
+			// Show placeholder toast for now
+			Alert.alert(
+				"Reviews Coming Soon",
+				"The review feature will be available in a future update.",
+			);
+		}
+	};
 
 	return (
 		<Card variant="elevated" marginBottom="m">
@@ -133,10 +206,79 @@ export function BookingCard({ booking }: BookingCardProps) {
 			{booking.note ? (
 				<Box marginTop="s" padding="s" backgroundColor="muted" borderRadius="s">
 					<Text variant="caption" fontStyle="italic">
-						“{booking.note}”
+						"{booking.note}"
 					</Text>
 				</Box>
 			) : null}
+
+			{/* Action Buttons */}
+			{(canConfirm || canModify || canReview) && (
+				<Box flexDirection="row" gap="s" marginTop="m">
+					{canConfirm && (
+						<Button
+							variant="primary"
+							onPress={() => setConfirmModalVisible(true)}
+							style={{ flex: 1 }}
+						>
+							Confirm Booking
+						</Button>
+					)}
+
+					{canModify && (
+						<>
+							<Button
+								variant="secondary"
+								onPress={() => setRescheduleModalVisible(true)}
+								style={{ flex: 1 }}
+							>
+								Reschedule
+							</Button>
+							<Button
+								variant="secondary"
+								onPress={() => setCancelModalVisible(true)}
+								style={{ flex: 1 }}
+							>
+								Cancel
+							</Button>
+						</>
+					)}
+
+					{canReview && (
+						<Button
+							variant="secondary"
+							onPress={handleReview}
+							style={{ flex: 1 }}
+						>
+							Leave Review
+						</Button>
+					)}
+				</Box>
+			)}
+
+			{/* Modals */}
+			<ConfirmBookingModal
+				visible={confirmModalVisible}
+				onClose={() => setConfirmModalVisible(false)}
+				onConfirm={handleConfirm}
+				booking={booking}
+				isLoading={isLoading}
+			/>
+
+			<CancelBookingModal
+				visible={cancelModalVisible}
+				onClose={() => setCancelModalVisible(false)}
+				onCancel={handleCancel}
+				booking={booking}
+				isLoading={isLoading}
+			/>
+
+			<RescheduleBookingModal
+				visible={rescheduleModalVisible}
+				onClose={() => setRescheduleModalVisible(false)}
+				onReschedule={handleReschedule}
+				booking={booking}
+				isLoading={isLoading}
+			/>
 		</Card>
 	);
 }

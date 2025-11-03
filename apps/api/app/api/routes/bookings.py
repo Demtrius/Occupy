@@ -25,6 +25,7 @@ from ...schemas import (
 from ...schemas.base import BaseSchema
 from ...services.bookings import (
     cancel_booking,
+    complete_booking,
     confirm_booking,
     create_booking,
     get_clique_bookings,
@@ -343,3 +344,41 @@ async def cancel(
         raise NotFound()
     [hydrated] = await hydrate_bookings(db, [booking])
     return hydrated
+
+
+@router.post(
+    "/{bookingId}/complete",
+    operation_id="BookingsComplete",
+    summary="Complete booking",
+    description="Manually complete a confirmed booking (admin/clique owner only).",
+    response_model=BookingSchema,
+    responses={
+        200: {
+            "description": "Booking completed",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": "a6a6eacd-3dc0-4a22-91f5-51b1c71a5d55",
+                        "status": "completed",
+                    }
+                }
+            },
+        },
+        **error_responses(400, 401, 403, 404, 409),
+    },
+    openapi_extra=secured(),
+)
+async def complete(
+    booking_id: Annotated[UUID, Path(alias="bookingId")],
+    current_user: User = Depends(require_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        booking = await complete_booking(db, str(booking_id), str(current_user.id))
+    except ValueError as exc:
+        raise _map_booking_error(exc)
+    if booking is None:
+        raise NotFound()
+    [hydrated] = await hydrate_bookings(db, [booking])
+    return hydrated
+

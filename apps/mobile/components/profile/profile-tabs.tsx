@@ -14,6 +14,7 @@ import { Box, Text } from "@/components/ui/restyle-components";
 import { TabsHeader } from "@/components/ui/tabs-header";
 import type { Theme } from "@/config/theme";
 import {
+	useCancelBookingMutation,
 	useDeletePostMutation,
 	useFollowStatusQuery,
 	useListCliqueReviewsQuery,
@@ -21,6 +22,7 @@ import {
 	useListUserCliquesQuery,
 	useListUserPostsQuery,
 	useMeQuery,
+	useRescheduleBookingMutation,
 } from "@/hooks";
 import { getErrorMessage } from "@/lib/error-utils";
 import { presentOverflowMenu } from "@/lib/overflow-menu";
@@ -48,6 +50,8 @@ export function ProfileTabs({
 	const theme = useTheme<Theme>();
 	const meQuery = useMeQuery();
 	const deletePostMutation = useDeletePostMutation();
+	const cancelBookingMutation = useCancelBookingMutation();
+	const rescheduleBookingMutation = useRescheduleBookingMutation();
 	const currentUserId = meQuery.data?.id;
 	const router = useRouter();
 	const [activeTab, setActiveTab] = useState<TabType>(TabType.Posts);
@@ -235,8 +239,71 @@ export function ProfileTabs({
 		<ReviewCard review={item} />
 	);
 
+	const handleCancelBooking = useCallback(
+		async (bookingId: string, reason?: string) => {
+			try {
+				await cancelBookingMutation.mutateAsync({
+					params: {
+						path: { bookingId },
+						query: reason ? { reason } : undefined,
+					},
+				});
+				showToast({
+					type: "success",
+					message: "Booking cancelled",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to cancel booking"),
+				});
+			}
+		},
+		[cancelBookingMutation, bookingsQuery],
+	);
+
+	const handleRescheduleBooking = useCallback(
+		async (bookingId: string, newStartTime: Date) => {
+			try {
+				await rescheduleBookingMutation.mutateAsync({
+					params: { path: { bookingId } },
+					body: { startTs: newStartTime.toISOString() },
+				});
+				showToast({
+					type: "success",
+					message: "Booking rescheduled",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to reschedule booking"),
+				});
+			}
+		},
+		[rescheduleBookingMutation, bookingsQuery],
+	);
+
+	const handleReviewBooking = useCallback(
+		(bookingId: string) => {
+			// TODO: Navigate to review screen or open review modal
+			router.push({ pathname: "/bookings/[id]", params: { id: bookingId } });
+		},
+		[router],
+	);
+
 	const renderBookingItem = ({ item }: { item: Booking }) => (
-		<BookingCard booking={item} />
+		<BookingCard
+			booking={item}
+			currentUserId={currentUserId}
+			isCliqueOwner={false} // User is viewing their own bookings, not managing clique bookings
+			cliqueCancellationCutoffHours={24}
+			onConfirm={undefined} // Users cannot confirm their own bookings
+			onCancel={handleCancelBooking}
+			onReschedule={handleRescheduleBooking}
+			onReview={handleReviewBooking}
+		/>
 	);
 
 	const renderListFooter = (isFetching: boolean) =>

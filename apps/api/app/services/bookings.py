@@ -97,6 +97,18 @@ async def create_booking(
         raise ValueError("Could not create booking") from exc
     else:
         await db.refresh(booking)
+        
+        # Schedule completion task with worker
+        try:
+            from ..worker import schedule_booking_completion
+            schedule_booking_completion(
+                str(booking.id),
+                booking.end_ts.isoformat()  # type: ignore
+            )
+        except Exception as e:
+            # Log error but don't fail the booking creation
+            print(f"Failed to schedule booking completion: {e}")
+        
         return booking
 
 
@@ -265,8 +277,29 @@ async def reschedule_booking(
     if overlap:
         raise ValueError("Time slot not available")
 
-    booking.start_ts = new_start_ts
-    booking.end_ts = new_end_ts
+    booking.start_ts = new_start_ts  # type: ignore
+    booking.end_ts = new_end_ts  # type: ignore
+    await db.commit()
+    await db.refresh(booking)
+    return booking
+
+
+async def complete_booking(
+    db: AsyncSession, booking_id: str
+) -> Booking | None:
+    """Mark a booking as completed. This is typically called by worker."""
+    booking_uuid = UUID(booking_id)
+    booking = await db.get(Booking, booking_uuid)
+    if not booking:
+        return None
+
+    if booking.status == BookingStatus.CANCELLED:
+        raise ValueError("Cannot complete a cancelled booking")
+    
+    if booking.status == BookingStatus.COMPLETED:
+        return booking
+
+    booking.status = BookingStatus.COMPLETED
     await db.commit()
     await db.refresh(booking)
     return booking
@@ -293,7 +326,7 @@ async def cancel_booking(
     # Determine who is cancelling
     if str(booking.user_id) == actor_user_id:
         actor = CancelledBy.CLIENT
-        cutoff = booking.start_ts - timedelta(hours=clique.cancellation_cutoff_hours)
+        cutoff = booking.start_ts - timedelta(hours=clique.cancellation_cutoff_hours)  # type: ignore
         now = datetime.now(timezone.utc)
         if now > cutoff:
             raise ValueError("Cancellation cutoff has passed")

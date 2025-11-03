@@ -13,6 +13,11 @@ interface CliqueBookingsTabProps {
 	onEndReached: () => void;
 	isLoading: boolean;
 	isFetchingMore: boolean;
+	cliqueCancellationCutoffHours?: number;
+	onConfirm?: (bookingId: string) => void;
+	onCancel?: (bookingId: string, reason?: string) => void;
+	onReschedule?: (bookingId: string, newStartTime: Date) => void;
+	onReview?: (bookingId: string) => void;
 }
 
 export function CliqueBookingsTab({
@@ -22,6 +27,11 @@ export function CliqueBookingsTab({
 	onEndReached,
 	isLoading,
 	isFetchingMore,
+	cliqueCancellationCutoffHours = 24,
+	onConfirm,
+	onCancel,
+	onReschedule,
+	onReview,
 }: CliqueBookingsTabProps) {
 	const theme = useTheme<Theme>();
 
@@ -30,7 +40,16 @@ export function CliqueBookingsTab({
 		: bookings.filter((booking) => booking.user?.id === currentUserId);
 
 	const renderItem = ({ item }: { item: Booking }) => (
-		<BookingCard booking={item} />
+		<BookingCard
+			booking={item}
+			currentUserId={currentUserId}
+			isCliqueOwner={isOwner}
+			cliqueCancellationCutoffHours={cliqueCancellationCutoffHours}
+			onConfirm={onConfirm}
+			onCancel={onCancel}
+			onReschedule={onReschedule}
+			onReview={onReview}
+		/>
 	);
 
 	const ListHeaderComponent = () => (

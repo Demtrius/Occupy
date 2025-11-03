@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
 import { CliqueAboutTab } from "@/components/clique/clique-about-tab";
@@ -15,7 +15,12 @@ import { Screen } from "@/components/ui/screen";
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { ScrollableTabs } from "@/components/ui/scrollable-tabs";
 import { useListCliqueAvailabilityQuery } from "@/hooks/use-availability";
-import { useListCliqueBookingsQuery } from "@/hooks/use-bookings";
+import {
+	useCancelBookingMutation,
+	useConfirmBookingMutation,
+	useListCliqueBookingsQuery,
+	useRescheduleBookingMutation,
+} from "@/hooks/use-bookings";
 import {
 	useGetCliqueQuery,
 	useJoinCliqueMutation,
@@ -47,6 +52,7 @@ type CliqueTab =
 export default function CliqueDetailPage() {
 	const { id } = useLocalSearchParams<{ id?: string }>();
 	const cliqueId = id ?? "";
+	const router = useRouter();
 	const scrollViewRef = useRef<ScrollView>(null);
 	const [showScrollToTop, setShowScrollToTop] = useState(false);
 
@@ -64,6 +70,9 @@ export default function CliqueDetailPage() {
 	const reviewsQuery = useListCliqueReviewsQuery(cliqueId || undefined);
 	const joinMutation = useJoinCliqueMutation();
 	const leaveMutation = useLeaveCliqueMutation();
+	const confirmBookingMutation = useConfirmBookingMutation();
+	const cancelBookingMutation = useCancelBookingMutation();
+	const rescheduleBookingMutation = useRescheduleBookingMutation();
 
 	const [activeTab, setActiveTab] = useState<CliqueTab>("about");
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -132,6 +141,81 @@ export default function CliqueDetailPage() {
 			cliqueQuery.refetch();
 		},
 		[cliqueQuery],
+	);
+
+	const handleConfirmBooking = useCallback(
+		async (bookingId: string) => {
+			try {
+				await confirmBookingMutation.mutateAsync({
+					params: { path: { bookingId } },
+				});
+				showToast({
+					type: "success",
+					message: "Booking confirmed",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to confirm booking"),
+				});
+			}
+		},
+		[confirmBookingMutation, bookingsQuery],
+	);
+
+	const handleCancelBooking = useCallback(
+		async (bookingId: string, reason?: string) => {
+			try {
+				await cancelBookingMutation.mutateAsync({
+					params: {
+						path: { bookingId },
+						query: reason ? { reason } : undefined,
+					},
+				});
+				showToast({
+					type: "success",
+					message: "Booking cancelled",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to cancel booking"),
+				});
+			}
+		},
+		[cancelBookingMutation, bookingsQuery],
+	);
+
+	const handleRescheduleBooking = useCallback(
+		async (bookingId: string, newStartTime: Date) => {
+			try {
+				await rescheduleBookingMutation.mutateAsync({
+					params: { path: { bookingId } },
+					body: { startTs: newStartTime.toISOString() },
+				});
+				showToast({
+					type: "success",
+					message: "Booking rescheduled",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to reschedule booking"),
+				});
+			}
+		},
+		[rescheduleBookingMutation, bookingsQuery],
+	);
+
+	const handleReviewBooking = useCallback(
+		(bookingId: string) => {
+			// TODO: Navigate to review screen or open review modal
+			router.push({ pathname: "/bookings/[id]", params: { id: bookingId } });
+		},
+		[router],
 	);
 
 	const tabs = useMemo(
@@ -219,6 +303,11 @@ export default function CliqueDetailPage() {
 						}}
 						isLoading={bookingsQuery.isLoading}
 						isFetchingMore={bookingsQuery.isFetchingNextPage}
+						cliqueCancellationCutoffHours={24}
+						onConfirm={isOwner ? handleConfirmBooking : undefined}
+						onCancel={isOwner ? handleCancelBooking : undefined}
+						onReschedule={isOwner ? handleRescheduleBooking : undefined}
+						onReview={handleReviewBooking}
 					/>
 				);
 			case "posts":
@@ -297,6 +386,11 @@ export default function CliqueDetailPage() {
 		servicesQuery.isLoading,
 		servicesQuery.refetch,
 		availabilityQuery.refetch,
+		cliqueId,
+		handleCancelBooking,
+		handleConfirmBooking,
+		handleRescheduleBooking,
+		handleReviewBooking,
 	]);
 
 	if (cliqueQuery.isLoading || !clique) {
