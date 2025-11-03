@@ -17,7 +17,6 @@ interface CliqueBookingsTabProps {
 	onConfirm?: (bookingId: string) => void;
 	onCancel?: (bookingId: string, reason?: string) => void;
 	onReschedule?: (bookingId: string, newStartTime: Date) => void;
-	onReview?: (bookingId: string) => void;
 }
 
 export function CliqueBookingsTab({
@@ -31,7 +30,6 @@ export function CliqueBookingsTab({
 	onConfirm,
 	onCancel,
 	onReschedule,
-	onReview,
 }: CliqueBookingsTabProps) {
 	const theme = useTheme<Theme>();
 
@@ -48,7 +46,6 @@ export function CliqueBookingsTab({
 			onConfirm={onConfirm}
 			onCancel={onCancel}
 			onReschedule={onReschedule}
-			onReview={onReview}
 		/>
 	);
 

@@ -173,6 +173,60 @@ export function ProfileTabs({
 		[cliquesQuery],
 	);
 
+	const handleCancelBooking = useCallback(
+		async (bookingId: string, reason?: string) => {
+			try {
+				await cancelBookingMutation.mutateAsync({
+					params: {
+						path: { bookingId },
+						query: reason ? { reason } : undefined,
+					},
+				});
+				showToast({
+					type: "success",
+					message: "Booking cancelled",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to cancel booking"),
+				});
+			}
+		},
+		[cancelBookingMutation, bookingsQuery],
+	);
+
+	const handleRescheduleBooking = useCallback(
+		async (bookingId: string, newStartTime: Date) => {
+			try {
+				await rescheduleBookingMutation.mutateAsync({
+					params: { path: { bookingId } },
+					body: { startTs: newStartTime.toISOString() },
+				});
+				showToast({
+					type: "success",
+					message: "Booking rescheduled",
+				});
+				bookingsQuery.refetch();
+			} catch (error: unknown) {
+				showToast({
+					type: "error",
+					message: getErrorMessage(error, "Failed to reschedule booking"),
+				});
+			}
+		},
+		[rescheduleBookingMutation, bookingsQuery],
+	);
+
+	const _handleReviewBooking = useCallback(
+		(bookingId: string) => {
+			// TODO: Navigate to review screen or open review modal
+			router.push({ pathname: "/bookings/[id]", params: { id: bookingId } });
+		},
+		[router],
+	);
+
 	if (isLoading || !user) {
 		return (
 			<Box padding="l">
@@ -239,70 +293,15 @@ export function ProfileTabs({
 		<ReviewCard review={item} />
 	);
 
-	const handleCancelBooking = useCallback(
-		async (bookingId: string, reason?: string) => {
-			try {
-				await cancelBookingMutation.mutateAsync({
-					params: {
-						path: { bookingId },
-						query: reason ? { reason } : undefined,
-					},
-				});
-				showToast({
-					type: "success",
-					message: "Booking cancelled",
-				});
-				bookingsQuery.refetch();
-			} catch (error: unknown) {
-				showToast({
-					type: "error",
-					message: getErrorMessage(error, "Failed to cancel booking"),
-				});
-			}
-		},
-		[cancelBookingMutation, bookingsQuery],
-	);
-
-	const handleRescheduleBooking = useCallback(
-		async (bookingId: string, newStartTime: Date) => {
-			try {
-				await rescheduleBookingMutation.mutateAsync({
-					params: { path: { bookingId } },
-					body: { startTs: newStartTime.toISOString() },
-				});
-				showToast({
-					type: "success",
-					message: "Booking rescheduled",
-				});
-				bookingsQuery.refetch();
-			} catch (error: unknown) {
-				showToast({
-					type: "error",
-					message: getErrorMessage(error, "Failed to reschedule booking"),
-				});
-			}
-		},
-		[rescheduleBookingMutation, bookingsQuery],
-	);
-
-	const handleReviewBooking = useCallback(
-		(bookingId: string) => {
-			// TODO: Navigate to review screen or open review modal
-			router.push({ pathname: "/bookings/[id]", params: { id: bookingId } });
-		},
-		[router],
-	);
-
 	const renderBookingItem = ({ item }: { item: Booking }) => (
 		<BookingCard
 			booking={item}
 			currentUserId={currentUserId}
-			isCliqueOwner={false} // User is viewing their own bookings, not managing clique bookings
+			isCliqueOwner={false}
 			cliqueCancellationCutoffHours={24}
 			onConfirm={undefined} // Users cannot confirm their own bookings
 			onCancel={handleCancelBooking}
 			onReschedule={handleRescheduleBooking}
-			onReview={handleReviewBooking}
 		/>
 	);
 

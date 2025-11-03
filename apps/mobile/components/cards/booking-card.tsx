@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@shopify/restyle";
 import { useState } from "react";
-import { Alert } from "react-native";
 import { CancelBookingModal } from "@/components/booking/cancel-booking-modal";
 import { ConfirmBookingModal } from "@/components/booking/confirm-booking-modal";
 import { RescheduleBookingModal } from "@/components/booking/reschedule-booking-modal";
+import { ReviewModal } from "@/components/booking/review-modal";
 import { Button } from "@/components/ui/button";
 import { Box, Card, Text } from "@/components/ui/restyle-components";
 import type { Theme } from "@/config/theme";
@@ -18,7 +18,6 @@ interface BookingCardProps {
 	onConfirm?: (bookingId: string) => void;
 	onCancel?: (bookingId: string, reason?: string) => void;
 	onReschedule?: (bookingId: string, newStartTime: Date) => void;
-	onReview?: (bookingId: string) => void;
 }
 
 function formatCurrency(valueMinor: number, currency: string) {
@@ -34,12 +33,12 @@ export function BookingCard({
 	onConfirm,
 	onCancel,
 	onReschedule,
-	onReview,
 }: BookingCardProps) {
 	const theme = useTheme<Theme>();
 	const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 	const [cancelModalVisible, setCancelModalVisible] = useState(false);
 	const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
+	const [reviewModalVisible, setReviewModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const startDate = new Date(booking.startTs);
@@ -129,15 +128,7 @@ export function BookingCard({
 	};
 
 	const handleReview = () => {
-		if (onReview) {
-			onReview(booking.id);
-		} else {
-			// Show placeholder toast for now
-			Alert.alert(
-				"Reviews Coming Soon",
-				"The review feature will be available in a future update.",
-			);
-		}
+		setReviewModalVisible(true);
 	};
 
 	return (
@@ -278,6 +269,12 @@ export function BookingCard({
 				onReschedule={handleReschedule}
 				booking={booking}
 				isLoading={isLoading}
+			/>
+
+			<ReviewModal
+				visible={reviewModalVisible}
+				onClose={() => setReviewModalVisible(false)}
+				booking={booking}
 			/>
 		</Card>
 	);

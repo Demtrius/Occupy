@@ -210,7 +210,7 @@ export default function CliqueDetailPage() {
 		[rescheduleBookingMutation, bookingsQuery],
 	);
 
-	const handleReviewBooking = useCallback(
+	const _handleReviewBooking = useCallback(
 		(bookingId: string) => {
 			// TODO: Navigate to review screen or open review modal
 			router.push({ pathname: "/bookings/[id]", params: { id: bookingId } });
@@ -307,7 +307,6 @@ export default function CliqueDetailPage() {
 						onConfirm={isOwner ? handleConfirmBooking : undefined}
 						onCancel={isOwner ? handleCancelBooking : undefined}
 						onReschedule={isOwner ? handleRescheduleBooking : undefined}
-						onReview={handleReviewBooking}
 					/>
 				);
 			case "posts":
@@ -390,7 +389,6 @@ export default function CliqueDetailPage() {
 		handleCancelBooking,
 		handleConfirmBooking,
 		handleRescheduleBooking,
-		handleReviewBooking,
 	]);
 
 	if (cliqueQuery.isLoading || !clique) {
