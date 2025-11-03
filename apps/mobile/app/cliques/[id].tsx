@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
+import { CreateCliqueModal } from "@/components/clique/create-clique-modal";
 import { CliqueAboutTab } from "@/components/clique/clique-about-tab";
 import { CliqueAvailabilityTab } from "@/components/clique/clique-availability-tab";
 import { CliqueBookingsTab } from "@/components/clique/clique-bookings-tab";
@@ -65,6 +66,7 @@ export default function CliqueDetailPage() {
 	const leaveMutation = useLeaveCliqueMutation();
 
 	const [activeTab, setActiveTab] = useState<CliqueTab>("about");
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
 	const currentUserId = meQuery.data?.id;
 	const isOwner = Boolean(
@@ -116,6 +118,21 @@ export default function CliqueDetailPage() {
 			});
 		}
 	}, [cliqueId, leaveMutation, cliqueQuery]);
+
+	const handleOpenEditModal = useCallback(() => {
+		setIsEditModalOpen(true);
+	}, []);
+
+	const handleCloseEditModal = useCallback(() => {
+		setIsEditModalOpen(false);
+	}, []);
+
+	const handleCliqueUpdated = useCallback(
+		(_updated: Clique) => {
+			cliqueQuery.refetch();
+		},
+		[cliqueQuery],
+	);
 
 	const tabs = useMemo(
 		() => [
@@ -306,6 +323,7 @@ export default function CliqueDetailPage() {
 					isLoadingAction={joinMutation.isPending || leaveMutation.isPending}
 					onJoin={handleJoin}
 					onLeave={handleLeave}
+					onEdit={handleOpenEditModal}
 				/>
 
 				<ScrollableTabs
@@ -323,6 +341,13 @@ export default function CliqueDetailPage() {
 					}
 				/>
 			)}
+			<CreateCliqueModal
+				visible={isEditModalOpen}
+				mode="edit"
+				clique={clique}
+				onClose={handleCloseEditModal}
+				onUpdated={handleCliqueUpdated}
+			/>
 		</Screen>
 	);
 }

@@ -1,8 +1,11 @@
 import { useTheme } from "@shopify/restyle";
 import { useRouter } from "expo-router";
-import { ActivityIndicator } from "react-native";
+import { Alert, ActivityIndicator } from "react-native";
 import { UserCard } from "@/components/cards/user-card";
 import { Box, Text } from "@/components/ui/restyle-components";
+import { Button } from "@/components/ui/button";
+import { useMeQuery } from "@/hooks/use-users";
+import { useDeleteCliqueMutation } from "@/hooks/use-cliques";
 import type { Theme } from "@/config/theme";
 import type { Clique, User } from "@/types";
 
@@ -14,6 +17,9 @@ interface CliqueAboutTabProps {
 export function CliqueAboutTab({ clique, owner }: CliqueAboutTabProps) {
 	const theme = useTheme<Theme>();
 	const router = useRouter();
+	const { data: currentUser } = useMeQuery();
+	const deleteCliqueMutation = useDeleteCliqueMutation();
+
 	const createdAt = new Date(clique.createdAt);
 	const createdLabel = Number.isNaN(createdAt.getTime())
 		? undefined
@@ -28,6 +34,37 @@ export function CliqueAboutTab({ clique, owner }: CliqueAboutTabProps) {
 			router.push(`/(tabs)/profile#userId=${owner.id}`);
 		}
 	};
+
+	const handleDeleteClique = () => {
+		Alert.alert(
+			"Delete Clique",
+			"Are you sure you want to delete this clique? This action cannot be undone.",
+			[
+				{
+					text: "Cancel",
+					style: "cancel",
+				},
+				{
+					text: "Delete",
+					style: "destructive",
+					onPress: () => {
+						deleteCliqueMutation.mutate(
+							{
+								params: { path: { cliqueId: clique.id } },
+							},
+							{
+								onSuccess: () => {
+									router.replace("/(tabs)/cliques");
+								},
+							},
+						);
+					},
+				},
+			],
+		);
+	};
+
+	const isOwner = currentUser?.id === clique.ownerUserId;
 
 	return (
 		<Box padding="m" gap="m">
@@ -63,6 +100,21 @@ export function CliqueAboutTab({ clique, owner }: CliqueAboutTabProps) {
 					</Text>
 				</Box>
 			) : null}
+
+			{isOwner && (
+				<Box>
+					<Text variant="subheader" marginBottom="s">
+						Danger Zone
+					</Text>
+					<Button
+						variant="primary"
+						onPress={handleDeleteClique}
+						disabled={deleteCliqueMutation.isPending}
+					>
+						{deleteCliqueMutation.isPending ? "Deleting..." : "Delete Clique"}
+					</Button>
+				</Box>
+			)}
 		</Box>
 	);
 }

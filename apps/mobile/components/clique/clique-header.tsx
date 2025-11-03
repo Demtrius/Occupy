@@ -16,6 +16,7 @@ interface CliqueHeaderProps {
 	isLoadingAction: boolean;
 	onJoin: () => void;
 	onLeave: () => void;
+	onEdit?: () => void;
 }
 
 export function CliqueHeader({
@@ -26,16 +27,25 @@ export function CliqueHeader({
 	isLoadingAction,
 	onJoin,
 	onLeave,
+	onEdit,
 }: CliqueHeaderProps) {
 	const theme = useTheme<Theme>();
 
 	const { label, variant, disabled, onPress } = useMemo(() => {
 		if (isOwner) {
+			if (!onEdit) {
+				return {
+					label: "",
+					variant: "secondary" as const,
+					disabled: true,
+					onPress: undefined,
+				};
+			}
 			return {
-				label: "",
+				label: "Edit Clique",
 				variant: "secondary" as const,
-				disabled: true,
-				onPress: undefined,
+				disabled: false,
+				onPress: onEdit,
 			};
 		}
 		switch (membershipStatus) {
@@ -61,7 +71,7 @@ export function CliqueHeader({
 					onPress: onJoin,
 				};
 		}
-	}, [isOwner, membershipStatus, isLoadingAction, onJoin, onLeave]);
+	}, [isOwner, membershipStatus, isLoadingAction, onEdit, onJoin, onLeave]);
 
 	return (
 		<Box padding="m" backgroundColor="background">
@@ -106,7 +116,7 @@ export function CliqueHeader({
 						</Text>
 					</Box>
 				</Box>
-				{!isOwner && label ? (
+				{label ? (
 					<Button
 						variant={variant}
 						onPress={onPress}

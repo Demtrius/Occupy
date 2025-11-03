@@ -11,19 +11,20 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.pagination import apply_datetime_cursor, slice_results
-from ..models.clique import Clique, CliqueInvite, CliqueMember
-from ..models.enums import MembershipStatus, Privacy, Role
-from ..models.service import Service
 from ..models.availability import Availability
 from ..models.booking import Booking
+from ..models.clique import Clique, CliqueInvite, CliqueMember
+from ..models.enums import MembershipStatus, Privacy, Role
 from ..models.post import Post
+from ..models.service import Service
+from ..models.user import Occupation
 from ..schemas.clique import Clique as CliqueSchema
 from ..schemas.clique import CliqueCreate, CliqueInviteCreate, CliqueUpdate
 
 
 async def _load_occupations(
     db: AsyncSession, occupation_ids: Iterable[UUID | str]
-) -> Sequence["Occupation"]:
+) -> Sequence[Occupation]:
     from ..models.user import Occupation
 
     if not occupation_ids:
@@ -54,9 +55,17 @@ async def create_clique(
     db.add(clique)
     await db.flush()
 
+    # Handle occupations relationship properly to avoid lazy loading issues
+    from ..models.user import CliqueOccupation
+    
     occupations = await _load_occupations(db, data.occupation_ids)
     for occupation in occupations:
-        clique.occupations.append(occupation)
+        # Create the association record directly
+        clique_occupation = CliqueOccupation(
+            clique_id=clique.id,
+            occupation_id=occupation.id
+        )
+        db.add(clique_occupation)
 
     owner_membership = CliqueMember(
         clique_id=clique.id,
@@ -104,16 +113,11 @@ async def get_clique_public(
     schema = hydrated[0] if hydrated else CliqueSchema.model_validate(clique)
 
     if clique.privacy == Privacy.PRIVATE and not is_owner_or_member:
-        return {
-            "id": str(clique.id),
-            "name": clique.name,
-            "description": clique.description,
-            "privacy": clique.privacy.value,
-            "imageUrl": clique.image_url,
-            "timezone": clique.timezone,
-            "membersCount": schema.members_count,
-            "membershipStatus": membership_status.value if membership_status else None,
-        }
+        # Create a limited schema for non-members of private cliques
+        limited_schema = CliqueSchema.model_validate(clique)
+        limited_schema.members_count = schema.members_count
+        limited_schema.membership_status = membership_status
+        return limited_schema.model_dump(mode="json", by_alias=True)
 
     schema.membership_status = membership_status
     return schema.model_dump(mode="json", by_alias=True)
@@ -136,7 +140,16 @@ async def join_clique(
         )
         if not invite:
             raise ValueError("Invite token invalid")
-        if invite.expires_at and invite.expires_at < _now():
+        # Check expiration using database comparison
+        if invite.expires_at:
+            expired_invite = await db.scalar(
+                select(CliqueInvite).where(
+                    CliqueInvite.id == invite.id,
+                    CliqueInvite.expires_at < func.now()
+                )
+            )
+            if expired_invite:
+                raise ValueError("Invite token expired")
             raise ValueError("Invite token expired")
         if invite.max_uses is not None and invite.uses >= invite.max_uses:
             raise ValueError("Invite token exhausted")
@@ -232,14 +245,21 @@ async def get_feed_posts(
     if not followed_clique_ids:
         return [], None
 
-    stmt = select(Post).where(
+    from sqlalchemy.orm import selectinload
+    
+    stmt = select(Post).options(
+        selectinload(Post.author),
+        selectinload(Post.clique),
+        selectinload(Post.media),
+        selectinload(Post.comments),
+    ).where(
         Post.clique_id.in_(followed_clique_ids),
         Post.status == PostStatus.POSTED,
         Post.deleted_at.is_(None),
     )
     stmt = apply_datetime_cursor(stmt, Post, cursor, limit)
     result = await db.execute(stmt)
-    rows = result.scalars().all()
+    rows = result.scalars().unique().all()
     return slice_results(rows, limit)
 
 

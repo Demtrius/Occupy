@@ -23,6 +23,7 @@ export default function Page() {
 	const [filter, setFilter] = useState<CliquesFilter>("all");
 	const router = useRouter();
 	const { data: currentUser } = useMeQuery();
+	const currentUserId = currentUser?.id;
 
 	const allCliquesQuery = useListCliquesQuery();
 	const myCliquesQuery = useListUserCliquesQuery(
@@ -52,16 +53,32 @@ export default function Page() {
 		fetchNextPage();
 	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+	const sortedCliques = useMemo(() => {
+		if (filter !== "my") {
+			return cliques;
+		}
+		if (!currentUserId) {
+			return cliques;
+		}
+		return [...cliques].sort((a, b) => {
+			const aOwned = a.ownerUserId === currentUserId;
+			const bOwned = b.ownerUserId === currentUserId;
+			if (aOwned === bOwned) return 0;
+			return aOwned ? -1 : 1;
+		});
+	}, [cliques, currentUserId, filter]);
+
 	const renderItem = useCallback(
 		({ item }: { item: Clique }) => (
 			<CliqueCard
 				clique={item}
+				isOwned={item.ownerUserId === currentUserId}
 				onPress={() =>
 					router.push({ pathname: "/cliques/[id]", params: { id: item.id } })
 				}
 			/>
 		),
-		[router],
+		[currentUserId, router],
 	);
 
 	const keyExtractor = useCallback((item: Clique) => item.id, []);
@@ -104,7 +121,7 @@ export default function Page() {
 		<Screen>
 			<TabsHeader tabs={tabs} activeTab={filter} onTabChange={setFilter} />
 			<FlatList
-				data={cliques}
+				data={sortedCliques}
 				keyExtractor={keyExtractor}
 				renderItem={renderItem}
 				onEndReached={handleLoadMore}
@@ -114,7 +131,7 @@ export default function Page() {
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{
 					padding: theme.spacing.s,
-					flexGrow: cliques.length === 0 ? 1 : undefined,
+					flexGrow: sortedCliques.length === 0 ? 1 : undefined,
 				}}
 				ListEmptyComponent={listEmptyComponent}
 				ListFooterComponent={listFooterComponent}

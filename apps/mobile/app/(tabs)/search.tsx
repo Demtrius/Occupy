@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
+import { useMeQuery } from "@/hooks";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useSearchQuery } from "@/hooks/use-search";
 import type { SearchResult } from "@/types";
@@ -13,6 +14,8 @@ import type { SearchResult } from "@/types";
 export default function Page() {
 	const [query, setQuery] = useState("");
 	const debouncedQuery = useDebounce(query, 300);
+	const { data: currentUser } = useMeQuery();
+	const currentUserId = currentUser?.id;
 
 	const { data, isLoading } = useSearchQuery(
 		debouncedQuery,
@@ -87,7 +90,11 @@ export default function Page() {
 										Cliques
 									</Text>
 									{results.cliques.map((clique) => (
-										<CliqueCard key={clique.id} clique={clique} />
+										<CliqueCard
+											key={clique.id}
+											clique={clique}
+											isOwned={clique.ownerUserId === currentUserId}
+										/>
 									))}
 								</Box>
 							)}

@@ -3,7 +3,9 @@ import {
 	KeyboardAvoidingView,
 	Modal,
 	Platform,
+	ScrollView,
 	TouchableWithoutFeedback,
+	useWindowDimensions,
 } from "react-native";
 import { Box, Text } from "./restyle-components";
 
@@ -24,6 +26,9 @@ export function AppModal({
 	footer,
 	dismissOnBackdropPress = true,
 }: AppModalProps) {
+	const { height: screenHeight } = useWindowDimensions();
+	const modalMaxHeight = screenHeight * 0.85;
+
 	const handleBackdropPress = () => {
 		if (dismissOnBackdropPress) {
 			onClose();
@@ -60,6 +65,7 @@ export function AppModal({
 								shadowRadius={24}
 								elevation={12}
 								alignSelf={"stretch"}
+								maxHeight={modalMaxHeight}
 								style={{
 									shadowColor: "#000000",
 								}}
@@ -69,7 +75,9 @@ export function AppModal({
 										{title}
 									</Text>
 								) : null}
-								<Box flexShrink={1}>{children}</Box>
+								<ScrollView showsVerticalScrollIndicator={false}>
+									<Box flexShrink={1}>{children}</Box>
+								</ScrollView>
 								{footer ? (
 									<Box marginTop="s" gap="s">
 										{footer}

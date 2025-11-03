@@ -1,12 +1,14 @@
 import { useTheme } from "@shopify/restyle";
 import { useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, FlatList } from "react-native";
 import { BookingCard } from "@/components/cards/booking-card";
 import { CliqueCard } from "@/components/cards/clique-card";
 import { PostCard } from "@/components/cards/post-card";
 import { ReviewCard } from "@/components/cards/review-card";
+import { CreateCliqueModal } from "@/components/clique/create-clique-modal";
 import { CreatePostModal } from "@/components/clique/create-post-modal";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Box, Text } from "@/components/ui/restyle-components";
 import { TabsHeader } from "@/components/ui/tabs-header";
@@ -52,6 +54,7 @@ export function ProfileTabs({
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [modalMode, setModalMode] = useState<"create" | "edit">("create");
 	const [editingPost, setEditingPost] = useState<Post | null>(null);
+	const [isCliqueModalOpen, setIsCliqueModalOpen] = useState(false);
 
 	const postsQuery = useListUserPostsQuery(
 		user?.id,
@@ -70,6 +73,20 @@ export function ProfileTabs({
 	);
 
 	const { data } = useFollowStatusQuery(user?.id);
+
+	const sortedCliques = useMemo(() => {
+		const items = cliquesQuery.items ?? [];
+		const ownerId = user?.id;
+		if (!ownerId) {
+			return items;
+		}
+		return [...items].sort((a, b) => {
+			const aOwned = a.ownerUserId === ownerId;
+			const bOwned = b.ownerUserId === ownerId;
+			if (aOwned === bOwned) return 0;
+			return aOwned ? -1 : 1;
+		});
+	}, [cliquesQuery.items, user?.id]);
 
 	const confirmDelete = useCallback(
 		(post: Post) => {
@@ -137,6 +154,21 @@ export function ProfileTabs({
 		[postsQuery],
 	);
 
+	const handleOpenCliqueModal = useCallback(() => {
+		setIsCliqueModalOpen(true);
+	}, []);
+
+	const handleCloseCliqueModal = useCallback(() => {
+		setIsCliqueModalOpen(false);
+	}, []);
+
+	const handleCliqueCreated = useCallback(
+		(_clique: Clique) => {
+			cliquesQuery.refetch();
+		},
+		[cliquesQuery],
+	);
+
 	if (isLoading || !user) {
 		return (
 			<Box padding="l">
@@ -191,8 +223,12 @@ export function ProfileTabs({
 		/>
 	);
 
-	const renderCliqueItem = ({ item }: { item: Clique }) => (
-		<CliqueCard clique={item} onPress={() => handleNavigateToClique(item.id)} />
+	const renderOwnedAwareCliqueItem = ({ item }: { item: Clique }) => (
+		<CliqueCard
+			clique={item}
+			onPress={() => handleNavigateToClique(item.id)}
+			isOwned={item.ownerUserId === currentUserId}
+		/>
 	);
 
 	const renderReviewItem = ({ item }: { item: Review }) => (
@@ -318,12 +354,11 @@ export function ProfileTabs({
 					);
 				}
 
-				const cliques = cliquesQuery.items;
 				return (
 					<FlatList
 						key="tab-cliques"
-						data={cliques}
-						renderItem={renderCliqueItem}
+						data={sortedCliques}
+						renderItem={renderOwnedAwareCliqueItem}
 						keyExtractor={(item) => item.id}
 						onEndReached={
 							cliquesQuery.hasNextPage
@@ -340,9 +375,24 @@ export function ProfileTabs({
 						showsVerticalScrollIndicator={false}
 						contentContainerStyle={{
 							padding: theme.spacing.s,
-							flexGrow: cliques.length === 0 ? 1 : undefined,
+							flexGrow: sortedCliques.length === 0 ? 1 : undefined,
 						}}
-						ListEmptyComponent={<EmptyState message="No cliques yet" />}
+						ListHeaderComponent={
+							isOwnProfile ? (
+								<Box marginBottom="m">
+									<Button variant="primary" onPress={handleOpenCliqueModal}>
+										Create Clique
+									</Button>
+								</Box>
+							) : null
+						}
+						ListEmptyComponent={
+							<EmptyState
+								message={
+									isOwnProfile ? "No cliques yet" : "No cliques to display"
+								}
+							/>
+						}
 						ListFooterComponent={renderListFooter(
 							Boolean(cliquesQuery.isFetchingNextPage),
 						)}
@@ -483,6 +533,14 @@ export function ProfileTabs({
 				onTabChange={setActiveTab}
 			/>
 			<Box flex={1}>{renderTabContent()}</Box>
+			{isOwnProfile ? (
+				<CreateCliqueModal
+					visible={isCliqueModalOpen}
+					mode="create"
+					onClose={handleCloseCliqueModal}
+					onCreated={handleCliqueCreated}
+				/>
+			) : null}
 			{editingPost?.cliqueId ? (
 				<CreatePostModal
 					visible={isModalOpen}

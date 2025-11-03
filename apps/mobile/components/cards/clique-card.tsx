@@ -9,9 +9,14 @@ import type { Clique } from "@/types";
 interface CliqueCardProps {
 	clique: Clique;
 	onPress?: () => void;
+	isOwned?: boolean;
 }
 
-export function CliqueCard({ clique, onPress }: CliqueCardProps) {
+export function CliqueCard({
+	clique,
+	onPress,
+	isOwned = false,
+}: CliqueCardProps) {
 	const theme = useTheme<Theme>();
 	const memberCount = clique.membersCount ?? 0;
 	const memberLabel = memberCount === 1 ? "member" : "members";
@@ -35,9 +40,34 @@ export function CliqueCard({ clique, onPress }: CliqueCardProps) {
 						source={clique.imageUrl ? { uri: clique.imageUrl } : undefined}
 					/>
 					<Box marginLeft="s" flex={1}>
-						<Text variant="body" fontWeight="600" numberOfLines={1}>
-							{clique.name}
-						</Text>
+						<Box
+							flexDirection="row"
+							alignItems="center"
+							justifyContent="space-between"
+						>
+							<Box flexShrink={1}>
+								<Text variant="body" fontWeight="600" numberOfLines={1}>
+									{clique.name}
+								</Text>
+							</Box>
+							{isOwned ? (
+								<Box
+									marginLeft="xs"
+									paddingHorizontal="s"
+									paddingVertical="xs"
+									backgroundColor="primary"
+									borderRadius="s"
+								>
+									<Text
+										variant="caption"
+										color="primary-foreground"
+										fontWeight="600"
+									>
+										Owned
+									</Text>
+								</Box>
+							) : null}
+						</Box>
 						<Box flexDirection="row" alignItems="center">
 							<Ionicons
 								name={
