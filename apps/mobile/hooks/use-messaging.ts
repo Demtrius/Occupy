@@ -10,11 +10,28 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { components, operations } from "@/types/generated";
 
 type Message = components["schemas"]["Message"];
+type Chat = components["schemas"]["Chat"];
 
 type SendMessageVariables = RequestOptions<
 	operations["MessagesCreateByChatId"]
 >;
 type DeleteMessageVariables = RequestOptions<operations["MessagesDeleteById"]>;
+type CreateChatVariables = RequestOptions<operations["CreateChat"]>;
+
+export function useCreateChatMutation() {
+	const queryClient = useQueryClient();
+	const { tokens } = useAuthStore();
+	return useMutation<Chat, unknown, CreateChatVariables>({
+		mutationFn: async (variables) =>
+			ensureData(await $api.POST("/api/v1/chats", variables)),
+		onSuccess: () => {
+			// Invalidate chat list to refresh the chats
+			queryClient.invalidateQueries({
+				queryKey: ["messages", "chats", tokens?.accessToken],
+			});
+		},
+	});
+}
 
 export function useListChatsQuery() {
 	const { tokens } = useAuthStore();

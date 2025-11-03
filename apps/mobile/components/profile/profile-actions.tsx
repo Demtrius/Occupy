@@ -7,8 +7,10 @@ import type { Theme } from "@/config/theme";
 import {
 	useFollowMutation,
 	useFollowStatusQuery,
+	useMeQuery,
 	useUnfollowUserMutation,
 } from "@/hooks";
+import { useCreateChatMutation } from "@/hooks/use-messaging";
 import { getErrorMessage } from "@/lib/error-utils";
 import { showToast } from "@/stores/toast-store";
 import type { User } from "@/types";
@@ -26,8 +28,10 @@ export function ProfileActions({
 }: ProfileActionsProps) {
 	const router = useRouter();
 	const theme = useTheme<Theme>();
+	const { data: currentUser } = useMeQuery();
 	const followMutation = useFollowMutation();
 	const unfollowMutation = useUnfollowUserMutation();
+	const createChatMutation = useCreateChatMutation();
 	const { data } = useFollowStatusQuery(user?.id);
 
 	if (isLoading || !user) {
@@ -59,7 +63,7 @@ export function ProfileActions({
 		);
 	}
 
-	// Other user's profile: Follow/Unfollow button
+	// Other user's profile: Follow/Unfollow and Message buttons
 	const handleFollowPress = async () => {
 		if (!user?.id) return;
 		try {
@@ -92,8 +96,32 @@ export function ProfileActions({
 		}
 	};
 
+	const handleMessagePress = async () => {
+		if (!user?.id || !currentUser?.id) return;
+		try {
+			const chat = await createChatMutation.mutateAsync({
+				body: {
+					businessUserId: currentUser.id,
+					clientUserId: user.id,
+				},
+			});
+			showToast({
+				type: "success",
+				message: "Chat opened",
+			});
+			router.push(`/chat/${chat.id}`);
+		} catch (error: unknown) {
+			showToast({
+				type: "error",
+				message: getErrorMessage(error, "Failed to create chat"),
+			});
+		}
+	};
+
 	const isMutationPending =
-		followMutation.isPending || unfollowMutation.isPending;
+		followMutation.isPending ||
+		unfollowMutation.isPending ||
+		createChatMutation.isPending;
 
 	const buttonLabel = (() => {
 		if (isMutationPending) return "Loading...";
@@ -103,9 +131,22 @@ export function ProfileActions({
 	})();
 
 	return (
-		<Box paddingHorizontal="l" marginBottom="l">
-			<Button onPress={handleFollowPress} disabled={isMutationPending}>
-				{buttonLabel}
+		<Box flexDirection="row" paddingHorizontal="l" marginBottom="l" gap="s">
+			<Box flex={1}>
+				<Button onPress={handleFollowPress} disabled={isMutationPending}>
+					{buttonLabel}
+				</Button>
+			</Box>
+			<Button
+				variant="icon"
+				onPress={handleMessagePress}
+				disabled={isMutationPending}
+			>
+				<Ionicons
+					name="mail-outline"
+					size={24}
+					color={theme.colors["primary-foreground"]}
+				/>
 			</Button>
 		</Box>
 	);
