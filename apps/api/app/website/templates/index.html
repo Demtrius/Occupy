@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Occupy - Grow your business. Stay connected.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-200 text-gray-900 overflow-x-hidden">
+    <!-- Header/Hero Section -->
+    <section class="container mx-auto px-6 py-16 lg:py-24">
+      <div class="grid lg:grid-cols-[2fr,1fr] gap-12 items-center">
+        <div class="order-2 lg:order-1">
+          <h1
+            class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6"
+          >
+            <span class="inline-block"
+              >Grow your Business and stay connected.</span
+            >
+          </h1>
+          <p class="text-lg md:text-xl text-gray-600 leading-relaxed mb-8">
+            Occupy helps small business owners showcase their work, manage
+            clients and build community — all in one place.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="{{ request.url_for('beta_application') }}"
+              class="group inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden"
+            >
+              <span class="relative z-10">Apply for Beta Testing</span>
+              <div
+                class="absolute inset-0 bg-blue-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
+              ></div>
+            </a>
+          </div>
+        </div>
+        <div class="order-1 lg:order-2 flex justify-center lg:justify-end">
+          <div>
+            <img
+              src="{{ request.url_for('static', path='website/images/hero-phone.png') }}"
+              alt="Occupy App"
+              class="max-w-full h-auto rounded-lg shadow-xl"
+              style="max-height: 500px"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- "Running your own business is tough" Section -->
+    <section class="bg-gray-300 py-16 lg:py-24">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+            Running your own business is tough.
+          </h2>
+          <div class="space-y-4 text-lg text-gray-600 text-left">
+            <p>
+              You're juggling clients, marketing, finances, and trying to find
+              time to actually do the work you love. Social media algorithms
+              work against you, making it hard to reach your audience
+              consistently.
+            </p>
+            <p>
+              You need a simple way to showcase what you do, connect with
+              customers, and grow without getting lost in the noise.
+            </p>
+          </div>
+        </div>
+
+        <!-- Three-icon feature list -->
+        <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div class="text-center bg-white p-6 rounded-xl shadow-md">
+            <div
+              class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-8 h-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              Showcase your work
+            </h3>
+          </div>
+          <div class="text-center bg-white p-6 rounded-xl shadow-md">
+            <div
+              class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-8 h-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              Connect with clients
+            </h3>
+          </div>
+          <div class="text-center bg-white p-6 rounded-xl shadow-md">
+            <div
+              class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <svg
+                class="w-8 h-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              Grow your business
+            </h3>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- "How Occupy works" Section -->
+    <section class="py-16 lg:py-24">
+      <div class="container mx-auto px-6">
+        <h2
+          class="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12"
+        >
+          How Occupy works
+        </h2>
+
+        <div
+          class="grid lg:grid-cols-4 grid-cols-2 max-sm:grid-cols-1 gap-12 max-w-6xl mx-auto"
+        >
+          <!-- Column 1 -->
+          <div class="text-center">
+            <div class="relative overflow-hidden rounded-lg shadow-lg mb-6">
+              <img
+                src="{{ request.url_for('static', path='website/images/works-profile.png') }}"
+                alt="Business Profile"
+                class="w-full max-w-xs mx-auto rounded-lg"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
+              ></div>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+              Your business profile
+            </h3>
+            <p class="text-gray-600">
+              Create a beautiful profile that showcases your work — no
+              algorithms, just clients.
+            </p>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="text-center">
+            <div class="relative overflow-hidden rounded-lg shadow-lg mb-6">
+              <img
+                src="{{ request.url_for('static', path='website/images/works-post.png') }}"
+                alt="Share Updates"
+                class="w-full max-w-xs mx-auto rounded-lg"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
+              ></div>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+              Create clique
+            </h3>
+            <p class="text-gray-600">
+              A clique is space for you to showcase your work and connect with
+              clients all in one place
+            </p>
+          </div>
+
+          <!-- Column 3 -->
+          <div class="text-center">
+            <div class="relative overflow-hidden rounded-lg shadow-lg mb-6">
+              <img
+                src="{{ request.url_for('static', path='website/images/works-availability.png') }}"
+                alt="Direct Communication"
+                class="w-full max-w-xs mx-auto rounded-lg"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
+              ></div>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">
+              Availability and bookings
+            </h3>
+            <p class="text-gray-600">
+              Have your clients book you and your availability in one space
+            </p>
+          </div>
+
+          <!-- Column 4 -->
+          <div class="text-center">
+            <div class="relative overflow-hidden rounded-lg shadow-lg mb-6">
+              <img
+                src="{{ request.url_for('static', path='website/images/works-reviews.png') }}"
+                alt="Business Profile"
+                class="w-full max-w-xs mx-auto rounded-lg"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
+              ></div>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">Reviews</h3>
+            <p class="text-gray-600">
+              Let your clients review you! And let everyone how good your
+              business is
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section class="py-16 lg:py-24 bg-gray-100">
+      <div class="container mx-auto px-6 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+          We Value Your Feedback
+        </h2>
+        <p class="text-lg text-gray-600 mb-8">
+          Help us improve Occupy by sharing your thoughts.
+        </p>
+        <a
+          href="{{ request.url_for('feedback') }}"
+          class="group inline-flex items-center justify-center px-8 py-4 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden"
+        >
+          <span class="relative z-10">Give Feedback</span>
+          <div
+            class="absolute inset-0 bg-gray-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
+          ></div>
+        </a>
+      </div>
+    </section>
+
+    <!-- "Real businesses already using Occupy" Section -->
+    <!-- <section class="bg-blue-50 py-16 lg:py-24">
+      <div class="container mx-auto px-6">
+        <h2
+          class="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-16"
+        >
+          Real businesses already using Occupy
+        </h2>
+
+        <div class="max-w-4xl mx-auto">
+          <div
+            class="bg-white rounded-lg shadow-lg p-8 md:p-12"
+          >
+            <div
+              class="flex flex-col md:flex-row items-center md:items-start gap-8"
+            >
+              <div class="flex-1">
+                <blockquote
+                  class="text-2xl md:text-3xl font-medium text-gray-900 mb-6"
+                >
+                  "Finally, something made for small business owners!"
+                </blockquote>
+                <p class="text-gray-600 text-lg">
+                  Occupy has completely changed how I connect with my clients.
+                  No more fighting with algorithms or worrying about my posts
+                  being seen. My customers can find me easily, book services,
+                  and stay updated on my latest work.
+                </p>
+              </div>
+              <div class="flex-shrink-0">
+                <img
+                  src="{{ request.url_for('static', path='website/images/testimonial-1.jpg') }}"
+                  alt="Sarah Johnson"
+                  class="w-24 h-24 rounded-full object-cover shadow-lg"
+                />
+                <p class="text-center mt-3 font-semibold text-gray-900">
+                  Sarah Johnson
+                </p>
+                <p class="text-center text-gray-600 text-sm">Salon Owner</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <!-- Footer -->
+    <!-- <footer class="bg-gray-900 text-white py-12">
+      <div class="container mx-auto px-6 text-center">
+        <p class="text-lg mb-2">
+          Ready to grow your business?
+        </p>
+        <p
+          class="text-gray-400"
+        >
+          Join thousands of small business owners on Occupy
+        </p>
+      </div>
+    </footer> -->
+  </body>
+</html>

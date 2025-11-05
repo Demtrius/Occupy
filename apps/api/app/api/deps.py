@@ -6,7 +6,8 @@ from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.auth import get_current_user, get_db, security
+from ..core.auth import get_current_user, security
+from ..db.session import get_db
 from ..core.errors import Forbidden, NotFound, Unauthorized
 from ..models.clique import Clique, CliqueMember
 from ..models.enums import FollowStatus, MembershipStatus

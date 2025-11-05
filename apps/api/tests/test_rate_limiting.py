@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 from fastapi import Request
+from starlette.routing import Route
 
 from app.core.limiter import limiter
 from app.main import app
@@ -26,5 +27,7 @@ async def test_rate_limiting_triggers(enable_rate_limits, client):
         assert second.json()["detail"].startswith("1 per")
     finally:
         app.router.routes = [
-            route for route in app.router.routes if route.endpoint is not limited
+            route
+            for route in app.router.routes
+            if not (isinstance(route, Route) and route.endpoint is limited)
         ]

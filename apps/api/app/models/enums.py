@@ -56,3 +56,11 @@ class NotificationType(str, Enum):
     REVIEW = "review"
     SYSTEM = "system"
     MESSAGE = "message"
+
+
+class FeedbackType(str, Enum):
+    BETA_APPLICATION = "beta_application"
+    GENERAL_FEEDBACK = "general_feedback"
+    BUG_REPORT = "bug_report"
+    FEATURE_REQUEST = "feature_request"
+    OTHER = "other"

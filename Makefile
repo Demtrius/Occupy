@@ -111,6 +111,9 @@ seed:
 clear:
 	@cd $(API_DIR) && poetry run python -m app.scripts.clear
 
+superuser:
+	@cd $(API_DIR) && poetry run python -m app.scripts.create_superuser
+
 api-shell:
 	docker compose -f $(COMPOSE_DEV) exec api bash
 
@@ -145,10 +148,6 @@ test:
 	# Python tests
 	cd $(API_DIR) && poetry run pytest -q
 
-# -------- Types (OpenAPI) --------
-.PHONY: gen-types
-gen-types:
-	pnpm -F @occupy/types run generate
 
 # -------- Prod Stack --------
 .PHONY: up-prod down-prod migrate-prod logs-prod

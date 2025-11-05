@@ -256,13 +256,10 @@ async def app_fixture(
 ) -> AsyncGenerator:
     _configure_environment(database_url, redis_container, minio_container)
     from app import main as app_module
-    from app.core import auth as auth_core
+    from app.db import session as db_session_module
 
-    app_module.engine = engine
-    app_module.async_session = async_session_maker
-    app_module.auth_sessionmaker = async_session_maker
-    app_module.deps_sessionmaker = async_session_maker
-    auth_core.sessionmaker = async_session_maker
+    db_session_module.engine = engine
+    db_session_module.async_session_maker = async_session_maker
 
     yield app_module.app
 

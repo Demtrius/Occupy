@@ -9,8 +9,9 @@ from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from redis.exceptions import RedisError
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..db.session import get_db
 from ..models.user import User
 from .errors import Forbidden, Unauthorized
 from .redis import get_redis_client
@@ -28,15 +29,6 @@ REFRESH_TOKEN_EXPIRE_DAYS = 7
 REFRESH_TOKEN_PREFIX = "auth:refresh"
 
 password_hasher = PasswordHasher()
-
-sessionmaker: async_sessionmaker[AsyncSession] | None = None
-
-
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    if sessionmaker is None:
-        raise RuntimeError("Database sessionmaker not initialized")
-    async with sessionmaker() as session:
-        yield session
 
 
 def hash_password(password: str) -> str:

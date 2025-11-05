@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thank You - Occupy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .nav-link {
+        position: relative;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #3b82f6;
+        transition: width 0.3s ease;
+      }
+
+      .nav-link:hover::after {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body class="bg-white text-gray-900 overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-100">
+      <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <a
+            href="{{ request.url_for('home') }}"
+            class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-300"
+          >
+            Occupy
+          </a>
+          <a
+            href="{{ request.url_for('home') }}"
+            class="nav-link text-gray-600 hover:text-gray-900 transition-colors duration-200"
+          >
+            ← Back to Home
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-h-screen bg-gray-50 py-16 lg:py-24">
+      <div class="container mx-auto px-6">
+        <div class="max-w-2xl mx-auto text-center">
+          <!-- Success Icon -->
+          <div class="mb-8">
+            <div
+              class="w-24 h-24 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-lg"
+            >
+              <svg
+                class="w-12 h-12 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" stroke-width="2" fill="none" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="3"
+                  d="M8 12l2 2 4-4"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Header -->
+          <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            Thank You!
+          </h1>
+
+          <p class="text-lg text-gray-600 leading-relaxed mb-12">
+            Your application has been received. We'll be in touch soon.
+          </p>
+
+          <!-- Call to Action -->
+          <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+              What's Next?
+            </h2>
+            <p class="text-gray-600 mb-8">
+              Our team will review your application and contact you within 24-48
+              hours with next steps for joining our beta program.
+            </p>
+
+            <div class="space-y-4">
+              <div class="flex items-center space-x-3 text-left">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <p class="text-gray-700">Review of your application</p>
+              </div>
+              <div class="flex items-center space-x-3 text-left">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <p class="text-gray-700">Email response within 24-48 hours</p>
+              </div>
+              <div class="flex items-center space-x-3 text-left">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+                >
+                  <svg
+                    class="w-4 h-4 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <p class="text-gray-700">Access to beta testing platform</p>
+              </div>
+            </div>
+
+            <a
+              href="{{ request.url_for('home') }}"
+              class="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-8"
+            >
+              Return to Homepage
+            </a>
+          </div>
+
+          <!-- Additional Info -->
+          <div class="mt-12">
+            <div class="bg-blue-50 rounded-xl p-6 inline-block">
+              <p class="text-gray-700 text-sm">
+                <span class="inline-block">📧</span>
+                Have questions? Feel free to reach out to us at
+                <a
+                  href="mailto:beta@occupy.com"
+                  class="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  beta@occupy.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <!-- <footer class="bg-gray-900 text-white py-12">
+      <div class="container mx-auto px-6 text-center">
+        <p class="text-lg mb-2">
+          Ready to grow your business?
+        </p>
+        <p class="text-gray-400">
+          Join thousands of small business owners on Occupy
+        </p>
+      </div>
+    </footer> -->
+  </body>
+</html>

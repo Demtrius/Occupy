@@ -7,10 +7,14 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.staticfiles import StaticFiles
 from slowapi.middleware import SlowAPIMiddleware
+from sqladmin import Admin
+from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from .admin_auth import authentication_backend
+from .admin_views import FeedbackAdmin, UserAdmin
 from .api.routes.auth import router as auth_router
 from .api.routes.availability import router as availability_router
 from .api.routes.bookings import router as bookings_router
@@ -39,17 +43,12 @@ from .core.errors import (
     validation_error_handler,
 )
 from .core.limiter import limiter
-
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/clique"
-)
-engine = create_async_engine(DATABASE_URL)
-async_session = async_sessionmaker(engine, expire_on_commit=False)
+from .website.router import router as website_router
+from .db.session import async_session_maker, engine
+from .db.session import async_session_maker, engine
 
 # Set sessionmaker
-auth_sessionmaker = async_session
-deps_sessionmaker = async_session
-auth.sessionmaker = async_session
+auth.sessionmaker = async_session_maker
 
 # Configure Dramatiq with Redis broker
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
@@ -112,6 +111,10 @@ app.openapi_tags = [
 ]
 
 # CORS
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("JWT_SECRET", "a-secret"),
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -204,7 +207,11 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
+# Static files
+app.mount("/static", StaticFiles(directory="app/website/static"), name="static")
+
 # Routers
+app.include_router(website_router)
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(follows_router)
@@ -241,3 +248,8 @@ async def health() -> dict[str, str]:
 
 
 app.include_router(health_router)
+
+
+admin = Admin(app, engine, authentication_backend=authentication_backend)
+admin.add_view(UserAdmin)
+admin.add_view(FeedbackAdmin)

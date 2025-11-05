@@ -31,6 +31,11 @@ from .clique import (
     CliqueMember,
     CliqueUpdate,
 )
+from .feedback import (
+    FeedbackBase,
+    FeedbackCreate,
+    FeedbackRead,
+)
 from .notification import (
     Notification,
     NotificationBase,
@@ -103,6 +108,9 @@ __all__ = [
     "CliqueInviteCreate",
     "CliqueMember",
     "CliqueUpdate",
+    "FeedbackBase",
+    "FeedbackCreate",
+    "FeedbackRead",
     "Message",
     "MessageBase",
     "MessageCreate",

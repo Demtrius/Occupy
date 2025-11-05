@@ -6,6 +6,7 @@ from .enums import (
     BookingStatus,
     CancelledBy,
     ContentFormat,
+    FeedbackType,
     FollowStatus,
     MembershipStatus,
     NotificationType,
@@ -13,6 +14,7 @@ from .enums import (
     Privacy,
     Role,
 )
+from .feedback import Feedback
 from .media import Media
 from .notification import Notification
 from .post import Comment, Post, PostLike, PostMedia
@@ -32,6 +34,8 @@ __all__ = [
     "CliqueOccupation",
     "Comment",
     "ContentFormat",
+    "Feedback",
+    "FeedbackType",
     "Follow",
     "FollowStatus",
     "Media",

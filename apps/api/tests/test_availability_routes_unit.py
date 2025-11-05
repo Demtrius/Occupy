@@ -69,10 +69,12 @@ async def test_list_clique_availability_success(db_session):
 
     results = await availability_routes.list_clique_availability(
         clique.id,
+        cursor=None,
+        limit=10,
         db=db_session,
         current_user=owner,
     )
-    assert len(results) == 1
+    assert len(results.items) == 1
 
 
 @pytest.mark.asyncio
