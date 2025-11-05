@@ -31,11 +31,7 @@ export function handleResponseError(
 	});
 
 	// Auto-logout on authentication failures
-	if (
-		code === "invalid_refresh_token" ||
-		(code === "http_error" &&
-			response?.data?.error?.message?.includes("Invalid refresh token"))
-	) {
+	if (response?.status === 401) {
 		const { clear } = useAuthStore.getState();
 		clear(); // Clear invalid tokens
 		// Import router dynamically to avoid circular dependency
