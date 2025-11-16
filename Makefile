@@ -152,10 +152,10 @@ test:
 # -------- Prod Stack --------
 .PHONY: up-prod down-prod migrate-prod logs-prod
 up-prod:
-	docker compose -f $(COMPOSE_PROD) up --build -d
+	docker compose --env-file apps/api/.env.production  -f $(COMPOSE_PROD) up --build -d
 
 down-prod:
-	docker compose -f $(COMPOSE_PROD) down
+	docker compose --env-file apps/api/.env.production  -f $(COMPOSE_PROD) down
 
 migrate-prod:
 	docker compose -f $(COMPOSE_PROD) exec api alembic upgrade head
