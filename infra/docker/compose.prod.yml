@@ -22,7 +22,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
     restart: unless-stopped
     networks: [internal]
 
