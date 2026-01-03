@@ -183,13 +183,13 @@ async def seed() -> None:
         # Clique templates for seed data
         clique_templates = [
             {
-                "name": "Sweet Delights Bakery",
-                "description": "Hand-crafted pastries, custom cakes, and weekend baking classes.",
-                "image_url": "https://images.unsplash.com/photo-1546793665-c74683f339c1",
-                "occupations": ["Chef", "Baker", "Event Planner"],
+                "name": "Kkutz",
+                "description": "new slots every friday",
+                "image_url": "https://www.positive.news/wp-content/uploads/2023/01/iStock-1441549388-min-1800x0-c-center.jpg",
+                "occupations": ["Barber"],
             },
             {
-                "name": "Luxe Lounge Salon",
+                "name": "Lucys Lounge Salon",
                 "description": "Full-service salon offering color, styling, and bridal looks.",
                 "image_url": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
                 "occupations": [
@@ -199,17 +199,16 @@ async def seed() -> None:
                 ],
             },
             {
-                "name": "Peak Performance Coaching",
+                "name": "Peak Performance Coaching by Mia",
                 "description": "Personal training plans, nutrition guidance, and accountability sessions.",
                 "image_url": "https://images.unsplash.com/photo-1546483875-ad9014c88eba",
                 "occupations": [
                     "Personal Trainer",
-                    "Nutritionist",
-                    "Marketing Specialist",
+                    "Nutritionist"
                 ],
             },
             {
-                "name": "Pixel Perfect Studio",
+                "name": "Cindys Pixel Perfect Studio",
                 "description": "Photography, retouching, and creative direction for brands.",
                 "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
                 "occupations": ["Photographer", "Graphic Designer", "Content Creator"],
