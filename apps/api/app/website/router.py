@@ -54,12 +54,11 @@ async def submit_beta_application(
     db: AsyncSession = Depends(get_db),
     name: str = Form(...),
     email: str = Form(...),
-    message: str = Form(...),
 ):
     feedback = FeedbackCreate(
         name=name,
         email=email,
-        message=message,
+        message="",
         feedback_type=FeedbackType.BETA_APPLICATION,
     )
     db_feedback = Feedback(**feedback.model_dump())
